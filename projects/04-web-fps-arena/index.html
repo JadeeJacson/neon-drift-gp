@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>火线 FIREROUND — 第一人称竞技射击</title>
+<style>
+  :root {
+    --bg: #0a0d12;
+    --fg: #e8eef6;
+    --accent: #ff6b35;
+    --dim: #7d8899;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%; overflow: hidden;
+    background: var(--bg); color: var(--fg);
+    font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    user-select: none;
+  }
+  #app { position: fixed; inset: 0; }
+  canvas { display: block; width: 100%; height: 100%; }
+
+  /* ---- HUD（由 src/ui/hud.ts 注入内容，这里只给容器） ---- */
+  #hud { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
+
+  #vignette {
+    position: fixed; inset: 0; pointer-events: none; z-index: 11;
+    box-shadow: inset 0 0 220px 40px rgba(0,0,0,0.75);
+    opacity: 0.9;
+  }
+  #damage-flash {
+    position: fixed; inset: 0; pointer-events: none; z-index: 12;
+    background: radial-gradient(ellipse at center, rgba(255,0,0,0) 45%, rgba(220,20,40,0.55) 100%);
+    opacity: 0; transition: opacity 120ms linear;
+  }
+
+  /* ---- 覆盖层：开始 / 暂停 / 结算 ---- */
+  #overlay {
+    position: fixed; inset: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(6, 9, 14, 0.86); backdrop-filter: blur(3px);
+  }
+  #overlay.hidden { display: none; }
+  .panel {
+    width: min(560px, 88vw); padding: 28px 32px;
+    border: 1px solid rgba(255,107,53,0.35); border-radius: 14px;
+    background: linear-gradient(160deg, rgba(20,26,36,0.96), rgba(10,14,20,0.96));
+    box-shadow: 0 24px 70px rgba(0,0,0,0.6);
+  }
+  .panel h1 {
+    margin: 0 0 4px; font-size: 30px; letter-spacing: 3px; font-weight: 700;
+    color: var(--accent); text-transform: uppercase;
+  }
+  .panel h2 { margin: 0 0 18px; font-size: 14px; font-weight: 500; color: var(--dim); letter-spacing: 1px; }
+  .panel p { margin: 10px 0; font-size: 14px; line-height: 1.7; color: #c4cdda; }
+  .keys { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 16px 0 8px; font-size: 13px; }
+  .keys b {
+    color: var(--fg); background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.14); border-radius: 5px;
+    padding: 1px 8px; font-weight: 600; justify-self: start; font-size: 12px;
+  }
+  .keys span { color: #aab4c4; align-self: center; }
+  .btn {
+    margin-top: 20px; width: 100%; padding: 13px; cursor: pointer;
+    font-size: 15px; font-weight: 700; letter-spacing: 2px;
+    color: #12161d; background: var(--accent); border: 0; border-radius: 9px;
+    font-family: inherit; transition: filter 120ms, transform 120ms;
+  }
+  .btn:hover { filter: brightness(1.12); transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .stats { margin-top: 14px; font-size: 13px; color: #96a1b2; line-height: 1.9; }
+  .stats b { color: var(--fg); font-weight: 600; }
+  .hint { margin-top: 14px; font-size: 12px; color: #6c7788; text-align: center; }
+</style>
+</head>
+<body>
+  <div id="app"></div>
+  <div id="hud"></div>
+  <div id="vignette"></div>
+  <div id="damage-flash"></div>
+
+  <div id="overlay">
+    <div class="panel" id="panel">
+      <h1>火线 FIREROUND</h1>
+      <h2>第一人称竞技射击 · 5 波生存</h2>
+      <p>在竞技场中活下来。三种武器、三种敌人，清完 5 波即为胜利。</p>
+      <div class="keys">
+        <b>W A S D</b><span>移动 · <b>Shift</b> 疾跑 · <b>空格</b> 跳跃</span>
+        <b>鼠标</b><span>转视角 · <b>左键</b> 开火 · <b>R</b> 换弹</span>
+        <b>1 2 3</b><span>手枪 / 步枪 / 霰弹枪</span>
+        <b>Esc</b><span>释放鼠标 · <b>Enter</b> 结算后重开</span>
+      </div>
+      <p style="color:#8892a3;font-size:13px">
+        命中头部伤害翻倍。波次之间会补充弹药并恢复部分生命。
+      </p>
+      <button class="btn" id="start-btn">点击开始</button>
+      <div class="hint">开始后鼠标将被锁定，按 Esc 释放</div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

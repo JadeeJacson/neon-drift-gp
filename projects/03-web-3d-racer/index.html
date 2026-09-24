@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>弯心 APEX · 3D 赛车</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 100%; height: 100%; overflow: hidden; background: #05070c;
+        font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
+      canvas { display: block; }
+      .hud { position: fixed; inset: 0; pointer-events: none; color: #fff;
+        text-shadow: 0 2px 6px rgba(0,0,0,.6); user-select: none; }
+      .hud-tl { position: absolute; top: 18px; left: 22px; }
+      .hud-tl .lap { font-size: 30px; font-weight: 700; letter-spacing: 1px; }
+      .hud-tl .pos { font-size: 20px; opacity: .9; }
+      .hud-tl .time { font-size: 22px; margin-top: 6px; font-variant-numeric: tabular-nums; }
+      .hud-tl .best { font-size: 15px; opacity: .75; margin-top: 2px; }
+      .hud-br { position: absolute; bottom: 22px; right: 28px; text-align: right; }
+      .hud-br .speed { font-size: 64px; font-weight: 800; line-height: 1;
+        font-variant-numeric: tabular-nums; }
+      .hud-br .unit { font-size: 16px; opacity: .8; }
+      .hud-msg { position: absolute; top: 40%; left: 0; right: 0; text-align: center;
+        font-size: 54px; font-weight: 800; white-space: pre-line; }
+      .hud-help { position: absolute; bottom: 18px; left: 22px; font-size: 13px;
+        opacity: .6; line-height: 1.6; white-space: pre-line; }
+      .hud-drift { position: absolute; top: 18%; left: 0; right: 0; text-align: center;
+        font-size: 42px; font-weight: 800; color: #ff4444;
+        text-shadow: 0 0 20px #ff4444, 0 2px 4px #000;
+        display: none; animation: pulse .3s infinite alternate; }
+      @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.08); } }
+      .hud-lastlap { position: absolute; top: 110px; left: 22px; font-size: 15px;
+        opacity: .8; color: #8ce06a; font-variant-numeric: tabular-nums; }
+    </style>
+  </head>
+  <body>
+    <!-- 动态 HUD（圈数/名次/计时/速度/提示）由 src/ui/hud.ts 注入；此处仅保留帮助文案 -->
+    <div class="hud">
+      <div class="hud-help">W/↑ 油门 · S/↓ 刹车/倒车 · A/D 转向 · 空格 手刹漂移 · R 重置
+1–5 切换赛道 · Enter 完赛后重开</div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

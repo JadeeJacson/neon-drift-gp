@@ -1,0 +1,47 @@
+# 引擎与工具：体积大，不入版本控制，仅保留说明
+engines/*
+!engines/README.md
+
+# 依赖
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+
+# 构建产物
+dist/
+build/
+out/
+*.pck
+
+# Godot 工程缓存
+.godot/
+*.import.bak
+
+# Unity 工程缓存
+Library/
+Temp/
+Obj/
+Logs/
+UserSettings/
+*.csproj
+*.sln
+
+# Blender 备份
+*.blend1
+*.blend2
+
+# 编辑器
+.vscode/
+.idea/
+
+# 临时与日志
+_scratch/
+_tmp/
+*.log
+
+# AI 助手运行时数据
+.workbuddy/
+
+# 文件备份（修复过程中产生的 *.bak-YYYYMMDD 临时副本）
+*.bak-*
