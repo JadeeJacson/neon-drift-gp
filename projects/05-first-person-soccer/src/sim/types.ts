@@ -43,7 +43,11 @@ export interface ActorView {
   id: number;
   team: Team;
   role: 'striker' | 'keeper';
+  /** 胶囊体中心（物理真值）。注意 y 不是脚底 —— 脚底见 footY */
   pos: Vec3;
+  /** 模型脚底的世界 y = 胶囊中心 y − (halfHeight + radius)。
+   *  渲染模型原点画在脚底，直接用 pos.y 会整体浮空（实测浮空 0.95m）。 */
+  footY: number;
   yaw: number;
   /** 踢球动作剩余时间（>0 时抬腿） */
   kickAnim: number;

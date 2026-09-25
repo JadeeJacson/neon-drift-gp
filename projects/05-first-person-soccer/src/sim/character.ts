@@ -66,6 +66,11 @@ export class Character {
     return { x: t.x, y: t.y, z: t.z };
   }
 
+  /** 模型脚底的世界 y（渲染用）：胶囊中心 − (halfHeight + radius) */
+  footY(): number {
+    return this.body.translation().y - (this.opts.halfHeight + this.opts.radius);
+  }
+
   eye(eyeOffset: number): Vec3 {
     const t = this.body.translation();
     return { x: t.x, y: t.y + eyeOffset, z: t.z };

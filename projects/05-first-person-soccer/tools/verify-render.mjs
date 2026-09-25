@@ -133,16 +133,21 @@ const p0 = await ev('window.__ball.state().pos');
 await ev('window.__ball.setInput({ forward: 1 })');
 await sleep(1800);
 const p1 = await ev('window.__ball.state().pos');
-await ev('window.__ball.setInput({ forward: 0 })');
+await ev('window.__ball.clearInput()'); // 清空注入（否则 forward 会带进 R6，玩家边走边"踢"必然落空）
 const moved = Math.hypot(p1.x - p0.x, p1.z - p0.z);
 check('R5 注入前进后玩家位移（输入→sim 链路通）', moved > 0.3, `Δ=${moved.toFixed(2)}m`);
 
-// R6 踢球链路：把球放到玩家脚前，蓄力后松开
-await ev('window.__ball.debugPlaceBall(-5.0, 0)');
+// R6 踢球链路（确定性写法）：
+// 把球放在玩家脚前 0.6m（< 0.95 任意朝向可踢），玩家停住 → 蓄力 → 松开。
+// 旧写法把球放在固定点 (-5,0)，但玩家 R5 后已走到 x≈+4.4 —— 根本不在踢球范围，
+// 上次"通过"其实是 AI 前锋碰巧踢了球，属于 flaky（本次复跑即失败）。
+await ev('window.__ball.setLook(' + Math.PI / 2 + ', 0)'); // 面向 -X，把球踢离 AI 密集区
+const pNow = await ev('window.__ball.state().pos');
+await ev(`window.__ball.debugPlaceBall(${(pNow.x - 0.6).toFixed(2)}, ${pNow.z.toFixed(2)})`);
 await sleep(200);
 const audioBefore = await ev('window.__ball.audioInfo()');
 await ev('window.__ball.setInput({ kick: true })');
-await sleep(900);
+await sleep(700);
 await ev('window.__ball.setInput({ kick: false })');
 await sleep(300);
 const ballAfter = await ev('window.__ball.ball()');
@@ -154,18 +159,27 @@ check(
   `state=${audioAfter.state} count=${audioBefore.playCount}→${audioAfter.playCount} last=${audioAfter.last}`,
 );
 
-// R7 进球链路：把球放到对方门前，踢进去
+// R7 进球链路（确定性写法）：
+// 直射球门正中会被守门员挡下（它跟球横移，放置瞬间球 z=0 → 守门员就在射线上，
+// 上次通过纯属守门员恰好不在位）。改为**打守门员对侧的远角**：
+// 球 0.23s 到门线，守门员速度 3.2 m/s 只能横移 0.74m，够不到 2.9m 的远角。
+const kz = Number(await ev('window.__ball.actors().find(a => a.id === 2).pos.z'));
+const corner = (kz >= 0 ? -1 : 1) * 2.9;
 const scoreBefore = await ev('window.__ball.state().scoreBlue');
 await ev('window.__ball.debugPlaceBall(17, 0)');
 await sleep(150);
-await ev('window.__ball.debugKickBall(1, 0.05, 0, 16)');
+await ev(`window.__ball.debugKickBall(1, 0.05, ${(corner / 5.2).toFixed(3)}, 23)`);
 let scoreAfter = scoreBefore;
 for (let i = 0; i < 12; i++) {
   await sleep(300);
   scoreAfter = await ev('window.__ball.state().scoreBlue');
   if (scoreAfter > scoreBefore) break;
 }
-check('R7 球进对方球门触发进球（比分 +1）', scoreAfter > scoreBefore, `scoreBlue ${scoreBefore}→${scoreAfter}`);
+check(
+  'R7 球进对方球门触发进球（比分 +1）',
+  scoreAfter > scoreBefore,
+  `scoreBlue ${scoreBefore}→${scoreAfter}（守门员 z=${kz.toFixed(2)}，打远角 z=${corner}）`,
+);
 
 // R10 方块人视图：前锋 + 守门员
 const roles = await ev('window.__ball.actors().map(a => a.role)');
@@ -173,6 +187,15 @@ check(
   'R10 方块人视图（前锋 + 守门员）',
   Array.isArray(roles) && roles.includes('striker') && roles.includes('keeper'),
   Array.isArray(roles) ? roles.join(',') : String(roles),
+);
+
+// R12 角色脚底贴地（回归断言：曾因把胶囊中心当脚底，全体角色浮空 0.95m）
+const feet = await ev('[1,2,3].map(id => window.__ball.debugActorFeetY(id))');
+const worstY = Array.isArray(feet) ? Math.max(...feet.map((y) => Math.abs(Number(y)))) : NaN;
+check(
+  'R12 角色模型脚底贴地（|y| < 0.05）',
+  Number.isFinite(worstY) && worstY < 0.05,
+  `feetY=[${Array.isArray(feet) ? feet.map((y) => Number(y).toFixed(3)).join(', ') : String(feet)}]`,
 );
 
 // R9 渲染统计（强制渲染一帧再读）

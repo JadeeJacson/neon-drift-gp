@@ -68,6 +68,14 @@ export class ActorRenderer {
     }
   }
 
+  /** 调试/验证：模型原点（脚底）的世界 y —— 站地时应 ≈ 0 */
+  worldFeetY(id: number): number {
+    const node = this.nodes.get(id);
+    if (!node) return NaN;
+    node.group.updateWorldMatrix(true, false);
+    return node.group.matrixWorld.elements[13];
+  }
+
   private create(v: ActorView): BlockNode {
     const mats = makeMats(v.role, v.team);
     const group = new THREE.Group();
@@ -127,7 +135,9 @@ export class ActorRenderer {
   }
 
   private apply(node: BlockNode, v: ActorView, dt: number): void {
-    node.group.position.set(v.pos.x, v.pos.y, v.pos.z);
+    // 模型原点在脚底；v.pos 是胶囊中心（站立时 y ≈ halfHeight+radius ≈ 0.95m），
+    // 直接用会把整个人抬到半空 —— 必须用 footY
+    node.group.position.set(v.pos.x, v.footY, v.pos.z);
     node.group.rotation.y = v.yaw;
 
     // 位移 → 速度 → 摆臂相位
@@ -144,13 +154,16 @@ export class ActorRenderer {
     node.legL.rotation.x = -swing;
     node.legR.rotation.x = swing;
 
-    // 踢球：右腿前摆 + 躯干前倾
+    // 踢球：右腿前摆 + 躯干前倾。
+    // 符号约定：模型面朝 -Z，肢体挂在 pivot 上向下垂（局部 -Y），
+    // rotation.x 为正 = 向前摆（-Z 方向），为负 = 向后摆。
+    // 最初写成负号，踢腿看起来是「向后踢」。
     const t = Math.max(0, Math.min(1, v.kickAnim / 0.35));
     if (t > 0) {
-      node.legR.rotation.x = -1.3 * t;
-      node.legL.rotation.x = 0.35 * t;
-      node.armL.rotation.x = -0.5 * t;
-      node.torso.rotation.x = 0.12 * t;
+      node.legR.rotation.x = 1.3 * t;
+      node.legL.rotation.x = -0.35 * t; // 支撑腿微向后
+      node.armL.rotation.x = 0.5 * t; // 对侧臂前摆维持平衡
+      node.torso.rotation.x = -0.12 * t; // 上身微前倾
     } else {
       node.torso.rotation.x = 0;
     }

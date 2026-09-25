@@ -51,7 +51,7 @@ npm run typecheck        # tsc --noEmit
 npm run bot              # bot 跑分 11 项断言（球物理 / 进球闭环 / AI 威胁 / 确定性 / 围板 / 端到端）
 npm run trace -- bot 60  # 逐采样打印球与角色位置、bot 状态标志（调参诊断用）
 npm run verify 9222 http://127.0.0.1:5182/ F:/Dev/Projects/game-lab/_tmp
-                         # CDP 端到端验证（12 项断言）
+                         # CDP 端到端验证（13 项断言）
 npm run build            # 生产打包
 npm run preview
 ```
@@ -105,22 +105,27 @@ npm run preview
 - F2 每场都能终止 —— 3 场全部 `5:3 phase=won t=56s`
 - `[数据]` bot 胜 3/3 场（**不作断言**：AI 强度属调参范围，不是正确性）
 
-### CDP 端到端 12/12（无头 Chrome + SwiftShader）
+### CDP 端到端 13/13（无头 Chrome + SwiftShader）
 
-**环境说明**：真 GPU 路径（`--use-angle=gl`）在无头环境不稳定，改用 `--use-gl=angle --use-angle=swiftshader` 软件渲染。我们只断言 draw call / 三角面数等**计数型**指标（不依赖渲染器速度），所以对结论有效性无影响——只是不能拿来谈帧率。
+**环境说明**：真 GPU 路径（`--use-angle=gl`）在无头环境不稳定，改用 `--use-gl=angle --use-angle=swiftshader` 软件渲染。我们只断言 draw call / 三角面数等**计数型**指标（不依赖渲染器速度），所以对结论有效性无影响——只是不能拿来谈帧率。另加 `--autoplay-policy=no-user-gesture-required`；即便如此无头下 AudioContext 仍可能停在 `suspended`（无手势 resume 的环境边界），所以音频只断言**事件计数**在涨，不断言 `running`。
 
 - R0 页面加载并暴露 `__ball` 接口
 - R2 WebGL2 可用（ANGLE / Vulkan / SwiftShader）
 - R3 开始后进入 `playing` 且时间推进
 - R4 球与方块人存在（ball + 3 actors）
-- R5 注入前进 → 位移 Δ = 10.26m
-- R6 蓄力松开 → 球速 7.7 m/s
-- R6b 音效硬指标：AudioContext running、事件计数 13→15
-- R7 球进对方球门 → 比分 0→1
+- R5 注入前进 → 位移 Δ ≈ 10.5m
+- R6 蓄力松开 → 球速 ≈ 21 m/s
+- R6b 音效硬指标：事件计数 14→16（state=suspended 属无头环境边界，不作断言）
+- R7 球进对方球门 → 比分 0→1（**打守门员对侧远角**，见下方"确定性写法"）
 - R10 方块人视图（striker + keeper × 2）
-- R9 drawCalls=39 / triangles=1804 / programs=9
-- R11 截图 138KB（>25KB 阈值）
+- **R12 角色模型脚底贴地**（`|feetY| < 0.05`，实测 0.010）—— 回归断言：曾因把胶囊中心当脚底，全体角色浮空 0.95m
+- R9 drawCalls≈42 / triangles≈1250 / programs=9
+- R11 截图 ≈145KB（>25KB 阈值）
 - R1 全程零运行时报错
+
+**R6/R7 的确定性写法（踩坑得来，别改回固定点）**：
+- R6 旧版把球放在固定点 `(-5,0)`，但玩家 R5 后已走到 x≈+4.4，根本不在踢球范围 —— 上次"球速 7.7"其实是 **AI 前锋碰巧踢的**，属于 flaky。改为：清空注入（否则残留的 `forward:1` 让玩家边走边"踢"必然落空）→ 读玩家当前位置 → 把球放在脚前 0.6m（<0.95 任意朝向可踢）→ 蓄力松开。
+- R7 旧版直射球门正中，而守门员跟球横移、放置瞬间球 z=0 → 守门员恰好在射线上，是否进球取决于它的位置。改为读守门员当前 z，**打对侧远角**（球 0.23s 到门线，守门员 3.2 m/s 只能横移 0.74m，够不到 2.9m 的远角）。
 
 ## 关键设计选择
 
@@ -156,6 +161,8 @@ npm run preview
 10. **Rapier 碰撞事件必须显式开启**：`ColliderDesc.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)`，否则 `drainCollisionEvents` 永远是空的。本轮踩到过"弹跳计数恒为 0"，就是这个原因。
 
 11. **确定性**：固定步长 1/60 + mulberry32 种子 + AI 无随机数 → 同 seed 同输入末态逐位一致（D1 断言）。这是 bot 跑分可复现的前提。
+
+12. **sim 给渲染的坐标必须声明语义**：`Character.pos()` 返回**胶囊体中心**（站立时 y = halfHeight + radius ≈ 0.95），而方块模型原点画在**脚底** —— 渲染直接用 `pos.y` 会全体浮空 0.95m（实装首日即踩，用户试玩才发现；第一人称看不到自己，所以只有"别人"浮空）。修复：`ActorView` 显式加 `footY` 字段、`Character.footY()` 提供换算，渲染层不自己猜偏移；并在 CDP 验证里加 R12 数值断言（脚底世界 y ≈ 0），这类纯视觉 bug 此后靠断言拦截，不靠人眼。
 
 ## 已知限制 / 后续
 

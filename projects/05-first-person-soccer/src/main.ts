@@ -79,8 +79,11 @@ function consume(events: SimEvent[]): void {
     switch (e.type) {
       case 'kick':
         audio.kick(e.power);
-        if (e.power > 14) rig.shake(0.12);
-        playerKickAnim = 0.3;
+        // 抬手与镜头震动只属于玩家本人：AI 在场地那头踢球不该晃玩家视角
+        if (e.actor === 'player') {
+          if (e.power > 14) rig.shake(0.12);
+          playerKickAnim = 0.3;
+        }
         break;
       case 'bounce':
         audio.bounce(e.speed);
@@ -260,6 +263,8 @@ export interface BallApi {
   debugPlaceBall(x: number, z: number): void;
   /** 调试：直接踢球（方向 + 力量） */
   debugKickBall(dx: number, dy: number, dz: number, power: number): void;
+  /** 调试/验证：指定角色模型原点（脚底）的世界 y —— 站地时应 ≈ 0 */
+  debugActorFeetY(id: number): number;
 }
 
 const api: BallApi = {
@@ -288,5 +293,6 @@ const api: BallApi = {
   debugKickBall: (dx, dy, dz, power) => {
     sim.ball.kick(normalize(v3(dx, dy, dz)), power);
   },
+  debugActorFeetY: (id) => actorRenderer.worldFeetY(id),
 };
 (window as unknown as { __ball: BallApi }).__ball = api;
