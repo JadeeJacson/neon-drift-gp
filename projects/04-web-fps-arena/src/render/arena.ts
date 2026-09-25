@@ -1,11 +1,11 @@
 /**
  * 竞技场几何 —— 全部程序化，零外部资产。
- * 纹理用 canvas 画（网格地面 / 金属箱面），与 sim 的 ARENA_BOXES 共用同一份布局数据，
+ * 纹理用 canvas 画（网格地面 / 金属箱面），布局由 sim 的 MapDef 传入，
  * 保证「看到的掩体」和「子弹撞到的掩体」是同一个。
  */
 import * as THREE from 'three';
 import { CONFIG } from '../core/config';
-import { ARENA_BOXES, arenaWalls } from '../sim/arena';
+import type { BoxObstacle } from '../sim/arena';
 
 /** 程序化地面纹理：深色底 + 网格线 + 噪点 */
 function groundTexture(): THREE.CanvasTexture {
@@ -79,29 +79,48 @@ function crateTexture(base: string, stripe: string): THREE.CanvasTexture {
   return tex;
 }
 
-export function buildArena(scene: THREE.Scene): void {
-  const half = CONFIG.arena.half;
+const SKIN: Record<string, { base: string; stripe: string; rough: number; metal: number }> = {
+  crate: { base: '#5a5348', stripe: 'rgba(220,180,70,0.55)', rough: 0.8, metal: 0.15 },
+  pillar: { base: '#39424f', stripe: 'rgba(150,190,240,0.30)', rough: 0.5, metal: 0.45 },
+  wall: { base: '#2f3742', stripe: 'rgba(255,120,60,0.35)', rough: 0.9, metal: 0.1 },
+  block: { base: '#4a4438', stripe: 'rgba(210,210,210,0.22)', rough: 0.85, metal: 0.1 },
+};
 
-  // 地面
+/** 纹理按 kind 缓存：原实现每个箱子新建一张 canvas，换图时会重复生成几十张 */
+const texCache = new Map<string, THREE.CanvasTexture>();
+let groundTex: THREE.CanvasTexture | null = null;
+
+function skinTex(kind: string): THREE.CanvasTexture {
+  const cached = texCache.get(kind);
+  if (cached) return cached;
+  const skin = SKIN[kind] ?? SKIN.block!;
+  const tex = crateTexture(skin.base, skin.stripe);
+  texCache.set(kind, tex);
+  return tex;
+}
+
+/**
+ * 构建竞技场几何，返回 Group —— 换图时由调用方 dispose 旧 Group 再重建。
+ * boxes 由 sim 传入（已含围墙），保证「看到的掩体」与「子弹撞到的掩体」是同一份数据。
+ */
+export function buildArena(scene: THREE.Scene, boxes: BoxObstacle[]): THREE.Group {
+  const half = CONFIG.arena.half;
+  const group = new THREE.Group();
+  group.name = 'arena';
+
+  if (!groundTex) groundTex = groundTexture();
+
   const ground = new THREE.Mesh(
     new THREE.PlaneGeometry(half * 2 + 8, half * 2 + 8),
-    new THREE.MeshStandardMaterial({ map: groundTexture(), roughness: 0.95, metalness: 0.05 }),
+    new THREE.MeshStandardMaterial({ map: groundTex, roughness: 0.95, metalness: 0.05 }),
   );
   ground.rotation.x = -Math.PI / 2;
   ground.name = 'ground';
-  scene.add(ground);
+  group.add(ground);
 
-  const SKIN: Record<string, { base: string; stripe: string; rough: number; metal: number }> = {
-    crate: { base: '#5a5348', stripe: 'rgba(220,180,70,0.55)', rough: 0.8, metal: 0.15 },
-    pillar: { base: '#39424f', stripe: 'rgba(150,190,240,0.30)', rough: 0.5, metal: 0.45 },
-    wall: { base: '#2f3742', stripe: 'rgba(255,120,60,0.35)', rough: 0.9, metal: 0.1 },
-    block: { base: '#4a4438', stripe: 'rgba(210,210,210,0.22)', rough: 0.85, metal: 0.1 },
-  };
-
-  const all = [...arenaWalls(), ...ARENA_BOXES];
-  for (const b of all) {
+  for (const b of boxes) {
     const skin = SKIN[b.kind] ?? SKIN.block!;
-    const map = b.kind === 'pillar' ? null : crateTexture(skin.base, skin.stripe);
+    const map = b.kind === 'pillar' ? null : skinTex(b.kind);
     const mat = new THREE.MeshStandardMaterial({
       map,
       color: map ? 0xffffff : new THREE.Color(skin.base).getHex(),
@@ -115,7 +134,7 @@ export function buildArena(scene: THREE.Scene): void {
     // 约定：sim 里 pos 是底面中心
     mesh.position.set(b.pos.x, b.pos.y + b.half.y, b.pos.z);
     mesh.name = `obstacle-${b.kind}`;
-    scene.add(mesh);
+    group.add(mesh);
   }
 
   // 边界警示环：让玩家一眼看出场地边界，避免撞墙困惑
@@ -130,5 +149,24 @@ export function buildArena(scene: THREE.Scene): void {
   );
   ring.rotation.x = -Math.PI / 2;
   ring.position.y = 0.02;
-  scene.add(ring);
+  group.add(ring);
+
+  scene.add(group);
+  return group;
+}
+
+/**
+ * 换图时释放旧竞技场（几何 + 材质）。
+ * 注意：纹理是共享缓存，Material.dispose() 不会连带释放 texture，所以这里不能碰 texCache。
+ */
+export function disposeArena(scene: THREE.Scene, group: THREE.Group | null): void {
+  if (!group) return;
+  group.traverse((o) => {
+    const mesh = o as THREE.Mesh;
+    mesh.geometry?.dispose();
+    const mat = mesh.material as THREE.Material | THREE.Material[] | undefined;
+    if (Array.isArray(mat)) mat.forEach((m) => m.dispose());
+    else mat?.dispose();
+  });
+  scene.remove(group);
 }

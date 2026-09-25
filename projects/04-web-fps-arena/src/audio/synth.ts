@@ -124,7 +124,7 @@ export class AudioEngine {
 
   // ---------------- 具体音效 ----------------
 
-  /** 开火：三把枪各有音色（手枪脆、步枪密、霰弹闷长） */
+  /** 开火：五把枪各有音色（手枪脆 / 步枪密 / 霰弹闷长 / SMG 薄快 / DMR 低沉） */
   shot(weapon: WeaponId): void {
     if (weapon === 'shotgun') {
       this.noise('shot', 1500, 90, 0.3, 0.55);
@@ -132,6 +132,14 @@ export class AudioEngine {
     } else if (weapon === 'pistol') {
       this.noise('shot', 5200, 600, 0.1, 0.4);
       this.blip('shot', 'sine', 180, 90, 0.11, 0.34);
+    } else if (weapon === 'smg') {
+      // 射速最高（0.065s/发）→ 音色必须最短最薄，否则连发会糊成一团噪音
+      this.noise('shot', 5600, 900, 0.055, 0.24);
+      this.blip('shot', 'square', 230, 130, 0.055, 0.2);
+    } else if (weapon === 'dmr') {
+      // 单发 48 伤害 → 低频冲击 + 长尾，听感上"很重"
+      this.noise('shot', 2600, 220, 0.22, 0.5);
+      this.blip('shot', 'sine', 95, 55, 0.3, 0.48);
     } else {
       this.noise('shot', 4200, 380, 0.085, 0.34);
       this.blip('shot', 'sine', 150, 85, 0.09, 0.3);

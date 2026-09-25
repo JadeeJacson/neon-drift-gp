@@ -99,7 +99,9 @@ export class Hud {
         <div id="ammonum">30</div>
         <div id="ammomag">/ 30</div>
         <div id="wname">RIFLE</div>
-        <div id="slots"><span data-s="0">1</span><span data-s="1">2</span><span data-s="2">3</span></div>
+        <div id="slots">${CONFIG.weapons
+          .map((_, i) => `<span data-s="${i}">${i + 1}</span>`)
+          .join('')}</div>
         <div id="rlbar"><div id="rlfill"></div></div>
       </div>
       <div id="help">鼠标转视角 · 左键开火 · R 换弹 · 1/2/3 切枪 · Shift 疾跑 · Esc 释放鼠标</div>

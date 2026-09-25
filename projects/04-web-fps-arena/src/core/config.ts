@@ -3,7 +3,7 @@
  * 全部数值为实测调校基线（2026-09-24），改动请同步 README 的「调参记录」。
  */
 
-export type WeaponId = 'pistol' | 'rifle' | 'shotgun';
+export type WeaponId = 'pistol' | 'rifle' | 'shotgun' | 'smg' | 'dmr';
 export type EnemyId = 'grunt' | 'rusher' | 'sniper';
 
 export interface WeaponDef {
@@ -190,6 +190,60 @@ export const CONFIG = {
       recoilRecover: 8,
       headshotMul: 1.5,
       color: 0x9ad14b,
+    },
+    {
+      id: 'smg',
+      name: '冲锋枪',
+      short: 'SMG',
+      // 近距压制：射速最快、弹匣最大，代价是伤害与射程都低于步枪
+      // DPS = 10/0.065 ≈ 154（步枪 174），但弹匣 45、换弹 1.6s，持续压制能力最强
+      damage: 10,
+      pellets: 1,
+      interval: 0.065,
+      auto: true,
+      spreadBase: 0.011,
+      spreadPerShot: 0.008,
+      spreadMax: 0.075,
+      spreadRecover: 0.06,
+      magazine: 45,
+      reloadTime: 1.6,
+      range: 38,
+      falloffStart: 12,
+      falloffEnd: 30,
+      falloffMin: 0.5,
+      recoilPitch: 0.008,
+      recoilYaw: 0.005,
+      recoilRecover: 15,
+      headshotMul: 1.6,
+      color: 0x5ad1c0,
+    },
+    {
+      id: 'dmr',
+      name: '精确射手步枪',
+      short: 'DMR',
+      // 远距精确：一发带走杂兵（grunt 45 / rusher 32 / sniper 38），精英 99hp 需 3 发
+      // DPS = 48/0.6 = 80，仍远低于步枪 174——用射速换取射程与单发效率。
+      // interval 从 0.85 降到 0.6、弹匣 8→10：原值下 bot 实测第 2 波就被冲锋兵冲死
+      // （3 个冲锋兵 6m/s 冲脸，0.85s 一发来不及逐个点掉），作为可用武器太脆。
+      damage: 48,
+      pellets: 1,
+      interval: 0.6,
+      auto: false,
+      spreadBase: 0.0006,
+      spreadPerShot: 0.005,
+      spreadMax: 0.014,
+      spreadRecover: 0.05,
+      magazine: 10,
+      reloadTime: 2.1,
+      range: 120,
+      falloffStart: 60,
+      falloffEnd: 110,
+      falloffMin: 0.8,
+      recoilPitch: 0.05,
+      recoilYaw: 0.004,
+      recoilRecover: 7,
+      headshotMul: 2.5,
+      color: 0xb388ff,
     },
   ] as WeaponDef[],
 

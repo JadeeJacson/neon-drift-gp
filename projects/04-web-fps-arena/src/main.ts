@@ -10,11 +10,12 @@ import { GameSim } from './sim/game';
 import { emptyInput } from './sim/types';
 import type { GameInput, SimEvent } from './sim/types';
 import { SceneRig } from './render/scene';
-import { buildArena } from './render/arena';
+import { buildArena, disposeArena } from './render/arena';
 import { EnemyRenderer, ViewModel } from './render/actors';
 import { Fx } from './render/fx';
 import { AudioEngine } from './audio/synth';
 import { Hud } from './ui/hud';
+import { DEFAULT_MAP_ID, MAPS } from './sim/arena';
 
 /** 取必需容器：缺了就是 index.html 结构错了，早失败比运行时 undefined 好查 */
 function need(id: string): HTMLElement {
@@ -28,16 +29,24 @@ const overlay = need('overlay');
 const panel = need('panel');
 
 const rig = new SceneRig(container);
-buildArena(rig.scene);
 const enemyRenderer = new EnemyRenderer(rig.scene);
 const fx = new Fx(rig.scene);
 const viewModel = new ViewModel(rig.camera);
 const hud = new Hud(hudRoot);
 const audio = new AudioEngine();
 
-let sim = await GameSim.create(1);
+/** 当前地图（bot 跑分基线固定用 DEFAULT_MAP_ID，改默认会失去与历史跑分的可比性） */
+let currentMapId = DEFAULT_MAP_ID;
+let sim = await GameSim.create(1, currentMapId);
+/** 竞技场几何：换图时必须 dispose 旧的再重建，否则新旧掩体会叠在一起 */
+let arenaGroup: ReturnType<typeof buildArena> | null = buildArena(rig.scene, sim.boxes);
 let seedCounter = 1;
 let running = false;
+
+function rebuildArena(): void {
+  disposeArena(rig.scene, arenaGroup);
+  arenaGroup = buildArena(rig.scene, sim.boxes);
+}
 
 // ---------------- 输入 ----------------
 const keys = new Set<string>();
@@ -65,9 +74,13 @@ function currentInput(): GameInput {
   input.fire = firing;
   input.yaw = look.yaw;
   input.pitch = look.pitch;
-  if (keys.has('Digit1')) input.slot = 0;
-  else if (keys.has('Digit2')) input.slot = 1;
-  else if (keys.has('Digit3')) input.slot = 2;
+  // 槽位按键按武器数量动态生成：加武器只改 config，不用动这里
+  for (let i = 0; i < CONFIG.weapons.length; i++) {
+    if (keys.has(`Digit${i + 1}`)) {
+      input.slot = i;
+      break;
+    }
+  }
   return Object.assign(input, injected);
 }
 
@@ -184,7 +197,7 @@ function frame(now: number): void {
     recoilPitch: sim.weapons.recoilPitch,
     recoilYaw: sim.weapons.recoilYaw,
   });
-  enemyRenderer.sync(sim.enemyViews());
+  enemyRenderer.sync(sim.enemyViews(), dt);
   fx.update(dt);
 
   const moving = Math.abs(lastInput.forward) + Math.abs(lastInput.right) > 0.1;
@@ -204,8 +217,17 @@ function frame(now: number): void {
 requestAnimationFrame(frame);
 
 // ---------------- 开始 / 结算 / 重开 ----------------
-function beginRun(): void {
+async function beginRun(): Promise<void> {
   audio.init();
+  // sim 在加载时就按默认地图建好了；开始前如果换了图，必须重建，
+  // 否则物理按新图、渲染还是旧图（或反之）——看到的掩体和子弹撞到的掩体不是同一个。
+  if (sim.map.id !== currentMapId) {
+    const next = await GameSim.create(seedCounter, currentMapId);
+    const old = sim;
+    sim = next;
+    old.dispose();
+    rebuildArena();
+  }
   overlay.classList.add('hidden');
   running = true;
   acc = 0;
@@ -224,11 +246,14 @@ function finish(won: boolean): void {
     <div class="stats">
       用时 <b>${mins}:${secs}</b> · 击杀 <b>${snap.kills}</b><br />
       命中率 <b>${accPct}%</b>（${snap.hits}/${snap.shots}） · 爆头 <b>${snap.headshots}</b><br />
-      剩余生命 <b>${Math.ceil(snap.hp)}</b>
+      剩余生命 <b>${Math.ceil(snap.hp)}</b> · 地图 <b>${sim.map.name}</b>
     </div>
+    <div class="maplbl">换一张地图</div>
+    <div class="maprow" id="map-row"></div>
     <button class="btn" id="again-btn">再来一局（Enter）</button>
     <div class="hint">点击后重新锁定鼠标</div>
   `;
+  renderMapOptions();
   overlay.classList.remove('hidden');
   const again = document.getElementById('again-btn');
   again?.addEventListener('click', () => void restart());
@@ -237,10 +262,11 @@ function finish(won: boolean): void {
 async function restart(): Promise<void> {
   seedCounter += 1;
   // 先建新世界再释放旧的：否则 rAF 空窗期会踩到已释放的 Rapier world（09 号项目的教训）
-  const next = await GameSim.create(seedCounter);
+  const next = await GameSim.create(seedCounter, currentMapId);
   const old = sim;
   sim = next;
   old.dispose();
+  rebuildArena();
   look.yaw = 0;
   look.pitch = 0;
   keys.clear();
@@ -248,18 +274,42 @@ async function restart(): Promise<void> {
   beginRun();
 }
 
+// ---------------- 地图选择 ----------------
+/**
+ * 从 MAPS 生成地图按钮。注意 finish() 会整体替换 panel.innerHTML，
+ * 所以结算面板出现后必须重新调用一次，否则「换一张地图」是空的。
+ */
+function renderMapOptions(): void {
+  const row = document.getElementById('map-row');
+  if (!row) return;
+  row.innerHTML = '';
+  for (const m of MAPS) {
+    const b = document.createElement('button');
+    b.className = 'mapopt' + (m.id === currentMapId ? ' on' : '');
+    b.textContent = m.name;
+    b.title = m.desc;
+    b.addEventListener('click', (ev) => {
+      ev.stopPropagation(); // 否则会触发 overlay 的「点击任意处即开始」
+      currentMapId = m.id;
+      renderMapOptions();
+    });
+    row.appendChild(b);
+  }
+}
+renderMapOptions();
+
 // ---------------- 事件绑定 ----------------
 overlay.addEventListener('click', (ev) => {
   const t = ev.target as HTMLElement | null;
   if (t?.id === 'start-btn' || t?.id === 'again-btn') return; // 按钮自己处理
   if (overlay.classList.contains('hidden')) return;
   if (sim.phase === 'won' || sim.phase === 'lost') void restart();
-  else beginRun();
+  else void beginRun();
 });
 
 document.getElementById('start-btn')?.addEventListener('click', (ev) => {
   ev.stopPropagation();
-  beginRun();
+  void beginRun();
   rig.renderer.domElement.requestPointerLock?.();
 });
 

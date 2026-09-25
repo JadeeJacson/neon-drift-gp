@@ -9,7 +9,8 @@
  */
 import RAPIER from '@dimforge/rapier3d-compat';
 import { CONFIG } from '../core/config';
-import { ARENA_BOXES, PLAYER_SPAWN, arenaWalls, pickSpawnPoint } from './arena';
+import { DEFAULT_MAP_ID, PLAYER_SPAWN, arenaWalls, findMap, pickSpawnPoint } from './arena';
+import type { BoxObstacle, MapDef } from './arena';
 import { Enemy } from './enemy';
 import { Player } from './player';
 import { WaveDirector, type SpawnRequest } from './waves';
@@ -41,6 +42,9 @@ export class GameSim {
   readonly wave: WaveDirector;
   readonly enemies: Enemy[] = [];
   readonly stats: GameStats = { shots: 0, hits: 0, headshots: 0, kills: 0 };
+  /** 当前地图（预设布局，不是随机生成——随机会让 bot 跑分不可比） */
+  readonly map: MapDef;
+  readonly boxes: BoxObstacle[];
 
   phase: 'ready' | 'playing' | 'won' | 'lost' = 'ready';
   time = 0;
@@ -50,8 +54,10 @@ export class GameSim {
   private nextId = 1;
   private events: SimEvent[] = [];
 
-  private constructor(seed: number) {
+  private constructor(seed: number, mapId: string) {
     this.rand = mulberry32(seed);
+    this.map = findMap(mapId);
+    this.boxes = [...this.map.boxes, ...arenaWalls()];
     this.world = new RAPIER.World({ x: 0, y: CONFIG.physics.gravity, z: 0 });
     this.world.timestep = CONFIG.physics.fixedDt;
     this.buildStatic();
@@ -60,9 +66,9 @@ export class GameSim {
     this.wave = new WaveDirector(this.rand);
   }
 
-  static async create(seed = 1): Promise<GameSim> {
+  static async create(seed = 1, mapId: string = DEFAULT_MAP_ID): Promise<GameSim> {
     await ensureRapier();
-    return new GameSim(seed);
+    return new GameSim(seed, mapId);
   }
 
   private buildStatic(): void {
@@ -72,7 +78,7 @@ export class GameSim {
     );
     this.world.createCollider(RAPIER.ColliderDesc.cuboid(half + 4, 0.5, half + 4), ground);
 
-    for (const b of [...arenaWalls(), ...ARENA_BOXES]) {
+    for (const b of this.boxes) {
       const rb = this.world.createRigidBody(
         RAPIER.RigidBodyDesc.fixed().setTranslation(b.pos.x, b.pos.y + b.half.y, b.pos.z),
       );
@@ -225,7 +231,7 @@ export class GameSim {
   }
 
   private spawn(req: SpawnRequest): void {
-    const p = pickSpawnPoint(this.rand, this.player.pos());
+    const p = pickSpawnPoint(this.rand, this.player.pos(), this.boxes);
     const e = new Enemy(this.world, this.nextId++, req.kind, req.elite, p, this.rand);
     this.enemies.push(e);
     this.byCollider.set(e.collider.handle, e);

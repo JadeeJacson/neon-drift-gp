@@ -14,6 +14,16 @@ interface EnemyNode {
   body: THREE.Mesh;
   head: THREE.Mesh;
   visor: THREE.Mesh;
+  /**
+   * 四肢：每根挂在自己的 pivot Group 上（pivot 在肩/髋，mesh 向下偏移半个长度），
+   * 所以「转 pivot」就是摆臂摆腿，不需要骨骼系统。
+   * 顺序固定为 [左臂, 左腿, 右臂, 右腿]。
+   */
+  limbs: THREE.Group[];
+  /** 步行相位：由真实位移累积，走得越快摆得越快（不是凭空播动画） */
+  phase: number;
+  lastX: number;
+  lastZ: number;
   mat: THREE.MeshStandardMaterial;
   headMat: THREE.MeshStandardMaterial;
 }
@@ -27,8 +37,11 @@ export class EnemyRenderer {
     scene.add(this.root);
   }
 
-  /** 用 sim 的 EnemyView 同步（sim 是唯一真相源，渲染层不持有逻辑状态） */
-  sync(views: EnemyView[]): void {
+  /**
+   * 用 sim 的 EnemyView 同步（sim 是唯一真相源，渲染层不持有逻辑状态）。
+   * dt 用于从位移反推移动速度，进而驱动摆臂——所以动画幅度是「真走了多快」决定的。
+   */
+  sync(views: EnemyView[], dt = 1 / 60): void {
     const seen = new Set<number>();
 
     for (const v of views) {
@@ -39,16 +52,17 @@ export class EnemyRenderer {
         this.nodes.set(v.id, node);
         this.root.add(node.group);
       }
-      this.apply(node, v);
+      this.apply(node, v, dt);
     }
 
     // 清理 sim 里已经不存在的
     for (const [id, node] of this.nodes) {
       if (seen.has(id)) continue;
       this.root.remove(node.group);
-      node.body.geometry.dispose();
-      node.head.geometry.dispose();
-      node.visor.geometry.dispose();
+      // 四肢/肩甲/枪管都是动态加的，遍历释放比逐个列名字可靠（漏一个就泄漏）
+      node.group.traverse((o) => {
+        (o as THREE.Mesh).geometry?.dispose();
+      });
       node.mat.dispose();
       node.headMat.dispose();
       this.nodes.delete(id);
@@ -76,16 +90,19 @@ export class EnemyRenderer {
     });
 
     const group = new THREE.Group();
-    const body = new THREE.Mesh(
-      new THREE.CapsuleGeometry(def.radius * s, def.halfHeight * 2 * s, 6, 14),
-      mat,
-    );
+    const limbs: THREE.Group[] = [];
+    const r = def.radius * s;
+    const hh = def.halfHeight * s;
+
+    // 躯干：略收窄、只占上半段的胶囊，下半留给腿（原来是整根胶囊，看着像个胶囊罐）
+    const body = new THREE.Mesh(new THREE.CapsuleGeometry(r * 0.86, hh * 1.05, 6, 12), mat);
+    body.position.y = hh * 0.42;
     // sim 的 center() 是胶囊中心，渲染直接用它
     group.add(body);
 
-    const headR = def.radius * s * 0.62;
+    const headR = r * 0.6;
     const head = new THREE.Mesh(new THREE.SphereGeometry(headR, 14, 10), headMat);
-    head.position.y = (def.halfHeight + def.radius * 0.55) * s;
+    head.position.y = hh + r * 0.62;
     group.add(head);
 
     // 面罩：朝向指示 + 出手预警的发光点
@@ -96,12 +113,85 @@ export class EnemyRenderer {
     visor.position.set(0, head.position.y, -headR * 0.85);
     group.add(visor);
 
-    return { group, body, head, visor, mat, headMat };
+    // 四肢：pivot 在肩/髋，mesh 在 pivot 内部向下偏移半个长度 → 转 pivot 即摆臂摆腿
+    const armH = hh * 1.15;
+    const legH = hh * 1.35;
+    for (const side of [-1, 1] as const) {
+      const shoulder = new THREE.Group();
+      shoulder.position.set(side * r * 0.92, hh * 0.92, 0);
+      const arm = new THREE.Mesh(new THREE.BoxGeometry(r * 0.34, armH, r * 0.34), mat);
+      arm.position.y = -armH / 2;
+      shoulder.add(arm);
+      group.add(shoulder);
+      limbs.push(shoulder);
+
+      const hip = new THREE.Group();
+      hip.position.set(side * r * 0.42, -hh * 0.35, 0);
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(r * 0.44, legH, r * 0.44), mat);
+      leg.position.y = -legH / 2;
+      hip.add(leg);
+      group.add(hip);
+      limbs.push(hip);
+
+      // 肩甲：让剪影从「胶囊」变成「有肩膀的机兵」
+      const pad = new THREE.Mesh(new THREE.BoxGeometry(r * 0.5, r * 0.34, r * 0.62), headMat);
+      pad.position.set(side * r * 0.9, hh * 0.98, 0);
+      group.add(pad);
+    }
+
+    // 类型差异化：三种敌人要能在剪影上一眼分辨，不能只靠颜色
+    if (v.kind === 'rusher') {
+      // 冲锋兵：前倾 + 更长的腿，静态剪影就是「在冲」
+      body.rotation.x = 0.16;
+      for (const l of limbs) l.scale.y = 1.16;
+    } else if (v.kind === 'sniper') {
+      // 狙击手：扛一根长枪管——最远的威胁必须能提前认出来
+      const barrel = new THREE.Mesh(new THREE.BoxGeometry(r * 0.16, r * 0.16, hh * 2.6), headMat);
+      barrel.position.set(r * 0.75, hh * 0.55, -r * 0.2);
+      barrel.rotation.y = 0.12;
+      group.add(barrel);
+    }
+    if (v.elite) {
+      // 精英：胸口装甲板 + 金色，远看就知道不好惹
+      const plate = new THREE.Mesh(new THREE.BoxGeometry(r * 1.1, hh * 0.5, r * 0.35), headMat);
+      plate.position.set(0, hh * 0.62, -r * 0.72);
+      group.add(plate);
+    }
+
+    return {
+      group,
+      body,
+      head,
+      visor,
+      limbs,
+      phase: 0,
+      lastX: v.pos.x,
+      lastZ: v.pos.z,
+      mat,
+      headMat,
+    };
   }
 
-  private apply(node: EnemyNode, v: EnemyView): void {
+  private apply(node: EnemyNode, v: EnemyView, dt: number): void {
     node.group.position.set(v.pos.x, v.pos.y, v.pos.z);
     node.group.rotation.y = v.yaw;
+
+    // 走路摆臂：位移 → 速度 → 相位。站定就不摆、跑起来摆幅大，
+    // 幅度完全由 sim 的真实移动决定，不是渲染层自己编的动画。
+    const moved = Math.hypot(v.pos.x - node.lastX, v.pos.z - node.lastZ);
+    node.lastX = v.pos.x;
+    node.lastZ = v.pos.z;
+    const speed = dt > 1e-6 ? moved / dt : 0;
+    node.phase += speed * dt * 2.4;
+    const amp = Math.min(1, speed / 3.2) * 0.62;
+    const swing = Math.sin(node.phase) * amp;
+    const [armL, legL, armR, legR] = node.limbs;
+    if (armL && legL && armR && legR) {
+      armL.rotation.x = swing;
+      armR.rotation.x = -swing;
+      legL.rotation.x = -swing;
+      legR.rotation.x = swing;
+    }
 
     // 受击闪白
     const flash = Math.min(1, v.flash / 0.12);
@@ -204,6 +294,44 @@ export class ViewModel {
       rail.position.set(0, 0.08, -0.2);
       g.add(body, mag, grip, rail);
       g.position.set(0.18, -0.18, -0.42);
+      g.scale.setScalar(0.72);
+    } else if (id === 'smg') {
+      // 紧凑短枪身 + 鼓形弹匣：一眼区别于步枪的修长轮廓
+      const body = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.1, 0.3), metal);
+      body.position.set(0, 0, -0.09);
+      const drum = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.055, 12), metal);
+      drum.rotation.z = Math.PI / 2;
+      drum.position.set(0, -0.11, -0.04);
+      const grip = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.13, 0.07), metal);
+      grip.position.set(0, -0.1, 0.06);
+      grip.rotation.x = -0.22;
+      const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.16, 8), metal);
+      barrel.rotation.x = Math.PI / 2;
+      barrel.position.set(0, 0.015, -0.3);
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.028, 0.2), accent);
+      rail.position.set(0, 0.07, -0.12);
+      g.add(body, drum, grip, barrel, rail);
+      g.position.set(0.18, -0.18, -0.42);
+      g.scale.setScalar(0.72);
+    } else if (id === 'dmr') {
+      // 长枪管 + 瞄准镜 + 枪托：最长的轮廓，配合最低射速形成视觉暗示
+      const body = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.11, 0.5), metal);
+      body.position.set(0, 0, -0.14);
+      const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.42, 8), metal);
+      barrel.rotation.x = Math.PI / 2;
+      barrel.position.set(0, 0.01, -0.52);
+      const scope = new THREE.Mesh(new THREE.CylinderGeometry(0.036, 0.036, 0.2, 10), accent);
+      scope.rotation.x = Math.PI / 2;
+      scope.position.set(0, 0.11, -0.16);
+      const stock = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.1, 0.18), metal);
+      stock.position.set(0, -0.02, 0.2);
+      const grip = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.13, 0.07), metal);
+      grip.position.set(0, -0.1, 0.06);
+      grip.rotation.x = -0.18;
+      const mag = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.12, 0.08), metal);
+      mag.position.set(0, -0.1, -0.08);
+      g.add(body, barrel, scope, stock, grip, mag);
+      g.position.set(0.18, -0.18, -0.38);
       g.scale.setScalar(0.72);
     } else {
       const body = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.12, 0.42), metal);

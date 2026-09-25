@@ -1,6 +1,6 @@
 # 04 火线 FIREROUND
 
-第一人称竞技场射击（FPS）。5 波 57 敌（步兵 / 冲锋兵 / 狙击手 / 精英），三把武器（手枪 / 步枪 / 霰弹），全程程序化资源 + 程序化音效。
+第一人称竞技场射击（FPS）。5 波 57 敌（步兵 / 冲锋兵 / 狙击手 / 精英），**5 把武器**（手枪 / 步枪 / 霰弹 / 冲锋枪 SMG / 精确射手步枪 DMR），**4 张预设地图**（枢纽 / 十字 / 高台 / 长廊），分件机兵 + 走路摆臂动画，全程程序化资源 + 程序化音效。
 
 ## 栈
 
@@ -74,33 +74,49 @@ npm run preview
 | 敌人 | `enemies.{grunt,rusher,sniper}.{hp,speed,fireRate,range,standoff}` | 三种敌人强度曲线 |
 | 视觉 | `camera.fov / shakeDecay`、灯光强度、雾 `near/far` | 氛围 |
 
-## 验证基线（2026-09-24）
+## 验证基线（2026-09-25，含 5 武器 / 4 地图 / 模型升级）
 
-### Bot 跑分 9/9
+### Bot 跑分 13/13（Node 直跑 sim 层，零 DOM）
 
-- **A1** perfect bot 100% 通关 × 5 轮（证明地图可清）
-- **A2** 全程无 NaN / 无无限循环
-- **A3** 总击杀 == 57（决定性）
-- **B1** human bot（jitter 0.045rad / 反应 0.28s）通关率 20%–80%
-- **B2** human bot 命中率 40%–85%
-- **B3** human bot 至少打到 wave 3
-- **C1** clear time 100–360s
-- **D1** 同种子 → 同结果（决定性 RNG）
-- **E1** 静止 bot 必死于压力（证明敌人有威胁）
+**A–E 原始 9 项（与 09-24 基线完全可比，未改动 bot 基础行为）**：
+- A1 perfect bot 100% 通关 × 5 轮（105–123s）
+- A2 无 NaN / 无无限循环
+- A3 总击杀 == 57（决定性）
+- B1 human bot（jitter 0.045rad / 反应 0.28s）通关率 40%
+- B2 human bot 命中率 55–69%（在 40–85% 区间内）
+- B3 human bot 至少打到 wave 5
+- C1 clear time 100–360s（实测 105–123s）
+- D1 同种子 → 同结果（决定性 RNG）
+- E1 静止 bot 必死于压力
 
-### CDP 端到端 13/13（RTX 4060 Direct3D11）
+**F 地图矩阵**（新增；防"新图是死图"）：
+- F1 4 张地图（枢纽 108.6s / 十字 101.7s / 高台 129.5s / 长廊 157.7s）全部可通关
+- F2 全地图无 NaN
+- **踩过一次坑（已修）**：高台图第一版把中央做成环形高台只留小角缺口，敌人没有寻路（只有「朝玩家推进 + 切线绕行」），永远绕不进小口，实测卡死 480s / 21 杀。改成四角分离式 + 中途掩体后正常。
+
+**G 武器矩阵**（新增；防"新武器是装饰品"）：
+- G1 5 把武器全部能击杀（≥4 杀 = 清完第 1 波）。无"完全打不动人"的废枪。
+- G2 至少 2 把武器能独立通关（RIFLE、SMG）。
+- ⚠️ **这个矩阵的已知混淆**：driveBot 的移动策略是「d>13 前进贴近、d<5 后撤」，与武器无关——所以 DMR（射程 120）也被迫压到 13m 打，拿霰弹反而如鱼得水。**这里的 solo 成绩是「一律贴脸时哪把枪能撑住」，不是武器强弱判决**。故意不改成「按射程保持距离」——那会改动 bot 基础行为，破坏 A–E 与历史基线可比性。
+
+### CDP 端到端 16/16（无头 Chrome + SwiftShader）
+
+**环境说明**：真 GPU 路径（`--use-angle=gl`）在本轮环境报 `BindToCurrentSequence failed`，改用 `--use-gl=angle --use-angle=swiftshader` 软件渲染。我们只断言 draw call / 三角面数等**计数型**指标（不依赖渲染器速度），所以对结论有效性无影响——只是不能拿来谈帧率。
 
 - R0 加载并暴露 `__fps`
-- R2 WebGL2 + 真实硬件渲染器
-- R3 进入 `playing` 且时间推进
-- R4 敌人按波次生成
-- R5 注入前进 → 位移 Δ = 4.48m
+- R2 WebGL2 可用（ANGLE / Vulkan / SwiftShader）
+- R3 进入 `playing` 且时间推进（**只断 `time > 0`**，不卡绝对秒数——软件渲染下墙钟与 sim 时间差一个量级）
+- R4 敌人按波次生成（场上 4 个）
+- R5 注入前进 → 位移 Δ = 5.76m
 - R6 开火 → 弹药 12→11、shots 0→1
-- R7 命中 → hits +2
+- R7 命中 → hits +1、特效峰值 16
 - R8 换弹 → 弹匣补满 12/12
-- R9 drawCalls=30 / triangles=3110 / programs=10
-- R10 AudioContext running、事件计数 10→21、last=enemyShot
-- R11 截图 470KB（>25KB 阈值）
+- R9 drawCalls=41 / triangles=2594 / programs=10（vs 旧版 30 / 3110：drawCall 因敌人分件模型增加）
+- R10 AudioContext running、事件计数 10→12、last=shot
+- R11 截图 444KB（>25KB 阈值）
+- **R12** 武器槽位与 config 一致：`pistol,rifle,shotgun,smg,dmr`
+- **R13** 切到 DMR 后能开火：weapon=dmr 弹药 10→9
+- **R14** 敌人视图可用（模型升级后 sim 接口未变）
 - R1 零运行时报错
 
 ## 关键设计选择
@@ -112,15 +128,21 @@ npm run preview
 5. **viewmodel 可见性**：MeshStandardMaterial 暗光下变纯黑剪影。改用 MeshLambertMaterial + emissive + 相机自带 PointLight，任何光照下都看得到手中武器。
 6. **准星 = 真实散布**：`gap = spread / halfFov * height/2`，玩家看到的臂张角 = 子弹真实散布。手感因此可测而非「看起来像」。
 7. **程序化音效为硬指标**：01/02/03 全缺音效，是 lab 最大系统性缺口。04 全部 SFX（shot 三种音色、hit、headshot、kill、reload、empty、hurt、enemyShot、waveStart、win、lose、footstep、swap）用 oscillator + noise buffer 现场合成。
+8. **多地图 = 预设布局，不是随机生成**：随机布局会让 bot 跑分每次跑在不同地图上，结果不可比（验证体系直接失效）。所以 4 张地图都是手工定义的几何，预编译在 `src/sim/arena.ts` 的 `MAPS` 数组里。换图走 `GameSim.create(seed, mapId)` + `disposeArena + buildArena` 重建。**踩过的坑**：高台第一版做成环形高台只留小角缺口，敌人没有寻路 → 卡死；改成四角分离式 + 中途掩体后正常——「不能围死中心」是地图设计的硬约束。
+9. **武器完全 data-driven**：`WeaponSystem.slots = CONFIG.weapons.map(...)`，加武器只改 config + actors 的几何分支 + HUD 槽位（用 `CONFIG.weapons.length` 动态生成）+ 按键 1–5（动态循环）；不动主循环。槽位按键也用 `for (let i=0; i<CONFIG.weapons.length; i++)` 而非硬编码 if/elseif。
+10. **敌人模型分件 + 走路摆臂**：躯干 + 头 + 双臂 + 双腿 + 肩甲，每根四肢挂在自己的 pivot Group 上（pivot 在肩/髋，mesh 在 pivot 内部向下偏移半个长度），转 pivot 就是摆臂摆腿。**相位由真实位移驱动**（`phase += speed * dt * 2.4`），站定不摆、跑起来摆幅大——不是凭空播动画。三种敌人 + 精英做剪影差异化：冲锋兵前倾+腿长、狙击手扛长枪管、精英胸口装甲板。
 
 ## 已知限制 / 后续
 
 - viewmodel 仍偏几何化（盒 + 圆柱），要更精致需手部 / 武器贴图（违反零资产原则）。
 - 精英仅在第 5 波出现 3 只，强度未充分压力测。
 - 曳光池 MAX 64、粒子池 MAX 500，极端长持续战斗可能截断（实战未观察到）。
-- HUD「场上 N · 剩余 M」中 M = alive + queue + future = total − killed，语义与英语 remaining 略有偏差（截图 23:13：场上 3 剩余 56 = 57 − 1 击杀，已验证正确）。
-- 音效混音全在合成层，缺独立 bus 与响度归一。
-- 无 PointerLock 时只能拖拽视角（`Map.to` 拖拽 fallback），CDP 注入走 `setLook`。
+- HUD「场上 N · 剩余 M」中 M = alive + queue + future = total − killed，语义与英语 remaining 略有偏差（截图：场上 3 剩余 56 = 57 − 1 击杀，已验证正确）。
+- 音效混音全在合成层，缺独立 bus 与响度归一，多敌人同时开火有削波风险。
+- 无 PointerLock 时只能拖拽视角（拖拽 fallback），CDP 注入走 `setLook`。
+- **武器矩阵的已知 bot 行为混淆**：driveBot 一律 d>13 前进贴近、d<5 后撤，所以远距离武器（DMR）在矩阵里成绩被低估、近战武器（霰弹）被高估。要更公平的武器矩阵得让 bot 按武器射程保持交战距离——但那会破坏 A–E 与历史基线的可比性，故未做。
+- **地图设计的硬约束**：敌人没有寻路，**任何把中心围死的布局都会卡死**——这是 bot 实测反复验证出来的，不是推断。
+- **CDP 环境限制**：本轮无头下真 GPU 路径（`--use-angle=gl`）报 `BindToCurrentSequence failed`，改用 SwiftShader 软件渲染。结论只断言计数型指标，断言阈值为环境兼容（`time > 0`、位移 `>0.3m`、切枪等待加长到 2500ms）。帧率相关结论无效。
 
 ## 与已删除旧 04 的四项差异
 

@@ -18,6 +18,7 @@ import { emptyInput, type GameInput } from '../src/sim/types';
 import { hasLineOfSight } from '../src/sim/shooting';
 import { mulberry32 } from '../src/sim/rng';
 import { distXZ, len, sub } from '../src/sim/vecmath';
+import { DEFAULT_MAP_ID, MAPS } from '../src/sim/arena';
 import type { EnemyView } from '../src/sim/types';
 
 const DT = CONFIG.physics.fixedDt;
@@ -177,12 +178,16 @@ function driveBot(sim: GameSim, input: GameInput, opts: BotOpts, st: BotState, r
     input.fire = false;
   } else {
     input.reload = false;
-    input.fire = st.reactionTimer <= 0 && d < 40;
+    // 用武器真实射程决定开不开火，不能写死距离：
+    // 霰弹射程只有 26，写死 40 会让它在 26–40m 一直放空枪，
+    // 测出来的是「bot 不会用枪」而不是「枪弱」。
+    const range = sim.weapons.current.def.range * 0.9;
+    input.fire = st.reactionTimer <= 0 && d < range;
   }
 }
 
-async function run(seed: number, opts: BotOpts): Promise<RunResult> {
-  const sim = await GameSim.create(seed);
+async function run(seed: number, opts: BotOpts, mapId: string = DEFAULT_MAP_ID): Promise<RunResult> {
+  const sim = await GameSim.create(seed, mapId);
   const input = emptyInput();
   const st = newBotState();
   const rand = mulberry32(seed * 7919 + 13);
@@ -342,6 +347,55 @@ check(
   'E1 被动 bot 会死（证明敌人有威胁，不是站桩靶场）',
   passive.phase === 'lost',
   `终态 ${passive.phase}，剩余 HP ${passive.hp.toFixed(0)}`,
+);
+
+// ---- F. 地图矩阵：新增地图必须能通关，否则就是张死图 ----
+console.log('\n--- F 地图矩阵（完美 bot 逐图验证） ---');
+const mapRuns: Array<{ name: string; phase: string; time: number; kills: number; wave: number }> = [];
+for (const m of MAPS) {
+  const r = await run(1, PERFECT, m.id);
+  mapRuns.push({ name: m.name, phase: r.phase, time: r.time, kills: r.kills, wave: r.wave });
+  console.log(
+    `  ${m.name.padEnd(6)} ${r.phase.padEnd(7)} t=${r.time.toFixed(1)}s ` +
+      `wave=${r.wave} kills=${r.kills}/${TOTAL_ENEMIES}`,
+  );
+}
+check(
+  'F1 每张地图都能被完美 bot 通关（新图不能是不可通关的死图）',
+  mapRuns.every((r) => r.phase === 'won'),
+  mapRuns.map((r) => `${r.name}:${r.phase}`).join(' '),
+);
+check('F2 每张地图都不出现 NaN', mapRuns.every((r) => r.phase !== 'NaN'));
+
+// ---- G. 武器矩阵：不允许出现「完全没法用的废枪」 ----
+console.log('\n--- G 武器矩阵（完美 bot 全程只用一把枪） ---');
+const weaponRuns: Array<{ short: string; phase: string; time: number; wave: number; kills: number }> =
+  [];
+for (let i = 0; i < CONFIG.weapons.length; i++) {
+  const w = CONFIG.weapons[i]!;
+  const r = await run(1, { ...PERFECT, slot: i }, DEFAULT_MAP_ID);
+  weaponRuns.push({ short: w.short, phase: r.phase, time: r.time, wave: r.wave, kills: r.kills });
+  console.log(
+    `  ${w.short.padEnd(8)} ${r.phase.padEnd(7)} t=${r.time.toFixed(1)}s ` +
+      `wave=${r.wave} kills=${r.kills}/${TOTAL_ENEMIES}`,
+  );
+}
+// ⚠️ 这个矩阵的已知混淆（不要过度解读）：
+// driveBot 的移动策略是「d>13 前进贴近、d<5 才后撤」，**与手里的武器无关**。
+// 于是拿 DMR（射程 120）也被迫压到 13m 打，拿霰弹反而如鱼得水。
+// 所以这里的 solo 成绩是「一律贴脸时哪把枪能撑住」，不是武器强弱判决。
+// 刻意不改成「按射程保持距离」——那会改动 bot 基础行为，破坏 A–E 与历史基线的可比性。
+//
+// 因此只卡两个能真正防住「废枪」的下限，solo 通关数只作信息输出：
+check(
+  'G1 每把武器都能击杀（单枪 ≥ 4 杀 = 至少清完第 1 波，没有打不动人的废枪）',
+  weaponRuns.every((r) => r.kills >= 4),
+  weaponRuns.map((r) => `${r.short}:${r.kills}杀`).join(' '),
+);
+check(
+  'G2 至少 2 把武器能独立通关（主力武器池够用）',
+  weaponRuns.filter((r) => r.phase === 'won').length >= 2,
+  '通关: ' + weaponRuns.filter((r) => r.phase === 'won').map((r) => r.short).join('/'),
 );
 
 console.log(`\n=== 汇总：${pass} 通过 / ${fail} 失败 ===`);

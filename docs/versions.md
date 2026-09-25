@@ -24,7 +24,7 @@
 | 01 界（旧作归档） | three.js 0.160.0（CDN ESM） | 无（单文件 HTML） | 无 | 旧作；仅作设计参考，不抄渲染代码 |
 | 02 星际航行（旧作归档） | three.js r128（CDN 三源回退） | 无（单文件 HTML） | 无 | 旧作；r128 太老（2021），API 与 0.186 差异大，**不要直接抄渲染代码** |
 | 03 弯心 | three.js 0.186.0 + rapier3d-compat 0.20.0 | TS 7.0.2 | 8.3.0 | dev 端口 5179；Rapier raycast 车辆，sim 层零 three 零 DOM（Node 可跑 bot） |
-| **04 火线 FIREROUND** | three.js 0.186.0 + rapier3d-compat 0.20.0 | TS 7.0.2 | 8.3.0 | dev 端口 **5181**；第一人称 FPS；KCC 角色控制器 + castRay hitscan；**WebAudio 程序化音效为 DoD 硬指标**；立项 2026-09-24（上一版 04 波次射击已删，本次重立） |
+| **04 火线 FIREROUND** | three.js 0.186.0 + rapier3d-compat 0.20.0 | TS 7.0.2 | 8.3.0 | dev 端口 **5181**；第一人称 FPS；KCC 角色控制器 + castRay hitscan；**WebAudio 程序化音效为 DoD 硬指标**（lab 首个带音效的项目）；**已完成 2026-09-24 + 扩内容 2026-09-25**：5 武器（手枪/步枪/霰弹枪/冲锋枪 SMG/精确射手步枪 DMR）· 4 张预设地图（枢纽/十字/高台/长廊）· 分件机兵 + 走路摆臂动画；验证基线 bot 13/13 + CDP 16/16（无头 SwiftShader）；上一版 04 波次射击已删，本次重立 |
 
 > **版本一致性红线**：01 / 02 是归档旧作，用的 three 版本（0.160.0 / r128）**与 lab 主线的 0.186.0 不一致**。
 > 从它们身上**只抄设计思路，不抄渲染代码**（r128 的 `outputEncoding` / 光照单位 / 色彩管理在 0.186 已变更）。
