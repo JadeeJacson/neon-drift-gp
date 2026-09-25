@@ -60,6 +60,17 @@ const CSS = `
 #dmgv { position:absolute; inset:0; box-shadow:inset 0 0 160px 24px rgba(200,20,40,.75); opacity:0;
   transition:opacity 260ms; }
 #help { position:absolute; left:50%; bottom:12px; transform:translateX(-50%); font-size:11px; color:#5f6a7c; letter-spacing:1px; }
+
+#capwrap { position:absolute; left:50%; top:60px; transform:translateX(-50%); width:360px; display:none; }
+#capwrap.on { display:block; }
+#capwrap .lbl { font-size:11px; letter-spacing:3px; color:#9aa6b8; text-align:center; margin-bottom:5px; }
+#capbar { height:15px; background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.20); border-radius:8px; overflow:hidden; position:relative; }
+#capfill { height:100%; width:50%; background:linear-gradient(90deg,#2f6fd0,#3f8cff); transition:width 120ms linear; }
+#capmid { position:absolute; left:50%; top:0; width:1px; height:100%; background:rgba(255,255,255,.55); }
+#capterms { display:flex; justify-content:space-between; font-size:12px; margin-top:5px; letter-spacing:1px; }
+#capterms .b { color:#5aa9ff; font-weight:700; }
+#capterms .r { color:#ff7a6a; font-weight:700; }
+#capterms .c { color:#cfd8e6; }
 `;
 
 export class Hud {
@@ -88,6 +99,11 @@ export class Hud {
       <div id="top">
         <div id="wave">WAVE <b>1</b> / 5</div>
         <div id="left">剩余敌人 0</div>
+      </div>
+      <div id="capwrap">
+        <div class="lbl">据点占领</div>
+        <div id="capbar"><div id="capfill"></div><div id="capmid"></div></div>
+        <div id="capterms"><span class="b">蓝 0</span><span class="c">中立</span><span class="r">红 0</span></div>
       </div>
       <div id="banner"><div class="b1"></div><div class="b2"></div></div>
       <div id="hpwrap">
@@ -118,6 +134,9 @@ export class Hud {
     q('dmgv');
     q('wave');
     q('left');
+    q('capwrap');
+    q('capfill');
+    q('capterms');
     q('banner');
     q('hpwrap');
     q('hpfill');
@@ -194,12 +213,32 @@ export class Hud {
     this.el.rlbar!.classList.toggle('on', snap.reloading);
     this.el.rlfill!.style.width = `${Math.round(snap.reloadProgress * 100)}%`;
 
-    // 波次
-    this.el.wave!.innerHTML = `WAVE <b>${snap.wave}</b> / ${snap.waveTotal}`;
-    this.el.left!.textContent =
-      snap.phase === 'playing'
-        ? `场上 ${snap.enemiesAlive} · 剩余 ${snap.enemiesRemaining}`
-        : '';
+    // 模式分支：据点占领显示占领进度条 + 双方存活；生存显示波次
+    if (snap.mode === 'domination') {
+      this.el.wave!.style.display = 'none';
+      this.el.left!.style.display = 'none';
+      this.el.capwrap!.classList.add('on');
+      const pct = ((snap.capture + 100) / 2).toFixed(1);
+      this.el.capfill!.style.width = `${pct}%`;
+      this.el.capfill!.style.background =
+        snap.capture >= 0
+          ? 'linear-gradient(90deg,#2f6fd0,#3f8cff)'
+          : 'linear-gradient(90deg,#ff5a4d,#d83a2a)';
+      const status = snap.capture > 5 ? '蓝队占领中' : snap.capture < -5 ? '红队占领中' : '中立';
+      this.el.capterms!.innerHTML =
+        `<span class="b">蓝 ${snap.blueAlive}</span>` +
+        `<span class="c">${status} ${Math.abs(Math.round(snap.capture))}%</span>` +
+        `<span class="r">红 ${snap.redAlive}</span>`;
+    } else {
+      this.el.wave!.style.display = '';
+      this.el.left!.style.display = '';
+      this.el.capwrap!.classList.remove('on');
+      this.el.wave!.innerHTML = `WAVE <b>${snap.wave}</b> / ${snap.waveTotal}`;
+      this.el.left!.textContent =
+        snap.phase === 'playing'
+          ? `场上 ${snap.enemiesAlive} · 剩余 ${snap.enemiesRemaining}`
+          : '';
+    }
   }
 
   hitmarker(headshot: boolean): void {

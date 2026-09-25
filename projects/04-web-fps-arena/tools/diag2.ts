@@ -92,7 +92,7 @@ for (let i = 0; i < steps; i++) {
 
   if (i % 1200 === 0 || i === steps - 1) {
     console.log(
-      `\n[t=${sim.time.toFixed(1)}s] wave=${sim.snapshot().wave} alive=${sim.aliveCount()} kills=${sim.stats.kills} hp=${sim.player.hp.toFixed(0)} 玩家=(${pp.x.toFixed(1)}, ${pp.z.toFixed(1)})`,
+      `\n[t=${sim.time.toFixed(1)}s] wave=${sim.snapshot().wave} alive=${sim.redAlive()} kills=${sim.stats.kills} hp=${sim.player.hp.toFixed(0)} 玩家=(${pp.x.toFixed(1)}, ${pp.z.toFixed(1)})`,
     );
     for (const e of sim.enemyViews()) {
       const prev = hist.get(e.id);

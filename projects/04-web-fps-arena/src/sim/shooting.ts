@@ -24,9 +24,20 @@ export function castRay(
   maxToi: number,
   excludeCollider?: RAPIER.Collider,
   excludeBody?: RAPIER.RigidBody,
+  /** 额外过滤：返回 false 的碰撞体被跳过。用于「同队不互伤」——排除所有友军碰撞体 */
+  filterPredicate?: (collider: RAPIER.Collider) => boolean,
 ): RayHit | null {
   const ray = new RAPIER.Ray(origin, dir);
-  const hit = world.castRay(ray, maxToi, true, undefined, undefined, excludeCollider, excludeBody);
+  const hit = world.castRay(
+    ray,
+    maxToi,
+    true,
+    undefined,
+    undefined,
+    excludeCollider,
+    excludeBody,
+    filterPredicate,
+  );
   if (!hit) return null;
   return {
     colliderHandle: hit.collider.handle,
@@ -51,12 +62,14 @@ export function hasLineOfSight(
   selfCollider?: RAPIER.Collider,
   selfBody?: RAPIER.RigidBody,
   targetHandle?: number,
+  /** 同 castRay 的队伍过滤：避免把友军当成遮挡物 */
+  filterPredicate?: (collider: RAPIER.Collider) => boolean,
 ): boolean {
   const d = { x: to.x - from.x, y: to.y - from.y, z: to.z - from.z };
   const dist = Math.hypot(d.x, d.y, d.z);
   if (dist < 1e-6) return true;
   const dir = scale(d, 1 / dist);
-  const hit = castRay(world, from, dir, dist, selfCollider, selfBody);
+  const hit = castRay(world, from, dir, dist, selfCollider, selfBody, filterPredicate);
   if (!hit) return true;
   if (targetHandle !== undefined) return hit.colliderHandle === targetHandle;
   // 没有给目标时退化处理：命中点离目标足够近就算通视

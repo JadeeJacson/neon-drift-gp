@@ -341,6 +341,18 @@ export const CONFIG = {
     wallHeight: 4,
   },
 
+  /** 据点占领（5v5）参数 */
+  dom: {
+    /** 队伍人数：蓝队 = 玩家 + blueAllies；红队 = redCount */
+    blueAllies: 4,
+    redCount: 5,
+    /** 据点中心（XZ）与半径 */
+    point: { x: 0, z: 0 },
+    radius: 7,
+    /** 单人独占据点时，占满所需秒数（被对方抵消时更慢） */
+    captureSeconds: 25,
+  },
+
   enemy: {
     /** 敌人保持的理想交战距离（hitscan 类） */
     standoff: 9,

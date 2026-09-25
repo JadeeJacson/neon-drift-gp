@@ -1,4 +1,28 @@
 import type { EnemyId, WeaponId } from '../core/config';
+import type RAPIER from '@dimforge/rapier3d-compat';
+
+/** 队伍：蓝队（玩家方）/ 红队（敌方） */
+export type Team = 'blue' | 'red';
+/** 游戏模式：生存（波次）/ 据点占领（5v5） */
+export type GameMode = 'survival' | 'domination';
+
+/**
+ * 可被瞄准 / 被命中的「战斗单位」抽象 —— 玩家与 bot 战斗员共用。
+ * 射击与 AI 只通过这个接口交互，从而天然支持按队伍过滤（友军不互伤）。
+ * sim 层零 three / 零 DOM 的约束同样适用于它：只用纯数据与 Rapier 类型。
+ */
+export interface CombatantRef {
+  readonly team: Team;
+  /** 是否为人类玩家（伤害走 player.hurt 而非战斗员 hurt） */
+  readonly isPlayer: boolean;
+  alive: boolean;
+  /** 命中体（射线命中的就是这个） */
+  readonly collider: RAPIER.Collider;
+  /** 中心位置（胶囊中心） */
+  center(): Vec3;
+  /** 射击原点（约胸高） */
+  eye(): Vec3;
+}
 
 export interface Vec3 {
   x: number;
@@ -21,8 +45,8 @@ export type SimEvent =
   | { type: 'enemyShot'; kind: EnemyId; origin: Vec3; dir: Vec3 }
   | { type: 'waveStart'; wave: number; total: number }
   | { type: 'waveClear'; wave: number; nextIn: number }
-  | { type: 'win'; totalShots: number; hits: number; headshots: number; kills: number; time: number }
-  | { type: 'lose'; wave: number; kills: number; time: number }
+  | { type: 'win'; totalShots: number; hits: number; headshots: number; kills: number; time: number; reason?: 'waves' | 'capture' | 'elimination' }
+  | { type: 'lose'; wave: number; kills: number; time: number; reason?: 'waves' | 'capture' | 'elimination' }
   | { type: 'footstep'; speed: number };
 
 /** 一帧的输入 —— 玩家、bot、回放三者的统一接口 */
@@ -55,11 +79,13 @@ export function emptyInput(): GameInput {
   };
 }
 
-/** 渲染层需要的敌人状态 */
+/** 渲染层需要的战斗员状态（敌我共用；team 决定着色与敌我识别） */
 export interface EnemyView {
   id: number;
   kind: EnemyId;
   elite: boolean;
+  /** 队伍：蓝队（友）/ 红队（敌） */
+  team: Team;
   /** 命中体 handle —— bot 与 HUD 判定视线时要用 */
   colliderHandle: number;
   pos: Vec3;
@@ -79,6 +105,14 @@ export interface EnemyView {
 export interface GameSnapshot {
   phase: 'ready' | 'playing' | 'won' | 'lost';
   time: number;
+  mode: GameMode;
+  /** 据点占领进度：-100=红队占满，+100=蓝队占满，0=中立（仅据点模式有含义） */
+  capture: number;
+  /** 据点中心与半径（XZ 平面） */
+  capturePoint: { x: number; z: number; r: number };
+  /** 双方存活战斗员数（含玩家；玩家死亡不计入蓝队） */
+  blueAlive: number;
+  redAlive: number;
   hp: number;
   maxHp: number;
   wave: number;

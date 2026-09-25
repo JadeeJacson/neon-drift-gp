@@ -73,8 +73,12 @@ export class EnemyRenderer {
     const def = CONFIG.enemies[v.kind];
     const s = v.scale;
 
+    // 队伍决定基色（蓝队蓝 / 红队红），保证敌我一眼可辨；兵种差异交给剪影与配饰。
+    const teamColor = v.team === 'blue' ? 0x3f8cff : 0xff5a4d;
+    const visorColor = v.team === 'blue' ? 0x9fe8ff : 0xffd0a0;
+
     const mat = new THREE.MeshStandardMaterial({
-      color: v.elite ? CONFIG.elite.color : def.color,
+      color: v.elite ? CONFIG.elite.color : teamColor,
       roughness: 0.55,
       metalness: 0.25,
       transparent: true,
@@ -108,7 +112,7 @@ export class EnemyRenderer {
     // 面罩：朝向指示 + 出手预警的发光点
     const visor = new THREE.Mesh(
       new THREE.BoxGeometry(headR * 1.5, headR * 0.42, headR * 0.3),
-      new THREE.MeshBasicMaterial({ color: 0xffe6b0 }),
+      new THREE.MeshBasicMaterial({ color: visorColor }),
     );
     visor.position.set(0, head.position.y, -headR * 0.85);
     group.add(visor);

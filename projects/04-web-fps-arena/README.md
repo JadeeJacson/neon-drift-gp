@@ -1,6 +1,6 @@
 # 04 火线 FIREROUND
 
-第一人称竞技场射击（FPS）。5 波 57 敌（步兵 / 冲锋兵 / 狙击手 / 精英），**5 把武器**（手枪 / 步枪 / 霰弹 / 冲锋枪 SMG / 精确射手步枪 DMR），**4 张预设地图**（枢纽 / 十字 / 高台 / 长廊），分件机兵 + 走路摆臂动画，全程程序化资源 + 程序化音效。
+第一人称竞技场射击（FPS）。5 波 57 敌（步兵 / 冲锋兵 / 狙击手 / 精英），**5 把武器**（手枪 / 步枪 / 霰弹 / 冲锋枪 SMG / 精确射手步枪 DMR），**4 张预设地图**（枢纽 / 十字 / 高台 / 长廊），分件机兵 + 走路摆臂动画，全程程序化资源 + 程序化音效。**双模式**：生存（单人清 5 波）/ 据点占领（蓝队玩家 + 4 友军 bot vs 红队 5 bot 抢中央据点）。
 
 ## 栈
 
@@ -21,8 +21,9 @@
 src/
 ├── sim/        ← 零 three、零 DOM，Node 可直接跑（bot 跑分）
 │   ├── arena.ts        静态掩体 + 出生点
-│   ├── enemy.ts        敌人 AI（LOS 推进 + 切线绕行）
-│   ├── game.ts         GameSim 组装、step 顺序、胜负
+│   ├── types.ts        Team / CombatantRef / 事件 / 快照 等共享类型
+│   ├── combatant.ts    战斗员 AI（敌人 + 友军统一；LOS 推进 + 切线绕行；占点态）
+│   ├── game.ts         GameSim 组装、step 顺序、胜负、双模式（生存 / 据点）
 │   ├── player.ts       KCC 玩家（coyote time、grounded）
 │   ├── rng.ts          mulberry32 决定性 RNG
 │   ├── shooting.ts     castRay（Rapier 0.20 timeOfImpact）
@@ -48,7 +49,8 @@ src/
 npm install
 npm run dev              # http://127.0.0.1:5181（strictPort）
 npm run typecheck        # tsc --noEmit
-npm run bot              # bot 跑分：perfect / human / 决定性 / 静止必死（9 项断言）
+npm run bot              # 生存模式 bot 跑分：perfect / human / 决定性 / 静止必死（13 项断言）
+npm run bot:dom          # 据点占领(5v5) bot 跑分：蓝队可胜 / 无 NaN / 时长 / 占点 / 决定性（5 项）
 npm run verify 9222 http://127.0.0.1:5181/ F:/Dev/Projects/game-lab/_tmp
                          # CDP 端到端验证（13 项断言）
 npm run build            # 生产打包
@@ -99,6 +101,23 @@ npm run preview
 - G2 至少 2 把武器能独立通关（RIFLE、SMG）。
 - ⚠️ **这个矩阵的已知混淆**：driveBot 的移动策略是「d>13 前进贴近、d<5 后撤」，与武器无关——所以 DMR（射程 120）也被迫压到 13m 打，拿霰弹反而如鱼得水。**这里的 solo 成绩是「一律贴脸时哪把枪能撑住」，不是武器强弱判决**。故意不改成「按射程保持距离」——那会改动 bot 基础行为，破坏 A–E 与历史基线可比性。
 
+### 5v5 据点占领模式（domination，2026-09-25 加）
+
+在生存模式之外新增第二种玩法：蓝队（玩家 bot + 4 友军 bot）vs 红队 5 个 bot，抢中央据点——占满 +100 或团灭红队胜；被红队占满 −100 或玩家阵亡负。`GameSim.create(seed, mapId, mode)` 的第三参切换模式，红队在两个模式下共用同一套 `Combatant` AI。
+
+- D1 蓝队能获胜（占点满或团灭红队）：5/5 种子全部 won
+- D2 无 NaN
+- D3 单局时长 < 10 分钟（未死锁）：最长 20s
+- D4 蓝队确实在推进据点（至少一局 capture 越过 +30）：峰值 64
+- D5 同种子两次结果一致（决定性）
+
+**⚠️ 架构约束（踩坑得来，必须守住）**：`Combatant` 由旧 `Enemy` 泛化，但**红队在生存模式下的行为必须与旧 `Enemy` 逐帧等价**——否则会无声破坏 A–G 生存基线（baseline 可比是硬指标）。本轮实测犯过两个回归，均已修复：
+
+1. **侧移向量转置错**：旧 `Enemy` 侧移是「朝目标方向旋转 90°」（即 `(-gz, gx)`），泛化时误写成镜像 `(−gx, gz)`，敌人变成斜着后退而非横移，交战距离数学全乱。
+2. **生存模式误启用队伍 LOS 过滤**：给所有模式都加了 `filterPredicate`（同队互不作为射线/视线遮挡），旧版生存红队是**没有**这个过滤的——结果红队能隔着队友打玩家，难度暴涨。完美 bot 在「高台」图 wave 3 暴毙，霰弹 / DMR 直接 0 杀。
+
+**修复**：生存模式 `filterPredicate` 置 `undefined`（与旧版逐帧等价），**仅据点模式**启用队伍过滤（友军不挡视线、不互伤）。修复后生存 bot 回到 **13/13**，据点 bot 仍 5/5。
+
 ### CDP 端到端 16/16（无头 Chrome + SwiftShader）
 
 **环境说明**：真 GPU 路径（`--use-angle=gl`）在本轮环境报 `BindToCurrentSequence failed`，改用 `--use-gl=angle --use-angle=swiftshader` 软件渲染。我们只断言 draw call / 三角面数等**计数型**指标（不依赖渲染器速度），所以对结论有效性无影响——只是不能拿来谈帧率。
@@ -131,6 +150,7 @@ npm run preview
 8. **多地图 = 预设布局，不是随机生成**：随机布局会让 bot 跑分每次跑在不同地图上，结果不可比（验证体系直接失效）。所以 4 张地图都是手工定义的几何，预编译在 `src/sim/arena.ts` 的 `MAPS` 数组里。换图走 `GameSim.create(seed, mapId)` + `disposeArena + buildArena` 重建。**踩过的坑**：高台第一版做成环形高台只留小角缺口，敌人没有寻路 → 卡死；改成四角分离式 + 中途掩体后正常——「不能围死中心」是地图设计的硬约束。
 9. **武器完全 data-driven**：`WeaponSystem.slots = CONFIG.weapons.map(...)`，加武器只改 config + actors 的几何分支 + HUD 槽位（用 `CONFIG.weapons.length` 动态生成）+ 按键 1–5（动态循环）；不动主循环。槽位按键也用 `for (let i=0; i<CONFIG.weapons.length; i++)` 而非硬编码 if/elseif。
 10. **敌人模型分件 + 走路摆臂**：躯干 + 头 + 双臂 + 双腿 + 肩甲，每根四肢挂在自己的 pivot Group 上（pivot 在肩/髋，mesh 在 pivot 内部向下偏移半个长度），转 pivot 就是摆臂摆腿。**相位由真实位移驱动**（`phase += speed * dt * 2.4`），站定不摆、跑起来摆幅大——不是凭空播动画。三种敌人 + 精英做剪影差异化：冲锋兵前倾+腿长、狙击手扛长枪管、精英胸口装甲板。
+11. **队伍泛化与「生存基线零回归」**：`Combatant` 把旧 `Enemy` 升级为「敌人 + 友军统一 AI」，目标从「玩家」变成「最近敌队 `CombatantRef`」，用 `filterPredicate` 做队伍过滤射击。但**生存模式的红队行为必须与旧 `Enemy` 逐帧等价**——这是验证体系可比性的硬前提。所有针对 `Combatant` 的移动 / LOS / 射线改动，都必须先在生存 bot（13/13）上验证不回归，再做据点专属行为。
 
 ## 已知限制 / 后续
 

@@ -6,6 +6,7 @@
  *   2. 事件驱动反馈。sim 产出 SimEvent，这里翻译成粒子 / 音效 / HUD —— sim 因此保持零 DOM。
  */
 import { CONFIG } from './core/config';
+import * as THREE from 'three';
 import { GameSim } from './sim/game';
 import { emptyInput } from './sim/types';
 import type { GameInput, SimEvent } from './sim/types';
@@ -35,13 +36,62 @@ const viewModel = new ViewModel(rig.camera);
 const hud = new Hud(hudRoot);
 const audio = new AudioEngine();
 
+/** 据点视觉：地面圆环 + 半透明光柱，颜色随占领方（蓝/红/中立）变化 */
+function buildCaptureMarker(
+  scene: THREE.Scene,
+  cp: { x: number; z: number; r: number },
+): { group: THREE.Group; update: (capture: number) => void } {
+  const group = new THREE.Group();
+  group.name = 'capture-point';
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(cp.r, 0.32, 8, 48),
+    new THREE.MeshBasicMaterial({ color: 0x9aa6b8, transparent: true, opacity: 0.85 }),
+  );
+  ring.rotation.x = Math.PI / 2;
+  ring.position.set(cp.x, 0.08, cp.z);
+  group.add(ring);
+
+  const beam = new THREE.Mesh(
+    new THREE.CylinderGeometry(cp.r * 0.96, cp.r * 0.96, 6, 36, 1, true),
+    new THREE.MeshBasicMaterial({
+      color: 0x9aa6b8,
+      transparent: true,
+      opacity: 0.12,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      fog: false,
+    }),
+  );
+  beam.position.set(cp.x, 3, cp.z);
+  group.add(beam);
+
+  scene.add(group);
+
+  const ringMat = ring.material as THREE.MeshBasicMaterial;
+  const beamMat = beam.material as THREE.MeshBasicMaterial;
+  return {
+    group,
+    update(capture: number) {
+      const col = capture > 1 ? 0x3f8cff : capture < -1 ? 0xff5a4d : 0x9aa6b8;
+      ringMat.color.setHex(col);
+      beamMat.color.setHex(col);
+      beamMat.opacity = 0.1 + Math.min(0.28, (Math.abs(capture) / 100) * 0.28);
+    },
+  };
+}
+
 /** 当前地图（bot 跑分基线固定用 DEFAULT_MAP_ID，改默认会失去与历史跑分的可比性） */
 let currentMapId = DEFAULT_MAP_ID;
-let sim = await GameSim.create(1, currentMapId);
+/** 当前模式：survival（生存）/ domination（据点占领） */
+let currentMode: 'survival' | 'domination' = 'survival';
+let sim = await GameSim.create(1, currentMapId, currentMode);
 /** 竞技场几何：换图时必须 dispose 旧的再重建，否则新旧掩体会叠在一起 */
 let arenaGroup: ReturnType<typeof buildArena> | null = buildArena(rig.scene, sim.boxes);
 let seedCounter = 1;
 let running = false;
+
+/** 据点标记（环 + 光柱），颜色随占领方变化 */
+const captureMarker = buildCaptureMarker(rig.scene, sim.capturePoint);
 
 function rebuildArena(): void {
   disposeArena(rig.scene, arenaGroup);
@@ -198,6 +248,7 @@ function frame(now: number): void {
     recoilYaw: sim.weapons.recoilYaw,
   });
   enemyRenderer.sync(sim.enemyViews(), dt);
+  captureMarker.update(sim.capture);
   fx.update(dt);
 
   const moving = Math.abs(lastInput.forward) + Math.abs(lastInput.right) > 0.1;
@@ -219,15 +270,18 @@ requestAnimationFrame(frame);
 // ---------------- 开始 / 结算 / 重开 ----------------
 async function beginRun(): Promise<void> {
   audio.init();
-  // sim 在加载时就按默认地图建好了；开始前如果换了图，必须重建，
+  // sim 在加载时就按默认地图/模式建好了；开始前如果换了图或换了模式，必须重建，
   // 否则物理按新图、渲染还是旧图（或反之）——看到的掩体和子弹撞到的掩体不是同一个。
-  if (sim.map.id !== currentMapId) {
-    const next = await GameSim.create(seedCounter, currentMapId);
+  if (sim.map.id !== currentMapId || sim.mode !== currentMode) {
+    const next = await GameSim.create(seedCounter, currentMapId, currentMode);
     const old = sim;
     sim = next;
     old.dispose();
     rebuildArena();
   }
+  // 据点模式玩家出生在蓝队基地，初始面向据点（中心）
+  look.yaw = sim.mode === 'domination' ? -Math.PI / 2 : 0;
+  look.pitch = 0;
   overlay.classList.add('hidden');
   running = true;
   acc = 0;
@@ -240,14 +294,32 @@ function finish(won: boolean): void {
   const accPct = (snap.accuracy * 100).toFixed(0);
   const mins = Math.floor(snap.time / 60);
   const secs = (snap.time % 60).toFixed(0).padStart(2, '0');
+  const isDom = sim.mode === 'domination';
+  const capPct = Math.round(snap.capture);
+
+  const title = won ? '任务完成' : '任务失败';
+  const sub = isDom
+    ? won
+      ? '蓝队占领据点！'
+      : snap.capture <= -100
+        ? '据点失守'
+        : '蓝队全员阵亡'
+    : won
+      ? '五波全清'
+      : `倒在第 ${snap.wave} 波`;
+
+  const stats = isDom
+    ? `用时 <b>${mins}:${secs}</b> · 击杀红队 <b>${snap.kills}</b><br />
+       蓝队存活 <b>${snap.blueAlive}</b> · 红队存活 <b>${snap.redAlive}</b><br />
+       占领进度 <b>${capPct}%</b> · 地图 <b>${sim.map.name}</b>`
+    : `用时 <b>${mins}:${secs}</b> · 击杀 <b>${snap.kills}</b><br />
+       命中率 <b>${accPct}%</b>（${snap.hits}/${snap.shots}） · 爆头 <b>${snap.headshots}</b><br />
+       剩余生命 <b>${Math.ceil(snap.hp)}</b> · 地图 <b>${sim.map.name}</b>`;
+
   panel.innerHTML = `
-    <h1 style="${won ? '' : 'color:#ff5a4d'}">${won ? '任务完成' : '任务失败'}</h1>
-    <h2>${won ? '五波全清' : `倒在第 ${snap.wave} 波`}</h2>
-    <div class="stats">
-      用时 <b>${mins}:${secs}</b> · 击杀 <b>${snap.kills}</b><br />
-      命中率 <b>${accPct}%</b>（${snap.hits}/${snap.shots}） · 爆头 <b>${snap.headshots}</b><br />
-      剩余生命 <b>${Math.ceil(snap.hp)}</b> · 地图 <b>${sim.map.name}</b>
-    </div>
+    <h1 style="${won ? '' : 'color:#ff5a4d'}">${title}</h1>
+    <h2>${sub}</h2>
+    <div class="stats">${stats}</div>
     <div class="maplbl">换一张地图</div>
     <div class="maprow" id="map-row"></div>
     <button class="btn" id="again-btn">再来一局（Enter）</button>
@@ -262,12 +334,12 @@ function finish(won: boolean): void {
 async function restart(): Promise<void> {
   seedCounter += 1;
   // 先建新世界再释放旧的：否则 rAF 空窗期会踩到已释放的 Rapier world（09 号项目的教训）
-  const next = await GameSim.create(seedCounter, currentMapId);
+  const next = await GameSim.create(seedCounter, currentMapId, currentMode);
   const old = sim;
   sim = next;
   old.dispose();
   rebuildArena();
-  look.yaw = 0;
+  look.yaw = sim.mode === 'domination' ? -Math.PI / 2 : 0;
   look.pitch = 0;
   keys.clear();
   firing = false;
@@ -296,7 +368,35 @@ function renderMapOptions(): void {
     row.appendChild(b);
   }
 }
+
+// ---------------- 模式选择 ----------------
+/**
+ * 从两个模式生成按钮。与地图选择同理：finish() 整体替换 panel.innerHTML，
+ * 所以结算面板里不显示模式选择（模式在开局前定），这里只在起始面板渲染。
+ */
+function renderModeOptions(): void {
+  const row = document.getElementById('mode-row');
+  if (!row) return;
+  row.innerHTML = '';
+  const modes: Array<{ id: 'survival' | 'domination'; name: string }> = [
+    { id: 'survival', name: '生存（5 波）' },
+    { id: 'domination', name: '据点占领（5v5）' },
+  ];
+  for (const m of modes) {
+    const b = document.createElement('button');
+    b.className = 'mapopt' + (m.id === currentMode ? ' on' : '');
+    b.textContent = m.name;
+    b.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      currentMode = m.id;
+      renderModeOptions();
+    });
+    row.appendChild(b);
+  }
+}
+
 renderMapOptions();
+renderModeOptions();
 
 // ---------------- 事件绑定 ----------------
 overlay.addEventListener('click', (ev) => {
@@ -348,6 +448,8 @@ export interface FpsApi {
   version: string;
   start(): void;
   restart(): Promise<void>;
+  /** 开局前切换模式（'survival' | 'domination'），beginRun 会据此重建 sim */
+  setMode(mode: 'survival' | 'domination'): void;
   setInput(p: Partial<GameInput>): void;
   setLook(yaw: number, pitch: number): void;
   clearInput(): void;
@@ -362,6 +464,9 @@ const api: FpsApi = {
   version: '04-fireround',
   start: () => beginRun(),
   restart: () => restart(),
+  setMode: (mode) => {
+    currentMode = mode;
+  },
   setInput: (p) => Object.assign(injected, p),
   setLook: (yaw, pitch) => {
     injected.yaw = yaw;

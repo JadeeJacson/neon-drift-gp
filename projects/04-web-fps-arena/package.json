@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "bot": "node --experimental-strip-types --import ./tools/node-ts-register.mjs tools/bot-run.ts",
+    "bot:dom": "node --experimental-strip-types --import ./tools/node-ts-register.mjs tools/bot-run-dom.ts",
     "verify": "node tools/verify-render.mjs"
   },
   "dependencies": {

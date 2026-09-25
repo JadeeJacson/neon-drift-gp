@@ -20,6 +20,9 @@
 const PORT = Number(process.argv[2] || 9222);
 const TARGET = process.argv[3] || 'http://127.0.0.1:5181/';
 const SHOT_DIR = process.argv[4] || 'F:/Dev/Projects/game-lab/_tmp';
+// 据点占领(5v5) 补充检查：默认只跑生存模式 R1–R14；显式传 --dom 才额外验证 5v5 链路，
+// 避免在常规 verify 里引入未经本机无头环境预跑的断言（防止误杀稳定的 R 检查）。
+const RUN_DOM = process.argv.includes('--dom');
 
 const passes = [];
 const fails = [];
@@ -271,6 +274,44 @@ const limbOk = await ev(`(() => {
   return typeof es[0].id === 'number' ? 'ok' : 'bad';
 })()`);
 check('R14 敌人视图可用（模型升级后 sim 接口未变）', limbOk === 'ok', String(limbOk));
+
+// ===== 据点占领模式（5v5）补充验证（仅 --dom 时执行）=====
+// 切到 domination 并重启：验证 10 名战斗员（玩家 + 4 友军 vs 5 红）确实入场、
+// 据点进度字段存在且会被蓝队（玩家 + 友军 AI）推进。
+if (RUN_DOM) {
+  console.log('\n--- 据点占领(5v5) 补充检查 ---');
+  await ev('window.__fps.setMode("domination")');
+  await ev('window.__fps.restart()');
+  await sleep(2500);
+  const dom0 = await ev('window.__fps.state()');
+  const domEnemies = await ev('window.__fps.enemies()');
+  const redCount = Array.isArray(domEnemies) ? domEnemies.filter((e) => e.team === 'red').length : -1;
+  const blueAllyCount = Array.isArray(domEnemies)
+    ? domEnemies.filter((e) => e.team === 'blue').length
+    : -1;
+  check('D-A 据点模式：红队 5 人入场', redCount === 5, 'red=' + redCount);
+  check('D-B 据点模式：蓝队 4 友军入场（不含玩家）', blueAllyCount === 4, 'blue=' + blueAllyCount);
+  check(
+    'D-C 据点模式：据点进度字段存在（capture 为数字）',
+    typeof dom0.capture === 'number' && typeof dom0.mode === 'string' && dom0.mode === 'domination',
+    `cap=${dom0.capture} mode=${dom0.mode}`,
+  );
+  // 蓝队友军 AI 会自动向据点推进，数秒后 capture 应偏离 0（或已分出胜负）
+  const capStart = dom0.capture;
+  await ev('window.__fps.setInput({ forward: 1 })');
+  await sleep(4500);
+  await ev('window.__fps.setInput({ forward: 0 })');
+  const dom1 = await ev('window.__fps.state()');
+  check(
+    'D-D 据点模式：据点进度会推进（|Δcapture| > 0 或已终局）',
+    Math.abs((dom1.capture ?? 0) - (capStart ?? 0)) > 0 || dom1.phase !== 'playing',
+    `cap ${capStart}→${dom1.capture} phase=${dom1.phase}`,
+  );
+  // 切回生存，避免影响后续（若有）
+  await ev('window.__fps.setMode("survival")');
+  await ev('window.__fps.restart()');
+  await sleep(500);
+}
 
 // R9 渲染统计（强制渲染一帧再读，否则拿到上一帧的陈旧值）
 const info = await ev('window.__fps.info()');

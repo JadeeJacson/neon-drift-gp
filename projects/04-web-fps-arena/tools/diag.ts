@@ -21,7 +21,7 @@ for (let i = 0; i < steps; i++) {
   if (i % 300 === 0 || i === steps - 1) {
     const p = sim.player.pos();
     console.log(
-      `\n[t=${sim.time.toFixed(1)}s] 玩家 pos=(${p.x.toFixed(1)}, ${p.y.toFixed(1)}, ${p.z.toFixed(1)}) hp=${sim.player.hp.toFixed(0)} wave=${sim.snapshot().wave} alive=${sim.aliveCount()}`,
+      `\n[t=${sim.time.toFixed(1)}s] 玩家 pos=(${p.x.toFixed(1)}, ${p.y.toFixed(1)}, ${p.z.toFixed(1)}) hp=${sim.player.hp.toFixed(0)} wave=${sim.snapshot().wave} alive=${sim.redAlive()}`,
     );
     for (const e of sim.enemyViews()) {
       const prev = last.get(e.id);
