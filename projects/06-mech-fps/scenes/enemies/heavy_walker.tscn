@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://assets/models/enemies/heavy_assault_walker.glb" id="1_mdl"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_heavy"]
+radius = 1.2
+height = 4.6
+
+[node name="HeavyWalker" type="CharacterBody3D"]
+collision_layer = 4
+collision_mask = 1
+
+[node name="Model" parent="." instance=ExtResource("1_mdl")]
+transform = Transform3D(0.26, 0, 0, 0, 0.26, 0, 0, 0, 0.26, 0, 0, 0)
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+shape = SubResource("CapsuleShape3D_heavy")

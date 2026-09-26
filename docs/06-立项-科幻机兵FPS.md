@@ -88,13 +88,30 @@ projects/06-mech-fps/                       ✅ 已创建并验证
 ├─ project.godot                            config_version=5, forward_plus, 12 个输入动作
 ├─ icon.svg
 ├─ scenes/
-│  └─ main.tscn                             当前只实例化模板的 map + player（骨架）
+│  ├─ main.tscn                             arena + player + 3 敌人（当前骨架）
+│  ├─ arena.tscn                            程序化生成的竞技场 blockout（23 碰撞体）
+│  └─ enemies/                              trooper / swarm_drone / heavy_walker
 ├─ addons/JehenoAdvancedFirstPersonController/   移动控制器（MIT 模板，保留原目录名）
 ├─ sim/                                     纯逻辑层（武器数值/波次/AI 决策），--headless 可测
-├─ assets/                                  「已选定使用」的素材副本
+├─ assets/
+│  ├─ ASSET_MANIFEST.md                     选定资产 + **实测尺寸与缩放**（必读）
+│  ├─ models/{enemies,weapons,props}/       从 lab 库选出的 9 个 GLB
+│  └─ textures/prototype/                   blockout 灰盒纹理
 └─ tools/
-   └─ setup_inputmap.gd                     一次性脚本：把模板所需输入动作写入 project.godot
+   ├─ setup_inputmap.gd                     输入动作写入 project.godot（一次性）
+   ├─ verify_assets.gd                      资产验证：动画列表 + 包围盒尺寸
+   └─ build_arena.gd                        程序化生成关卡（改参数重跑即生效）
 ```
+
+### 5.0 资产现状（2026-09-26）
+
+- **敌人 4 型**：trooper（17 动画）/ swarm_drone（6 动画）来自 GLB 内置骨骼动画；
+  charger（四足）与 heavy（机甲）无动画 → 走**程序化动画**（复用练习期 04 的分件 pivot 方法论）。
+  **结论：不再需要外部动画库**，之前判定「缺动画」是因为没解析 glTF 的 `animations` 字段。
+- **模型尺度不统一**（实测）：最高 19.31 m、最矮 0.59 m，相差 30 倍。
+  每个模型必须按 `assets/ASSET_MANIFEST.md` 施加缩放后才能进场景。
+- **关卡**：先用灰盒 blockout（prototype 纹理），通过验证后再用 Kenney Space Kit 做美术 pass。
+  布局沿用练习期教训——**四角分离式高台，绝不围死中心**（敌人无寻路时环形高台=死图）。
 
 - 素材集中放 lab 根 `assets/`，项目内只放「已选定使用」的副本或导入产物——
   避免每个项目复制一遍素材库。
