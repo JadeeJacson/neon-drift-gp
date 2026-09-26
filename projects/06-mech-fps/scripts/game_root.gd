@@ -8,6 +8,7 @@ class_name GameRoot
 @export var arena_path: NodePath = ^"Arena"
 @export var director_path: NodePath = ^"WaveDirector"
 @export var hud_path: NodePath = ^"Hud"
+@export var bgm_path: NodePath = ^"Bgm"
 
 
 func _ready() -> void:
@@ -31,7 +32,22 @@ func _ready() -> void:
 
 	_place_player_at_spawn(player, spawn_points)
 	hud.bind_player(player)
+	_hook_bgm()
 	director.setup(spawn_points, vitals)
+
+
+## BGM 跟着波次状态走：开波切战斗轨，清波切紧张轨，结算收掉。
+## 用 lambda 而不是 connect(sig, method.bind(arg))：wave_started 带 3 个参数，
+## bind 会把它们一起送进只接受 1 个参数的 play_track，运行期才报错。
+func _hook_bgm() -> void:
+	var bgm := get_node_or_null(bgm_path) as BgmPlayer
+	if bgm == null:
+		return
+	for director in get_tree().get_nodes_in_group("wave_director"):
+		director.wave_started.connect(func(_i: int, _t: int, _n: int) -> void: bgm.play_track("combat"))
+		director.wave_cleared.connect(func(_i: int, _b: int) -> void: bgm.play_track("tension"))
+		director.victory.connect(bgm.duck_to_silence)
+		director.defeat.connect(bgm.duck_to_silence)
 
 
 func _place_player_at_spawn(player: Node3D, spawn_points: Node3D) -> void:

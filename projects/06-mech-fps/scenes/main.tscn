@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/arena.tscn" id="1_arena"]
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2_player"]
 [ext_resource type="Script" path="res://scripts/game_root.gd" id="3_root"]
 [ext_resource type="Script" path="res://scripts/wave_director.gd" id="4_director"]
 [ext_resource type="Script" path="res://scripts/hud.gd" id="5_hud"]
+[ext_resource type="Script" path="res://scripts/bgm_player.gd" id="6_bgm"]
 
 [node name="Main" type="Node"]
 script = ExtResource("3_root")
@@ -19,3 +20,6 @@ script = ExtResource("4_director")
 
 [node name="Hud" type="CanvasLayer" parent="."]
 script = ExtResource("5_hud")
+
+[node name="Bgm" type="AudioStreamPlayer" parent="."]
+script = ExtResource("6_bgm")

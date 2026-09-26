@@ -84,6 +84,19 @@ func _unhandled_input(event: InputEvent) -> void:
 		select(2)
 
 
+## 供 HUD 与冒烟测试读取当前弹量（避免测试靠信号回溯）。
+func mag() -> int:
+	return _mag
+
+
+func reserve() -> int:
+	return _reserve
+
+
+func current_id() -> String:
+	return _current
+
+
 func select(index: int) -> void:
 	if index < 0 or index >= weapon_order.size():
 		return

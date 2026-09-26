@@ -76,6 +76,10 @@ func stop() -> void:
 	_finished = true
 
 
+func is_finished() -> bool:
+	return _finished
+
+
 func _spawn_next() -> void:
 	var type: String = _queue.pop_front()
 	var path := String(ENEMY_SCENES.get(type, ""))
@@ -88,8 +92,10 @@ func _spawn_next() -> void:
 	# 出怪点轮换而不是随机，保证玩家能预判节奏（练习期 04 的可读性经验）
 	var point := _spawn_points[_spawn_cursor % _spawn_points.size()]
 	_spawn_cursor += 1
-	enemy.global_position = point.global_position
+	# 必须先 add_child 再设 global_position：节点不在树里时读父链变换会报
+	# "!is_inside_tree()"，且位置会被静默丢弃，敌人从原点出生。
 	add_child(enemy)
+	enemy.global_position = point.global_position
 	enemy.died.connect(on_enemy_died)
 	_alive += 1
 	alive_changed.emit(_alive, _cap)
