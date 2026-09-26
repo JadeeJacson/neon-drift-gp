@@ -164,8 +164,14 @@ func try_fire() -> void:
 		if killed:
 			_play(SFX.kill)
 		hit_confirmed.emit(killed)
+		# 顿帧只在「真的打中」时给，空枪不该卡世界
+		var stop := WeaponTable.field(_current, "hitstop")
+		if stop > 0.0:
+			get_tree().call_group("shaker", "hitstop", stop)
 	else:
 		hit_confirmed.emit(false)
+	get_tree().call_group("shaker", "kick",
+		WeaponTable.field(_current, "recoil"), WeaponTable.field(_current, "fov_kick"))
 	_emit_ammo()
 
 

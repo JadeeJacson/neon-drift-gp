@@ -161,6 +161,21 @@ if (fs.existsSync(path.join(project, 'tools', 'smoke_battle.gd'))) {
     },
   });
 }
+if (fs.existsSync(path.join(project, 'tools', 'sim_report.gd'))) {
+  // 难度曲线跑分：三种画像 × 8 局的通关率/时长/受击分布
+  run('balance', [...headless, '-s', 'res://tools/sim_report.gd', '--', '--runs=8'], {
+    parse: (out) => {
+      const lines = out.split(/\r?\n/).filter((l) => /通关率|%/.test(l) && !/^=/.test(l));
+      const rates = [];
+      for (const label of ['龟缩流', '普通', '高手']) {
+        const m = out.match(new RegExp(label + '\\s+(\\d+)%'));
+        if (m) rates.push(label + ' ' + m[1] + '%');
+      }
+      return rates.join(' / ') || (lines[0] || '');
+    },
+  });
+}
+
 if (fs.existsSync(path.join(project, 'tools', 'preview_waves.gd'))) {
   run('waves', [...headless, '-s', 'res://tools/preview_waves.gd', '--', '--seeds=4'], {
     parse: (out) => {

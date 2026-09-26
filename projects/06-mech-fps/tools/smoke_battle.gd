@@ -72,7 +72,47 @@ func _initialize() -> void:
 	# 3) 弹药记账：开火必然消耗（换弹只搬运，不凭空造弹）
 	_check(weapon.mag() + weapon.reserve() < ammo_before, "开火后总弹量必须下降")
 
-	# 4) 处决：近身右键应直接击杀（资源循环的进攻激励入口）
+	# 4) 切枪与换弹：1/2/3 换的是不同弹匣规格，换弹必须真的补满
+	var mag_rifle := weapon.mag()
+	weapon.select(1)
+	_check(weapon.current_id() == "shotgun", "切枪到 2 号位应为霰弹枪")
+	_check(weapon.mag() == int(WeaponTable.field("shotgun", "mag_size")), "切枪后弹匣应重置为该枪规格")
+	weapon.select(0)
+	weapon.start_reload()
+	for _i in range(int(WeaponTable.field("assault_rifle", "reload_time") * 70.0) + 20):
+		await physics_frame
+	_check(weapon.mag() > mag_rifle or weapon.mag() == int(WeaponTable.field("assault_rifle", "mag_size")),
+		"换弹计时结束后弹匣必须补齐（当前 %d）" % weapon.mag())
+
+	# 5) 击杀回资源：走真实死亡信号链（EnemyController._die → call_group("weapon")）
+	var donor := _nearest_enemy(director)
+	if donor != null:
+		var reserve_before := weapon.reserve()
+		donor.take_damage(999999.0, camera.global_position, true)
+		await process_frame
+		_check(weapon.reserve() > reserve_before,
+			"击杀必须通过信号链回补弹药（%d → %d）" % [reserve_before, weapon.reserve()])
+	else:
+		_check(false, "找不到可用于验证回弹的敌人")
+
+	# 6) 震屏：重反馈武器（霰弹 recoil 0.26）必须把 trauma 顶起来；
+	#    步枪单发 trauma 只有 0.05、衰减 3.2/s，16ms 就归零——那是「连射不该微抖」的设计意图，
+	#    所以不能用步枪做这条断言（第一版就是这么误判成 FAIL 的）。
+	var shaker := _first_shaker()
+	if shaker != null:
+		weapon.select(1)
+		weapon.try_fire()
+		await physics_frame
+		_check(shaker.trauma_for_test() >= 0.2,
+			"霰弹开火后 trauma 应≥0.2（实测 %.3f）" % shaker.trauma_for_test())
+		for _i in range(240):
+			await physics_frame
+		_check(absf(shaker.trauma_for_test()) < 0.0001, "trauma 必须衰减到 0，不能残留偏移")
+		weapon.select(0)
+	else:
+		_check(false, "CameraShake 没进 shaker 组，反馈链断在装配层")
+
+	# 7) 处决：近身右键应直接击杀（资源循环的进攻激励入口）
 	var victim := _nearest_enemy(director)
 	if victim != null:
 		_place_in_front(victim, camera, 2.5)
@@ -80,7 +120,7 @@ func _initialize() -> void:
 		await physics_frame
 		_check(victim.is_dead(), "处决应一击必杀近身目标")
 
-	# 5) 结算：致命伤必须进死亡态并停掉导演
+	# 8) 结算：致命伤必须进死亡态并停掉导演
 	vitals.take_damage(9999.0, Vector3.ZERO)
 	await process_frame
 	_check(vitals.is_dead(), "致命伤后进入死亡态")
@@ -147,6 +187,13 @@ func arena_has_spawns(main: Node) -> bool:
 func _load_main() -> Node:
 	var packed := load("res://scenes/main.tscn") as PackedScene
 	return packed.instantiate()
+
+
+func _first_shaker() -> CameraShake:
+	for node in get_nodes_in_group("shaker"):
+		if node is CameraShake:
+			return node as CameraShake
+	return null
 
 
 func _check(ok: bool, label: String) -> void:

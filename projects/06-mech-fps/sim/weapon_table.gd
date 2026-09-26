@@ -20,6 +20,11 @@ const WEAPONS := {
 		"max_range": 60.0,
 		"min_mult": 0.55,
 		"reserve": 192,
+		# 反馈强度（CameraShake 消费）。设计口径：步枪靠射速堆压迫，单发反馈必须小，
+		# 否则连射时画面一直微抖；霰弹是「一发的艺术」，单发反馈最重。
+		"recoil": 0.05,
+		"fov_kick": 1.5,
+		"hitstop": 0.0,
 	},
 	"shotgun": {
 		"display": "霰弹枪",
@@ -33,6 +38,9 @@ const WEAPONS := {
 		"max_range": 25.0,
 		"min_mult": 0.25,
 		"reserve": 56,
+		"recoil": 0.26,
+		"fov_kick": 4.0,
+		"hitstop": 0.045,
 	},
 	"dmr_sniper": {
 		"display": "精确射手步枪",
@@ -46,6 +54,9 @@ const WEAPONS := {
 		"max_range": 150.0,
 		"min_mult": 0.85,
 		"reserve": 70,
+		"recoil": 0.16,
+		"fov_kick": 3.0,
+		"hitstop": 0.03,
 	},
 }
 

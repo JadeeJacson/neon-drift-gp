@@ -28,6 +28,8 @@ func take_damage(amount: float, _from: Vector3) -> void:
 		return
 	_hp = maxf(0.0, _hp - amount)
 	damage_taken.emit(amount)
+	# 受击反馈必须比武器后坐更重：玩家可以躲开枪线，但不能不知道自己被打中了
+	get_tree().call_group("shaker", "kick", 0.34, 0.0)
 	hp_changed.emit(_hp, max_hp)
 	if _hp <= 0.0:
 		_die()

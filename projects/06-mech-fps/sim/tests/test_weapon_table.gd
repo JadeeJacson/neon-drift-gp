@@ -79,3 +79,32 @@ func test_mag_and_reserve_sane() -> void:
 func test_unknown_id_is_rejected() -> void:
 	assert_false(WeaponTable.has_id("laser_cannon"), "未登记的武器不该存在")
 	assert_false(EnemyTable.has_type("boss"), "未登记的敌型不该存在")
+
+
+## 反馈强度也是数值，不是「手感玄学」：霰弹单发最重、步枪最轻（靠射速堆压迫，单发必须收敛），
+## 且顿帧时长必须显著小于射击间隔，否则顿帧会把节奏 itself 吃掉。
+func test_feedback_intensity_ordering() -> void:
+	var rifle := WeaponTable.field("assault_rifle", "recoil")
+	var scatter := WeaponTable.field("shotgun", "recoil")
+	var dmr := WeaponTable.field("dmr_sniper", "recoil")
+	assert_gt(scatter, dmr, "霰弹单发后坐应重于精确射手")
+	assert_gt(dmr, rifle, "精确射手单发后坐应重于步枪")
+	assert_lte(rifle, 0.08, "步枪单发后坐超过 0.08 会让连射画面一直在微抖")
+
+
+func test_feedback_values_in_safe_band() -> void:
+	for id in WeaponTable.ids():
+		var recoil := WeaponTable.field(String(id), "recoil")
+		var kick := WeaponTable.field(String(id), "fov_kick")
+		var stop := WeaponTable.field(String(id), "hitstop")
+		assert_between(recoil, 0.0, 0.35, "%s 后坐超出可视区间" % id)
+		assert_lte(kick, 6.0, "%s 的 FOV 顶得太狠，会像摄像机被人拽了一把" % id)
+		assert_lte(stop, 0.05, "%s 顿帧过长，玩家会以为游戏卡住了" % id)
+		if stop > 0.0:
+			assert_lt(stop, WeaponTable.fire_interval(String(id)),
+				"%s 顿帧时长必须小于射击间隔，否则卡节奏" % id)
+
+
+## 步枪的 hitstop 为 0 是刻意取舍：高射速武器每次都卡帧会糊成一片。
+func test_rifle_has_no_hitstop_by_design() -> void:
+	assert_eq(WeaponTable.field("assault_rifle", "hitstop"), 0.0)
