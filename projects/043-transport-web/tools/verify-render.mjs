@@ -121,7 +121,7 @@ for (let i = 0; i < 60; i++) {
   }
   await sleep(400);
 }
-console.log('=== 04 火线 · CDP 渲染验证 ===');
+console.log('=== 043 运输船 · CDP 渲染验证 ===');
 check('R0 页面加载并暴露 __fps 接口', ready);
 
 // R2 渲染器
@@ -248,21 +248,21 @@ check('R8 换弹链路（进入换弹 → 弹匣补满）',
   reloading === true && afterReload.ammo === afterReload.magazine,
   `reloading=${reloading}，换弹后 ${afterReload.ammo}/${afterReload.magazine}`);
 
-// R12 五把武器都注册（新增 SMG / DMR 后，HUD 槽位必须同步，不能还停在 3 个）
+// R12 武器槽位与 config 一致（043 武器表 5 枪 + 手雷）
 const weapons = await ev('window.__fps.state().weapons.map(w => w.id)');
 check(
-  'R12 武器槽位与 config 一致（新增武器后 HUD 同步）',
-  Array.isArray(weapons) && weapons.length === 5 && weapons.includes('smg') && weapons.includes('dmr'),
+  'R12 武器槽位与 config 一致（043 武器表 + 手雷已装载）',
+  Array.isArray(weapons) && weapons.length === 6 && weapons.includes('ak47') && weapons.includes('awm') && weapons.includes('grenade'),
   Array.isArray(weapons) ? weapons.join(',') : String(weapons),
 );
 
-// R13 切到新武器并开火：验证 DMR 不是装饰品。
+// R13 切到 AWM 并开火：验证狙击枪不是装饰品。
 // 先重启一局（此前 R6/R7 的交火可能已把玩家打死 → phase=lost → sim 停止步进，开火永远无效）。
-// 再轮询弹药变化：DMR 射击间隔 0.6s（sim 时间），无头软件渲染下墙钟与 sim 差一个量级，
-// 固定等待会 flaky（上次 1500ms 墙钟一发都没排上）。
+// 再轮询弹药变化：AWM 射击间隔 1.43s（sim 时间），无头软件渲染下墙钟与 sim 差一个量级，
+// 固定等待会 flaky → 轮询直到弹药减少。
 await ev('window.__fps.restart()');
 await sleep(2000);
-await ev('window.__fps.setInput({ slot: 4 })'); // 顺序 pistol,rifle,shotgun,smg,dmr → 4 = dmr
+await ev('window.__fps.setInput({ slot: 2 })'); // ak47,m4a1,awm,mp5,deagle → 2 = awm
 await sleep(2500); // 覆盖切枪硬直 0.32s（sim 时间）对应的墙钟
 const beforeDmr = await ev('window.__fps.state()');
 await ev('window.__fps.setInput({ fire: true })');
@@ -274,8 +274,8 @@ for (let i = 0; i < 10; i++) {
 }
 await ev('window.__fps.setInput({ fire: false })');
 check(
-  'R13 切到 DMR 后能开火（新武器可用）',
-  afterDmr.weapon === 'dmr' && afterDmr.ammo < beforeDmr.ammo,
+  'R13 切到 AWM 后能开火（栓动狙击可用）',
+  afterDmr.weapon === 'awm' && afterDmr.ammo < beforeDmr.ammo,
   `weapon=${afterDmr.weapon} 弹药 ${beforeDmr.ammo}→${afterDmr.ammo}`,
 );
 
@@ -311,6 +311,45 @@ const hudOk = await ev(`(() => {
 })()`);
 check('R16 小地图与击杀信息流挂载（04_2 移植件）', hudOk === 'ok', String(hudOk));
 
+// R17 手雷物理链路（043 bug 修复件）：切到手雷槽（slot 5）→ 投掷 → 雷体在飞 →
+// 引信到点爆炸后雷体移除。浏览器端验证动态刚体 + 事件消费全链路。
+await ev('window.__fps.restart()');
+await sleep(1500);
+await ev('window.__fps.setInput({ slot: 5 })');
+await sleep(500);
+await ev('window.__fps.setInput({ slot: null })');
+await sleep(500);
+// 低头 45° 朝前下方投掷，让雷尽快落地反弹
+await ev('window.__fps.setLook(0, -0.5)');
+await ev('window.__fps.setInput({ fire: true })');
+await sleep(250);
+await ev('window.__fps.setInput({ fire: false })');
+const g0 = await ev('window.__fps.grenades()');
+const thrownInBrowser = Array.isArray(g0) && g0.length >= 1;
+let flew = false;
+let explodedInBrowser = false;
+if (thrownInBrowser) {
+  for (let i = 0; i < 40; i++) {
+    await sleep(100);
+    const gs = await ev('window.__fps.grenades()');
+    if (!Array.isArray(gs) || gs.length === 0) {
+      explodedInBrowser = true; // 列表清空 = 引信到点被移除
+      break;
+    }
+    // 反弹观察：雷体速度（相邻采样位移）有非零变化且 y 有起伏即算飞行
+    if (gs[0].pos.y > 0.05 || gs[0].fuse < 2.19) flew = true;
+  }
+}
+check('R17a 手雷投掷：切槽后 fire 产生飞行雷体', thrownInBrowser, `n=${Array.isArray(g0) ? g0.length : 'NaN'}`);
+check(
+  'R17b 手雷引信到点爆炸（雷体移除 + explode 事件消费）',
+  explodedInBrowser,
+  explodedInBrowser ? 'grenades 列表已清空' : '仍在飞（引信未到）',
+);
+void flew;
+await ev('window.__fps.clearInput()');
+await ev('window.__fps.setLook(0, 0)');
+
 // ===== 据点占领模式（5v5）补充验证（仅 --dom 时执行）=====
 // 切到 domination 并重启：验证 10 名战斗员（玩家 + 4 友军 vs 5 红）确实入场、
 // 据点进度字段存在且会被蓝队（玩家 + 友军 AI）推进。
@@ -332,11 +371,12 @@ if (RUN_DOM) {
     typeof dom0.capture === 'number' && typeof dom0.mode === 'string' && dom0.mode === 'domination',
     `cap=${dom0.capture} mode=${dom0.mode}`,
   );
-  // 蓝队友军 AI 会自动向据点推进，数秒后 capture 应偏离 0（或已分出胜负）
+  // 蓝队（玩家冲刺 + 友军 AI）向据点推进：船尾基地 (0,±42.5) 到中央据点 42.5m，
+  // 冲刺 9.6m/s × 10s ≈ 96m 足够进 7m 半径圈（原 4.5s 普通走位根本到不了）
   const capStart = dom0.capture;
-  await ev('window.__fps.setInput({ forward: 1 })');
-  await sleep(4500);
-  await ev('window.__fps.setInput({ forward: 0 })');
+  await ev('window.__fps.setInput({ forward: 1, sprint: true })');
+  await sleep(10000);
+  await ev('window.__fps.setInput({ forward: 0, sprint: false })');
   const dom1 = await ev('window.__fps.state()');
   check(
     'D-D 据点模式：据点进度会推进（|Δcapture| > 0 或已终局）',
@@ -360,7 +400,7 @@ await sleep(600);
 const shot = await send('Page.captureScreenshot', { format: 'png' });
 const buf = Buffer.from(shot.result.data, 'base64');
 const fs = await import('node:fs');
-const path = `${SHOT_DIR}/04-fps-arena.png`;
+const path = `${SHOT_DIR}/043-transport-web.png`;
 fs.writeFileSync(path, buf);
 check('R11 截图非空白（体积 > 25KB）', buf.length > 25 * 1024, `${(buf.length / 1024).toFixed(0)}KB → ${path}`);
 

@@ -1,12 +1,20 @@
 # 04 火线 FIREROUND
 
-第一人称竞技场射击（FPS）。5 波 57 敌（步兵 / 冲锋兵 / 狙击手 / 精英），**5 把武器**（手枪 / 步枪 / 霰弹 / 冲锋枪 SMG / 精确射手步枪 DMR），**4 张预设地图**（枢纽 / 十字 / 高台 / 长廊），分件机兵 + 走路摆臂动画，全程程序化资源 + 程序化音效。**双模式**：生存（单人清 5 波）/ 据点占领（蓝队玩家 + 4 友军 bot vs 红队 5 bot 抢中央据点）。
+第一人称竞技场射击（FPS）。5 波 57 敌（步兵 / 冲锋兵 / 狙击手 / 精英），**5 把武器**（手枪 / 步枪 / 霰弹 / 冲锋枪 SMG / 精确射手步枪 DMR），**5 张预设地图**（枢纽 / 十字 / 高台 / 长廊 / 工地），分件机兵 + 走路摆臂动画，全程程序化资源 + 程序化音效。**双模式**：生存（单人清 5 波）/ 据点占领（蓝队玩家 + 4 友军 bot vs 红队 5 bot 抢中央据点）。
+
+**2026-09-25 晚 · 整合升级**（吸收 04_1 frontline-cq 与 04_2 arena-3v3 后原项目废弃）：
+- **右键 ADS 开镜**（FOV 78→56 平滑过渡、散布 ×0.38、灵敏度 ×0.62、移速 ×0.62、疾跑自动解除）——移植自 04_1
+- **敌人模型升级**：头盔 + 战术背心 + 步兵/精英持枪、冲锋兵近战刃——造型借鉴 04_1/04_2
+- **小地图 + 击杀信息流**——移植自 04_2
+- **第 5 张地图「工地」**：集装箱双排夹道 + 中央广场，布局借鉴 04_1 的工地关卡
+- **AI v2（仅据点模式）**：sim 层自写轻量行为树（`sim/ai/bt.ts`）+ 掩体寻找（`sim/ai/cover.ts`，被压制时找「敌人看不见的最近掩体点」）+ 反应延迟（目标连续可见 0.28s 才起手）——借鉴 04_1 的拟人化 AI
+- **渲染管线升级**：ACES tone mapping + PCFSoft 阴影（2048 shadow map）+ UnrealBloom 后处理（曳光/火光/面罩泛光）
 
 ## 栈
 
 | 层 | 选型 | 版本 |
 | --- | --- | --- |
-| 渲染 | three.js (WebGL2) | 0.186.0 |
+| 渲染 | three.js (WebGL2) + EffectComposer（ACES + PCFSoft 阴影 + UnrealBloom） | 0.186.0 |
 | 物理 | @dimforge/rapier3d-compat | 0.20.0 |
 | 语言 | TypeScript strict + noUncheckedIndexedAccess | 7.0.2 |
 | 构建 | Vite（Rolldown 打包器） | 8.3.0 |
@@ -20,25 +28,27 @@
 ```
 src/
 ├── sim/        ← 零 three、零 DOM，Node 可直接跑（bot 跑分）
-│   ├── arena.ts        静态掩体 + 出生点
+│   ├── ai/             AI v2：bt.ts（轻量行为树，勿用参数属性——strip-types 不支持）
+│   │                   cover.ts（掩体点自动采样，纯函数零随机）
+│   ├── arena.ts        静态掩体 + 出生点（含第 5 图「工地」）
 │   ├── types.ts        Team / CombatantRef / 事件 / 快照 等共享类型
-│   ├── combatant.ts    战斗员 AI（敌人 + 友军统一；LOS 推进 + 切线绕行；占点态）
+│   ├── combatant.ts    战斗员 AI（敌人 + 友军统一；v1 生存路径 + v2 据点路径）
 │   ├── game.ts         GameSim 组装、step 顺序、胜负、双模式（生存 / 据点）
-│   ├── player.ts       KCC 玩家（coyote time、grounded）
+│   ├── player.ts       KCC 玩家（coyote time、grounded、ADS 减速）
 │   ├── rng.ts          mulberry32 决定性 RNG
 │   ├── shooting.ts     castRay（Rapier 0.20 timeOfImpact）
 │   ├── waves.ts        WaveDirector（分批、波间喘息、推进）
-│   ├── weapons.ts      WeaponSystem（后坐力、散布、换弹）
+│   ├── weapons.ts      WeaponSystem（后坐力、散布、换弹、ADS 散布乘区）
 │   └── vecmath.ts
 ├── render/     ← 只读 sim 的 EnemyView / GameSnapshot / 事件流
-│   ├── scene.ts        SceneRig + 相机自带 PointLight（viewmodel 可见性）
-│   ├── arena.ts        程序化掩体渲染 + 警戒条纹
-│   ├── actors.ts       EnemyRenderer + ViewModel（Lambert + emissive）
+│   ├── scene.ts        SceneRig + 相机 PointLight + ACES/阴影/bloom 后处理链
+│   ├── arena.ts        程序化掩体渲染 + 警戒条纹（castShadow/receiveShadow）
+│   ├── actors.ts       EnemyRenderer + ViewModel（Lambert + emissive；头盔/背心/持枪）
 │   └── fx.ts           曳光 + 粒子对象池
 ├── audio/synth.ts      AudioEngine（oscillator + noise buffer 合成）
-├── ui/hud.ts           DOM HUD（准星 = 真实散布）
-├── core/config.ts      全部平衡数值（唯一调参入口）
-└── main.ts             组装 + 固定步长循环 + window.__fps 验证接口
+├── ui/hud.ts           DOM HUD（准星 = 真实散布；小地图 + 击杀信息流）
+├── core/config.ts      全部平衡数值（唯一调参入口；player.ads / ai 为新增段）
+└── main.ts             组装 + 固定步长循环 + ADS FOV 过渡 + window.__fps 验证接口
 ```
 
 **铁律**：`src/sim/**` 不 import three、不碰 DOM。这让 Node 可以直接驱动 sim（`tools/bot-run.ts`），平衡数值用 bot 跑分做客观判定，而不是靠肉眼看画面。
@@ -59,7 +69,7 @@ npm run preview
 
 ## 控制
 
-`鼠标转视角 · 左键开火 · R 换弹 · 1/2/3 切枪 · Shift 疾跑 · Esc 释放鼠标`
+`鼠标转视角 · 左键开火 · 右键开镜（ADS）· R 换弹 · 1/2/3 切枪 · Shift 疾跑 · Esc 释放鼠标`
 
 无头环境下用 `window.__fps` 注入：`setInput / setLook / start / state / enemies / info / audioInfo / fxInfo / restart`。
 
@@ -138,6 +148,27 @@ npm run preview
 - **R14** 敌人视图可用（模型升级后 sim 接口未变）
 - R1 零运行时报错
 
+## 整合升级验证基线（2026-09-25 晚，吸收 04_1 / 04_2 后）
+
+### 生存 bot 跑分 13/13（零回归）
+
+- A–G 全部通过，且关键数值与历史基线**逐项一致**（枢纽 108.6s / 十字 101.7s / 高台 129.5s / 长廊 157.7s，SMG 通关 106.4s，DMR 单枪 8 杀）——证明生存模式红队与旧版逐帧等价，AI v2 与移植件零侵入。
+- **F 矩阵扩到 5 图**：新增「工地」完美 bot 通关 120.9s / 57 杀，无 NaN。
+
+### 据点 bot 跑分 5/5（AI v2 生效）
+
+- D1–D5 全部通过。行为树（被压制找掩体）+ 反应延迟下，bot 交火时长从 ~20s 拉长到 ~53s——反应时间与掩体让 bot 交火有来有回，不再互秒；D4 占点峰值 89，蓝队仍稳定获胜。
+- ⚠️ **代价声明**：据点模式的 bot 行为不再与旧版可比（这是本次升级的目的）；生存模式保持逐帧等价。
+
+### CDP 端到端 18/18
+
+- 原 R0–R14 全过，新增 **R15**（ADS：注入 ads → 状态生效、散布 0.0006→0.0002）与 **R16**（小地图 + killfeed 挂载）。
+- R9 渲染统计：**drawCalls=97 / triangles=5894 / programs=31**（vs 整合前 41 / 2594 / 10）——增量来自敌人新模型件、阴影 pass 与 bloom 后处理，仍远低于 04_1 实测的 100 / 3140 预算线（且那是在 RTX 4060 硬件 GPU 上）。
+- R13/R8 的固定 sleep 改为轮询：无头 SwiftShader 下墙钟与 sim 时间差一个量级，固定等待会 flaky（实测复现过 R8 半程快照 10/12、R13 一发未出）。
+- 环境坑：给 dev server 新增 `three/addons` 依赖后，vite 首次 dep optimize 会触发整页刷新——必须在页面稳定后再跑 verify，否则 R3 读到的是刷新后未 start 的新实例。
+
+---
+
 ## 关键设计选择
 
 1. **后坐力叠加到视线**：`dirFromAngles(yaw+recoilYaw, pitch+recoilPitch)`，枪口跳到哪子弹飞到哪，避免「枪口飞但子弹直」的违和。
@@ -151,8 +182,11 @@ npm run preview
 9. **武器完全 data-driven**：`WeaponSystem.slots = CONFIG.weapons.map(...)`，加武器只改 config + actors 的几何分支 + HUD 槽位（用 `CONFIG.weapons.length` 动态生成）+ 按键 1–5（动态循环）；不动主循环。槽位按键也用 `for (let i=0; i<CONFIG.weapons.length; i++)` 而非硬编码 if/elseif。
 10. **敌人模型分件 + 走路摆臂**：躯干 + 头 + 双臂 + 双腿 + 肩甲，每根四肢挂在自己的 pivot Group 上（pivot 在肩/髋，mesh 在 pivot 内部向下偏移半个长度），转 pivot 就是摆臂摆腿。**相位由真实位移驱动**（`phase += speed * dt * 2.4`），站定不摆、跑起来摆幅大——不是凭空播动画。三种敌人 + 精英做剪影差异化：冲锋兵前倾+腿长、狙击手扛长枪管、精英胸口装甲板。
 11. **队伍泛化与「生存基线零回归」**：`Combatant` 把旧 `Enemy` 升级为「敌人 + 友军统一 AI」，目标从「玩家」变成「最近敌队 `CombatantRef`」，用 `filterPredicate` 做队伍过滤射击。但**生存模式的红队行为必须与旧 `Enemy` 逐帧等价**——这是验证体系可比性的硬前提。所有针对 `Combatant` 的移动 / LOS / 射线改动，都必须先在生存 bot（13/13）上验证不回归，再做据点专属行为。
+12. **AI v2 按模式门控，不按开关**：行为树 / 掩体寻找 / 反应延迟全部挂在 `ctx.aiV2`（= domination）分支下，survival 的代码路径与旧版完全一致——不是「同一套代码加开关」，而是「新路径只在新模式存在」。v2 的所有新状态（seeTimer / hurtAge / coverTarget）在 v1 路径下保持初值、零读写。未来若想让生存敌人也用 v2，必须先重跑并重定 A–G 基线数值。
+13. **后处理链的主渲染收口**：EffectComposer 接管 `render()` 后，tone mapping 由 OutputPass 统一执行；`info()` 仍直跑 `renderer.render` 以拿到纯净的 draw call 计数（不含 bloom pass 的中间 target 绘制）。MSAA 走 WebGLRenderTarget 的 `samples: 4`（composer 会丢弃 canvas 级 MSAA）。
 
 ## 已知限制 / 后续
+
 
 - viewmodel 仍偏几何化（盒 + 圆柱），要更精致需手部 / 武器贴图（违反零资产原则）。
 - 精英仅在第 5 波出现 3 只，强度未充分压力测。

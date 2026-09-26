@@ -53,11 +53,14 @@ export class WeaponSystem {
   /**
    * 当前实际散布半角 = (基础 + 连发累积) × ADS 乘区。
    * ADS 乘到「总散布」上：开镜时准星（= 真实散布）会自动收紧，两个系统天然联动。
+   * 武器级覆盖：AWM 狙击镜的 adsSpreadMul 远小于全局值（0.012 vs 0.38）。
    */
   currentSpread(): number {
     const s = this.current;
     const raw = s.def.spreadBase + s.spread;
-    return this.ads ? raw * CONFIG.player.ads.spreadMul : raw;
+    if (!this.ads) return raw;
+    const mul = s.def.adsSpreadMul ?? CONFIG.player.ads.spreadMul;
+    return raw * mul;
   }
 
   /** 波次之间补满所有弹匣 */
@@ -119,7 +122,7 @@ export class WeaponSystem {
     if (this.recoilPitch < 1e-5) this.recoilPitch = 0;
     if (Math.abs(this.recoilYaw) < 1e-5) this.recoilYaw = 0;
 
-    // 换弹
+    // 换弹（投掷物不换弹：3 颗丢完为止，波间 refillAll 补满）
     if (s.reloading) {
       s.reloadTimer -= dt;
       if (s.reloadTimer <= 0) {
@@ -128,7 +131,7 @@ export class WeaponSystem {
         s.ammo = def.magazine;
         events.push({ type: 'reloadEnd', weapon: def.id });
       }
-    } else if (input.reload && s.ammo < def.magazine) {
+    } else if (input.reload && !def.throwable && s.ammo < def.magazine) {
       s.reloading = true;
       s.reloadTimer = def.reloadTime;
       events.push({ type: 'reloadStart', weapon: def.id });
@@ -143,9 +146,12 @@ export class WeaponSystem {
     if (s.ammo <= 0) {
       events.push({ type: 'empty', weapon: def.id });
       s.cooldown = 0.28;
-      s.reloading = true;
-      s.reloadTimer = def.reloadTime;
-      events.push({ type: 'reloadStart', weapon: def.id });
+      if (!def.throwable) {
+        // 枪械空仓自动换弹；手雷丢完就是真的没了（等波间补给）
+        s.reloading = true;
+        s.reloadTimer = def.reloadTime;
+        events.push({ type: 'reloadStart', weapon: def.id });
+      }
       return false;
     }
 

@@ -71,8 +71,8 @@ export class SceneRig {
     this.buildSky();
     this.buildLights();
 
-    // 雾：竞技场纵深 + 远处敌人淡出（同时也是「氛围」这一条硬指标的交付项）
-    this.scene.fog = new THREE.Fog(0x141a24, 18, 78);
+    // 雾：海面湿雾（运输船纵深 100m，雾距相应拉远；远端舱壁半没入雾中是氛围交付项）
+    this.scene.fog = new THREE.Fog(0x1c2a3a, 26, 130);
 
     // 必须把 camera 挂进 scene，否则 camera.add(viewmodel) 的子节点不会进入遍历
     this.scene.add(this.camera);
@@ -83,7 +83,7 @@ export class SceneRig {
     this.camera.add(vmLight);
   }
 
-  /** 程序化天空：canvas 渐变贴到内翻的大球上，零外部资产 */
+  /** 程序化天空：canvas 渐变贴到内翻的大球上，零外部资产（海战氛围：海蓝 + 晚霞地平线） */
   private buildSky(): void {
     const canvas = document.createElement('canvas');
     canvas.width = 8;
@@ -91,10 +91,10 @@ export class SceneRig {
     const ctx = canvas.getContext('2d');
     if (ctx) {
       const g = ctx.createLinearGradient(0, 0, 0, 256);
-      g.addColorStop(0, '#0a1020');
-      g.addColorStop(0.45, '#1b2740');
-      g.addColorStop(0.72, '#3a4358');
-      g.addColorStop(1, '#6b5a4a');
+      g.addColorStop(0, '#0d1c30');
+      g.addColorStop(0.45, '#24425e');
+      g.addColorStop(0.72, '#54718a');
+      g.addColorStop(1, '#8a7a62');
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, 8, 256);
     }
@@ -113,17 +113,18 @@ export class SceneRig {
     const hemi = new THREE.HemisphereLight(0x9fb6d9, 0x2b2419, 1.1);
     this.scene.add(hemi);
 
-    // 主光（斜射，制造箱体明暗面）+ 阴影：覆盖整个竞技场的单一 shadow camera
+    // 主光（斜射，制造箱体明暗面）+ 阴影：覆盖整艘船（约 100m）的单一 shadow camera。
+    // 04 是 ±26 的方形竞技场，±32 够用；运输船长 98m，必须拉到 ±55。
     const sun = new THREE.DirectionalLight(0xffe3c0, 2.4);
     sun.position.set(28, 40, 18);
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
-    sun.shadow.camera.left = -32;
-    sun.shadow.camera.right = 32;
-    sun.shadow.camera.top = 32;
-    sun.shadow.camera.bottom = -32;
+    sun.shadow.camera.left = -55;
+    sun.shadow.camera.right = 55;
+    sun.shadow.camera.top = 55;
+    sun.shadow.camera.bottom = -55;
     sun.shadow.camera.near = 4;
-    sun.shadow.camera.far = 100;
+    sun.shadow.camera.far = 160;
     sun.shadow.bias = -0.0004;
     this.scene.add(sun);
 

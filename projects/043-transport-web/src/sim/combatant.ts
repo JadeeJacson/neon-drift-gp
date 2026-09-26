@@ -16,6 +16,7 @@ import RAPIER from '@dimforge/rapier3d-compat';
 import { CONFIG } from '../core/config';
 import type { EnemyDef, EnemyId } from '../core/config';
 import { BtAction, BtCondition, BtSelector, BtSequence, type BtNode } from './ai/bt';
+import type { NavGrid } from './ai/nav';
 import type { CombatantRef, SimEvent, Team, Vec3 } from './types';
 import { castRay, hasLineOfSight, spreadDir } from './shooting';
 import { distXZ, normalize, sub } from './vecmath';
@@ -47,6 +48,8 @@ export interface CombatantUpdateCtx {
   aiV2?: boolean;
   /** 掩体点集合（v2 用；GameSim 构造时从地图几何预计算，纯函数零随机） */
   coverPoints?: Vec3[];
+  /** 导航网格（043 移植）：无视线追击 / 掩体转移 / 占点推进时走 BFS 路径 */
+  nav?: NavGrid;
 }
 
 /** 行为树黑板：一次 tick 的输入输出 */
@@ -103,6 +106,20 @@ export class Combatant {
   private coverSeekTimer = 0;
   /** 当前掩体目标（缓存 0.4s） */
   private coverTarget: Vec3 | null = null;
+  /** ---- BFS 寻路状态（043 移植）----
+   * pathTimer：重规划节流（0.6s，与 043 的 repath 周期一致）；
+   * path：当前路径点序列；pathGoalKey：路径目标（目标挪动超阈值才重算）。 */
+  private pathTimer = 0;
+  private path: Vec3[] = [];
+  private pathGoalKey: Vec3 | null = null;
+  private pathDirX = 0;
+  private pathDirZ = 0;
+  private pathActive = false;
+  /** ---- 卡死软复位（移植 043 的「净位移判定 + 软复位」）----
+   *  每 2.5s 检查一次净位移；意图移动但几乎没挪窝 → 眨移到最近的导航节点。
+   *  KCC 在旋转盒夹角等处会物理楔死，任何移动数学都救不回来，只能换位置。 */
+  private unstuckTimer = 2.5;
+  private unstuckPos: Vec3 | null = null;
   /** 行为树：Selector[ Sequence[被压制 → 找掩体], 交战兜底 ] */
   private readonly tree: BtNode<CombatBb> = new BtSelector<CombatBb>([
     new BtSequence<CombatBb>([
@@ -151,8 +168,10 @@ export class Combatant {
 
     const r = base.radius * this.scale;
     const hh = base.halfHeight * this.scale;
+    // 与 Player 相同的 +2cm 悬空出生：底面恰好贴地会让第一步重力位移把胶囊压进地面，
+    // KCC 慢速脱困期间横向移动被拒（敌人同样中招，表现为出生后短暂僵直）
     this.body = world.createRigidBody(
-      RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(pos.x, pos.y + hh + r, pos.z),
+      RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(pos.x, pos.y + hh + r + 0.02, pos.z),
     );
     this.collider = world.createCollider(
       RAPIER.ColliderDesc.capsule(hh, r),
@@ -207,6 +226,8 @@ export class Combatant {
     }
     if (this.flash > 0) this.flash -= dt;
     if (this.attackTimer > 0) this.attackTimer -= dt;
+    if (this.pathTimer > 0) this.pathTimer -= dt;
+    this.pathActive = false;
     if (ctx.aiV2) this.hurtAge += dt;
 
     const pos = this.center();
@@ -266,27 +287,41 @@ export class Combatant {
     let mx = 0;
     let mz = 0;
     if (coverIntent) {
-      // 掩体意图：直奔掩体点；进点后停住（贴墙驻守，不叠侧移——侧移会走出掩体）
+      // 掩体意图：优先走 BFS 路径（绕箱堆），失败退回直线；进点后停住
       const dx = coverIntent.x - pos.x;
       const dz = coverIntent.z - pos.z;
       const d = Math.hypot(dx, dz);
       if (d > CONFIG.ai.coverArriveDist) {
-        mx = dx / d;
-        mz = dz / d;
+        let moved = false;
+        if (ctx.nav && d > 3) moved = this.followPath(ctx, coverIntent);
+        if (!moved) {
+          mx = dx / d;
+          mz = dz / d;
+        }
       }
     } else if (goalRef && goalPos) {
-      // 与旧 Enemy 完全一致的移动逻辑（目标从玩家换成敌队战斗员）
+      // 与旧 Enemy 一致的交战距离数学（目标从玩家换成敌队战斗员）。
+      // 差异点：无视线追击 / 近战冲刺时先尝试 BFS 路径（043 移植），
+      // 路径不可用再退回直线——直线失败仍有后面的受阻切向绕行兜底。
       const dToGoal = bestD;
       const toG = normalize({ x: goalPos.x - pos.x, y: 0, z: goalPos.z - pos.z });
       if (this.def.attackType === 'melee') {
         if (dToGoal > this.def.range * 0.8) {
-          mx = toG.x;
-          mz = toG.z;
+          let moved = false;
+          if (ctx.nav && dToGoal > 3) moved = this.followPath(ctx, goalPos);
+          if (!moved) {
+            mx = toG.x;
+            mz = toG.z;
+          }
         }
       } else if (!goalLos) {
         if (dToGoal > 2.2) {
-          mx = toG.x;
-          mz = toG.z;
+          let moved = false;
+          if (ctx.nav && dToGoal > 3) moved = this.followPath(ctx, goalPos);
+          if (!moved) {
+            mx = toG.x;
+            mz = toG.z;
+          }
         }
       } else if (dToGoal > e.standoff + 1.5) {
         mx = toG.x;
@@ -296,28 +331,58 @@ export class Combatant {
         mz = -toG.z;
       }
     } else if (ctx.isAlly && ctx.capturePoint) {
-      // 友军无敌人目标：向据点推进；进圈后驻守（设计笔记里的「占点」态）
+      // 友军无敌人目标：向据点推进（走 BFS 路径绕开箱堆）；进圈后驻守
       const cp = ctx.capturePoint;
       const dx = cp.x - pos.x;
       const dz = cp.z - pos.z;
       const dd = Math.hypot(dx, dz);
       if (dd > cp.r * 0.55) {
-        mx = dx / dd;
-        mz = dz / dd;
+        let moved = false;
+        if (ctx.nav && dd > 3) moved = this.followPath(ctx, { x: cp.x, y: 0, z: cp.z });
+        if (!moved) {
+          mx = dx / dd;
+          mz = dz / dd;
+        }
       } else {
-        // 在圈内：原地小幅游走，不扎堆
         mx = 0;
         mz = 0;
       }
     }
 
-    // 侧移绕圈，避免站桩挨打（敌队目标存在时才侧移；占点驻守 / 掩体驻守时不过度绕）
+    // 路径跟随的移动方向（followPath 成功时覆盖直线意图）
+    if (this.pathActive) {
+      mx = this.pathDirX;
+      mz = this.pathDirZ;
+    }
+
+    // 卡死软复位：想移动但净位移≈0（持续 2.5s）→ 眨移到附近导航节点（043 移植）
+    const mlRaw = Math.hypot(mx, mz);
+    if (ctx.nav && mlRaw > 0.3) {
+      this.unstuckTimer -= dt;
+      if (this.unstuckTimer <= 0) {
+        const p0 = this.center();
+        if (this.unstuckPos && distXZ(p0, this.unstuckPos) < 0.6) {
+          const node = ctx.nav.nearestFreeNode(p0.x, p0.z, 6, 1.5);
+          if (node) {
+            this.body.setTranslation({ x: node.x, y: node.y, z: node.z }, true);
+            this.vy = 0;
+          }
+        }
+        this.unstuckTimer = 2.5;
+        this.unstuckPos = this.center();
+      }
+    } else {
+      this.unstuckTimer = 2.5;
+      this.unstuckPos = this.center();
+    }
+
+    // 侧移绕圈（路径跟随时不叠加——侧移会把 bot 拽离路径点）
     this.strafeTimer -= dt;
     if (this.strafeTimer <= 0) {
       this.strafeTimer = e.strafeFlip;
       this.strafeSign *= -1;
     }
-    if (goalRef && goalPos && !coverIntent) {
+    if (goalRef && goalPos && !coverIntent && !this.pathActive) {
       const gx = goalPos.x - pos.x;
       const gz = goalPos.z - pos.z;
       const gl = Math.hypot(gx, gz) || 1;
@@ -361,6 +426,15 @@ export class Combatant {
 
     // ---- 物理移动 ----
     this.vy += CONFIG.physics.gravity * dt;
+    const t = this.body.translation();
+    // 跳跃（043 的跳跃边在 04 KCC 上的对应实现）：
+    //   1. 路径下一跳比脚下的高 0.35m 以上且已落地 → 起跳（上木箱塔 / 上台阶）
+    //   2. 路径跟随时被挡 0.5s+ → 起跳一次（翻矮箱，避免对着箱壁平推到天荒地老）
+    if (this.pathActive && this.path.length > 0 && this.controller.computedGrounded() && this.vy <= 0.01) {
+      const wp = this.path[0]!;
+      if (wp.y > t.y + 0.35) this.vy = CONFIG.player.jumpSpeed;
+      else if (this.blockedTimer > 0.5) this.vy = CONFIG.player.jumpSpeed * 0.9;
+    }
     const desired = {
       x: mx * this.def.speed * dt,
       y: this.vy * dt,
@@ -368,7 +442,6 @@ export class Combatant {
     };
     this.controller.computeColliderMovement(this.collider, desired);
     const m = this.controller.computedMovement();
-    const t = this.body.translation();
     this.body.setNextKinematicTranslation({ x: t.x + m.x, y: t.y + m.y, z: t.z + m.z });
     if (this.controller.computedGrounded() && this.vy < 0) this.vy = 0;
 
@@ -418,6 +491,34 @@ export class Combatant {
     } else {
       this.windup = 0;
     }
+  }
+
+  /**
+   * BFS 路径跟随（043 移植）：0.6s 节流重规划，目标挪动 >2.5m 立即重算。
+   * 成功产出本帧移动方向（pathDirX/Z）并置 pathActive → 返回 true；
+   * 无导航 / 无路径 / 已抵达终点附近 → 返回 false（调用方退回直线逻辑）。
+   */
+  private followPath(ctx: CombatantUpdateCtx, goal: Vec3): boolean {
+    if (!ctx.nav) return false;
+    const pos = this.center();
+    const gk = this.pathGoalKey;
+    const goalMoved = !gk || distXZ(gk, goal) > 2.5;
+    if (this.pathTimer <= 0 || goalMoved) {
+      this.pathTimer = 0.6;
+      this.pathGoalKey = { x: goal.x, y: 0, z: goal.z };
+      this.path = ctx.nav.findPath(pos, goal) ?? [];
+    }
+    while (this.path.length > 0 && distXZ(this.path[0]!, pos) < 1.1) this.path.shift();
+    if (this.path.length === 0) return false;
+    const wp = this.path[0]!;
+    const dx = wp.x - pos.x;
+    const dz = wp.z - pos.z;
+    const d = Math.hypot(dx, dz);
+    if (d < 1e-4) return false;
+    this.pathDirX = dx / d;
+    this.pathDirZ = dz / d;
+    this.pathActive = true;
+    return true;
   }
 
   /**

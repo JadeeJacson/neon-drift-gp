@@ -7,7 +7,7 @@
  * 移植自 04_2 / 04_1 的新增件：小地图（04_2 canvas 绘制思路）、击杀信息流（04_2/04_1）。
  */
 import { CONFIG } from '../core/config';
-import type { BoxObstacle } from '../sim/arena';
+import type { BoxObstacle, MapBounds } from '../sim/arena';
 import type { EnemyView, GameMode, GameSnapshot, Team, Vec3 } from '../sim/types';
 
 const CSS = `
@@ -295,7 +295,8 @@ export class Hud {
   }
 
   /**
-   * 小地图（移植自 04_2）：北朝上固定视角。
+   * 小地图（移植自 04_2）：北朝上固定视角；运输船是窄长甲板 →
+   * 按地图边界做等比缩放 + 居中（不再假设正方形），旋转盒按 yaw 画。
    * 数据全部来自 sim（boxes / enemyViews / playerPos），渲染层只做投影，不持逻辑。
    */
   drawMinimap(
@@ -305,22 +306,36 @@ export class Hud {
     yaw: number,
     capturePoint: { x: number; z: number; r: number },
     mode: GameMode,
+    bounds: MapBounds,
   ): void {
     const ctx = this.minimapCtx;
     if (!ctx) return;
     const S = 150;
-    const half = CONFIG.arena.half;
-    const k = S / (half * 2 + 1);
-    const px = (x: number): number => (x + half + 0.5) * k;
-    const pz = (z: number): number => (z + half + 0.5) * k;
+    // 等比缩放：长边贴满，短边居中
+    const k = Math.min(S / (bounds.halfX * 2 + 1), S / (bounds.halfZ * 2 + 1));
+    const ox = S / 2;
+    const oz = S / 2;
+    const px = (x: number): number => ox + x * k;
+    const pz = (z: number): number => oz + z * k;
 
     ctx.clearRect(0, 0, S, S);
 
-    // 掩体（不含外墙——外墙就是地图边框本身）
+    // 掩体（不含外墙——外墙就是地图边框本身）；yaw 盒走旋转绘制
     for (const b of boxes) {
       if (b.kind === 'wall') continue;
-      ctx.fillStyle = b.kind === 'pillar' ? '#525c6e' : '#39415a';
-      ctx.fillRect(px(b.pos.x - b.half.x), pz(b.pos.z - b.half.z), b.half.x * 2 * k, b.half.z * 2 * k);
+      const shade =
+        b.kind === 'pillar' ? '#525c6e' : b.kind === 'container' ? '#4a5570' : '#39415a';
+      if (!b.yaw) {
+        ctx.fillStyle = shade;
+        ctx.fillRect(px(b.pos.x - b.half.x), pz(b.pos.z - b.half.z), b.half.x * 2 * k, b.half.z * 2 * k);
+      } else {
+        ctx.save();
+        ctx.translate(px(b.pos.x), pz(b.pos.z));
+        ctx.rotate(-b.yaw); // 画布 y 轴向下 → 旋转方向取反
+        ctx.fillStyle = shade;
+        ctx.fillRect(-b.half.x * k, -b.half.z * k, b.half.x * 2 * k, b.half.z * 2 * k);
+        ctx.restore();
+      }
     }
 
     // 据点圈（仅据点模式）

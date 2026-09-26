@@ -51,7 +51,11 @@ export type SimEvent =
   | { type: 'waveClear'; wave: number; nextIn: number }
   | { type: 'win'; totalShots: number; hits: number; headshots: number; kills: number; time: number; reason?: 'waves' | 'capture' | 'elimination' }
   | { type: 'lose'; wave: number; kills: number; time: number; reason?: 'waves' | 'capture' | 'elimination' }
-  | { type: 'footstep'; speed: number };
+  | { type: 'footstep'; speed: number }
+  /** 手雷出手（渲染层据此生成可抛物线飞行的雷体网格） */
+  | { type: 'grenadeThrow'; id: number; origin: Vec3; vel: Vec3 }
+  /** 手雷爆炸（渲染层放闪光/粒子/震动，音频层放爆炸声） */
+  | { type: 'explode'; pos: Vec3; radius: number };
 
 /** 一帧的输入 —— 玩家、bot、回放三者的统一接口 */
 export interface GameInput {

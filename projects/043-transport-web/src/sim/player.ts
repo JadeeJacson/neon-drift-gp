@@ -26,7 +26,10 @@ export class Player {
 
   constructor(world: RAPIER.World, spawn: Vec3) {
     const p = CONFIG.player;
-    const y = spawn.y + p.halfHeight + p.radius;
+    // 抬升 2cm 让胶囊落体着陆：若底面恰好贴地（y=spawn.y+hh+r），第一步重力位移
+    // (26·dt²≈7.2mm) 会把胶囊压进地面，KCC 陷入慢速脱困（0.1mm/步），横向移动被拒
+    // 整整 1 秒（实测 ship 出生点钉 60 步）。悬空出生则一步内干净落地。
+    const y = spawn.y + p.halfHeight + p.radius + 0.02;
     this.body = world.createRigidBody(
       RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(spawn.x, y, spawn.z),
     );

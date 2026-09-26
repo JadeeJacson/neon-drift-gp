@@ -14,10 +14,19 @@
  */
 import RAPIER from '@dimforge/rapier3d-compat';
 import { CONFIG } from '../core/config';
-import { DEFAULT_MAP_ID, PLAYER_SPAWN, arenaWalls, findMap, pickSpawnPoint } from './arena';
-import type { BoxObstacle, MapDef } from './arena';
+import {
+  DEFAULT_MAP_ID,
+  PLAYER_SPAWN,
+  arenaWalls,
+  findMap,
+  mapBounds,
+  pickSpawnPoint,
+} from './arena';
+import type { BoxObstacle, MapBounds, MapDef } from './arena';
 import { Combatant } from './combatant';
 import { buildCoverPoints } from './ai/cover';
+import { GrenadeSystem } from './grenades';
+import { NavGrid } from './ai/nav';
 import { Player } from './player';
 import { WaveDirector, type SpawnRequest } from './waves';
 import { WeaponSystem } from './weapons';
@@ -63,6 +72,12 @@ export class GameSim {
   /** 当前地图（预设布局，不是随机生成——随机会让 bot 跑分不可比） */
   readonly map: MapDef;
   readonly boxes: BoxObstacle[];
+  /** 地图边界（ship 是窄长甲板；旧图退回正方形） */
+  readonly bounds: MapBounds;
+  /** 导航网格（043 移植：可站立面采样 + BFS 寻路；构造期一次性建好） */
+  readonly nav: NavGrid;
+  /** 手雷（Rapier 动态刚体 + restitution 弹跳；渲染层读 list 同步网格） */
+  readonly grenades: GrenadeSystem;
   /** 据点（仅 domination 有含义） */
   readonly capturePoint: { x: number; z: number; r: number };
   /** 掩体点（AI v2「找掩体」用；从地图几何预计算，纯函数零随机，仅据点模式消费） */
@@ -84,19 +99,22 @@ export class GameSim {
     this.rand = mulberry32(seed);
     this.mode = mode;
     this.map = findMap(mapId);
-    this.boxes = [...this.map.boxes, ...arenaWalls()];
+    this.bounds = mapBounds(this.map);
+    this.boxes = [...this.map.boxes, ...arenaWalls(this.bounds)];
 
-    const half = CONFIG.arena.half;
     const d = CONFIG.dom;
     this.capturePoint = { x: d.point.x, z: d.point.z, r: d.radius };
-    // 据点模式玩家出生在蓝队基地（左半场），生存模式在中心
+    // 据点模式玩家出生在蓝队基地（地图定义，ship 为船尾舱），生存模式在中心
     const playerSpawn: Vec3 =
-      mode === 'domination' ? { x: -(half - 6), y: 0, z: 0 } : PLAYER_SPAWN;
+      mode === 'domination'
+        ? { ...(this.map.bases?.blue ?? { x: -(this.bounds.halfX - 6), y: 0, z: 0 }) }
+        : PLAYER_SPAWN;
 
     this.world = new RAPIER.World({ x: 0, y: CONFIG.physics.gravity, z: 0 });
     this.world.timestep = CONFIG.physics.fixedDt;
     this.buildStatic();
-    this.coverPoints = buildCoverPoints(this.boxes, half);
+    this.coverPoints = buildCoverPoints(this.boxes, this.bounds);
+    this.nav = new NavGrid(this.boxes, this.bounds);
 
     this.player = new Player(this.world, playerSpawn);
     this.byCollider.set(this.player.collider.handle, this.makePlayerRef());
@@ -104,6 +122,7 @@ export class GameSim {
 
     this.weapons = new WeaponSystem(this.rand);
     this.wave = new WaveDirector(this.rand);
+    this.grenades = new GrenadeSystem(this.world);
 
     if (mode === 'domination') this.spawnTeams();
   }
@@ -131,28 +150,29 @@ export class GameSim {
   }
 
   private buildStatic(): void {
-    const half = CONFIG.arena.half;
+    const { halfX, halfZ } = this.bounds;
     const ground = this.world.createRigidBody(
       RAPIER.RigidBodyDesc.fixed().setTranslation(0, -0.5, 0),
     );
-    this.world.createCollider(RAPIER.ColliderDesc.cuboid(half + 4, 0.5, half + 4), ground);
+    this.world.createCollider(RAPIER.ColliderDesc.cuboid(halfX + 4, 0.5, halfZ + 4), ground);
 
     for (const b of this.boxes) {
       const rb = this.world.createRigidBody(
         RAPIER.RigidBodyDesc.fixed().setTranslation(b.pos.x, b.pos.y + b.half.y, b.pos.z),
       );
-      this.world.createCollider(
-        RAPIER.ColliderDesc.cuboid(b.half.x, b.half.y, b.half.z),
-        rb,
-      );
+      const desc = RAPIER.ColliderDesc.cuboid(b.half.x, b.half.y, b.half.z);
+      // 旋转盒（运输船的斜放集装箱）：yaw → 四元数；无 yaw 时单位旋转零开销
+      if (b.yaw) {
+        desc.setRotation({ x: 0, y: Math.sin(b.yaw / 2), z: 0, w: Math.cos(b.yaw / 2) });
+      }
+      this.world.createCollider(desc, rb);
     }
   }
 
-  /** 据点模式：蓝队（玩家 + 友军）与红队各在一侧，开局即全部入场 */
+  /** 据点模式：蓝队（玩家 + 友军）与红队各在船舱基地，开局即全部入场 */
   private spawnTeams(): void {
-    const half = CONFIG.arena.half;
-    const blueBase: Vec3 = { x: -(half - 6), y: 0, z: 0 };
-    const redBase: Vec3 = { x: half - 6, y: 0, z: 0 };
+    const blueBase: Vec3 = { ...(this.map.bases?.blue ?? { x: -(this.bounds.halfX - 6), y: 0, z: 0 }) };
+    const redBase: Vec3 = { ...(this.map.bases?.red ?? { x: this.bounds.halfX - 6, y: 0, z: 0 }) };
     const blueKinds = ['grunt', 'grunt', 'rusher', 'grunt'] as const;
     const redKinds = ['grunt', 'rusher', 'sniper', 'grunt', 'rusher'] as const;
 
@@ -166,25 +186,32 @@ export class GameSim {
     }
   }
 
-  /** 围绕基地环形撒点（带场上边界与掩体余量校验） */
+  /** 围绕基地环形撒点（带地图边界与掩体余量校验） */
   private ringSpawn(base: Vec3, i: number, n: number): Vec3 {
-    const limit = CONFIG.arena.half - 3;
     for (let attempt = 0; attempt < 12; attempt++) {
       const a = (i / n) * Math.PI * 2 + this.rand() * 0.6;
       const r = 2.5 + this.rand() * 1.5;
       const p = { x: base.x + Math.cos(a) * r, y: 0, z: base.z + Math.sin(a) * r };
-      if (Math.abs(p.x) > limit || Math.abs(p.z) > limit) continue;
+      if (Math.abs(p.x) > this.bounds.halfX - 1.2 || Math.abs(p.z) > this.bounds.halfZ - 1.6) continue;
       if (this.clearanceXZ(p) < 1.2) continue;
       return p;
     }
-    return { x: Math.max(-limit, Math.min(limit, base.x)), y: 0, z: Math.max(-limit, Math.min(limit, base.z)) };
+    return {
+      x: Math.max(-(this.bounds.halfX - 1.2), Math.min(this.bounds.halfX - 1.2, base.x)),
+      y: 0,
+      z: Math.max(-(this.bounds.halfZ - 1.6), Math.min(this.bounds.halfZ - 1.6, base.z)),
+    };
   }
 
   private clearanceXZ(p: Vec3): number {
     let best = Infinity;
     for (const b of this.boxes) {
-      const dx = Math.max(Math.abs(p.x - b.pos.x) - b.half.x, 0);
-      const dz = Math.max(Math.abs(p.z - b.pos.z) - b.half.z, 0);
+      const c = Math.abs(Math.cos(b.yaw ?? 0));
+      const s = Math.abs(Math.sin(b.yaw ?? 0));
+      const hx = c * b.half.x + s * b.half.z;
+      const hz = s * b.half.x + c * b.half.z;
+      const dx = Math.max(Math.abs(p.x - b.pos.x) - hx, 0);
+      const dz = Math.max(Math.abs(p.z - b.pos.z) - hz, 0);
       best = Math.min(best, Math.hypot(dx, dz));
     }
     return best;
@@ -264,6 +291,9 @@ export class GameSim {
     // 5. 物理推进（所有 setNextKinematicTranslation 在此生效）
     this.world.step();
 
+    // 5.5 手雷引信（物理推进后取位，爆炸用最新位置结算伤害）
+    for (const ex of this.grenades.update(dt)) this.explode(ex.pos);
+
     // 6. 清理尸体
     this.cleanup();
 
@@ -331,6 +361,8 @@ export class GameSim {
         // 生存模式保持 falsy —— 红队行为与旧版 Enemy 逐帧等价（bot 基线 A–G 硬前提）。
         aiV2: this.mode === 'domination',
         coverPoints: this.coverPoints,
+        // 导航网格：无视线追击 / 掩体转移 / 占点推进时走 BFS 路径（043 移植）
+        nav: this.nav,
         damage: (target: CombatantRef, amount: number, from: Vec3) => this.damageRef(target, amount, from),
         byCollider: this.byCollider,
       };
@@ -421,6 +453,22 @@ export class GameSim {
   /** 玩家开火：射线排除所有蓝队碰撞体（友军不互伤），只命中红队 */
   private fireWeapon(input: GameInput): void {
     const def = this.weapons.current.def;
+
+    // 投掷物：出手一颗雷，不走射线（伤害在引信到点的 explode() 结算）
+    if (def.throwable) {
+      const eye = this.player.eye();
+      const dir = dirFromAngles(input.yaw, input.pitch);
+      // 出膛点前移 0.5m：避开玩家自身胶囊（r=0.35），留 0.04m 间隙
+      const origin: Vec3 = {
+        x: eye.x + dir.x * 0.5,
+        y: eye.y - 0.12 + dir.y * 0.5,
+        z: eye.z + dir.z * 0.5,
+      };
+      this.grenades.throwG(origin, dir, this.rand, this.events);
+      this.stats.shots += 1;
+      return;
+    }
+
     const origin = this.player.eye();
     const spread = this.weapons.currentSpread();
     const baseDir = dirFromAngles(
@@ -490,8 +538,75 @@ export class GameSim {
     if (anyHead) this.stats.headshots += 1;
   }
 
+  /**
+   * 手雷爆炸结算：范围伤害 + 静态遮挡判定（墙这边炸不到那边）。
+   * 伤害对象 = 红队全员 + 玩家自伤（×selfDamageMul）；蓝队 AI 免伤——
+   * 玩家误炸队友直接扣据点战力太挫败，043 原作同样不炸友军。
+   */
+  private explode(pos: Vec3): void {
+    const g = CONFIG.grenade;
+    this.events.push({ type: 'explode', pos, radius: g.blastRadius });
+
+    // 静态遮挡射线：只让非战斗员碰撞体（墙/箱/地面）挡爆炸
+    const staticFilter = (col: RAPIER.Collider): boolean => !this.byCollider.has(col.handle);
+
+    for (const c of this.combatants) {
+      if (c.team !== 'red' || !c.alive) continue;
+      const cp = c.center();
+      const dx = cp.x - pos.x;
+      const dy = cp.y - pos.y;
+      const dz = cp.z - pos.z;
+      const d = Math.hypot(dx, dy, dz);
+      if (d > g.blastRadius) continue;
+      if (this.occluded(pos, cp, d, staticFilter)) continue;
+      const damage = g.damage * (1 - (d / g.blastRadius) * 0.55);
+      const killed = c.hurt(damage);
+      this.events.push({
+        type: 'hit',
+        point: cp,
+        enemyId: c.id,
+        headshot: false,
+        damage,
+        killed,
+      });
+      if (killed) {
+        this.stats.kills += 1;
+        this.events.push({
+          type: 'kill',
+          point: cp,
+          enemyId: c.id,
+          kind: c.kind,
+          elite: c.elite,
+          killerTeam: 'blue',
+          byPlayer: true,
+        });
+      }
+    }
+
+    // 玩家自伤（不衰减遮挡：雷就在脚下，距离衰减已足够）
+    const pp = this.player.pos();
+    const pd = Math.hypot(pp.x - pos.x, pp.y - pos.y, pp.z - pos.z);
+    if (pd <= g.blastRadius) {
+      this.player.hurt(g.damage * g.selfDamageMul * (1 - (pd / g.blastRadius) * 0.55), pos, this.events);
+    }
+  }
+
+  /** 爆点到目标中心之间是否被静态几何挡住（墙后雷无效） */
+  private occluded(
+    from: Vec3,
+    to: Vec3,
+    dist: number,
+    filter: (col: RAPIER.Collider) => boolean,
+  ): boolean {
+    const len = Math.hypot(to.x - from.x, to.y - from.y, to.z - from.z);
+    if (len < 1e-4) return false;
+    const dir = { x: (to.x - from.x) / len, y: (to.y - from.y) / len, z: (to.z - from.z) / len };
+    const hit = castRay(this.world, from, dir, Math.min(dist - 0.1, len), undefined, undefined, filter);
+    return hit != null;
+  }
+
   private spawn(req: SpawnRequest): void {
-    const p = pickSpawnPoint(this.rand, this.player.pos(), this.boxes);
+    const p = pickSpawnPoint(this.rand, this.player.pos(), this.boxes, this.bounds);
     this.addCombatant(req.kind, req.elite, 'red', false, p);
   }
 

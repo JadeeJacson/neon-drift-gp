@@ -145,15 +145,25 @@ export class EnemyRenderer {
 
     // 类型差异化：三种敌人要能在剪影上一眼分辨，不能只靠颜色
     if (v.kind === 'rusher') {
-      // 冲锋兵：前倾 + 更长的腿，静态剪影就是「在冲」
+      // 冲锋兵：前倾 + 更长的腿，静态剪影就是「在冲」；手里是近战刃（melee 兵种不持枪）
       body.rotation.x = 0.16;
       for (const l of limbs) l.scale.y = 1.16;
+      const blade = new THREE.Mesh(new THREE.BoxGeometry(r * 0.1, r * 0.1, hh * 1.05), headMat);
+      blade.position.set(r * 0.78, hh * 0.62, -r * 0.55);
+      group.add(blade);
     } else if (v.kind === 'sniper') {
       // 狙击手：扛一根长枪管——最远的威胁必须能提前认出来
       const barrel = new THREE.Mesh(new THREE.BoxGeometry(r * 0.16, r * 0.16, hh * 2.6), headMat);
       barrel.position.set(r * 0.75, hh * 0.55, -r * 0.2);
       barrel.rotation.y = 0.12;
       group.add(barrel);
+    } else {
+      // 步兵 / 精英：持枪（移植自 04_1 的 bot 造型——有武器轮廓才像战斗员）
+      const gunBody = new THREE.Mesh(new THREE.BoxGeometry(r * 0.16, r * 0.24, hh * 1.15), headMat);
+      gunBody.position.set(r * 0.72, hh * 0.6, -r * 0.5);
+      const gunMag = new THREE.Mesh(new THREE.BoxGeometry(r * 0.12, r * 0.3, r * 0.14), headMat);
+      gunMag.position.set(r * 0.72, hh * 0.42, -r * 0.32);
+      group.add(gunBody, gunMag);
     }
     if (v.elite) {
       // 精英：胸口装甲板 + 金色，远看就知道不好惹
@@ -161,6 +171,23 @@ export class EnemyRenderer {
       plate.position.set(0, hh * 0.62, -r * 0.72);
       group.add(plate);
     }
+
+    // 头盔（半球罩在头上）+ 战术背心（比躯干略宽的暗色箱体）——移植自 04_1 的 bot 造型。
+    // 复用 headMat（暗色金属），不新增材质，避免 dispose 泄漏面扩大。
+    const helmet = new THREE.Mesh(
+      new THREE.SphereGeometry(headR * 1.14, 12, 8, 0, Math.PI * 2, 0, Math.PI * 0.55),
+      headMat,
+    );
+    helmet.position.y = head.position.y + r * 0.04;
+    group.add(helmet);
+    const vest = new THREE.Mesh(new THREE.BoxGeometry(r * 1.6, hh * 0.52, r * 1.05), headMat);
+    vest.position.set(0, hh * 0.5, 0);
+    group.add(vest);
+
+    // 阴影投射（第二步开启 shadowMap 后生效；开启前无副作用）
+    group.traverse((o) => {
+      if ((o as THREE.Mesh).isMesh) (o as THREE.Mesh).castShadow = true;
+    });
 
     return {
       group,

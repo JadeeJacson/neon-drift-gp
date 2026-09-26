@@ -116,6 +116,7 @@ export function buildArena(scene: THREE.Scene, boxes: BoxObstacle[]): THREE.Grou
   );
   ground.rotation.x = -Math.PI / 2;
   ground.name = 'ground';
+  ground.receiveShadow = true;
   group.add(ground);
 
   for (const b of boxes) {
@@ -134,6 +135,8 @@ export function buildArena(scene: THREE.Scene, boxes: BoxObstacle[]): THREE.Grou
     // 约定：sim 里 pos 是底面中心
     mesh.position.set(b.pos.x, b.pos.y + b.half.y, b.pos.z);
     mesh.name = `obstacle-${b.kind}`;
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
     group.add(mesh);
   }
 

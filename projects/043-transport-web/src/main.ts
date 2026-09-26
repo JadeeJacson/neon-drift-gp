@@ -36,6 +36,54 @@ const viewModel = new ViewModel(rig.camera);
 const hud = new Hud(hudRoot);
 const audio = new AudioEngine();
 
+/** 手雷网格原型（clone 共享几何/材质）；位置与姿态每帧从 sim 的动态刚体读取 */
+const grenadeMeshes = new Map<number, THREE.Group>();
+const grenadeProto = ((): THREE.Group => {
+  const g = new THREE.Group();
+  g.name = 'grenade';
+  const ball = new THREE.Mesh(
+    new THREE.SphereGeometry(0.11, 12, 10),
+    new THREE.MeshStandardMaterial({ color: 0x35503a, roughness: 0.55, metalness: 0.3 }),
+  );
+  const cap = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.04, 0.045, 0.055, 8),
+    new THREE.MeshStandardMaterial({ color: 0x8a939b, roughness: 0.4, metalness: 0.75 }),
+  );
+  cap.position.y = 0.12;
+  const lever = new THREE.Mesh(
+    new THREE.BoxGeometry(0.03, 0.14, 0.05),
+    new THREE.MeshStandardMaterial({ color: 0xb8c0c8, roughness: 0.4, metalness: 0.7 }),
+  );
+  lever.position.set(0.05, 0.08, 0);
+  lever.rotation.z = -0.3;
+  ball.castShadow = true;
+  g.add(ball, cap, lever);
+  return g;
+})();
+
+/** 每帧同步手雷网格：新增建 mesh、消失移除（爆炸 / 重开时清场） */
+function syncGrenades(): void {
+  const alive = new Set<number>();
+  for (const gr of sim.grenades.list) {
+    alive.add(gr.id);
+    let mesh = grenadeMeshes.get(gr.id);
+    if (!mesh) {
+      mesh = grenadeProto.clone();
+      rig.scene.add(mesh);
+      grenadeMeshes.set(gr.id, mesh);
+    }
+    const t = gr.body.translation();
+    mesh.position.set(t.x, t.y, t.z);
+    const r = gr.body.rotation();
+    mesh.quaternion.set(r.x, r.y, r.z, r.w);
+  }
+  for (const [id, mesh] of grenadeMeshes) {
+    if (alive.has(id)) continue;
+    rig.scene.remove(mesh);
+    grenadeMeshes.delete(id);
+  }
+}
+
 /** 据点视觉：地面圆环 + 半透明光柱，颜色随占领方（蓝/红/中立）变化 */
 function buildCaptureMarker(
   scene: THREE.Scene,
@@ -86,7 +134,7 @@ let currentMapId = DEFAULT_MAP_ID;
 let currentMode: 'survival' | 'domination' = 'survival';
 let sim = await GameSim.create(1, currentMapId, currentMode);
 /** 竞技场几何：换图时必须 dispose 旧的再重建，否则新旧掩体会叠在一起 */
-let arenaGroup: ReturnType<typeof buildArena> | null = buildArena(rig.scene, sim.boxes);
+let arenaGroup: ReturnType<typeof buildArena> | null = buildArena(rig.scene, sim.map, sim.boxes);
 let seedCounter = 1;
 let running = false;
 
@@ -95,7 +143,7 @@ const captureMarker = buildCaptureMarker(rig.scene, sim.capturePoint);
 
 function rebuildArena(): void {
   disposeArena(rig.scene, arenaGroup);
-  arenaGroup = buildArena(rig.scene, sim.boxes);
+  arenaGroup = buildArena(rig.scene, sim.map, sim.boxes);
 }
 
 // ---------------- 输入 ----------------
@@ -155,7 +203,15 @@ function consume(events: SimEvent[]): void {
         fx.tracer(e.origin, e.dir, e.len, 0xffe0a0);
         viewModel.flash();
         audio.shot(e.weapon);
-        rig.shake(e.weapon === 'shotgun' ? 0.45 : e.weapon === 'pistol' ? 0.16 : 0.09);
+        // 每把枪的屏幕震动幅度：AWM 重炮 > 沙鹰 > AK > M4 > MP5
+        const shake: Partial<Record<typeof e.weapon, number>> = {
+          awm: 0.5,
+          deagle: 0.3,
+          ak47: 0.12,
+          m4a1: 0.09,
+          mp5: 0.06,
+        };
+        rig.shake(shake[e.weapon] ?? 0.1);
         break;
       }
       case 'hit':
@@ -196,7 +252,7 @@ function consume(events: SimEvent[]): void {
         break;
       case 'enemyShot': {
         const d = dist3(e.origin, sim.player.pos());
-        fx.tracer(e.origin, e.dir, Math.min(CONFIG.arena.half * 1.6, d + 6), 0xff9a4d);
+        fx.tracer(e.origin, e.dir, Math.min(sim.bounds.halfZ * 1.6, d + 6), 0xff9a4d);
         audio.enemyShot(d);
         break;
       }
@@ -218,6 +274,17 @@ function consume(events: SimEvent[]): void {
       case 'footstep':
         audio.footstep();
         break;
+      case 'grenadeThrow':
+        audio.grenadeThrow();
+        break;
+      case 'explode': {
+        fx.explosion(e.pos, e.radius);
+        // 震动随距离衰减：30m 外只剩轻微颤感
+        const loud = Math.max(0.15, 1 - dist3(e.pos, sim.player.pos()) / 30);
+        rig.shake(0.65 * loud);
+        audio.explode(dist3(e.pos, sim.player.pos()));
+        break;
+      }
       default:
         break;
     }
@@ -229,11 +296,14 @@ let last = performance.now();
 let acc = 0;
 let lastInput = emptyInput();
 
-/** ADS 视场角过渡：开镜时 FOV 平滑收窄，收枪时还原（指数趋近） */
+/** ADS 视场角过渡：开镜时 FOV 平滑收窄，收枪时还原（指数趋近）。
+ *  AWM 狙击镜有武器级覆盖（24°），普通枪用全局开镜 FOV（56°）。 */
 function updateFov(dt: number): void {
   const cam = rig.camera;
-  const target = adsActive() ? CONFIG.player.ads.fov : CONFIG.camera.fov;
-  const next = cam.fov + (target - cam.fov) * (1 - Math.exp(-CONFIG.player.ads.fovLerp * dt));
+  const adsFov = sim.weapons.current.def.adsFov ?? CONFIG.player.ads.fov;
+  const target = adsActive() ? adsFov : CONFIG.camera.fov;
+  const lerp = adsActive() ? CONFIG.player.ads.fovLerp : 9; // 收镜略慢，出镜不突兀
+  const next = cam.fov + (target - cam.fov) * (1 - Math.exp(-lerp * dt));
   if (Math.abs(next - cam.fov) > 0.01) {
     cam.fov = next;
     cam.updateProjectionMatrix();
@@ -271,9 +341,10 @@ function frame(now: number): void {
   });
   updateFov(dt);
   enemyRenderer.sync(sim.enemyViews(), dt);
+  syncGrenades();
   captureMarker.update(sim.capture);
   fx.update(dt);
-  hud.drawMinimap(sim.boxes, sim.enemyViews(), sim.player.pos(), look.yaw, sim.capturePoint, sim.mode);
+  hud.drawMinimap(sim.boxes, sim.enemyViews(), sim.player.pos(), look.yaw, sim.capturePoint, sim.mode, sim.bounds);
 
   const moving = Math.abs(lastInput.forward) + Math.abs(lastInput.right) > 0.1;
   viewModel.update(
@@ -285,6 +356,7 @@ function frame(now: number): void {
     sim.weapons.switchTimer > 0,
     moving,
     lastInput.sprint,
+    adsActive(),
   );
   hud.update(snap, dt);
   rig.render();
@@ -303,8 +375,8 @@ async function beginRun(): Promise<void> {
     old.dispose();
     rebuildArena();
   }
-  // 据点模式玩家出生在蓝队基地，初始面向据点（中心）
-  look.yaw = sim.mode === 'domination' ? -Math.PI / 2 : 0;
+  // 据点模式玩家出生在蓝队基地（船尾舱），面向船头（+Z → yaw=π）；生存面向船头方向
+  look.yaw = sim.mode === 'domination' ? Math.PI : 0;
   look.pitch = 0;
   overlay.classList.add('hidden');
   running = true;
@@ -363,7 +435,7 @@ async function restart(): Promise<void> {
   sim = next;
   old.dispose();
   rebuildArena();
-  look.yaw = sim.mode === 'domination' ? -Math.PI / 2 : 0;
+  look.yaw = sim.mode === 'domination' ? Math.PI : 0;
   look.pitch = 0;
   keys.clear();
   firing = false;
@@ -486,13 +558,15 @@ export interface FpsApi {
   clearInput(): void;
   state(): Record<string, unknown>;
   enemies(): unknown[];
+  /** 手雷状态（CDP 验证 H 项用）：场上雷体 id/位置/引信 */
+  grenades(): Array<{ id: number; pos: { x: number; y: number; z: number }; fuse: number }>;
   info(): { drawCalls: number; triangles: number; programs: number };
   audioInfo(): { state: string; playCount: number; last: string };
   fxInfo(): { tracers: number; particles: number };
 }
 
 const api: FpsApi = {
-  version: '04-fireround',
+  version: '043-transport-web',
   start: () => beginRun(),
   restart: () => restart(),
   setMode: (mode) => {
@@ -514,6 +588,11 @@ const api: FpsApi = {
     weapons: sim.weapons.slots.map((s) => ({ id: s.def.id, ammo: s.ammo })),
   }),
   enemies: () => sim.enemyViews(),
+  grenades: () =>
+    sim.grenades.list.map((gr) => {
+      const t = gr.body.translation();
+      return { id: gr.id, pos: { x: t.x, y: t.y, z: t.z }, fuse: gr.fuse };
+    }),
   info: () => rig.info(),
   audioInfo: () => ({ state: audio.state(), playCount: audio.playCount, last: audio.lastKind }),
   fxInfo: () => fx.counts(),

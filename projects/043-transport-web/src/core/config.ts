@@ -3,7 +3,7 @@
  * 全部数值为实测调校基线（2026-09-24），改动请同步 README 的「调参记录」。
  */
 
-export type WeaponId = 'pistol' | 'rifle' | 'shotgun' | 'smg' | 'dmr';
+export type WeaponId = 'ak47' | 'm4a1' | 'awm' | 'mp5' | 'deagle' | 'grenade';
 export type EnemyId = 'grunt' | 'rusher' | 'sniper';
 
 export interface WeaponDef {
@@ -45,6 +45,12 @@ export interface WeaponDef {
   headshotMul: number;
   /** 准星显示色（渲染层用） */
   color: number;
+  /** ADS 开镜视场角覆盖（狙击镜用；缺省 = CONFIG.player.ads.fov） */
+  adsFov?: number;
+  /** ADS 散布乘区覆盖（狙击镜要求近乎零散布；缺省 = CONFIG.player.ads.spreadMul） */
+  adsSpreadMul?: number;
+  /** 投掷物：fire = 出手一颗雷，不走射线，伤害走 CONFIG.grenade 的爆炸结算 */
+  throwable?: boolean;
 }
 
 export interface EnemyDef {
@@ -132,135 +138,162 @@ export const CONFIG = {
   },
 
   /**
-   * TTK 参考（满血、全命中躯干）：
-   *   步枪 vs grunt(45hp)：3 发 ≈ 0.17s；手枪 2 发 ≈ 0.20s；霰弹近距 1 发
+   * 武器数据表（移植自 043 cf-transport-ship 的 weapons.js，字段映射到 04 的 WeaponDef）：
+   *   rpm → interval = 60/rpm；rangeFull/rangeFar/farMul → falloffStart/End/Min；
+   *   spreadHip → spreadBase；recoil.v/h/recover → recoilPitch/recoilYaw/recoilRecover。
+   * TTK 参考（满血 grunt 45hp，全命中躯干）：AK 2 发 0.2s；M4 2 发 0.18s；MP5 3 发 0.2s；
+   * AWM 1 发（狙击镜）；沙鹰 1 发 58 伤害近距一枪BODY。
    */
   weapons: [
     {
-      id: 'pistol',
-      name: '手枪',
-      short: 'SIDEARM',
-      damage: 26,
+      id: 'ak47',
+      name: 'AK-47',
+      short: 'AK-47',
+      damage: 34,
       pellets: 1,
-      interval: 0.2,
-      auto: false,
-      spreadBase: 0.004,
-      spreadPerShot: 0.005,
-      spreadMax: 0.024,
+      interval: 0.1, // 600 rpm
+      auto: true,
+      spreadBase: 0.021,
+      spreadPerShot: 0.0045,
+      spreadMax: 0.052,
       spreadRecover: 0.09,
-      magazine: 12,
-      reloadTime: 1.1,
-      range: 60,
-      falloffStart: 22,
-      falloffEnd: 48,
-      falloffMin: 0.55,
-      recoilPitch: 0.021,
-      recoilYaw: 0.004,
-      recoilRecover: 11,
-      headshotMul: 2,
-      color: 0xffc14d,
-    },
-    {
-      id: 'rifle',
-      name: '步枪',
-      short: 'RIFLE',
-      damage: 15,
-      pellets: 1,
-      interval: 0.086,
-      auto: true,
-      spreadBase: 0.006,
-      spreadPerShot: 0.006,
-      spreadMax: 0.048,
-      spreadRecover: 0.07,
       magazine: 30,
-      reloadTime: 1.9,
-      range: 70,
-      falloffStart: 28,
-      falloffEnd: 58,
-      falloffMin: 0.62,
-      recoilPitch: 0.011,
-      recoilYaw: 0.003,
-      recoilRecover: 13,
-      headshotMul: 2,
-      color: 0xff6b35,
+      reloadTime: 2.4,
+      range: 62,
+      falloffStart: 26,
+      falloffEnd: 62,
+      falloffMin: 0.72,
+      recoilPitch: 0.0165,
+      recoilYaw: 0.0055,
+      recoilRecover: 7.5,
+      headshotMul: 3.4,
+      color: 0xff8a4d,
     },
     {
-      id: 'shotgun',
-      name: '霰弹枪',
-      short: 'SHOTGUN',
-      damage: 12,
-      pellets: 8,
-      interval: 0.8,
-      auto: false,
-      spreadBase: 0.05,
-      spreadPerShot: 0,
-      spreadMax: 0.05,
-      spreadRecover: 0.2,
-      magazine: 6,
-      reloadTime: 2.3,
-      range: 26,
-      falloffStart: 7,
-      falloffEnd: 19,
-      falloffMin: 0.22,
-      recoilPitch: 0.05,
-      recoilYaw: 0.008,
-      recoilRecover: 8,
-      headshotMul: 1.5,
-      color: 0x9ad14b,
-    },
-    {
-      id: 'smg',
-      name: '冲锋枪',
-      short: 'SMG',
-      // 近距压制：射速最快、弹匣最大，代价是伤害与射程都低于步枪
-      // DPS = 10/0.065 ≈ 154（步枪 174），但弹匣 45、换弹 1.6s，持续压制能力最强
-      damage: 10,
+      id: 'm4a1',
+      name: 'M4A1',
+      short: 'M4A1',
+      damage: 28,
       pellets: 1,
-      interval: 0.065,
+      interval: 0.0882, // 680 rpm
       auto: true,
-      spreadBase: 0.011,
-      spreadPerShot: 0.008,
-      spreadMax: 0.075,
-      spreadRecover: 0.06,
-      magazine: 45,
-      reloadTime: 1.6,
-      range: 38,
-      falloffStart: 12,
-      falloffEnd: 30,
-      falloffMin: 0.5,
+      spreadBase: 0.017,
+      spreadPerShot: 0.0038,
+      spreadMax: 0.044,
+      spreadRecover: 0.1,
+      magazine: 35,
+      reloadTime: 2.2,
+      range: 65,
+      falloffStart: 28,
+      falloffEnd: 65,
+      falloffMin: 0.75,
+      recoilPitch: 0.0115,
+      recoilYaw: 0.004,
+      recoilRecover: 9,
+      headshotMul: 3.2,
+      color: 0x6ec8ff,
+    },
+    {
+      id: 'awm',
+      name: 'AWM',
+      short: 'AWM',
+      // 栓动狙击：一枪致命（115 > 任何敌人满血），interval 1.43s 是射击节奏的全部代价
+      damage: 115,
+      pellets: 1,
+      interval: 1.43, // 42 rpm，栓动
+      auto: false,
+      spreadBase: 0.05, // 腰射几乎打不着人——狙击必须开镜
+      spreadPerShot: 0.012,
+      spreadMax: 0.09,
+      spreadRecover: 0.04,
+      magazine: 10,
+      reloadTime: 3.4,
+      range: 120,
+      falloffStart: 90,
+      falloffEnd: 200,
+      falloffMin: 0.9,
+      recoilPitch: 0.055,
+      recoilYaw: 0.01,
+      recoilRecover: 4.5,
+      headshotMul: 1.6,
+      color: 0xc9b26b,
+      // 狙击镜：FOV 收到 24°（0.31× 基准 78），腰射散布 0.05 → 镜内 0.0006
+      adsFov: 24,
+      adsSpreadMul: 0.012,
+    },
+    {
+      id: 'mp5',
+      name: 'MP5',
+      short: 'MP5',
+      damage: 21,
+      pellets: 1,
+      interval: 0.0682, // 880 rpm
+      auto: true,
+      spreadBase: 0.024,
+      spreadPerShot: 0.005,
+      spreadMax: 0.07,
+      spreadRecover: 0.08,
+      magazine: 30,
+      reloadTime: 2.1,
+      range: 40,
+      falloffStart: 16,
+      falloffEnd: 40,
+      falloffMin: 0.55,
       recoilPitch: 0.008,
       recoilYaw: 0.005,
-      recoilRecover: 15,
-      headshotMul: 1.6,
+      recoilRecover: 11,
+      headshotMul: 2.6,
       color: 0x5ad1c0,
     },
     {
-      id: 'dmr',
-      name: '精确射手步枪',
-      short: 'DMR',
-      // 远距精确：一发带走杂兵（grunt 45 / rusher 32 / sniper 38），精英 99hp 需 3 发
-      // DPS = 48/0.6 = 80，仍远低于步枪 174——用射速换取射程与单发效率。
-      // interval 从 0.85 降到 0.6、弹匣 8→10：原值下 bot 实测第 2 波就被冲锋兵冲死
-      // （3 个冲锋兵 6m/s 冲脸，0.85s 一发来不及逐个点掉），作为可用武器太脆。
-      damage: 48,
+      id: 'deagle',
+      name: '沙漠之鹰',
+      short: 'DEAGLE',
+      damage: 58,
       pellets: 1,
-      interval: 0.6,
+      interval: 0.286, // 210 rpm
       auto: false,
-      spreadBase: 0.0006,
-      spreadPerShot: 0.005,
-      spreadMax: 0.014,
-      spreadRecover: 0.05,
-      magazine: 10,
-      reloadTime: 2.1,
-      range: 120,
-      falloffStart: 60,
-      falloffEnd: 110,
-      falloffMin: 0.8,
-      recoilPitch: 0.05,
-      recoilYaw: 0.004,
+      spreadBase: 0.016,
+      spreadPerShot: 0.008,
+      spreadMax: 0.05,
+      spreadRecover: 0.09,
+      magazine: 7,
+      reloadTime: 1.9,
+      range: 45,
+      falloffStart: 18,
+      falloffEnd: 45,
+      falloffMin: 0.62,
+      recoilPitch: 0.03,
+      recoilYaw: 0.008,
       recoilRecover: 7,
-      headshotMul: 2.5,
-      color: 0xb388ff,
+      headshotMul: 3.0,
+      color: 0xffc14d,
+    },
+    {
+      id: 'grenade',
+      name: '破片手雷',
+      short: 'GRENADE',
+      // 043 的手雷在这里只有「投掷手感」字段；爆炸伤害/半径/引信全部走 CONFIG.grenade
+      damage: 115,
+      pellets: 1,
+      interval: 0.9, // 出手一颗到掏出下一颗
+      auto: false,
+      spreadBase: 0,
+      spreadPerShot: 0,
+      spreadMax: 0,
+      spreadRecover: 1,
+      magazine: 3, // 3 颗，丢完为止（throwable 不换弹；波间 refillAll 补满）
+      reloadTime: 2.5,
+      range: 0,
+      falloffStart: 0,
+      falloffEnd: 0,
+      falloffMin: 1,
+      recoilPitch: 0.012, // 出手的身体晃动
+      recoilYaw: 0.004,
+      recoilRecover: 8,
+      headshotMul: 1,
+      color: 0x9fe86e,
+      throwable: true,
     },
   ] as WeaponDef[],
 
@@ -395,6 +428,33 @@ export const CONFIG = {
     underFireWindow: 1.5,
     /** 距掩体点小于该距离视为「已进入掩体」 */
     coverArriveDist: 0.9,
+  },
+
+  /**
+   * 手雷（新增：修复 043「手雷没有物理反弹」——雷是 Rapier 动态刚体球，
+   * 撞甲板/集装箱按 restitution 真实反弹，引信到点爆炸做范围伤害）
+   */
+  grenade: {
+    /** 碰撞球半径 */
+    radius: 0.11,
+    /** 投掷初速（沿瞄准方向） */
+    power: 15,
+    /** 垂直补偿：平指也能过肩抛出弧线 */
+    upBias: 2.6,
+    /** 引信时长（从出手计） */
+    fuse: 2.2,
+    /** 反弹保留速度比例（0.55 ≈ 橡胶感：甲板弹两下、集装箱壁弹开） */
+    restitution: 0.55,
+    /** 摩擦系数（落地滚动衰减） */
+    friction: 0.7,
+    /** 密度（球质量 ≈ 4πr³/3·ρ ≈ 0.124kg——动量小，不会推动任何东西） */
+    density: 2.0,
+    /** 爆炸半径 */
+    blastRadius: 6.5,
+    /** 爆心伤害（grunt 45hp 必杀；2.5m 内对精英也近乎致命） */
+    damage: 115,
+    /** 玩家自伤倍率（自己被自己的雷炸半伤） */
+    selfDamageMul: 0.5,
   },
 
   audio: {
