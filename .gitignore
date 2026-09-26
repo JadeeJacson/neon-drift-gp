@@ -45,3 +45,6 @@ _tmp/
 
 # 文件备份（修复过程中产生的 *.bak-YYYYMMDD 临时副本）
 *.bak-*
+
+# 素材原始压缩包（体积大、可由 SOURCES.md 重新下载）
+assets/_downloads/
