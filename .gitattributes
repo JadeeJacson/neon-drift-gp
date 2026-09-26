@@ -1,0 +1,53 @@
+# 二进制声明：阻止 Git 对二进制素材做文本 diff / 合并 / 换行转换。
+#
+# 刻意**不加** `* text=auto`：本仓库现存文本文件全部是 CRLF（Windows 原生写入，
+# core.autocrlf=false）。一旦开启自动归一化，下次 git add 会把上千个文件重写成 LF，
+# 产生纯噪音的巨型 diff。真要跨环境（Linux/CI）时，单独开一次
+# `git add --renormalize .` 提交，别和功能性改动混在一起。详见 docs/00-形态路线图.md §5.4。
+
+# 3D / 图像 / 音频素材
+*.glb binary
+*.gltf binary
+*.fbx binary
+*.blend binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.tga binary
+*.hdr binary
+*.ogg binary
+*.wav binary
+*.mp3 binary
+*.zip binary
+
+# 引擎与字体
+*.ttf binary
+*.otf binary
+*.exe binary
+*.dll binary
+*.pck binary
+*.exr binary
+
+# Godot 导入缓存产物（由 .import 描述文件驱动，本身是二进制）
+*.mdc binary
+*.scn binary
+*.resb binary
+
+# 文本类：显式声明「不做换行归一化」，把现状锁死。
+# 注意：这里不能用 `text`/`text=auto`——那会把已入库的 CRLF blob 重写为 LF，
+# 制造一次纯噪音的千文件 diff。`-text` 表示按字节原样存储，
+# 即使日后有人把 core.autocrlf 改成 true 也不会动摇仓库内容。
+*.gd text=false
+*.tscn text=false
+*.tres text=false
+*.godot text=false
+*.cfg text=false
+*.md text=false
+*.mjs text=false
+*.js text=false
+*.ts text=false
+*.py text=false
+*.json text=false
+*.svg text=false
+*.html text=false
+*.css text=false

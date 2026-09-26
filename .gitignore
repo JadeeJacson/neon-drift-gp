@@ -40,11 +40,14 @@ _scratch/
 _tmp/
 *.log
 
-# AI 助手运行时数据
+# AI 助手运行时数据（内容与 docs/ 重复，不作权威记录）
 .workbuddy/
+.workbuddy-ai/
 
 # 文件备份（修复过程中产生的 *.bak-YYYYMMDD 临时副本）
 *.bak-*
 
 # 素材原始压缩包（体积大、可由 SOURCES.md 重新下载）
-assets/_downloads/
+# 用 /* 而非 / 结尾，才能对单个文件做例外放行：polypizza-index.json 是断点重下的依据
+assets/_downloads/*
+!assets/_downloads/polypizza-index.json

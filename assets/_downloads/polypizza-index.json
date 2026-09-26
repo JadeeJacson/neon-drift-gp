@@ -1,0 +1,402 @@
+[
+  {
+    "id": "6s3_n8xzzvo",
+    "title": "Mech Assault Walker",
+    "creator": "Alimayo Arango",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/6s3_n8xzzvo",
+    "glb_url": "https://static.poly.pizza/0f7c451a-e402-4429-b581-9d423de22c8b.glb",
+    "file": "models/characters/polypizza/mech-assault-walker-6s3_n8xzzvo.glb",
+    "query": "mech"
+  },
+  {
+    "id": "o3Ps8z8ByP",
+    "title": "Mech",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/o3Ps8z8ByP",
+    "glb_url": "https://static.poly.pizza/a242e73b-6a40-4bd9-bfa9-ed1d8e49ea21.glb",
+    "file": "models/characters/polypizza/mech-o3Ps8z8ByP.glb",
+    "query": "mech"
+  },
+  {
+    "id": "5l-n7PyvqOu",
+    "title": "Giant Mech 🤖",
+    "creator": "Chris Ross",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/5l-n7PyvqOu",
+    "glb_url": "https://static.poly.pizza/1c157119-ea4b-4c72-8fe0-51b2ef1430f0.glb",
+    "file": "models/characters/polypizza/giant-mech-5l-n7PyvqOu.glb",
+    "query": "mech"
+  },
+  {
+    "id": "aGSpAN8ONud",
+    "title": "Sentinel Mech",
+    "creator": "Tekano Bob",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/aGSpAN8ONud",
+    "glb_url": "https://static.poly.pizza/40d7525e-237c-448b-8b1d-8260bd0b1885.glb",
+    "file": "models/characters/polypizza/sentinel-mech-aGSpAN8ONud.glb",
+    "query": "mech"
+  },
+  {
+    "id": "D5wW2jDO42",
+    "title": "Mech",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/D5wW2jDO42",
+    "glb_url": "https://static.poly.pizza/750173d2-53aa-4318-95dc-5f8e6d2dcad2.glb",
+    "file": "models/characters/polypizza/mech-D5wW2jDO42.glb",
+    "query": "mech"
+  },
+  {
+    "id": "7ysTwVKOiMp",
+    "title": "Little Mech",
+    "creator": "Riley Florence",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/7ysTwVKOiMp",
+    "glb_url": "https://static.poly.pizza/890d3844-666b-4ac1-b5a7-b18ee7eacb51.glb",
+    "file": "models/characters/polypizza/little-mech-7ysTwVKOiMp.glb",
+    "query": "mech"
+  },
+  {
+    "id": "51h2ELk0o6n",
+    "title": "Mech concept",
+    "creator": "Raul Yo",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/51h2ELk0o6n",
+    "glb_url": "https://static.poly.pizza/b5086706-1bcc-4a80-947d-6fe62521809c.glb",
+    "file": "models/characters/polypizza/mech-concept-51h2ELk0o6n.glb",
+    "query": "mech"
+  },
+  {
+    "id": "5x1hRpbmdfo",
+    "title": "MechQuadruped",
+    "creator": "3Donimus",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/5x1hRpbmdfo",
+    "glb_url": "https://static.poly.pizza/fa9c5ab6-2241-4769-8378-8906735567f4.glb",
+    "file": "models/characters/polypizza/mechquadruped-5x1hRpbmdfo.glb",
+    "query": "mech"
+  },
+  {
+    "id": "QCm7qe9uNJ",
+    "title": "Animated Robot",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/QCm7qe9uNJ",
+    "glb_url": "https://static.poly.pizza/7d95dbce-8c73-489b-8298-f430b1f0dbdf.glb",
+    "file": "models/characters/polypizza/animated-robot-QCm7qe9uNJ.glb",
+    "query": "robot"
+  },
+  {
+    "id": "1BQyXYZ9LPz",
+    "title": "Carl",
+    "creator": "Matt Connors",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/1BQyXYZ9LPz",
+    "glb_url": "https://static.poly.pizza/673a412b-4318-439a-ae37-a89f4fa7a282.glb",
+    "file": "models/characters/polypizza/carl-1BQyXYZ9LPz.glb",
+    "query": "robot"
+  },
+  {
+    "id": "5jewvww0dlc",
+    "title": "deep space robot",
+    "creator": "Tom De Wispelaere",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/5jewvww0dlc",
+    "glb_url": "https://static.poly.pizza/ba17f0b5-4126-460f-bdb6-15629ab8e279.glb",
+    "file": "models/characters/polypizza/deep-space-robot-5jewvww0dlc.glb",
+    "query": "robot"
+  },
+  {
+    "id": "1kbGZOnhOwf",
+    "title": "Giant Robot",
+    "creator": "Dann Beeson",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/1kbGZOnhOwf",
+    "glb_url": "https://static.poly.pizza/2db3d598-a711-48ea-ac66-45165e37ee87.glb",
+    "file": "models/characters/polypizza/giant-robot-1kbGZOnhOwf.glb",
+    "query": "robot"
+  },
+  {
+    "id": "9HIzs__db3k",
+    "title": "Butter Robot",
+    "creator": "Martin Calviello",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/9HIzs__db3k",
+    "glb_url": "https://static.poly.pizza/bc0a6559-1adf-4a34-978f-60f49e5f6fe5.glb",
+    "file": "models/characters/polypizza/butter-robot-9HIzs__db3k.glb",
+    "query": "robot"
+  },
+  {
+    "id": "9A6cuitiB_4",
+    "title": "Robot",
+    "creator": "Poly by Google",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/9A6cuitiB_4",
+    "glb_url": "https://static.poly.pizza/85a95cc6-99dc-4522-a79f-fcf04c308f1e.glb",
+    "file": "models/characters/polypizza/robot-9A6cuitiB_4.glb",
+    "query": "robot"
+  },
+  {
+    "id": "ejDr8lRglP",
+    "title": "Robot",
+    "creator": "Polygonal Mind",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/ejDr8lRglP",
+    "glb_url": "https://static.poly.pizza/8c912a0c-9d1c-4859-853b-bb4d8b77815b.glb",
+    "file": "models/characters/polypizza/robot-ejDr8lRglP.glb",
+    "query": "robot"
+  },
+  {
+    "id": "lF3jeRJwiH",
+    "title": "Robot Enemy Flying",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/lF3jeRJwiH",
+    "glb_url": "https://static.poly.pizza/abb31ff6-3e2d-43a6-bf13-dba39b0c596d.glb",
+    "file": "models/characters/polypizza/robot-enemy-flying-lF3jeRJwiH.glb",
+    "query": "robot"
+  },
+  {
+    "id": "4sl07qCR4MB",
+    "title": "Capacitor Rifle",
+    "creator": "Jordan Hang",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/4sl07qCR4MB",
+    "glb_url": "https://static.poly.pizza/a911c817-fd78-46b2-8f07-8823a72aedad.glb",
+    "file": "models/weapons/polypizza/capacitor-rifle-4sl07qCR4MB.glb",
+    "query": "sci-fi gun"
+  },
+  {
+    "id": "6uFWxPXtwYO",
+    "title": "Coil Gun",
+    "creator": "Vas Pupin",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/6uFWxPXtwYO",
+    "glb_url": "https://static.poly.pizza/f94bf3ce-35e1-433e-ab90-cd14736d2128.glb",
+    "file": "models/weapons/polypizza/coil-gun-6uFWxPXtwYO.glb",
+    "query": "sci-fi gun"
+  },
+  {
+    "id": "e1AuzGo7dL",
+    "title": "Sci-Fi Shotgun",
+    "creator": "burunduk",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/e1AuzGo7dL",
+    "glb_url": "https://static.poly.pizza/74ec40fe-8c6f-4946-8053-38899c85af88.glb",
+    "file": "models/weapons/polypizza/sci-fi-shotgun-e1AuzGo7dL.glb",
+    "query": "sci-fi gun"
+  },
+  {
+    "id": "1aBSH8_oopt",
+    "title": "Steampunk Rifle",
+    "creator": "Jake Sharp",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/1aBSH8_oopt",
+    "glb_url": "https://static.poly.pizza/a280a6a7-0af5-4203-a848-c892c612c11f.glb",
+    "file": "models/weapons/polypizza/steampunk-rifle-1aBSH8_oopt.glb",
+    "query": "sci-fi gun"
+  },
+  {
+    "id": "7OfsrgiJ-uN",
+    "title": "Gun ver2",
+    "creator": "Zhuoqun Robin Xu",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/7OfsrgiJ-uN",
+    "glb_url": "https://static.poly.pizza/1b62ef3c-92fb-4b5e-a3c4-3c86a21081f2.glb",
+    "file": "models/weapons/polypizza/gun-ver2-7OfsrgiJ-uN.glb",
+    "query": "sci-fi gun"
+  },
+  {
+    "id": "NHYaHnTNIM",
+    "title": "Scifi Smg",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/NHYaHnTNIM",
+    "glb_url": "https://static.poly.pizza/cc2ce213-28b2-4aed-a6f7-4b9cf8f80568.glb",
+    "file": "models/weapons/polypizza/scifi-smg-NHYaHnTNIM.glb",
+    "query": "sci-fi gun"
+  },
+  {
+    "id": "46615JyFm7",
+    "title": "Scifi Sniper",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/46615JyFm7",
+    "glb_url": "https://static.poly.pizza/a9b24fa0-ebec-4656-ada6-dc324bae779d.glb",
+    "file": "models/weapons/polypizza/scifi-sniper-46615JyFm7.glb",
+    "query": "sci-fi gun"
+  },
+  {
+    "id": "52kQzphmeF",
+    "title": "Pistol",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/52kQzphmeF",
+    "glb_url": "https://static.poly.pizza/7a31b522-5632-41d9-8274-031795af5d8d.glb",
+    "file": "models/weapons/polypizza/pistol-52kQzphmeF.glb",
+    "query": "sci-fi gun"
+  },
+  {
+    "id": "DNbUoMtG3H",
+    "title": "Drone",
+    "creator": "NateGazzard",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/DNbUoMtG3H",
+    "glb_url": "https://static.poly.pizza/4eb88feb-cb2d-46c3-980d-3e704868361c.glb",
+    "file": "models/characters/polypizza/drone-DNbUoMtG3H.glb",
+    "query": "drone"
+  },
+  {
+    "id": "3Ae_y67lzvd",
+    "title": "Drone",
+    "creator": "Silly Fear",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/3Ae_y67lzvd",
+    "glb_url": "https://static.poly.pizza/af2c7cd7-255b-47e3-b06a-e0ce5f500064.glb",
+    "file": "models/characters/polypizza/drone-3Ae_y67lzvd.glb",
+    "query": "drone"
+  },
+  {
+    "id": "6CUQX98vha4",
+    "title": "Stinger Drone",
+    "creator": "Aaron Clifford",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/6CUQX98vha4",
+    "glb_url": "https://static.poly.pizza/298bd901-cb15-4d7a-b73f-c4f669dd0204.glb",
+    "file": "models/characters/polypizza/stinger-drone-6CUQX98vha4.glb",
+    "query": "drone"
+  },
+  {
+    "id": "2iyQx2YscRq",
+    "title": "Bot Drone",
+    "creator": "Dave404",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/2iyQx2YscRq",
+    "glb_url": "https://static.poly.pizza/56e64f12-d924-4843-a3a9-23e8655b6824.glb",
+    "file": "models/characters/polypizza/bot-drone-2iyQx2YscRq.glb",
+    "query": "drone"
+  },
+  {
+    "id": "fiYuC73Xlwp",
+    "title": "Anti-Gravity Drone",
+    "creator": "Adam Marc Williams",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/fiYuC73Xlwp",
+    "glb_url": "https://static.poly.pizza/704f7cba-d4fb-4cc3-9f26-7ddae68aebb0.glb",
+    "file": "models/characters/polypizza/anti-gravity-drone-fiYuC73Xlwp.glb",
+    "query": "drone"
+  },
+  {
+    "id": "mXKbcMPLSS",
+    "title": "Turret",
+    "creator": "Kenney",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/mXKbcMPLSS",
+    "glb_url": "https://static.poly.pizza/a33cbcdb-0421-4587-b06d-92cc5e2e5fa6.glb",
+    "file": "models/environment/polypizza/turret-mXKbcMPLSS.glb",
+    "query": "turret"
+  },
+  {
+    "id": "T8ofhRSenf",
+    "title": "Gatelng Gun Turret",
+    "creator": "Zsky",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/T8ofhRSenf",
+    "glb_url": "https://static.poly.pizza/21bce03b-bebb-4ae5-a6e3-5bf41cf345a1.glb",
+    "file": "models/environment/polypizza/gatelng-gun-turret-T8ofhRSenf.glb",
+    "query": "turret"
+  },
+  {
+    "id": "mNJ6poH7Cp",
+    "title": "Turret Cannon",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/mNJ6poH7Cp",
+    "glb_url": "https://static.poly.pizza/5669a490-372e-41a6-ac5f-b8ca5b69e4a5.glb",
+    "file": "models/environment/polypizza/turret-cannon-mNJ6poH7Cp.glb",
+    "query": "turret"
+  },
+  {
+    "id": "wMb4gh6STL",
+    "title": "Double Turret",
+    "creator": "Kenney",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/wMb4gh6STL",
+    "glb_url": "https://static.poly.pizza/841c9e7c-a1c4-46a0-aaa5-e460f1680885.glb",
+    "file": "models/environment/polypizza/double-turret-wMb4gh6STL.glb",
+    "query": "turret"
+  },
+  {
+    "id": "ekTQhbJId7",
+    "title": "Turret Gun",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/ekTQhbJId7",
+    "glb_url": "https://static.poly.pizza/58ce64fc-b698-4b78-af75-05bb2dfad2ed.glb",
+    "file": "models/environment/polypizza/turret-gun-ekTQhbJId7.glb",
+    "query": "turret"
+  },
+  {
+    "id": "kd1jjjCni7",
+    "title": "Scifi Gun",
+    "creator": "MiniPoly",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/kd1jjjCni7",
+    "glb_url": "https://static.poly.pizza/b4ef1766-bf5a-46fb-8520-aab9460ff647.glb",
+    "file": "models/weapons/polypizza/scifi-gun-kd1jjjCni7.glb",
+    "query": "blaster"
+  },
+  {
+    "id": "6mgzhAFknsj",
+    "title": "Nintendo blaster",
+    "creator": "Alexander Brodin",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/6mgzhAFknsj",
+    "glb_url": "https://static.poly.pizza/42db93f9-e376-437d-8bf6-67970a2d4a6a.glb",
+    "file": "models/weapons/polypizza/nintendo-blaster-6mgzhAFknsj.glb",
+    "query": "blaster"
+  },
+  {
+    "id": "fkaAiF8FInH",
+    "title": "Low Poly Blaster",
+    "creator": "Christian Hohlfeld",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/fkaAiF8FInH",
+    "glb_url": "https://static.poly.pizza/6c321dbf-4536-40c2-8c65-7af851cffc26.glb",
+    "file": "models/weapons/polypizza/low-poly-blaster-fkaAiF8FInH.glb",
+    "query": "blaster"
+  },
+  {
+    "id": "KjHL5JJrxU",
+    "title": "Rifle",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/KjHL5JJrxU",
+    "glb_url": "https://static.poly.pizza/875d7c7c-188f-4447-8cf8-bc6da771c25a.glb",
+    "file": "models/weapons/polypizza/rifle-KjHL5JJrxU.glb",
+    "query": "blaster"
+  },
+  {
+    "id": "GCqUvqleqN",
+    "title": "Rocket Launcher",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/GCqUvqleqN",
+    "glb_url": "https://static.poly.pizza/4b445cbf-38b6-43f3-afd6-32d88e8f074b.glb",
+    "file": "models/weapons/polypizza/rocket-launcher-GCqUvqleqN.glb",
+    "query": "blaster"
+  },
+  {
+    "id": "KgCR3STCKX",
+    "title": "Blaster - E Type",
+    "creator": "Damon Pidhajecky",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/KgCR3STCKX",
+    "glb_url": "https://static.poly.pizza/cc50aed9-7e80-4f18-978f-0f0258687c1b.glb",
+    "file": "models/weapons/polypizza/blaster-e-type-KgCR3STCKX.glb",
+    "query": "blaster"
+  }
+]

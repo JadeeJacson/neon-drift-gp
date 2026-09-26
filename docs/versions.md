@@ -1,42 +1,59 @@
-# 版本固定记录
+# 版本固定记录（正式期）
 
-引擎版本一经选定即记录于此，不在项目间混用。
-系统工具版本由 `node tools/check-env.mjs` 自动探测，下表为 **2026-09-21 本机实测值**。
+> **规则**：引擎版本一经选定即记录于此，不在项目间混用。混用版本会让「上次能跑」变成不可复现。
+> 本表由 `node tools/check-env.mjs` 的**实测输出**核对维护，不手写猜测值。
+> 最后实测核对：2026-09-26 23:40（lab 根执行 `node tools/check-env.mjs`）。
 
-| 引擎 / 工具 | 版本 | 位置 | 状态 |
+## 引擎
+
+| 引擎 | 版本 | 位置 | 状态 |
 |---|---|---|---|
-| Godot | — | `engines/godot/` | 未安装 |
-| Blender | — | `engines/blender/` | 未安装 |
-| Unity | — | `engines/unity/` | 未安装（需 Hub + 账号激活） |
-| Node.js | v22.22.2 | 托管运行时 | 已就位 |
-| npm | 10.9.7 | 同上 | 已就位 |
-| Git | 2.55.0.windows.3 | `/mingw64` | 已就位 |
-| .NET SDK | 10.0.401 | `F:\Dev\Tools\dotnet\10.0` | 已就位，Godot .NET 兼容性待实测 |
-| Python | 3.13.14 | PATH 解析结果 | 已就位 |
-| uv | 0.12.11 | `F:\Dev\Tools\uv` | 已就位 |
-| **three.js（主线）** | **0.186.0** | 项目 `node_modules/three` | **03 在用（不自带类型）** |
-| **@types/three** | **0.186.0** | 同上 | **03 在用（必须与 three 版本对齐）** |
+| **Godot** | **4.7.2-stable**（`4.7.2.stable.official.ed1daf0bf`）Standard / GDScript | `engines/godot/4.7.2/` | ✅ 唯一主力引擎。实测 `--version` 与 `--headless --import/--quit` 均通过 |
 
-## 项目级版本（每个项目独立固定，不与跨项目工具混用）
+> 必须用 `_console` 后缀的可执行文件做自动化，Standard 版不向终端输出脚本报错。
+> Blender / Unity 见下方「按需工具」，**不属于路线依赖**。
 
-| 项目 | 渲染 / 引擎 | 类型 | Vite | 备注 |
+## 系统工具（2026-09-26 本机实测）
+
+| 工具 | 实测版本 | 说明 |
+|---|---|---|
+| Node.js | v24.13.0 | 托管运行时，跑 `tools/*.mjs` |
+| npm | 11.6.2 | 本仓库当前无 npm 依赖 |
+| Git | 2.55.0.windows.2 | `core.autocrlf=false`，见路线图 §5.4 |
+| .NET SDK | 10.0.401 | **Godot 路线用不到**（选的是 Standard/GDScript 版），保留仅为其他项目 |
+| Python | 3.13.15 | 跑 `tools/harvest-polypizza.py` |
+| uv | 0.12.11 | Python 包管理，暂未使用 |
+
+## 工程内第三方代码（版本必须逐工程登记）
+
+| 工程 | 组件 | 版本 | 授权 | 位置 |
 |---|---|---|---|---|
-| 01 界（旧作归档） | three.js 0.160.0（CDN ESM） | 无（单文件 HTML） | 无 | 旧作；仅作设计参考，不抄渲染代码 |
-| 02 星际航行（旧作归档） | three.js r128（CDN 三源回退） | 无（单文件 HTML） | 无 | 旧作；r128 太老（2021），API 与 0.186 差异大，**不要直接抄渲染代码** |
-| 03 弯心 | three.js 0.186.0 + rapier3d-compat 0.20.0 | TS 7.0.2 | 8.3.0 | dev 端口 5179；Rapier raycast 车辆，sim 层零 three 零 DOM（Node 可跑 bot） |
-| **04 火线 FIREROUND** | three.js 0.186.0 + rapier3d-compat 0.20.0 | TS 7.0.2 | 8.3.0 | dev 端口 **5181**；第一人称 FPS；KCC 角色控制器 + castRay hitscan；**WebAudio 程序化音效为 DoD 硬指标**（lab 首个带音效的项目）；**已完成 2026-09-24 + 扩内容 2026-09-25**：5 武器（手枪/步枪/霰弹枪/冲锋枪 SMG/精确射手步枪 DMR）· 4 张预设地图（枢纽/十字/高台/长廊）· 分件机兵 + 走路摆臂动画；验证基线 bot 13/13 + CDP 16/16（无头 SwiftShader）；上一版 04 波次射击已删，本次重立 |
+| 06 | Jeh3no Advanced FSM First Person Controller | Godot 4.4–4.7 兼容（main 分支，2026-09-26 取） | MIT | `projects/06-mech-fps/addons/JehenoAdvancedFirstPersonController/` |
+| 06 | **GUT**（bitwes/Gut） | **9.7.1**（2026-07-10 发布） | MIT | `projects/06-mech-fps/addons/gut/` |
 
-> **版本一致性红线**：01 / 02 是归档旧作，用的 three 版本（0.160.0 / r128）**与 lab 主线的 0.186.0 不一致**。
-> 从它们身上**只抄设计思路，不抄渲染代码**（r128 的 `outputEncoding` / 光照单位 / 色彩管理在 0.186 已变更）。
-> 新 3D 项目一律用 three 0.186.0 + @types/three 0.186.0，与 03 对齐。
+> GUT 只需 CLI（`-s addons/gut/gut_cmdln.gd`），**未启用 `[editor_plugins]`**——本 lab 走纯文本工作流，
+> 不开编辑器也能跑全套断言。将来若要在编辑器里看测试面板，加这一行即可：
+> `[editor_plugins]\nenabled=PackedStringArray("res://addons/gut/plugin.cfg")`
 
-## 为什么固定版本
+## 按需工具（不是路线依赖，缺了不报错）
 
-Godot 4 的小版本之间出现过资源格式与 API 的破坏性变更；Unity 工程跨版本升级会触发长时间重新导入。
-混用版本会让「上次能跑」变成不可复现。
+| 工具 | 状态 | 什么时候才装 |
+|---|---|---|
+| Blender | 未安装 | 需要改模、重命名骨骼、烘焙动画时（`blender --background --python`）。当前 06 不需要：素材自带动画 + 程序化补件 |
+| Unity | **不再考虑** | 路线已定 Godot，Hub + 账号激活成本不值得。从待办中移除 |
+
+## 练习期（three.js）版本记录——仅作历史对照，**不得用于新项目**
+
+| 项目 | 渲染 | 类型 | Vite | 备注 |
+|---|---|---|---|---|
+| 01 界 | three.js 0.160.0（CDN ESM） | 无 | 无 | 已删除，快照 `bdfb867` |
+| 02 星际航行 | three.js r128（CDN 三源回退） | 无 | 无 | 已删除；r128 的 `outputEncoding`/光照单位与后续版本不兼容 |
+| 03 弯心 | three.js 0.186.0 + rapier3d-compat 0.20.0 | TS 7.0.2 | 8.3.0 | 已删除，tag `archive-before-03-04-removal` |
+| 04 火线 / 043 | three.js 0.186.0 + rapier3d-compat 0.20.0 | TS 7.0.2 | 8.3.0 | 同上。方法论（sim/render 分离、确定性验证、bot 跑分、手感量化）已平移进正式期，**代码一行不带** |
 
 ## 待办
 
-- [ ] 确认 Godot 版本与发行版类型（Standard / .NET），下载并登记
-- [ ] 确认 Blender 版本，下载并登记
-- [ ] 实测 Godot .NET 版能否复用本机 .NET SDK 10.0，或需另装 net8.0 目标框架
+- [x] 确认 Godot 版本与发行版类型 → 4.7.2-stable Standard（GDScript），已装并实测
+- [x] 选定 GDScript 测试框架 → GUT 9.7.1，已接入 06
+- [ ] Blender 按需再装（当前无需求）
+- [ ] ~~实测 Godot .NET 版兼容性~~ —— 不做，路线已定 GDScript

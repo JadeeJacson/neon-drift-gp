@@ -19,6 +19,7 @@
 | 名称 | 作者 | 授权 | 本地位置 | 来源 | 日期 |
 |---|---|---|---|---|---|
 | Godot Advanced State Machine First Person Controller（泰坦陨落式移动：滑铲/墙跑/二段跳/dash/兔跳/相机系统） | Jeh3no | MIT | `templates/jeh3no-fps-controller/` | https://github.com/Jeh3no/Godot-Advanced-State-Machine-First-Person-Controller | 2026-09-26 |
+| GUT 9.7.1（Godot Unit Test，GDScript 单元测试框架，`gut_cmdln.gd` 支持 headless CLI） | Butch Wesley (bitwes) | MIT | `projects/06-mech-fps/addons/gut/`（含 `LICENSE.md`） | https://github.com/bitwes/Gut （tag `v9.7.1`，经 codeload 抓取） | 2026-09-26 |
 
 ## 2. Kenney 素材包（全部 CC0，作者 Kenney，kenney.nl，2026-09-26 下载）
 

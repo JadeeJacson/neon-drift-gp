@@ -10,12 +10,15 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ENGINES = path.join(ROOT, 'engines');
 
+// 正式期路线只依赖 Godot；Blender 是按需工具（改模/烘焙时才装），Unity 已放弃。
+// required=false 的项缺失不算异常，只打印提示。
 const ENGINE_SPECS = [
   {
     name: 'Godot',
     dir: 'godot',
     re: /^godot.*\.exe$/i,
     versionArgs: ['--version'],
+    required: true,
     hint: 'https://godotengine.org/download/windows/',
   },
   {
@@ -23,14 +26,9 @@ const ENGINE_SPECS = [
     dir: 'blender',
     re: /^blender(-launcher)?\.exe$/i,
     versionArgs: ['--version'],
+    required: false,
+    optionalNote: '按需：当前素材自带动画 + 程序化补件，暂不需要',
     hint: 'https://www.blender.org/download/',
-  },
-  {
-    name: 'Unity',
-    dir: 'unity',
-    re: /^unity\.exe$/i,
-    versionArgs: null,
-    hint: '需先装 Unity Hub 并登录激活',
   },
 ];
 
@@ -114,19 +112,23 @@ console.log('game-lab 环境探测');
 console.log('根目录: ' + ROOT);
 console.log(line);
 
-let missing = 0;
+let missingRequired = 0;
 
 console.log('');
 console.log('[ 引擎 ]');
 for (const spec of ENGINE_SPECS) {
   const found = findEngines(spec);
   if (found.length === 0) {
-    missing++;
-    console.log('  [--] ' + spec.name.padEnd(9) + '未安装    ' + spec.hint);
+    if (spec.required) {
+      missingRequired++;
+      console.log('  [缺失] ' + spec.name.padEnd(9) + '未安装（路线依赖）  ' + spec.hint);
+    } else {
+      console.log('  [ -- ] ' + spec.name.padEnd(9) + (spec.optionalNote || '未安装（可选）'));
+    }
     continue;
   }
   const ver = spec.versionArgs ? probe(found[0], spec.versionArgs) : null;
-  console.log('  [OK] ' + spec.name.padEnd(9) + (ver || '已就位（未探测版本）'));
+  console.log('  [ OK ] ' + spec.name.padEnd(9) + (ver || '已就位（未探测版本）'));
   for (const f of found) console.log('       ' + rel(f));
 }
 
@@ -139,10 +141,10 @@ for (const t of SYS_TOOLS) {
 
 console.log('');
 console.log(line);
-if (missing === 0) {
-  console.log('三种引擎均已就位。');
+if (missingRequired === 0) {
+  console.log('路线依赖就绪（Godot 已安装）。未安装的可选工具不影响现有项目。');
 } else {
-  console.log(missing + ' 种引擎未安装，获取方式见 engines/README.md');
-  console.log('下一步：确认要装的引擎与具体版本，再执行下载。');
+  console.log(missingRequired + ' 项路线依赖缺失，获取方式见 engines/README.md');
+  console.log('下一步：确认要装的版本与体积，再执行下载。');
 }
-console.log('');
+process.exit(missingRequired === 0 ? 0 : 1);
