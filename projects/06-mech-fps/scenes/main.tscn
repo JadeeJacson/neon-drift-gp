@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://addons/JehenoAdvancedFirstPersonController/Map/template_map_scene.tscn" id="1_map"]
+[ext_resource type="PackedScene" path="res://addons/JehenoAdvancedFirstPersonController/PlayerCharacter/player_character_scene.tscn" id="2_player"]
+
+[node name="Main" type="Node3D"]
+
+[node name="Map" parent="." instance=ExtResource("1_map")]
+
+[node name="Player" parent="." instance=ExtResource("2_player")]

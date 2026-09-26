@@ -1,6 +1,7 @@
 # 06 · 立项：科幻机兵 FPS（正式期第一作）
 
-> 状态：**立项中**（素材搜集已启动，工程未创建）
+> 状态：**工程已创建**（`projects/06-mech-fps/`，`--headless` 导入+加载零报错）
+> 素材：8 个 Kenney 包 + 40 个 Poly Pizza 模型全部入库；FPS 控制器模板已接入
 > 方向：3D movement FPS · 科幻机兵题材 · 单机 · Godot 4.7.2 + GDScript
 > 延续 04 火线的题材积累，但目标是从「技术练习」升级为「完整、有趣、精美的正式作品」。
 
@@ -53,18 +54,18 @@
 
 | 需求 | 来源 | 状态 |
 |---|---|---|
-| 移动控制器 | Jeh3no Godot 模板（GitHub, MIT） | ✅ 已下载 `_downloads/fps-controller-template.zip` |
-| 机兵/机器人敌人模型 | Poly Pizza（CC0/CC-BY）mech/robot/drone 搜索批 | 🔄 抓取中 |
-| 武器模型 | Poly Pizza（sci-fi gun/blaster） | 🔄 抓取中 |
-| 炮塔/场景机械 | Poly Pizza（turret） | 🔄 抓取中 |
-| 环境模块（空间站/科幻场景） | Kenney Space Kit（CC0） | 🔄 下载中 |
-| 关卡 blockout 纹理 | Kenney Prototype Textures（CC0） | 🔄 下载中 |
-| 天空盒 | Kenney Skyboxes（CC0） | 🔄 下载中 |
-| 射击/爆炸/命中音效 | Kenney Sci-fi Sounds（70 个）+ Impact Sounds | 🔄 下载中 |
-| UI 音效 | Kenney UI Audio | 🔄 下载中 |
-| 准星 | Kenney Crosshair Pack | 🔄 下载中 |
-| 粒子贴图（火光/烟雾/火花） | Kenney Particle Pack | 🔄 下载中 |
-| 角色动画库（后续） | Quaternius Universal Animation Library / Mixamo | ⚠️ Quaternius 直链待破解；Mixamo 需用户登录 |
+| 移动控制器 | Jeh3no Godot 模板（GitHub, MIT） | ✅ 已接入 `projects/06-mech-fps/addons/JehenoAdvancedFirstPersonController/` |
+| 机兵/机器人敌人模型 | Poly Pizza（CC0/CC-BY）mech/robot/drone 搜索批 | ✅ 21 个 GLB 入 `models/characters/polypizza/` |
+| 武器模型 | Poly Pizza（sci-fi gun/blaster） | ✅ 14 个 GLB 入 `models/weapons/polypizza/` |
+| 炮塔/场景机械 | Poly Pizza（turret） | ✅ 5 个 GLB 入 `models/environment/polypizza/` |
+| 环境模块（空间站/科幻场景） | Kenney Space Kit（CC0） | ✅ 1694 文件入 `models/environment/kenney_space-kit/` |
+| 关卡 blockout 纹理 | Kenney Prototype Textures（CC0） | ✅ 78 PNG 入 `textures/kenney_prototype-textures/` |
+| 天空盒 | Kenney Skyboxes（CC0） | ✅ 12 张入 `textures/kenney_skyboxes/` |
+| 射击/爆炸/命中音效 | Kenney Sci-fi Sounds（73）+ Impact Sounds（133） | ✅ 入 `audio/sfx/` |
+| UI 音效 | Kenney UI Audio | ✅ 55 个入 `audio/sfx/kenney_ui-audio/` |
+| 准星 | Kenney Crosshair Pack | ✅ 2013 张入 `ui/kenney_crosshair-pack/` |
+| 粒子贴图（火光/烟雾/火花） | Kenney Particle Pack | ✅ 96 PNG 入 `textures/kenney_particle-pack/` |
+| 角色动画库（后续） | Quaternius Universal Animation Library / Mixamo | ⚠️ Quaternius 直链未破解；Mixamo 需用户登录 |
 | 音乐 | OpenGameArt（逐项核对授权） | ⏳ 待搜集 |
 
 ---
@@ -83,18 +84,34 @@
 ## 5. 工程规划
 
 ```
-projects/06-mech-fps/          （工程未创建，素材齐后开工）
-├─ project.godot
-├─ addons/jeh3no-fpc/          移动控制器（MIT 模板改造）
-├─ sim/                        纯逻辑层（武器数值/波次/AI 决策），--headless 可测
-├─ scenes/                     关卡/敌人/武器场景
-├─ assets/ -> 软链或复制自 lab 根 assets/（Godot 导入会生成 .import，素材本体集中管理）
-└─ tools/                      验证脚本、机器人跑分
+projects/06-mech-fps/                       ✅ 已创建并验证
+├─ project.godot                            config_version=5, forward_plus, 12 个输入动作
+├─ icon.svg
+├─ scenes/
+│  └─ main.tscn                             当前只实例化模板的 map + player（骨架）
+├─ addons/JehenoAdvancedFirstPersonController/   移动控制器（MIT 模板，保留原目录名）
+├─ sim/                                     纯逻辑层（武器数值/波次/AI 决策），--headless 可测
+├─ assets/                                  「已选定使用」的素材副本
+└─ tools/
+   └─ setup_inputmap.gd                     一次性脚本：把模板所需输入动作写入 project.godot
 ```
 
 - 素材集中放 lab 根 `assets/`，项目内只放「已选定使用」的副本或导入产物——
   避免每个项目复制一遍素材库。
-- 验证：`godot --headless --check-only`（语法）→ sim 层断言脚本 → 输入回放机器人 → 截图人验。
+- 验证：`godot --headless --import`（资源导入）→ `--headless --quit`（加载主场景）
+  → sim 层断言脚本 → 输入回放机器人 → 截图人验。
+  当前基线：**导入 DONE、加载 EXIT=0、WARNING/ERROR 0 条**。
+
+### 5.1 已验证的命令（lab 根执行）
+
+```bash
+GODOT=engines/godot/4.7.2/Godot_v4.7.2-stable_win64_console.exe
+$GODOT --headless --path projects/06-mech-fps --import   # 资源导入
+$GODOT --headless --path projects/06-mech-fps --quit     # 加载主场景后立即退出
+$GODOT --headless --path projects/06-mech-fps -s res://tools/setup_inputmap.gd
+```
+
+必须用 `_console` 后缀的版本，Standard 版不输出脚本报错到终端。
 
 ---
 

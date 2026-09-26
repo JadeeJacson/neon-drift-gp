@@ -22,16 +22,21 @@
 
 ## 2. Kenney 素材包（全部 CC0，作者 Kenney，kenney.nl，2026-09-26 下载）
 
-| 包 | 内容 | 本地位置 | 来源页 |
-|---|---|---|---|
-| Sci-fi Sounds | 70× 科幻音效（激光/引擎/爆炸等） | `audio/sfx/kenney_sci-fi-sounds/` | https://kenney.nl/assets/sci-fi-sounds |
-| Impact Sounds | 命中/撞击音效 | `audio/sfx/kenney_impact-sounds/` | https://kenney.nl/assets/impact-sounds |
-| UI Audio | 界面音效 | `audio/sfx/kenney_ui-audio/` | https://kenney.nl/assets/ui-audio |
-| Space Kit | 太空/空间站 3D 模块（glTF 等多格式） | `models/environment/kenney_space-kit/` | https://kenney.nl/assets/space-kit |
-| Crosshair Pack | 准星贴图 | `ui/kenney_crosshair-pack/` | https://kenney.nl/assets/crosshair-pack |
-| Skyboxes | 天空盒纹理 | `textures/kenney_skyboxes/` | https://kenney.nl/assets/skyboxes |
-| Particle Pack | 粒子贴图（烟/火/火花） | `textures/kenney_particle-pack/` | https://kenney.nl/assets/particle-pack |
-| Prototype Textures | 关卡 blockout 网格纹理 | `textures/kenney_prototype-textures/` | https://kenney.nl/assets/prototype-textures |
+| 包 | 内容 | 文件数 | 本地位置 | 来源页 |
+|---|---|---|---|---|
+| Sci-fi Sounds | 70× 科幻音效（激光/引擎/爆炸等） | 73 ogg | `audio/sfx/kenney_sci-fi-sounds/` | https://kenney.nl/assets/sci-fi-sounds |
+| Impact Sounds | 命中/撞击音效 | 133 | `audio/sfx/kenney_impact-sounds/` | https://kenney.nl/assets/impact-sounds |
+| UI Audio | 界面音效 | 55 | `audio/sfx/kenney_ui-audio/` | https://kenney.nl/assets/ui-audio |
+| Space Kit | 太空/空间站 3D 模块（glTF 等多格式） | 1694 | `models/environment/kenney_space-kit/` | https://kenney.nl/assets/space-kit |
+| Crosshair Pack | 准星贴图 | 2013 | `ui/kenney_crosshair-pack/` | https://kenney.nl/assets/crosshair-pack |
+| Skyboxes | 天空盒纹理 | 12 | `textures/kenney_skyboxes/` | https://kenney.nl/assets/skyboxes |
+| Particle Pack | 粒子贴图（烟/火/火花） | 96 png | `textures/kenney_particle-pack/` | https://kenney.nl/assets/particle-pack |
+| Prototype Textures | 关卡 blockout 网格纹理 | 78 png | `textures/kenney_prototype-textures/` | https://kenney.nl/assets/prototype-textures |
+
+> 注：Particle Pack 原始 zip 含「透明背景」与「黑背景」两套 PNG，本库只入**透明背景**版
+> （Godot 粒子材质以带 alpha 的贴图为通用输入）；黑背景版与 Unity samples 未提取，
+> 需要时从 `_downloads/kenney_particle-pack.zip` 重新解压。
+> 全部 8 包于 2026-09-26 完成下载并解压入库，均已 `unzip -t` 校验。
 
 ## 3. Poly Pizza 模型（2026-09-26 经 `tools/harvest-polypizza.py` 抓取）
 
