@@ -75,7 +75,30 @@ Poly Pizza 是多人投稿站，**每个模型的尺度、朝向、原点都不�
 > 开火音配了「主音 + 交替音」两套：练习期教训是**同一音高连播会迅速产生机械疲劳感**，
 > 交替播放能让连射听起来有变化。
 
-## 5. 待补
+## 5. 准星与 UI
 
-- **音乐**：`assets/audio/music/` 仍空，待从 OpenGameArt 逐项核对授权后搜集。
-- **环境模块**：Kenney Space Kit（1694 文件，CC0）已入库但尚未接入 06 场景。
+| 资源 | 来源 | 用法 |
+|---|---|---|
+| `addons/.../PlayerCharacter/HUD/crosshair.png` | Jeh3no 模板内置 | 直接复用模板 HUD 的准星，**不再引入 Kenney Crosshair Pack**（2013 张留在 lab 库备用）。自制的 hitmarker 用 Label `✛`，避免两套准星叠在一起 |
+
+> 模板 HUD 还带一个速度/状态调试面板（`HUD/PlayerCharacterProperties`）。
+> `scripts/hud.gd` 的 `show_template_debug` 默认 **false** 会把它隐藏；
+> 调手感时打开它很有用（能看见 coyote time / jump buffer / desired move speed）。
+
+## 6. 音乐（lab 根 `assets/audio/music/`，CC-BY 4.0 · bogart-vgm）
+
+| 工程内文件名 | 用途 | 来源 |
+|---|---|---|
+| `main_theme.mp3` | 主菜单 / 开场简报 | OpenGameArt「Scifi Main Theme: Menu」 |
+| `combat_loop.mp3` | 战斗 | OpenGameArt「Scifi Action」 |
+| `tension_loop.mp3` | 波次间歇 / 潜行铺垫 | OpenGameArt「Scifi Concentration (looped)」 |
+
+授权与署名要求见 lab 根 `assets/SOURCES.md` §4（**发布前必须加署名**）。
+MP3 在 Godot 4 走 `AudioStreamMP3`，`loop = true` 才可循环；未循环的曲目在战斗间歇会突然静音。
+
+## 7. 待补
+
+- **环境模块**：Kenney Space Kit（1694 文件，CC0）已入库但尚未接入 06 场景 —— 即「美术 pass」，
+  在灰盒验证通过后替换。
+- **近战处决的动画与音效**：目前只有音效（`thruster.ogg` 顶替），需要像样的处决演出。
+- **charger / heavy 的分件 pivot**：当前只做了 bob + 前倾的程序化近似，四肢还没挂 pivot。

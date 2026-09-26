@@ -25,23 +25,37 @@ const ACTIONS := {
 	"play_char_mouse_mode_action": [KEY_ESCAPE],
 }
 
+## 06 战斗层动作（不属于模板，跟着 sim/weapon_table 的 3 把首发武器走）。
+const COMBAT_ACTIONS := {
+	"reload": [KEY_R],
+	"weapon_1": [KEY_1],
+	"weapon_2": [KEY_2],
+	"weapon_3": [KEY_3],
+	"melee_execute": [KEY_V],
+}
+
+const MOUSE_ACTIONS := {
+	"fire_primary": [MOUSE_BUTTON_LEFT],
+	"fire_alt": [MOUSE_BUTTON_RIGHT],
+}
+
 
 func _initialize() -> void:
-	var added := 0
+	var table := {}
 	for action_name in ACTIONS:
-		var events: Array[InputEvent] = []
-		for keycode in ACTIONS[action_name]:
-			var ev := InputEventKey.new()
-			ev.physical_keycode = keycode
-			events.append(ev)
+		table[action_name] = ACTIONS[action_name].map(_key_event)
+	for action_name in COMBAT_ACTIONS:
+		table[action_name] = COMBAT_ACTIONS[action_name].map(_key_event)
+	for action_name in MOUSE_ACTIONS:
+		table[action_name] = MOUSE_ACTIONS[action_name].map(_mouse_event)
 
+	for action_name in table:
 		# 关键：Godot 4 的 InputMap.add_action() 只改内存，不回写 ProjectSettings。
 		# 要持久化必须直接写 "input/<name>" 设置项，格式与 project.godot 的 [input] 段一致。
 		ProjectSettings.set_setting("input/" + action_name, {
 			"deadzone": 0.2,
-			"events": events,
+			"events": table[action_name],
 		})
-		added += 1
 
 	var err := ProjectSettings.save()
 	if err != OK:
@@ -49,5 +63,20 @@ func _initialize() -> void:
 		quit(1)
 		return
 
-	print("InputMap 写入完成：%d 个动作（新增 %d），已保存 project.godot" % [ACTIONS.size(), added])
+	print("InputMap 写入完成：%d 个动作，已保存 project.godot（务必 grep 复核，save 返回 OK 不代表内容变了）"
+		% table.size())
 	quit(0)
+
+
+func _key_event(keycode: int) -> InputEventKey:
+	var ev := InputEventKey.new()
+	ev.physical_keycode = keycode
+	ev.device = -1  # 脚本模式默认会序列化出 device:16，必须改回 -1（任意设备）
+	return ev
+
+
+func _mouse_event(button: int) -> InputEventMouseButton:
+	var ev := InputEventMouseButton.new()
+	ev.button_index = button
+	ev.device = -1
+	return ev

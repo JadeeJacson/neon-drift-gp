@@ -67,6 +67,11 @@ static func has_type(type: String) -> bool:
 	return TYPES.has(type)
 
 
+static func display(type: String) -> String:
+	assert(TYPES.has(type), "未知敌型: " + type)
+	return String(TYPES[type]["display"])
+
+
 static func field(type: String, key: String) -> float:
 	assert(TYPES.has(type), "未知敌型: " + type)
 	assert(TYPES[type].has(key), "未知字段: %s.%s" % [type, key])

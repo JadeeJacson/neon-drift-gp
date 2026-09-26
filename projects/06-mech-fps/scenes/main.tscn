@@ -1,23 +1,21 @@
 [gd_scene load_steps=6 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/arena.tscn" id="1_arena"]
-[ext_resource type="PackedScene" path="res://addons/JehenoAdvancedFirstPersonController/PlayerCharacter/player_character_scene.tscn" id="2_player"]
-[ext_resource type="PackedScene" path="res://scenes/enemies/trooper_mech.tscn" id="3_trooper"]
-[ext_resource type="PackedScene" path="res://scenes/enemies/swarm_drone.tscn" id="4_drone"]
-[ext_resource type="PackedScene" path="res://scenes/enemies/heavy_walker.tscn" id="5_heavy"]
+[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2_player"]
+[ext_resource type="Script" path="res://scripts/game_root.gd" id="3_root"]
+[ext_resource type="Script" path="res://scripts/wave_director.gd" id="4_director"]
+[ext_resource type="Script" path="res://scripts/hud.gd" id="5_hud"]
 
-[node name="Main" type="Node3D"]
+[node name="Main" type="Node"]
+script = ExtResource("3_root")
 
 [node name="Arena" parent="." instance=ExtResource("1_arena")]
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 18)
 
-; 敌人摆放避开 arena 的掩体与高台（见 tools/build_arena.gd 的 PIECES）
-[node name="Trooper" parent="." instance=ExtResource("3_trooper")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, -6)
+[node name="WaveDirector" type="Node" parent="."]
+script = ExtResource("4_director")
 
-[node name="Drone" parent="." instance=ExtResource("4_drone")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 3, -6)
-
-[node name="Heavy" parent="." instance=ExtResource("5_heavy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -24)
+[node name="Hud" type="CanvasLayer" parent="."]
+script = ExtResource("5_hud")

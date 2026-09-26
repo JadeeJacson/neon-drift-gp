@@ -86,7 +86,24 @@
 | Blaster - E Type | Damon Pidhajecky | CC-BY | `models/weapons/polypizza/blaster-e-type-KgCR3STCKX.glb` | https://poly.pizza/m/KgCR3STCKX |
 ---
 
-## 4. 已记录但暂未下载的源
+## 4. 音乐（OpenGameArt，2026-09-27 下载）
+
+> **逐项核对过授权页**（OpenGameArt 是混合授权站，搜索面板的 license 过滤参数不可信，
+> 必须打开条目页读 `license-name`）。已**主动排除** CC-BY-SA 条目（dust-scifi-music 等）：
+> 相同方式共享会传染到整部作品的音频，与「学习期后可能发布」冲突。
+
+| 曲目 | 作者 | 授权 | 本地位置 | 来源页 | 用途 | 日期 |
+|---|---|---|---|---|---|---|
+| Scifi Main Theme: Menu | bogart-vgm | CC-BY 4.0 | `audio/music/main_theme.mp3` | https://opengameart.org/content/scifi-main-theme | 主菜单 / 开场简报 | 2026-09-27 |
+| Scifi Action | bogart-vgm | CC-BY 4.0 | `audio/music/combat_loop.mp3` | https://opengameart.org/content/scifi-action | 战斗 | 2026-09-27 |
+| Scifi Concentration (looped) | bogart-vgm | CC-BY 4.0 | `audio/music/tension_loop.mp3` | https://opengameart.org/content/scifi-concentration | 波次间歇 / 潜行铺垫 | 2026-09-27 |
+
+**发布前动作**：CC-BY 4.0 允许商用但**要求署名**——若将来公开发布，需在制作人员名单加一行
+「Music: bogart-vgm (OpenGameArt.org, CC-BY 4.0)」。
+
+---
+
+## 5. 已记录但暂未下载的源
 
 | 源 | 原因 | 后续 |
 |---|---|---|

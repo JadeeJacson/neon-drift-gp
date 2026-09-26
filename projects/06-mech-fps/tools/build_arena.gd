@@ -12,6 +12,25 @@ extends SceneTree
 const OUT_PATH := "res://scenes/arena.tscn"
 const TEX_DIR := "res://assets/textures/prototype/"
 
+## 出怪点：贴外墙与四角高台顶，中心留空（玩家出生点周围不能有出怪口，
+## 否则第一波直接刷在脸上，滑铲起手空间为 0）。y 取碰撞体顶面 +0.1 防嵌入。
+const SPAWNS: Array = [
+	["edge_nw", Vector3(-24, 0.1, -24)],
+	["edge_ne", Vector3(24, 0.1, -24)],
+	["edge_sw", Vector3(-24, 0.1, 24)],
+	["edge_se", Vector3(24, 0.1, 24)],
+	["edge_n", Vector3(0, 0.1, -26)],
+	["edge_s", Vector3(0, 0.1, 26)],
+	["edge_w", Vector3(-26, 0.1, 0)],
+	["edge_e", Vector3(26, 0.1, 0)],
+	["plat_nw", Vector3(-18, 6.1, -18)],
+	["plat_ne", Vector3(18, 6.1, -18)],
+	["plat_sw", Vector3(-18, 6.1, 18)],
+	["plat_se", Vector3(18, 6.1, 18)],
+	["air_w", Vector3(-20, 5.0, 0)],
+	["air_e", Vector3(20, 5.0, 0)],
+]
+
 const FLOOR_HALF := 30.0
 const WALL_H := 12.0
 
@@ -95,6 +114,9 @@ func _initialize() -> void:
 		boxes += 1
 		tris += 12  # BoxMesh = 12 三角面
 
+	_add_atmosphere(root)
+	_add_spawns(root)
+
 	var packed := PackedScene.new()
 	var err := packed.pack(root)
 	if err != OK:
@@ -112,6 +134,69 @@ func _initialize() -> void:
 	# pack() 已复制数据，释放临时节点避免退出时的 RID 泄漏警告污染验证输出
 	root.free()
 	quit(0)
+
+
+## 氛围层：光照 + 天空 + 雾 + glow。硬约束 §0.4「能看」的最小实现，
+## 也是枪口火光/曳光能靠 bloom 融进画面的前提——没有 glow，特效永远是贴上去的贴图。
+func _add_atmosphere(root: Node3D) -> void:
+	var sky_mat := ProceduralSkyMaterial.new()
+	sky_mat.sky_top_color = Color(0.045, 0.07, 0.12)
+	sky_mat.sky_horizon_color = Color(0.20, 0.28, 0.40)
+	sky_mat.ground_horizon_color = Color(0.16, 0.20, 0.26)
+	sky_mat.ground_bottom_color = Color(0.04, 0.05, 0.07)
+
+	var sky := Sky.new()
+	sky.sky_material = sky_mat
+
+	var env := Environment.new()
+	env.background_mode = Environment.BG_SKY
+	env.sky = sky
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
+	env.ambient_light_energy = 0.7
+	env.fog_enabled = true
+	env.fog_light_color = Color(0.18, 0.25, 0.35)
+	env.fog_density = 0.010
+	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	env.glow_enabled = true
+	env.glow_bloom = 0.06
+	env.glow_intensity = 0.9
+
+	var we := WorldEnvironment.new()
+	we.name = "WorldEnvironment"
+	we.environment = env
+	root.add_child(we)
+	we.owner = root
+
+	var sun := DirectionalLight3D.new()
+	sun.name = "Sun"
+	sun.rotation_degrees = Vector3(-52.0, 34.0, -12.0)
+	sun.light_energy = 1.25
+	sun.light_color = Color(0.92, 0.96, 1.0)
+	sun.shadow_enabled = true
+	sun.directional_shadow_max_distance = 120.0
+	root.add_child(sun)
+	sun.owner = root
+
+
+## 出怪点标记。WaveDirector 只认这里的名字，不在关卡里硬编码坐标。
+func _add_spawns(root: Node3D) -> void:
+	var holder := Node3D.new()
+	holder.name = "SpawnPoints"
+	root.add_child(holder)
+	holder.owner = root
+
+	for s in SPAWNS:
+		var marker := Marker3D.new()
+		marker.name = String(s[0])
+		marker.position = s[1]
+		holder.add_child(marker)
+		marker.owner = root
+
+	var player_spawn := Marker3D.new()
+	player_spawn.name = "player_spawn"
+	player_spawn.position = Vector3(0, 1.0, 18)
+	holder.add_child(player_spawn)
+	player_spawn.owner = root
 
 
 ## 纹理 UV 按盒子尺寸缩放，否则大平面会把网格纹理拉成条纹。

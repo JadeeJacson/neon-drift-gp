@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="PackedScene" path="res://assets/models/enemies/trooper_mech.glb" id="1_mdl"]
+[ext_resource type="Script" path="res://scripts/enemy_controller.gd" id="2_scr"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_trooper"]
 radius = 0.45
@@ -9,6 +10,8 @@ height = 2.0
 [node name="TrooperMech" type="CharacterBody3D"]
 collision_layer = 4
 collision_mask = 1
+script = ExtResource("2_scr")
+enemy_type = "trooper"
 
 [node name="Model" parent="." instance=ExtResource("1_mdl")]
 transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0, 0)

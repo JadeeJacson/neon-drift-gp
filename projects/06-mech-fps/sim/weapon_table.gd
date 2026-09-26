@@ -54,6 +54,11 @@ static func has_id(id: String) -> bool:
 	return WEAPONS.has(id)
 
 
+static func display(id: String) -> String:
+	assert(WEAPONS.has(id), "未知武器: " + id)
+	return String(WEAPONS[id]["display"])
+
+
 static func field(id: String, key: String) -> float:
 	assert(WEAPONS.has(id), "未知武器: " + id)
 	# 键名写错时 Dictionary 取值会静默返回 0 并污染整条数值链，这里必须炸出来。

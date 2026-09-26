@@ -1,7 +1,9 @@
 # 06 · 立项：科幻机兵 FPS（正式期第一作）
 
-> 状态：**工程已创建**（`projects/06-mech-fps/`，`--headless` 导入+加载零报错）
-> 素材：8 个 Kenney 包 + 40 个 Poly Pizza 模型全部入库；FPS 控制器模板已接入
+> 状态：**战斗循环已可跑**（`--headless` 全绿：import/load 零报错 + 41 测试 656 断言 + 波次预览 11.8 分钟）
+> 已完成：sim 数值层（武器/敌型/波次/AI/资源循环）、武器 hitscan 与反馈链、敌型状态机接线、
+> 波次导演、HUD、关卡光照氛围与出怪点、GUT 9.7.1 测试基建
+> 待办：**制作人本人验手感**（这项无法自动化）、viewmodel 持握姿态、美术 pass（Space Kit）、寻路方案（§2.5）
 > 方向：3D movement FPS · 科幻机兵题材 · 单机 · Godot 4.7.2 + GDScript
 > 延续 04 火线的题材积累，但目标是从「技术练习」升级为「完整、有趣、精美的正式作品」。
 
@@ -50,6 +52,28 @@
 
 ---
 
+### 2.5 敌人寻路（练习期遗留短板，本作必须记账）
+
+04 合并版的 AI **不会绕障碍**（直线移动 + LOS 绕行），遇到复杂地形会卡；横向对比时
+运输船是唯一会用 nav-grid BFS 绕路追人的，被列为 P2 移植项。本作当前状态：
+
+- `EnemyAI`（sim）只输出**意图**（前进/后退/搜索/占位），位移由场景层直线实现；
+- 因此关卡布局必须留中央通路（`tools/build_arena.gd` 的四角分离式高台 + 绝不围死中心），
+  并用 `alive_cap` 限制同屏敌人数量——**这是规避，不是解决**。
+
+候选方案（做第 2 张关卡或敌人卡住成真问题时再定）：
+
+| 方案 | 成本 | 备注 |
+|---|---|---|
+| NavigationServer3D + 预烘焙 NavRegion | 中 | Godot 原生，但要在关卡里铺 region；blockout 阶段几何还会变 |
+| 自制网格 A*（移植运输船 nav-grid 思路） | 中高 | 与 sim 层最契合，可在 `--headless` 下逐帧断言路径 |
+| 保持直线 + 布局规避 | 零 | 当前状态。单张竞技场够用，多关卡/立体地图会露馅 |
+
+`project.godot` 目前只命名了 3 个物理层（world/player/enemy），**没有任何 navigation 层配置**——
+选前两条路时才需要动。
+
+---
+
 ## 3. 素材映射表
 
 | 需求 | 来源 | 状态 |
@@ -65,8 +89,9 @@
 | UI 音效 | Kenney UI Audio | ✅ 55 个入 `audio/sfx/kenney_ui-audio/` |
 | 准星 | Kenney Crosshair Pack | ✅ 2013 张入 `ui/kenney_crosshair-pack/` |
 | 粒子贴图（火光/烟雾/火花） | Kenney Particle Pack | ✅ 96 PNG 入 `textures/kenney_particle-pack/` |
-| 角色动画库（后续） | Quaternius Universal Animation Library / Mixamo | ⚠️ Quaternius 直链未破解；Mixamo 需用户登录 |
-| 音乐 | OpenGameArt（逐项核对授权） | ⏳ 待搜集 |
+| 角色动画库 | ~~Quaternius Universal Animation Library / Mixamo~~ | **不需要**：trooper 自带 17 套、drone 6 套；charger/heavy 走程序化（见 `assets/animations/README.md`） |
+| 音乐（菜单/战斗/紧张段） | OpenGameArt · bogart-vgm（CC-BY 4.0，需署名） | ✅ 3 首 MP3 入 `audio/music/`，登记在 `assets/SOURCES.md` §4 |
+| 测试框架 | bitwes/Gut 9.7.1（MIT） | ✅ 已接入 `addons/gut/`，CLI 跑 `sim/tests` |
 
 ---
 
@@ -84,23 +109,41 @@
 ## 5. 工程规划
 
 ```
-projects/06-mech-fps/                       ✅ 已创建并验证
-├─ project.godot                            config_version=5, forward_plus, 12 个输入动作
+projects/06-mech-fps/                       ✅ 战斗循环可跑，--headless 全绿
+├─ project.godot                            config_version=5, forward_plus, 19 个输入动作
 ├─ icon.svg
 ├─ scenes/
-│  ├─ main.tscn                             arena + player + 3 敌人（当前骨架）
-│  ├─ arena.tscn                            程序化生成的竞技场 blockout（23 碰撞体）
-│  └─ enemies/                              trooper / swarm_drone / heavy_walker
-├─ addons/JehenoAdvancedFirstPersonController/   移动控制器（MIT 模板，保留原目录名）
-├─ sim/                                     纯逻辑层（武器数值/波次/AI 决策），--headless 可测
+│  ├─ main.tscn                             GameRoot 装配：Arena + Player + WaveDirector + Hud
+│  ├─ player.tscn                           实例化模板控制器 + Vitals + Camera 下的 Weapon
+│  ├─ arena.tscn                            程序化生成：23 碰撞体 + 光照/天空/雾/glow + 15 出怪点
+│  └─ enemies/                              trooper / swarm_drone / charger_melee / heavy_walker
+├─ scripts/                                 场景层（表现与输入，不承担跨帧复现逻辑）
+│  ├─ game_root.gd                          解析引用、把 HUD 与导演接到玩家身上
+│  ├─ weapon_controller.gd                  hitscan + 3 武器切换 + 枪口焰/曳光/命中标记/音效
+│  ├─ enemy_controller.gd                   位移与动画，决策每帧问 sim 的 EnemyAI
+│  ├─ player_vitals.gd                      血量/受击/死亡（必须是 Player 的子节点，见文件注释）
+│  ├─ wave_director.gd                      按 WaveTable 计划出怪，守 alive_cap 与出怪间隔
+│  └─ hud.gd                                代码搭的 HUD：血条/弹药/波次/中央提示/受击闪红
+├─ sim/                                     纯逻辑层，不碰场景树与物理 → 可逐帧断言
+│  ├─ weapon_table.gd enemy_table.gd        武器 3 把 / 敌型 4 种（尺寸缩放见 ASSET_MANIFEST）
+│  ├─ wave_table.gd                         威胁预算曲线 + 精英节奏 + 时长估算
+│  ├─ enemy_ai.gd                           状态机纯函数（前进/后退/交战/占位/搜索）
+│  ├─ combat_loop.gd                        资源循环：交战距离→TTK→回弹，处决门槛三条
+│  ├─ sim_rng.gd                            自写确定性 LCG（不依赖引擎 RNG）
+│  └─ tests/                                GUT 测试：41 个 / 656 条断言
+├─ addons/
+│  ├─ JehenoAdvancedFirstPersonController/  移动控制器（MIT 模板，保留原目录名）
+│  └─ gut/                                  GUT 9.7.1（MIT，含 LICENSE.md），只用 CLI
 ├─ assets/
 │  ├─ ASSET_MANIFEST.md                     选定资产 + **实测尺寸与缩放**（必读）
 │  ├─ models/{enemies,weapons,props}/       从 lab 库选出的 9 个 GLB
+│  ├─ audio/sfx/                            10 个语义化音效
 │  └─ textures/prototype/                   blockout 灰盒纹理
 └─ tools/
-   ├─ setup_inputmap.gd                     输入动作写入 project.godot（一次性）
+   ├─ setup_inputmap.gd                     输入动作写入 project.godot（一次性，含战斗键位）
    ├─ verify_assets.gd                      资产验证：动画列表 + 包围盒尺寸
-   └─ build_arena.gd                        程序化生成关卡（改参数重跑即生效）
+   ├─ build_arena.gd                        程序化生成关卡 + 光照 + 出怪点（改参数重跑即生效）
+   └─ preview_waves.gd                      波次预览：多种子打印时长与编成（调难度用）
 ```
 
 ### 5.0 资产现状（2026-09-26）
@@ -115,17 +158,29 @@ projects/06-mech-fps/                       ✅ 已创建并验证
 
 - 素材集中放 lab 根 `assets/`，项目内只放「已选定使用」的副本或导入产物——
   避免每个项目复制一遍素材库。
-- 验证：`godot --headless --import`（资源导入）→ `--headless --quit`（加载主场景）
-  → sim 层断言脚本 → 输入回放机器人 → 截图人验。
-  当前基线：**导入 DONE、加载 EXIT=0、WARNING/ERROR 0 条**。
+- 验证入口：`node tools/verify.mjs 06`（依次跑 §5.1 的全部步骤并汇总 ERROR/WARNING 计数）。
+  当前基线：**import PASS / load PASS / 41 测试 656 断言全绿 / 资产检查 PASS / 整局 11.8 分钟**。
+- 「输入回放机器人」已按路线图 §4.3 改为 **bot 统计断言**（Godot 物理不保证逐帧复现）；
+  画面验收必须**有窗口**跑（`--headless` 不出图，见 §4.4）。
 
 ### 5.1 已验证的命令（lab 根执行）
 
 ```bash
+# 首选：一条命令跑完整套可自动化验证
+node tools/verify.mjs 06
+
+# 手工排查时的等价单步命令
 GODOT=engines/godot/4.7.2/Godot_v4.7.2-stable_win64_console.exe
-$GODOT --headless --path projects/06-mech-fps --import   # 资源导入
-$GODOT --headless --path projects/06-mech-fps --quit     # 加载主场景后立即退出
+$GODOT --headless --path projects/06-mech-fps --import    # 资源导入
+$GODOT --headless --path projects/06-mech-fps --quit      # 加载主场景后立即退出
 $GODOT --headless --path projects/06-mech-fps -s res://tools/setup_inputmap.gd
+$GODOT --headless --path projects/06-mech-fps -s res://tools/build_arena.gd
+$GODOT --headless --path projects/06-mech-fps -s res://tools/preview_waves.gd -- --seeds=8
+$GODOT --headless --path projects/06-mech-fps -s addons/gut/gut_cmdln.gd \
+       -gdir=res://sim/tests -gexit                       # sim 断言，失败即 EXIT=1
+
+# 亲眼看（headless 截不出图，手感与氛围只能在这里判定）
+engines/godot/4.7.2/Godot_v4.7.2-stable_win64.exe --path projects/06-mech-fps
 ```
 
 必须用 `_console` 后缀的版本，Standard 版不输出脚本报错到终端。
@@ -134,8 +189,10 @@ $GODOT --headless --path projects/06-mech-fps -s res://tools/setup_inputmap.gd
 
 ## 6. 本作的 DoD（在路线图 §0 之上追加）
 
-1. 移动手感通过人验：滑铲→墙跑→二段跳衔接流畅，无不跟手感。
-2. 3 武器 × 3 敌型 × 1 关卡 × ≥5 波，从打开到结算完整可玩。
-3. 命中/击杀反馈链齐全（火光/曳光/标记/音效/震动）。
-4. 素材 100% 登记 `assets/SOURCES.md`。
-5. `--headless` 加载零报错 + sim 断言全绿。
+| # | 验收项 | 状态 | 说明 |
+|---|---|---|---|
+| 1 | 移动手感通过人验：滑铲→墙跑→二段跳衔接流畅 | ⬜ **待制作人本人验** | 无法自动化（路线图 §4.5 已明确接受这一点） |
+| 2 | 3 武器 × 3 敌型 × 1 关卡 × ≥5 波，从打开到结算完整可玩 | 🟡 代码通路已齐 | 4 敌型场景就绪、波次导演与结算已接；需实跑一局验证「能通关」并调出怪可读性 |
+| 3 | 命中/击杀反馈链齐全（火光/曳光/标记/音效/震动） | 🟡 缺屏幕震动 | 枪口焰/曳光/命中粒子/命中标记/开火与击杀音已接；震屏与 hitstop 待做（模板相机每帧覆写 transform，直接抖会被吃掉，需走 CameraHolder 偏移） |
+| 4 | 素材 100% 登记 `assets/SOURCES.md` | ✅ | 含 GUT 与音乐；排除 CC-BY-SA 传染性授权项 |
+| 5 | `--headless` 加载零报错 + sim 断言全绿 | ✅ | `node tools/verify.mjs 06` 当前全绿（41 测试 / 656 断言） |
