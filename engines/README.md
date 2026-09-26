@@ -4,10 +4,13 @@
 
 ```
 engines/
-├─ godot/    4.x/    Godot_v4.x-stable_win64.exe（含 _console 版）
-├─ blender/  4.x/    blender.exe
-└─ unity/    6000.x/ Editor/Unity.exe
+├─ godot/    4.7.2/  Godot_v4.7.2-stable_win64.exe（含 _console 版）✅ 已安装（2026-09-26）
+├─ blender/  4.x/    blender.exe（未安装）
+└─ unity/    6000.x/ Editor/Unity.exe（未安装，路线已定 Godot，暂不装）
 ```
+
+> 当前版本：**Godot 4.7.2-stable Standard（GDScript）**，2026-08-18 发布，~86MB。
+> 已验证 `--version` 正常。新项目一律用它。
 
 ## 获取方式
 
