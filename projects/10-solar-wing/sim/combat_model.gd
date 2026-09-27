@@ -12,8 +12,7 @@ class_name CombatModel
 
 const BASE_DPS := ShipTable.LASER_DAMAGE / ShipTable.LASER_INTERVAL  # 40 满命中
 
-
-## cfg 字段: aim / dodge / aggression / heat_manage（全部 0..1）
+## cfg 字段: aim / dodge / aggression / heat_manage / shield（全部 0..1）
 ## 返回 {elapsed, damage, shots, hits, kills}
 static func sim_wave(lineup: Array, cfg: Dictionary, rng: SimRng,
 		spawn_interval: float) -> Dictionary:
@@ -21,6 +20,10 @@ static func sim_wave(lineup: Array, cfg: Dictionary, rng: SimRng,
 	var dodge := float(cfg["dodge"])
 	var aggression := float(cfg["aggression"])
 	var heat := float(cfg["heat_manage"])
+	# 主动护盾使用度（0..1）。玩家反馈难度偏高后加入：它不是数值补丁，
+	# 而是一个「有 CD 的救场资源」，模型里必须折算成实际减免，否则跑分会
+	# 系统性高估难度（玩家实际会按 CD 用它）。
+	var shield := float(cfg.get("shield", 0.0))
 
 	var duty := 0.55 + 0.25 * heat
 	var dps := BASE_DPS * (0.45 + 0.55 * aim) * (0.85 + 0.30 * aggression) * duty
@@ -47,7 +50,7 @@ static func sim_wave(lineup: Array, cfg: Dictionary, rng: SimRng,
 
 		var exposure := death_t - spawn_t
 		var jitter := rng.rangef(0.9, 1.1)
-		damage += _incoming(kind, exposure, dodge) * jitter
+		damage += _incoming(kind, exposure, dodge) * jitter * (1.0 - shield_reduction(shield))
 		shots += ceili(hp / ShipTable.LASER_DAMAGE)
 
 	var elapsed := 0.0
@@ -62,6 +65,14 @@ static func sim_wave(lineup: Array, cfg: Dictionary, rng: SimRng,
 		"hits": hits,
 		"kills": lineup.size(),
 	}
+
+
+## 主动护盾的伤害减免比例。刻意**不给满免疫**：
+## 护盾有 CD（12 s）+ 时长（1.6 s）+ 吸收上限（70），真实覆盖率约 1.6/12 ≈ 13%。
+## 这里按「用得越勤减免越多，但封顶 ~25%」建模——封顶是为了让护盾成为救命稻草，
+## 而不是「按住空格就无敌」，否则它会反过来把难度旋钮架空。
+static func shield_reduction(usage: float) -> float:
+	return clampf(usage, 0.0, 1.0) * 0.25
 
 
 ## 单型敌人的预期承伤（已含前摇窗与 dodge 折减，未含 jitter）。

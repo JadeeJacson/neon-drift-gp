@@ -60,10 +60,10 @@ func _physics_process(delta: float) -> void:
 func _on_body_entered(body: Node3D) -> void:
 	var player := body as PlayerShip
 	if player != null:
-		player.vitals.take_damage(damage)
-		var root := get_tree().get_first_node_in_group("game_root") as GameRoot
-		if root != null:
-			root.on_player_bolt_hit()
+		player.take_damage(damage)
+		var gr := get_tree().get_first_node_in_group("game_root") as GameRoot
+		if gr != null:
+			gr.on_player_bolt_hit()
 		queue_free()
 		return
 	# 撞上世界（小行星）：小火花就地消散

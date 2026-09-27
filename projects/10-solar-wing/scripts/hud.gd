@@ -37,6 +37,14 @@ var victory_stat_score: Label
 var victory_stat_waves: Label
 var victory_stat_kills: Label
 var victory_stat_accuracy: Label
+## 副武器/技能显示
+var missile_label: Label
+var burst_bar: ProgressBar
+var burst_label: Label
+## 难度选择（菜单内左右切换）
+var difficulty_label: Label
+## 锁定框（画在 ui 上的 Control）
+var lock_marker: Control
 
 var _msg_t: float = 0.0
 var _damage_a: float = 0.0
@@ -58,8 +66,38 @@ func bind(r: GameRoot, p: PlayerShip, d: WaveDirector) -> void:
 	p.vitals.overheated.connect(func() -> void: show_message("⚠ 武器过热", 2.0))
 	p.vitals.recovered.connect(func() -> void: show_message("冷却完成", 1.2))
 	p.bounds_changed.connect(_on_bounds)
+	p.damaged.connect(_on_player_damaged)
+	p.weapon.missile_state.connect(_on_missile_state)
+	p.weapon.shield_state.connect(_on_shield_state)
 	director.wave_started.connect(_on_wave_started)
 	director.wave_cleared.connect(_on_wave_cleared)
+
+
+func _on_player_damaged(_amount: float) -> void:
+	flash_damage()
+
+
+func _on_missile_state(ammo: int, reloading: bool) -> void:
+	if missile_label == null:
+		return
+	if reloading:
+		missile_label.text = "导弹 装填中"
+		missile_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	else:
+		missile_label.text = "导弹 ×%d" % ammo
+		missile_label.add_theme_color_override("font_color",
+			CYAN if ammo > 0 else ORANGE)
+
+
+func _on_shield_state(active: bool, cd_ratio: float) -> void:
+	if burst_bar == null:
+		return
+	burst_bar.value = cd_ratio * 100.0
+	var fill := Color(0.5, 1.0, 0.6) if cd_ratio >= 1.0 else Color(0.4, 0.6, 0.75)
+	burst_bar.add_theme_stylebox_override("fill", _bar_style(fill))
+	if burst_label != null:
+		burst_label.text = "显式护盾 就绪" if active else (
+			"显式护盾 充能" if cd_ratio < 1.0 else "显式护盾 就绪")
 
 
 func set_state(state: GameRoot.State) -> void:
@@ -125,6 +163,8 @@ func _process(delta: float) -> void:
 	if _damage_a > 0.0:
 		_damage_a = maxf(0.0, _damage_a - delta * 2.6)
 	damage_rect.modulate.a = _damage_a * 0.6
+	if lock_marker != null and root != null and root.state == GameRoot.State.PLAYING:
+		lock_marker.queue_redraw()
 
 
 func _on_bounds(inside: bool) -> void:
@@ -135,7 +175,14 @@ func _on_bounds(inside: bool) -> void:
 func _on_wave_started(idx: int, _total: int, count: int) -> void:
 	wave_label.text = "WAVE %d / %d" % [idx, WaveTable.WAVE_COUNT]
 	remain_label.text = "敌机 %d" % count
-	show_message("第 %d 波来袭 · %d 架" % [idx, count], 2.4)
+	# 任务播报：把「这颗行星附近有仗要打」讲出来，呼应「每颗星球附近有任务」
+	var planet := ""
+	if root != null and root.world != null:
+		planet = root.world.current_mission
+	if planet != "":
+		show_message("第 %d 波 · %s 卫星域 · %d 架来袭" % [idx, planet, count], 2.8)
+	else:
+		show_message("第 %d 波来袭 · %d 架" % [idx, count], 2.4)
 	_intermission_shown = -1.0
 
 
@@ -273,9 +320,63 @@ func _build_combat_layer() -> void:
 	br.add_child(_label("HeatCaption", "武器热量", 16, Color(1.0, 0.85, 0.3)))
 	heat_bar = _bar("HeatBar", Color(1.0, 0.85, 0.3))
 	br.add_child(heat_bar)
+	burst_label = _label("BurstCaption", "显式护盾 就绪", 16, Color(0.5, 1.0, 0.6))
+	br.add_child(burst_label)
+	burst_bar = _bar("BurstBar", Color(0.5, 1.0, 0.6))
+	burst_bar.max_value = 100.0
+	burst_bar.value = 100.0
+	br.add_child(burst_bar)
+	missile_label = _label("Missile", "导弹 ×%d" % ShipTable.MISSILE_AMMO_MAX, 20, CYAN)
+	missile_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	br.add_child(missile_label)
 	speed_label = _label("Speed", "0 m/s", 26, Color.WHITE)
 	speed_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	br.add_child(speed_label)
+
+	_build_lock_marker()
+
+
+## 锁定框：画在锁定目标周围（4 段角标）。玩家反馈「敌机不好找到」——把当前锁定目标
+## 明确框出来，导弹能不能发、往哪打，一眼可见。
+func _build_lock_marker() -> void:
+	lock_marker = Control.new()
+	lock_marker.name = "LockMarker"
+	lock_marker.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	lock_marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lock_marker.draw.connect(_draw_lock_marker)
+	ui.add_child(lock_marker)
+
+
+func _draw_lock_marker() -> void:
+	if lock_marker == null or player == null or player.weapon == null:
+		return
+	var tgt := player.weapon.lock_target
+	if tgt == null or not is_instance_valid(tgt):
+		return
+	var cam := root.camera_rig.camera if root != null else null
+	if cam == null:
+		return
+	var wp := tgt.global_position
+	if cam.is_position_behind(wp):
+		return
+	var sp := cam.unproject_position(wp)
+	var dist := cam.global_position.distance_to(wp)
+	# 角标大小随距离收缩（下限 26 px），远处的敌机也不会糊成一小点
+	var s := clampf(900.0 / maxf(dist, 1.0), 26.0, 90.0)
+	var half := s * 0.5
+	var arm := s * 0.32
+	var col := Color(1.0, 0.45, 0.2) if tgt.kind == "bomber" else Color(0.45, 0.95, 1.0)
+	var corners := [
+		[Vector2(sp.x - half, sp.y - half), Vector2(1, 1)],
+		[Vector2(sp.x + half, sp.y - half), Vector2(-1, 1)],
+		[Vector2(sp.x - half, sp.y + half), Vector2(1, -1)],
+		[Vector2(sp.x + half, sp.y + half), Vector2(-1, -1)],
+	]
+	for c in corners:
+		var p: Vector2 = c[0]
+		var sgn: Vector2 = c[1]
+		lock_marker.draw_line(p, p + Vector2(arm * sgn.x, 0.0), col, 2.0)
+		lock_marker.draw_line(p, p + Vector2(0.0, arm * sgn.y), col, 2.0)
 
 
 func _build_message() -> void:
@@ -303,7 +404,8 @@ func _build_overlay(name: String) -> Control:
 	center.name = "Center"
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	# 菜单文案整体上移：玩家舰正好在画面正中，不抬开会和标题/提示叠在一起
-	center.offset_bottom = -170.0
+	# （实测：加了难度行后行数变多，「按 Enter 出击」又压回舰身上了）
+	center.offset_bottom = -250.0
 	layer.add_child(center)
 	var box := VBoxContainer.new()
 	box.name = "Box"
@@ -356,13 +458,33 @@ func _fill_menu() -> void:
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(sub)
 	var controls := _label("Controls",
-		"鼠标 转向 · W/S 油门 · A/D 滚转 · Shift 推进 · 左键 开火\nEsc 暂停",
+		"鼠标 转向 · W/S 油门 · A/D 滚转 · Shift 推进\n左键 脉冲激光 · 右键 跟踪导弹 · 空格 显式护盾\nEsc 暂停 · ←/→ 切换难度",
 		20, Color(0.85, 0.9, 0.95))
 	controls.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(controls)
+	# 难度选择：玩家反馈「难度偏高」，与其暗中调参不如给出显式档位。
+	# 难度写进 ShipTable.difficulty_id，抽象模型与实战读同一个值。
+	difficulty_label = _label("Difficulty", "", 24, ORANGE)
+	difficulty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(difficulty_label)
+	refresh_difficulty()
 	var start := _label("Start", "— 按 Enter 出击 —", 30, Color.WHITE)
 	start.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(start)
+
+
+## 刷新菜单上的难度文案。敌机血量/伤害/射速/命中率四个乘数都随档变化。
+func refresh_difficulty() -> void:
+	if difficulty_label == null:
+		return
+	var d := ShipTable.diff()
+	difficulty_label.text = "难度：← %s →　（敌机血量 ×%.2f · 伤害 ×%.2f）" % [
+		DifficultyTable.label_of(ShipTable.difficulty_id), float(d["hp"]), float(d["damage"])]
+
+
+func cycle_difficulty(step: int) -> void:
+	ShipTable.difficulty_id = DifficultyTable.next_id(ShipTable.difficulty_id, step)
+	refresh_difficulty()
 
 
 func _label(name: String, text: String, size: int, color: Color) -> Label:

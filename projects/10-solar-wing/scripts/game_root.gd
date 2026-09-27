@@ -179,6 +179,13 @@ func _stats() -> Dictionary:
 # ---------- 输入 ----------
 
 func _unhandled_input(event: InputEvent) -> void:
+	if state == State.MENU:
+		if event.is_action_pressed("difficulty_prev"):
+			hud.cycle_difficulty(-1)
+			return
+		if event.is_action_pressed("difficulty_next"):
+			hud.cycle_difficulty(1)
+			return
 	if event.is_action_pressed("confirm"):
 		match state:
 			State.MENU:

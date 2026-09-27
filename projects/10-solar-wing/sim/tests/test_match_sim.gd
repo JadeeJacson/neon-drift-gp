@@ -5,9 +5,9 @@ extends GutTest
 
 const RUNS := 16
 
-const TURTLE := {"aim": 0.35, "dodge": 0.15, "aggression": 0.15, "heat_manage": 0.20}
+const TURTLE := {"aim": 0.35, "dodge": 0.15, "aggression": 0.15, "heat_manage": 0.20, "shield": 0.15}
 const AVERAGE := {}
-const SKILLED := {"aim": 0.85, "dodge": 0.80, "aggression": 0.80, "heat_manage": 0.90}
+const SKILLED := {"aim": 0.85, "dodge": 0.80, "aggression": 0.80, "heat_manage": 0.90, "shield": 0.70}
 
 
 ## 核心设计主张：走位与进攻必须有回报，龟缩必须亏。

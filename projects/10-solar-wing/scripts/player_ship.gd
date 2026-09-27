@@ -5,6 +5,8 @@ class_name PlayerShip
 
 signal bounds_changed(inside: bool)
 signal boosted(active: bool)
+## 受到伤害时（真正扣到护盾/舰体的那部分）广播，供 HUD 做受击反馈
+signal damaged(amount: float)
 
 const MIN_SPEED := 30.0
 const MAX_SPEED := 120.0
@@ -34,6 +36,7 @@ var _inside_bounds: bool = true
 var _mouse_rel := Vector2.ZERO
 var _model: Node3D
 var _engine_sfx: AudioStreamPlayer
+var _aura: MeshInstance3D
 
 
 func _input(event: InputEvent) -> void:
@@ -93,6 +96,7 @@ func reset() -> void:
 	speed = 60.0
 	boosting = false
 	_inside_bounds = true
+	set_shield_aura(false)
 	vitals.reset()
 
 
@@ -113,6 +117,43 @@ func _physics_process(delta: float) -> void:
 	_update_engine_audio()
 
 	weapon.tick(delta, Input.is_action_pressed("fire_primary"))
+
+
+## 统一承伤入口：先过显式护盾（WeaponController 持有 CD/剩余吸收量），
+## 扣掉的部分才进 vitals。敌弹、撞角都走这里，避免各处漏掉护盾判定。
+func take_damage(amount: float) -> bool:
+	var to_vitals := amount
+	if weapon != null:
+		to_vitals -= weapon.absorb_burst(amount)
+	if to_vitals > 0.0:
+		vitals.take_damage(to_vitals)
+		damaged.emit(to_vitals)
+	return vitals.dead
+
+
+## 显式护盾的视觉气泡（半透明球）。用 no_depth_test=false 让它能被敌机遮挡，
+## 免得变成「隔着一堆敌机也糊在画面最前面」的作弊提示。
+func set_shield_aura(active: bool) -> void:
+	if active and _aura == null:
+		var mi := MeshInstance3D.new()
+		mi.name = "ShieldAura"
+		var sphere := SphereMesh.new()
+		sphere.radius = 9.0
+		sphere.height = 18.0
+		mi.mesh = sphere
+		var mat := StandardMaterial3D.new()
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		mat.albedo_color = Color(0.45, 0.95, 1.0, 0.22)
+		mat.emission_enabled = true
+		mat.emission = Color(0.4, 0.9, 1.0)
+		mat.emission_energy_multiplier = 1.6
+		mi.material_override = mat
+		add_child(mi)
+		_aura = mi
+	elif _aura != null:
+		_aura.queue_free()
+		_aura = null
 
 
 ## 鼠标相对位移即「虚拟摇杆」：偏离中心越多角速度越大。

@@ -81,6 +81,41 @@ func _initialize() -> void:
 			gr2._on_victory()
 			for _i in range(20):
 				await process_frame
+		"abilities":
+			# 副武器 + 主动护盾的实拍：把敌机摆在锁定锥内，触发锁定框；
+			# 再开护盾气泡，同时检验 IFF 环（可见命中范围）是否清晰。
+			Input.action_press("fire_primary")
+			var spots2: Array[Vector3] = [
+				Vector3(-13.0, 1.0, 26.0),
+				Vector3(15.0, -1.5, 38.0),
+				Vector3(-2.0, 3.5, 55.0),
+			]
+			var w2 := 0
+			while w2 < 1800 and gr2.enemies.get_child_count() < 3:
+				_place_foes(gr2, spots2)
+				await process_frame
+				w2 += 1
+			for _i in range(40):
+				_place_foes(gr2, spots2)
+				await process_frame
+			Input.action_release("fire_primary")
+			# 锁定框由 _pick_lock 每帧算；等它拿到目标
+			var lw := 0
+			while lw < 200 and gr2.player.weapon.lock_target == null:
+				_place_foes(gr2, spots2)
+				await process_frame
+				lw += 1
+			# 开显式护盾（走真实输入通路）
+			Input.action_press("shield_burst")
+			await process_frame
+			await process_frame
+			Input.action_release("shield_burst")
+			for _i in range(6):
+				await process_frame
+			print("lock=", gr2.player.weapon.lock_target != null,
+				" missiles=", gr2.player.weapon.missiles,
+				" aura=", gr2.player.get_node_or_null(^"ShieldAura") != null,
+				" mission=", gr2.world.current_mission)
 		"gameover":
 			gr2.kills = 12
 			gr2.score = 3100

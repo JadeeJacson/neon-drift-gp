@@ -76,6 +76,12 @@ func _begin_wave() -> void:
 	spawned = 0
 	alive = 0
 	_spawn_t = 1.6  # 简报落定再出第一架
+	# 把本波绑定的任务行星告诉世界（HUD 会播报「XX 卫星域」）
+	if root != null and root.world != null:
+		if widx >= 0 and widx < SpaceWorld.WAVE_PLANET.size():
+			root.world.set_mission(int(SpaceWorld.WAVE_PLANET[widx]))
+		else:
+			root.world.set_mission(-1)
 	wave_started.emit(widx + 1, waves.size(), int(waves[widx]["total"]))
 
 

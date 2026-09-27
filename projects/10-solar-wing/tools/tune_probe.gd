@@ -4,9 +4,9 @@ extends SceneTree
 ## 用法：godot --headless --path projects/10-solar-wing -s res://tools/tune_probe.gd -- --profile=avg
 
 const PROFILES := {
-	"turtle": {"aim": 0.35, "dodge": 0.15, "aggression": 0.15, "heat_manage": 0.20},
+	"turtle": {"aim": 0.35, "dodge": 0.15, "aggression": 0.15, "heat_manage": 0.20, "shield": 0.15},
 	"avg": {},
-	"skilled": {"aim": 0.85, "dodge": 0.80, "aggression": 0.80, "heat_manage": 0.90},
+	"skilled": {"aim": 0.85, "dodge": 0.80, "aggression": 0.80, "heat_manage": 0.90, "shield": 0.70},
 }
 
 

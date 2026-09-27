@@ -9,6 +9,7 @@ const DEFAULTS := {
 	"dodge": 0.50,
 	"aggression": 0.50,
 	"heat_manage": 0.60,
+	"shield": 0.35,      # 主动护盾使用度（新手 0.15 / 熟手 0.7）
 	"seed": 20260927,
 }
 

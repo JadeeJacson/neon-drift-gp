@@ -47,3 +47,28 @@ func test_shuffle_keeps_composition() -> void:
 	for kind in comp:
 		assert_eq(int(counts[String(kind)]), int(comp[kind]),
 			"洗牌后 %s 数量必须不变" % kind)
+
+
+func test_every_wave_maps_to_a_real_planet() -> void:
+	# 「每颗星球附近有任务」：每波都必须绑定一颗存在的行星，且不重复
+	assert_eq(SpaceWorld.WAVE_PLANET.size(), WaveTable.WAVE_COUNT,
+		"任务行星映射必须覆盖全部波次")
+	var seen := {}
+	for i in range(SpaceWorld.WAVE_PLANET.size()):
+		var idx := int(SpaceWorld.WAVE_PLANET[i])
+		assert_gte(idx, 0, "第 %d 波的任务行星索引非法" % (i + 1))
+		assert_lt(idx, SpaceWorld.PLANETS.size(),
+			"第 %d 波指向了不存在的行星" % (i + 1))
+		assert_false(seen.has(idx), "第 %d 波的任务行星与前面重复" % (i + 1))
+		seen[idx] = true
+		assert_ne(String(SpaceWorld.PLANETS[idx]["name"]), "", "任务行星必须有名字（HUD 要播报）")
+
+
+func test_planets_have_orbits_not_fixed_positions() -> void:
+	# 背景「跑到战场外」的根因是行星摆在固定世界坐标。这里锁死：每颗行星
+	# 必须有轨道半径（相对恒星），由 SpaceWorld 每帧按相位算位置。
+	for i in range(SpaceWorld.PLANETS.size()):
+		var p: Dictionary = SpaceWorld.PLANETS[i]
+		assert_gt(float(p["orbit"]), 0.0, "行星 %d 缺轨道半径" % i)
+		assert_gt(float(p["radius"]), 0.0, "行星 %d 缺球体半径" % i)
+		assert_false(p.has("pos"), "行星 %d 不该再有固定世界坐标 pos" % i)

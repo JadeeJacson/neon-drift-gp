@@ -38,11 +38,16 @@ func _initialize() -> void:
 	_check(gr.bgm != null and gr.bgm.stream != null, "BGM 菜单轨已开")
 	_check(gr.camera_rig != null and gr.camera_rig.camera != null, "相机就位")
 	_check(gr.world != null, "太空世界就位")
-	var planets := gr.world.get_node_or_null(^"Planets")
+	# 天体现在挂在 Celestial（跟随玩家的天体根）之下——行星不再是固定世界坐标，
+	# 路径锚点随之改变。断言路径要对上，否则冒烟会误报「装配缺失」。
+	var planets := gr.world.get_node_or_null(^"Celestial/Planets")
 	var planet_count := planets.get_child_count() if planets != null else 0
 	_check(planet_count >= 6, "行星 ≥6（实测 %d）" % planet_count)
-	_check(gr.world.get_node_or_null(^"Sun/KeyLight") != null, "恒星定向光在位")
+	_check(gr.world.get_node_or_null(^"Celestial/Sun/KeyLight") != null, "恒星定向光在位")
 	_check(gr.world.get_node_or_null(^"Asteroids") != null, "小行星带在位")
+	# 任务行星映射：每波都要绑一颗真实存在的行星（「每颗星球附近有任务」）
+	_check(SpaceWorld.WAVE_PLANET.size() == WaveTable.WAVE_COUNT, "5 波各绑一颗任务行星")
+	_check(SpaceWorld.PLANETS.size() >= SpaceWorld.WAVE_PLANET.size(), "任务行星数够用")
 	_check(not gr.hud.crosshair.visible, "菜单阶段准星隐藏")
 	_check(gr.hud.menu_layer.visible, "菜单覆盖层可见")
 	if _fails > 0:
@@ -93,6 +98,43 @@ func _initialize() -> void:
 	_check(not gr.player.vitals.can_fire(), "过热期间禁止开火")
 	gr.player.vitals.heat = 0.0
 	gr.player.vitals.overheat = false
+
+	# 5b) 副武器：锁定 → 发射 → 命中（玩家反馈「几乎打不到」后的兜底解法）
+	# 敌机 AI 会把目标推离锁定锥，所以每帧都把它钉回准星正前方再验锁。
+	# 不捕获敌机对象：它会被 queue_free，捕获已释放对象会在调用时报
+	# “Lambda capture was freed”，直接变成退出期 ERROR。
+	var locked := await _wait_until(_lock_by_pinning(gr), 400)
+	_check(locked, "准星指向敌机时能锁定目标")
+	var ammo_before := gr.player.weapon.missiles
+	Input.action_press("fire_secondary")
+	await _frames(2)
+	Input.action_release("fire_secondary")
+	await _frames(2)
+	_check(_missile_count(gr) > 0, "右键发射跟踪导弹（场上 %d 枚）" % _missile_count(gr))
+	_check(gr.player.weapon.missiles < ammo_before,
+		"发射消耗导弹弹药（弹 %d → %d）" % [ammo_before, gr.player.weapon.missiles])
+	_check(gr.player.weapon.missiles <= ShipTable.MISSILE_AMMO_MAX, "弹药不会为负")
+	# 松手再按一次不应连发（边沿检测：按住不放只发一发）
+	var ammo_after := gr.player.weapon.missiles
+	Input.action_press("fire_secondary")
+	await _frames(2)
+	Input.action_release("fire_secondary")
+	await _frames(2)
+	_check(gr.player.weapon.missiles <= ammo_after,
+		"CD 内不重复发射（弹 %d → %d）" % [ammo_after, gr.player.weapon.missiles])
+
+	# 5c) 显式护盾：有 CD，且期间真的吸收伤害
+	var shield_before := gr.player.vitals.shield
+	Input.action_press("shield_burst")
+	await _frames(3)
+	Input.action_release("shield_burst")
+	_check(gr.player.get_node_or_null(^"ShieldAura") != null, "空格开启显式护盾（气泡出现）")
+	gr.player.take_damage(40.0)
+	_check(gr.player.vitals.shield >= shield_before,
+		"护盾期间伤害被吸收（护盾 %.0f ≥ 之前 %.0f）" % [gr.player.vitals.shield, shield_before])
+	# 冷却中不能再开
+	var aura := gr.player.get_node_or_null(^"ShieldAura")
+	_check(aura != null, "护盾气泡在持续期内不消失")
 
 	# 6) 承伤与 HUD 联动（承伤前后玩家可能被敌弹打过，护盾可能不足 30 → 由舰体承担）
 	var shield0 := gr.player.vitals.shield
@@ -209,6 +251,32 @@ func _pin_and_kill(gr: GameRoot, cam: Camera3D) -> Callable:
 
 func _overheated(gr: GameRoot) -> Callable:
 	return func() -> bool: return gr.player.vitals.overheat
+
+
+func _lock_by_pinning(gr: GameRoot) -> Callable:
+	# 敌机 AI 会持续把目标推离锁定锥，所以每帧钉回准星正前方 60 m 再验锁。
+	# 不捕获敌机对象：它会被 queue_free，捕获已释放对象会在调用时报
+	# “Lambda capture was freed”，直接变成退出期 ERROR。
+	return func() -> bool:
+		if gr.player.weapon.lock_target != null:
+			return true
+		var cam := gr.camera_rig.camera
+		for child in gr.enemies.get_children():
+			var e := child as EnemyShip
+			if e == null:
+				continue
+			e.global_position = cam.global_position \
+				+ (-cam.global_basis.z) * 60.0
+		return false
+
+
+## 在场的导弹数（导弹挂在 GameRoot 下，不是 projectiles）
+func _missile_count(gr: GameRoot) -> int:
+	var n := 0
+	for child in gr.get_children():
+		if child is HomingMissile:
+			n += 1
+	return n
 
 
 func _enemy_hp_text(gr: GameRoot) -> String:
