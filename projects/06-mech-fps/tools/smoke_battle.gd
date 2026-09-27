@@ -64,6 +64,23 @@ func _initialize() -> void:
 	else:
 		_check(false, "Arena 下没有 Props 装饰层，跑过 build_arena.gd？")
 
+	# 0b) 光照层必须真的在场景里。刚踩过的坑：_add_atmosphere 里写错 Environment 属性名，
+	#     GDScript 运行期错误只中断当前函数，_initialize 继续往下跑并打印「生成完成」，
+	#     结果 WorldEnvironment 根本没进场景——只有断言能抓住这种静默丢失。
+	var we := main.get_node_or_null(^"Arena/WorldEnvironment") as WorldEnvironment
+	_check(we != null, "Arena 里有 WorldEnvironment（光照氛围层）")
+	if we != null and we.environment != null:
+		var env := we.environment
+		_check(env.background_mode == Environment.BG_SKY and env.sky != null, "天空已配置")
+		_check(env.sky.sky_material != null, "天空材质非空")
+		_check(env.glow_enabled, "glow 已开（枪口焰与曳光要靠它融进画面）")
+		var hdr_present := ResourceLoader.exists("res://assets/hdri/overcast_industrial_courtyard.hdr")
+		if hdr_present:
+			_check(env.sky.sky_material is PanoramaSkyMaterial,
+				"HDRI 已入库却没用上，天空退回成了程序渐变")
+	var sun := main.get_node_or_null(^"Arena/Sun")
+	_check(sun is DirectionalLight3D, "场景有方向光（否则模型全是死黑）")
+
 	# 1) 出怪：等首波生成至少一个敌人
 	var enemies := await _wait_first_spawn(director)
 	_check(not enemies.is_empty(), "首波已出怪")

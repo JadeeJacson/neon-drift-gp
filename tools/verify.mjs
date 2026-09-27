@@ -152,7 +152,9 @@ if (fs.existsSync(path.join(project, 'tools', 'verify_assets.gd'))) {
 if (fs.existsSync(path.join(project, 'tools', 'smoke_battle.gd'))) {
   // 战斗闭环冒烟：真的加载主场景、真的出怪、真的打死（§4.3 的第一块地基）
   run('smoke', [...headless, '-s', 'res://tools/smoke_battle.gd'], {
-    timeout: 300000,
+    // 冒烟本身只要 ~15 秒。超时上限压到 90 秒是因为脚本模式的协程一旦运行期报错
+    // 就走不到 quit()，进程会一直挂着——给它 300 秒只是白等。
+    timeout: 90000,
     ignoreTeardown: true,
     parse: (out) => {
       const ok = (out.match(/^\[OK\]/gm) || []).length;

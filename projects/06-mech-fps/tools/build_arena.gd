@@ -234,23 +234,38 @@ func _prop(holder: Node3D, file: String, pos: Vector3, rot: Vector3, s: float) -
 	return 1
 
 
-## 氛围层：光照 + 天空 + 雾 + glow。硬约束 §0.4「能看」的最小实现，
+## 环境光照优先用 HDRI（Poly Haven CC0，实测 6.2 MB / 2k）。
+## 为什么值得：HDRI 同时提供背景与**基于图像的环境光**，金属地面与枪模的反射会一起变对，
+## 这是「摆脱实验场地盒子感」性价比最高的一步——零建模、零转换，Godot 直接吃 .hdr。
+const SKY_HDR := "res://assets/hdri/overcast_industrial_courtyard.hdr"
+
+## 氛围层：光照 + 天空（HDRI 优先，退回程序天空）+ 雾 + glow。硬约束 §0.4「能看」的最小实现，
 ## 也是枪口火光/曳光能靠 bloom 融进画面的前提——没有 glow，特效永远是贴上去的贴图。
 func _add_atmosphere(root: Node3D) -> void:
-	var sky_mat := ProceduralSkyMaterial.new()
-	sky_mat.sky_top_color = Color(0.045, 0.07, 0.12)
-	sky_mat.sky_horizon_color = Color(0.20, 0.28, 0.40)
-	sky_mat.ground_horizon_color = Color(0.16, 0.20, 0.26)
-	sky_mat.ground_bottom_color = Color(0.04, 0.05, 0.07)
-
 	var sky := Sky.new()
-	sky.sky_material = sky_mat
+	var using_hdri := ResourceLoader.exists(SKY_HDR)
+	if using_hdri:
+		var pano := PanoramaSkyMaterial.new()
+		pano.panorama = load(SKY_HDR) as Texture2D
+		if pano.panorama != null:
+			sky.sky_material = pano
+		else:
+			using_hdri = false  # .hdr 未导入成功时退回程序天空，不要留一个空 panorama
+	if not using_hdri:
+		var sky_mat := ProceduralSkyMaterial.new()
+		sky_mat.sky_top_color = Color(0.045, 0.07, 0.12)
+		sky_mat.sky_horizon_color = Color(0.20, 0.28, 0.40)
+		sky_mat.ground_horizon_color = Color(0.16, 0.20, 0.26)
+		sky_mat.ground_bottom_color = Color(0.04, 0.05, 0.07)
+		sky.sky_material = sky_mat
 
 	var env := Environment.new()
 	env.background_mode = Environment.BG_SKY
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	env.ambient_light_energy = 0.7
+	# HDRI 本身亮度偏高，环境光强度压到 0.55，否则灰盒会亮成一片白
+	env.ambient_light_energy = 0.55 if using_hdri else 0.7
+	env.background_energy_multiplier = 0.9
 	env.fog_enabled = true
 	env.fog_light_color = Color(0.18, 0.25, 0.35)
 	env.fog_density = 0.010
@@ -268,12 +283,14 @@ func _add_atmosphere(root: Node3D) -> void:
 	var sun := DirectionalLight3D.new()
 	sun.name = "Sun"
 	sun.rotation_degrees = Vector3(-52.0, 34.0, -12.0)
-	sun.light_energy = 1.25
+	# 有 HDRI 时太阳只负责阴影与方向感，强度压低，避免和图像环境光叠加过曝
+	sun.light_energy = 0.85 if using_hdri else 1.25
 	sun.light_color = Color(0.92, 0.96, 1.0)
 	sun.shadow_enabled = true
 	sun.directional_shadow_max_distance = 120.0
 	root.add_child(sun)
 	sun.owner = root
+	print("    天空：%s" % ("HDRI " + SKY_HDR.get_file() if using_hdri else "程序天空（HDRI 未入库）"))
 
 
 ## 出怪点标记。WaveDirector 只认这里的名字，不在关卡里硬编码坐标。
