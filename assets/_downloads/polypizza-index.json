@@ -1038,5 +1038,275 @@
     "glb_url": "https://static.poly.pizza/a406bcdf-8491-449d-b812-dd4337d82a91.glb",
     "file": "models/environment/polypizza/satellite-antenna-cOEOSO0-LIF.glb",
     "query": "antenna"
+  },
+  {
+    "id": "5nWeu4IQXVX",
+    "title": "Spaceship",
+    "creator": "Liz Reddington",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/5nWeu4IQXVX",
+    "glb_url": "https://static.poly.pizza/bf472e51-fa18-4c19-a6c8-5a834e8483a8.glb",
+    "file": "models/ships/polypizza/spaceship-5nWeu4IQXVX.glb",
+    "query": "spaceship"
+  },
+  {
+    "id": "uCeLfsdmNP",
+    "title": "Spaceship",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/uCeLfsdmNP",
+    "glb_url": "https://static.poly.pizza/e8817981-bfc4-448d-822f-5b76a5983675.glb",
+    "file": "models/ships/polypizza/spaceship-uCeLfsdmNP.glb",
+    "query": "spaceship"
+  },
+  {
+    "id": "647DTebhyBD",
+    "title": "Spaceship",
+    "creator": "Liz Reddington",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/647DTebhyBD",
+    "glb_url": "https://static.poly.pizza/4460c224-be92-4a42-90f3-51590eed4ab4.glb",
+    "file": "models/ships/polypizza/spaceship-647DTebhyBD.glb",
+    "query": "spaceship"
+  },
+  {
+    "id": "100p3RNw-5Q",
+    "title": "T-65 X-Wing Starfighter",
+    "creator": "Ti Kawamoto",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/100p3RNw-5Q",
+    "glb_url": "https://static.poly.pizza/ab249009-373a-47ea-b297-4330653f17ca.glb",
+    "file": "models/ships/polypizza/t-65-x-wing-starfighter-100p3RNw-5Q.glb",
+    "query": "spaceship"
+  },
+  {
+    "id": "6eRDOiTxvOo",
+    "title": "Spaceship",
+    "creator": "Liz Reddington",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/6eRDOiTxvOo",
+    "glb_url": "https://static.poly.pizza/a56cb6df-5d4f-4a66-aac8-e46eb514ad59.glb",
+    "file": "models/ships/polypizza/spaceship-6eRDOiTxvOo.glb",
+    "query": "spaceship"
+  },
+  {
+    "id": "xNbtFQwirO",
+    "title": "Spaceship",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/xNbtFQwirO",
+    "glb_url": "https://static.poly.pizza/47bb1015-bbe6-4261-9857-40c9fe6c8048.glb",
+    "file": "models/ships/polypizza/spaceship-xNbtFQwirO.glb",
+    "query": "spaceship"
+  },
+  {
+    "id": "mlQBUQRUpM",
+    "title": "Space Craft Speeder",
+    "creator": "Kenney",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/mlQBUQRUpM",
+    "glb_url": "https://static.poly.pizza/c291b3f0-6248-4734-bddf-a0de4335d1e8.glb",
+    "file": "models/ships/polypizza/space-craft-speeder-mlQBUQRUpM.glb",
+    "query": "spaceship"
+  },
+  {
+    "id": "diV_lzJhYgF",
+    "title": "SpaceShip | #1",
+    "creator": "Danni Bittman",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/diV_lzJhYgF",
+    "glb_url": "https://static.poly.pizza/988d88d6-1bc4-4177-b48f-f1685bbf28b2.glb",
+    "file": "models/ships/polypizza/spaceship-1-diV_lzJhYgF.glb",
+    "query": "spaceship"
+  },
+  {
+    "id": "enaIlQWET9a",
+    "title": "Asteroid",
+    "creator": "Poly by Google",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/enaIlQWET9a",
+    "glb_url": "https://static.poly.pizza/ff13c036-f5c4-4267-b0b6-73cc3430728e.glb",
+    "file": "models/environment/polypizza/asteroid-enaIlQWET9a.glb",
+    "query": "spacecraft"
+  },
+  {
+    "id": "8IepyOXhyLu",
+    "title": "spaceship",
+    "creator": "Faith Barnett",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/8IepyOXhyLu",
+    "glb_url": "https://static.poly.pizza/d2088c12-3dab-44e5-bf6f-f0e5ff3e7db5.glb",
+    "file": "models/ships/polypizza/spaceship-8IepyOXhyLu.glb",
+    "query": "spacecraft"
+  },
+  {
+    "id": "htfBk9vPfw",
+    "title": "Spaceship",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/htfBk9vPfw",
+    "glb_url": "https://static.poly.pizza/a6789133-a4b2-447b-9eda-4c44b84240ca.glb",
+    "file": "models/ships/polypizza/spaceship-htfBk9vPfw.glb",
+    "query": "spacecraft"
+  },
+  {
+    "id": "6YCLC70Z14h",
+    "title": "Space Shuttle",
+    "creator": "Zoe XR",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/6YCLC70Z14h",
+    "glb_url": "https://static.poly.pizza/ef3dde89-418b-4e1e-8698-0743b4bd496e.glb",
+    "file": "models/ships/polypizza/space-shuttle-6YCLC70Z14h.glb",
+    "query": "spacecraft"
+  },
+  {
+    "id": "GorWw41SFf",
+    "title": "Male Fighter",
+    "creator": "mastjie",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/GorWw41SFf",
+    "glb_url": "https://static.poly.pizza/8116458a-e815-44d6-adf6-b43455c87e49.glb",
+    "file": "models/ships/polypizza/male-fighter-GorWw41SFf.glb",
+    "query": "fighter"
+  },
+  {
+    "id": "6fyLMORhgGK",
+    "title": "Jet",
+    "creator": "jeremy",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/6fyLMORhgGK",
+    "glb_url": "https://static.poly.pizza/19d58465-dafb-4df0-a3b8-b0500bd9ed4b.glb",
+    "file": "models/ships/polypizza/jet-6fyLMORhgGK.glb",
+    "query": "fighter"
+  },
+  {
+    "id": "NfMffTkeBa",
+    "title": "Female Fighter",
+    "creator": "mastjie",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/NfMffTkeBa",
+    "glb_url": "https://static.poly.pizza/cb94eb1c-fd04-412c-9bfb-d6ede11ee05b.glb",
+    "file": "models/ships/polypizza/female-fighter-NfMffTkeBa.glb",
+    "query": "fighter"
+  },
+  {
+    "id": "7aYuk5Rdlr-",
+    "title": "Agile knight",
+    "creator": "Spiros Koutsourelis",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/7aYuk5Rdlr-",
+    "glb_url": "https://static.poly.pizza/f8719720-810b-43b7-b9fb-da37f1e90c51.glb",
+    "file": "models/ships/polypizza/agile-knight-7aYuk5Rdlr-.glb",
+    "query": "fighter"
+  },
+  {
+    "id": "3ghMF4tnfq",
+    "title": "Eye Fighter",
+    "creator": "Polygonal Mind",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/3ghMF4tnfq",
+    "glb_url": "https://static.poly.pizza/8c35d71b-322d-4741-a0f2-aa7f1bea38b4.glb",
+    "file": "models/ships/polypizza/eye-fighter-3ghMF4tnfq.glb",
+    "query": "fighter"
+  },
+  {
+    "id": "1fi8ZIDdFCP",
+    "title": "Low poly Fighter",
+    "creator": "Stephen Graybill",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/1fi8ZIDdFCP",
+    "glb_url": "https://static.poly.pizza/cc00d785-e53a-4e6b-892e-0bbfd62b95fa.glb",
+    "file": "models/ships/polypizza/low-poly-fighter-1fi8ZIDdFCP.glb",
+    "query": "fighter"
+  },
+  {
+    "id": "bIAMfx1bHVY",
+    "title": "Space Shuttle Orbiter",
+    "creator": "Zoe XR",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/bIAMfx1bHVY",
+    "glb_url": "https://static.poly.pizza/0420fee2-3ad1-4ceb-948c-375a45828ff6.glb",
+    "file": "models/ships/polypizza/space-shuttle-orbiter-bIAMfx1bHVY.glb",
+    "query": "shuttle"
+  },
+  {
+    "id": "djxolbz_CYC",
+    "title": "Space Shuttle",
+    "creator": "Poly by Google",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/djxolbz_CYC",
+    "glb_url": "https://static.poly.pizza/7067075f-1b52-4924-b060-2e5a046df4eb.glb",
+    "file": "models/ships/polypizza/space-shuttle-djxolbz_CYC.glb",
+    "query": "shuttle"
+  },
+  {
+    "id": "8oI7oWBA1V8",
+    "title": "Command pod",
+    "creator": "Poly by Google",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/8oI7oWBA1V8",
+    "glb_url": "https://static.poly.pizza/b7333339-3024-4312-9111-070ace6e6ead.glb",
+    "file": "models/ships/polypizza/command-pod-8oI7oWBA1V8.glb",
+    "query": "shuttle"
+  },
+  {
+    "id": "2I_YhfMhsfT",
+    "title": "Adrian&#x27;s Space Shuttle",
+    "creator": "Adrian Hon",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/2I_YhfMhsfT",
+    "glb_url": "https://static.poly.pizza/804ad3a6-e9cd-42a7-94e4-16ec0d7c0f98.glb",
+    "file": "models/ships/polypizza/adrian-x27-s-space-shuttle-2I_YhfMhsfT.glb",
+    "query": "shuttle"
+  },
+  {
+    "id": "dDZnz-9SYml",
+    "title": "Base",
+    "creator": "Poly by Google",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/dDZnz-9SYml",
+    "glb_url": "https://static.poly.pizza/2b008067-feab-4baf-ab91-af9fad7e5dec.glb",
+    "file": "models/environment/polypizza/base-dDZnz-9SYml.glb",
+    "query": "station"
+  },
+  {
+    "id": "YS1jpm3mNr",
+    "title": "Asteroid",
+    "creator": "J-Toastie",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/YS1jpm3mNr",
+    "glb_url": "https://static.poly.pizza/ab815bde-1dac-41ce-8d1e-f1dcf6d7ecf7.glb",
+    "file": "models/environment/polypizza/asteroid-YS1jpm3mNr.glb",
+    "query": "asteroid"
+  },
+  {
+    "id": "9k18F9bT43N",
+    "title": "Asteroids",
+    "creator": "Jarlan Perez",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/9k18F9bT43N",
+    "glb_url": "https://static.poly.pizza/9aff0a81-f701-4494-9b94-ab5581e093fe.glb",
+    "file": "models/environment/polypizza/asteroids-9k18F9bT43N.glb",
+    "query": "asteroid"
+  },
+  {
+    "id": "yuCzypJ0w4",
+    "title": "Asteroid 2",
+    "creator": "J-Toastie",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/yuCzypJ0w4",
+    "glb_url": "https://static.poly.pizza/e2bde23d-9df8-47ef-9121-3d3bb8f3d427.glb",
+    "file": "models/environment/polypizza/asteroid-2-yuCzypJ0w4.glb",
+    "query": "asteroid"
+  },
+  {
+    "id": "ffzZSJOorck",
+    "title": "Comet",
+    "creator": "Poly by Google",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/ffzZSJOorck",
+    "glb_url": "https://static.poly.pizza/53d737bb-dc6e-4a63-8897-6fc6db176986.glb",
+    "file": "models/environment/polypizza/comet-ffzZSJOorck.glb",
+    "query": "asteroid"
   }
 ]

@@ -165,7 +165,10 @@ if (fs.existsSync(path.join(project, 'tools', 'smoke_battle.gd'))) {
 }
 if (fs.existsSync(path.join(project, 'tools', 'sim_report.gd'))) {
   // 难度曲线跑分：三种画像 × 8 局的通关率/时长/受击分布
-  run('balance', [...headless, '-s', 'res://tools/sim_report.gd', '--', '--runs=8'], {
+  run('balance', [...headless, '-s', 'res://tools/sim_report.gd', '--', '--runs=8', '--difficulty=normal'], {
+    // 必须显式指定档位：sim_report 默认会连跑休闲/标准/硬核三档，而下面的正则
+    // 取的是**首个**匹配，不锁档位的话这里会显示成休闲档的数字（100%/100%/100%），
+    // 让人误以为标准档也变简单了。
     parse: (out) => {
       const lines = out.split(/\r?\n/).filter((l) => /通关率|%/.test(l) && !/^=/.test(l));
       const rates = [];
