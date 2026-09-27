@@ -8,8 +8,14 @@
 
 | 授权 | 含义 | 本库数量 |
 |---|---|---|
-| CC0 | 公有领域，可任意使用（含商用） | 模型 16 + Kenney 全部 + 模板见下 |
-| CC-BY | 需署名作者 | 模型 24 |
+| CC0 | 公有领域，可任意使用（含商用） | 模型 23 + Kenney 全部 + 模板见下 |
+| CC-BY | 需署名作者 | 模型 44 |
+| CC-BY 4.0（纹理） | 需署名作者 | 太阳系纹理 15 张 |
+
+> **2026-09-27 授权范围放宽（用户拍板）**：本 lab 全部产物仅供个人学习自用、
+> 不涉及任何商业行为，因此可接纳 CC-BY-NC 等「非商用」类授权。
+> 仍须逐项登记；若将来公开发布，须逐项复核（含 NC 条款与第三方 IP 风险项）。
+> 本次游戏 10 新增素材均为 CC0 / CC-BY / CC-BY 4.0，无 NC 项。
 | MIT | 代码模板，需保留许可声明 | 1（Jeh3no FPS 控制器） |
 
 ---
@@ -84,6 +90,45 @@
 | Rifle | Quaternius | CC0 | `models/weapons/polypizza/rifle-KjHL5JJrxU.glb` | https://poly.pizza/m/KjHL5JJrxU |
 | Rocket Launcher | Quaternius | CC0 | `models/weapons/polypizza/rocket-launcher-GCqUvqleqN.glb` | https://poly.pizza/m/GCqUvqleqN |
 | Blaster - E Type | Damon Pidhajecky | CC-BY | `models/weapons/polypizza/blaster-e-type-KgCR3STCKX.glb` | https://poly.pizza/m/KgCR3STCKX |
+
+### 3b. 游戏 10 新增（2026-09-27，太阳系飞行射击 · 经 `harvest-polypizza.py` 抓取）
+
+索引已扩充至 67 条（同上 `_downloads/polypizza-index.json`）。全部通过 GLB magic 校验；
+抓取副产物中 6 件地面设施（火车站/加油站/铁路/电塔/摊位/沙漠岩）已剔除，不入册。
+
+| 模型 | 作者 | 授权 | 文件 | 来源页 |
+|---|---|---|---|---|
+| Spaceship | Liz Reddington | CC-BY | `models/ships/polypizza/spaceship-5nWeu4IQXVX.glb` | https://poly.pizza/m/5nWeu4IQXVX |
+| Spaceship | Quaternius | CC0 | `models/ships/polypizza/spaceship-uCeLfsdmNP.glb` | https://poly.pizza/m/uCeLfsdmNP |
+| Spaceship | Liz Reddington | CC-BY | `models/ships/polypizza/spaceship-647DTebhyBD.glb` | https://poly.pizza/m/647DTebhyBD |
+| T-65 X-Wing Starfighter | Ti Kawamoto | CC-BY | `models/ships/polypizza/t-65-x-wing-starfighter-100p3RNw-5Q.glb` | https://poly.pizza/m/100p3RNw-5Q |
+| Spaceship | Liz Reddington | CC-BY | `models/ships/polypizza/spaceship-6eRDOiTxvOo.glb` | https://poly.pizza/m/6eRDOiTxvOo |
+| Spaceship | Quaternius | CC0 | `models/ships/polypizza/spaceship-xNbtFQwirO.glb` | https://poly.pizza/m/xNbtFQwirO |
+| Space Craft Speeder | Kenney | CC0 | `models/ships/polypizza/space-craft-speeder-mlQBUQRUpM.glb` | https://poly.pizza/m/mlQBUQRUpM |
+| SpaceShip \| #1 | Danni Bittman | CC-BY | `models/ships/polypizza/spaceship-1-diV_lzJhYgF.glb` | https://poly.pizza/m/diV_lzJhYgF |
+| Asteroid | Poly by Google | CC-BY | `models/environment/polypizza/asteroid-enaIlQWET9a.glb` | https://poly.pizza/m/enaIlQWET9a |
+| spaceship | Faith Barnett | CC-BY | `models/ships/polypizza/spaceship-8IepyOXhyLu.glb` | https://poly.pizza/m/8IepyOXhyLu |
+| Spaceship | Quaternius | CC0 | `models/ships/polypizza/spaceship-htfBk9vPfw.glb` | https://poly.pizza/m/htfBk9vPfw |
+| Space Shuttle | Zoe XR | CC-BY | `models/ships/polypizza/space-shuttle-6YCLC70Z14h.glb` | https://poly.pizza/m/6YCLC70Z14h |
+| Male Fighter | mastjie | CC0 | `models/ships/polypizza/male-fighter-GorWw41SFf.glb` | https://poly.pizza/m/GorWw41SFf |
+| Jet | jeremy | CC-BY | `models/ships/polypizza/jet-6fyLMORhgGK.glb` | https://poly.pizza/m/6fyLMORhgGK |
+| Female Fighter | mastjie | CC0 | `models/ships/polypizza/female-fighter-NfMffTkeBa.glb` | https://poly.pizza/m/NfMffTkeBa |
+| Agile knight | Spiros Koutsourelis | CC-BY | `models/ships/polypizza/agile-knight-7aYuk5Rdlr-.glb` | https://poly.pizza/m/7aYuk5Rdlr- |
+| Eye Fighter | Polygonal Mind | CC0 | `models/ships/polypizza/eye-fighter-3ghMF4tnfq.glb` | https://poly.pizza/m/3ghMF4tnfq |
+| Low poly Fighter | Stephen Graybill | CC-BY | `models/ships/polypizza/low-poly-fighter-1fi8ZIDdFCP.glb` | https://poly.pizza/m/1fi8ZIDdFCP |
+| Space Shuttle Orbiter | Zoe XR | CC-BY | `models/ships/polypizza/space-shuttle-orbiter-bIAMfx1bHVY.glb` | https://poly.pizza/m/bIAMfx1bHVY |
+| Space Shuttle | Poly by Google | CC-BY | `models/ships/polypizza/space-shuttle-djxolbz_CYC.glb` | https://poly.pizza/m/djxolbz_CYC |
+| Command pod | Poly by Google | CC-BY | `models/ships/polypizza/command-pod-8oI7oWBA1V8.glb` | https://poly.pizza/m/8oI7oWBA1V8 |
+| Adrian's Space Shuttle | Adrian Hon | CC-BY | `models/ships/polypizza/adrian-x27-s-space-shuttle-2I_YhfMhsfT.glb` | https://poly.pizza/m/2I_YhfMhsfT |
+| Base | Poly by Google | CC-BY | `models/environment/polypizza/base-dDZnz-9SYml.glb` | https://poly.pizza/m/dDZnz-9SYml |
+| Asteroid | J-Toastie | CC-BY | `models/environment/polypizza/asteroid-YS1jpm3mNr.glb` | https://poly.pizza/m/YS1jpm3mNr |
+| Asteroids | Jarlan Perez | CC-BY | `models/environment/polypizza/asteroids-9k18F9bT43N.glb` | https://poly.pizza/m/9k18F9bT43N |
+| Asteroid 2 | J-Toastie | CC-BY | `models/environment/polypizza/asteroid-2-yuCzypJ0w4.glb` | https://poly.pizza/m/yuCzypJ0w4 |
+| Comet | Poly by Google | CC-BY | `models/environment/polypizza/comet-ffzZSJOorck.glb` | https://poly.pizza/m/ffzZSJOorck |
+
+> ⚠️ **T-65 X-Wing Starfighter 为《星球大战》同人作品**：CC-BY 只覆盖模型本身，
+> 星战 IP 归迪士尼。仅供个人学习；若将来公开发布必须移除或替换。
+
 ---
 
 ## 4. 音乐（OpenGameArt，2026-09-27 下载）
@@ -111,3 +156,31 @@
 | Mixamo | 需 Adobe 账号登录 | 用户本人操作 |
 | KayKit（GitHub: KayKit-Game-Assets） | 题材偏奇幻，06 暂不需要 | 2D/奇幻项目时直接 clone |
 | OpenGameArt 音乐 | 未开始搜集 | 06 需要配乐时逐项核对授权 |
+
+---
+
+## 6. 太阳系纹理（Solar System Scope，2026-09-27 下载）
+
+> **授权 CC BY 4.0**（已核对 Qt 官方 attribution 文档 `doc.qt.io/qt-6/qt3d-attribution-solar-system-scope.html`）。
+> 直链格式 `https://www.solarsystemscope.com/textures/download/<文件名>`（需带浏览器 UA）。
+> **发布前署名**：「Planetary textures: © Solar System Scope (solarsystemscope.com), CC BY 4.0」。
+> 用途：游戏 10 太阳系飞行射击——行星/太阳用 SphereMesh + 等距柱状贴图，土星环用窄条纹理，
+> 银河图作天空盒。全部经 `_scratch/verify_textures.py` 校验（magic + 真实分辨率 + 尺寸唯一）。
+
+| 文件 | 内容 | 分辨率 | 本地位置 | 授权 | 日期 |
+|---|---|---|---|---|---|
+| 2k_sun.jpg | 太阳 | 2048×1024 | `textures/planets/2k_sun.jpg` | CC-BY 4.0 | 2026-09-27 |
+| 2k_mercury.jpg | 水星 | 2048×1024 | `textures/planets/2k_mercury.jpg` | CC-BY 4.0 | 2026-09-27 |
+| 2k_venus_atmosphere.jpg | 金星（大气） | 2048×1024 | `textures/planets/2k_venus_atmosphere.jpg` | CC-BY 4.0 | 2026-09-27 |
+| 2k_venus_surface.jpg | 金星（地表） | 2048×1024 | `textures/planets/2k_venus_surface.jpg` | CC-BY 4.0 | 2026-09-27 |
+| 2k_earth_daymap.jpg | 地球昼面 | 2048×1024 | `textures/planets/2k_earth_daymap.jpg` | CC-BY 4.0 | 2026-09-27 |
+| 2k_earth_nightmap.jpg | 地球夜面灯光 | 2048×1024 | `textures/planets/2k_earth_nightmap.jpg` | CC-BY 4.0 | 2026-09-27 |
+| 2k_earth_clouds.jpg | 地球云层 | 2048×1024 | `textures/planets/2k_earth_clouds.jpg` | CC-BY 4.0 | 2026-09-27 |
+| 2k_moon.jpg | 月球 | 2048×1024 | `textures/planets/2k_moon.jpg` | CC-BY 4.0 | 2026-09-27 |
+| 2k_mars.jpg | 火星 | 2048×1024 | `textures/planets/2k_mars.jpg` | CC-BY 4.0 | 2026-09-27 |
+| 2k_jupiter.jpg | 木星 | 2048×1024 | `textures/planets/2k_jupiter.jpg` | CC-BY 4.0 | 2026-09-27 |
+| 2k_saturn.jpg | 土星 | 2048×1024 | `textures/planets/2k_saturn.jpg` | CC-BY 4.0 | 2026-09-27 |
+| 2k_saturn_ring_alpha.png | 土星环（透明条） | 2048×125 | `textures/planets/2k_saturn_ring_alpha.png` | CC-BY 4.0 | 2026-09-27 |
+| 2k_uranus.jpg | 天王星 | 2048×1024 | `textures/planets/2k_uranus.jpg` | CC-BY 4.0 | 2026-09-27 |
+| 2k_neptune.jpg | 海王星 | 2048×1024 | `textures/planets/2k_neptune.jpg` | CC-BY 4.0 | 2026-09-27 |
+| 8k_stars_milky_way.jpg | 银河星空（天空盒） | 8192×4096 | `textures/planets/8k_stars_milky_way.jpg` | CC-BY 4.0 | 2026-09-27 |
