@@ -81,6 +81,30 @@ func _initialize() -> void:
 	var sun := main.get_node_or_null(^"Arena/Sun")
 	_check(sun is DirectionalLight3D, "场景有方向光（否则模型全是死黑）")
 
+	# 0c) PBR 表面必须**真的挂上了**。贴图没导入时 build_arena 会退回 Kenney 原型网格图，
+	#     画面看着仍是灰盒，而且不报错——只有断言能区分「重跑过生成」和「生成对了」。
+	var pbr_ok := 0
+	var bodies := 0
+	for body in main.get_node(^"Arena").get_children():
+		var box_body := body as StaticBody3D
+		if box_body == null:
+			continue
+		bodies += 1
+		for part in box_body.get_children():
+			var skin := part as MeshInstance3D
+			if skin == null:
+				continue
+			var mat := skin.material_override as StandardMaterial3D
+			if mat == null or mat.albedo_texture == null or mat.normal_texture == null \
+					or mat.roughness_texture == null or not mat.uv1_triplanar:
+				continue
+			if not String(mat.albedo_texture.resource_path).contains("ambientcg"):
+				continue
+			pbr_ok += 1
+	_check(bodies >= 20, "blockout 盒子数量应≥20（实测 %d）" % bodies)
+	_check(pbr_ok == bodies,
+		"所有 blockout 表面都该走 ambientCG PBR（实测 %d/%d，其余是原型网格图或纯色）" % [pbr_ok, bodies])
+
 	# 1) 出怪：等首波生成至少一个敌人
 	var enemies := await _wait_first_spawn(director)
 	_check(not enemies.is_empty(), "首波已出怪")

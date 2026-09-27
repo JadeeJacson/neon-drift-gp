@@ -96,6 +96,7 @@ func _initialize() -> void:
 
 	var boxes := 0
 	var tris := 0
+	var pbr_boxes := 0
 	for p in PIECES:
 		var center: Vector3 = p[0]
 		var size: Vector3 = p[1]
@@ -112,7 +113,10 @@ func _initialize() -> void:
 		var bm := BoxMesh.new()
 		bm.size = size
 		mi.mesh = bm
-		mi.material_override = _make_material(size, tex_id)
+		var mat := _make_material(size, tex_id)
+		mi.material_override = mat
+		if mat.uv1_triplanar:
+			pbr_boxes += 1
 
 		var cs := CollisionShape3D.new()
 		var bs := BoxShape3D.new()
@@ -314,16 +318,90 @@ func _add_spawns(root: Node3D) -> void:
 	player_spawn.owner = root
 
 
+## 表面套图（ambientCG，CC0，实测 1K-JPG 完整 PBR 四张）。
+## 为什么必须走**三平面投影**：blockout 全是 BoxMesh，UV 是整盒 0..1，
+## 直接贴 60 米的地面会拉成一条条纹；三平面按局部坐标独立平铺，不用为每个盒子重算 UV。
+## uv1_scale 在三平面下是「每米重复次数」，所以取 1/每张贴图覆盖的米数。
+const PBR := {
+	"metal_plates": {
+		"base": "res://assets/textures/ambientcg/MetalPlates001/MetalPlates001_1K-JPG",
+		"tile": 4.0, "tint": Color(0.66, 0.71, 0.78), "metallic": 1.0,
+	},
+	"concrete": {
+		"base": "res://assets/textures/ambientcg/Concrete002/Concrete002_1K-JPG",
+		"tile": 6.0, "tint": Color(0.52, 0.55, 0.60), "metallic": 0.0,
+	},
+}
+
+## 哪些盒子用哪套表面（没列出来的继续用 Kenney 原型网格图）。
+const PIECE_SURFACE := {
+	1: "metal_plates",   # 地面
+	2: "concrete",       # 四面外墙
+	3: "metal_plates",   # 四角高台
+	4: "concrete",       # 斜坡
+	5: "metal_plates",   # 墙跑墙段
+	6: "metal_plates",   # 中层掩体
+	7: "metal_plates",   # 角掩体
+}
+
 ## 纹理 UV 按盒子尺寸缩放，否则大平面会把网格纹理拉成条纹。
 func _make_material(size: Vector3, tex_id: int) -> StandardMaterial3D:
-	var mat := StandardMaterial3D.new()
+	var surface := String(PIECE_SURFACE.get(tex_id, ""))
+	if not surface.is_empty():
+		var pbr := _make_pbr_material(surface)
+		if pbr != null:
+			return pbr
 	var path := "%stexture_%02d.png" % [TEX_DIR, tex_id]
 	if ResourceLoader.exists(path):
 		var tex := load(path) as Texture2D
+		var mat := StandardMaterial3D.new()
 		mat.albedo_texture = tex
 		# 每个面按世界尺寸 / 2m 平铺
 		mat.uv1_scale = Vector3(max(size.x, size.z) / 2.0, max(size.y, 2.0) / 2.0, 1.0)
-	else:
-		push_warning("纹理缺失：%s，退回纯色" % path)
-		mat.albedo_color = Color(0.35, 0.38, 0.42)
+		return mat
+	push_warning("纹理缺失：%s，退回纯色" % path)
+	var flat := StandardMaterial3D.new()
+	flat.albedo_color = Color(0.35, 0.38, 0.42)
+	return flat
+
+
+## PBR 表面：albedo + normal + roughness（+ 可选 metalness）。
+## 返回 null 表示套图没入库，调用方退回原型网格图——不能静默给纯色，
+## 「观感像实验场地」就是这么来的。
+func _make_pbr_material(key: String) -> StandardMaterial3D:
+	var cfg: Dictionary = PBR[key]
+	var base := String(cfg["base"])
+	var albedo := _tex(base + "_Color.jpg")
+	if albedo == null:
+		push_warning("PBR 套图缺失：%s → 退回原型网格图（先跑一次 --import）" % base)
+		return null
+	var mat := StandardMaterial3D.new()
+	var tint: Color = cfg["tint"]
+	mat.albedo_texture = albedo
+	mat.albedo_color = tint
+	mat.metallic = float(cfg["metallic"])
+	var metal := _tex(base + "_Metalness.jpg")
+	if metal != null and mat.metallic > 0.0:
+		mat.metallic_texture = metal
+	var rough := _tex(base + "_Roughness.jpg")
+	if rough != null:
+		# 4.x 没有 roughness_enabled（那是 3.x SpatialMaterial 的名字），挂上贴图即生效
+		mat.roughness_texture = rough
+	var normal := _tex(base + "_NormalGL.jpg")
+	if normal != null:
+		mat.normal_enabled = true
+		mat.normal_texture = normal
+		mat.normal_scale = 0.9   # 3.x 叫 normal_depth，4.x 改名 normal_scale
+	mat.texture_repeat = true
+	# 三平面投影：BoxMesh 的 UV 是整盒 0..1，不这么做 60 米的地面会糊成一条条纹。
+	# uv1_scale 在这里的含义是「每米重复多少次」，所以取 1 / 每张贴图覆盖的米数。
+	var per_meter := 1.0 / float(cfg["tile"])
+	mat.uv1_triplanar = true
+	mat.uv1_scale = Vector3(per_meter, per_meter, per_meter)
 	return mat
+
+
+func _tex(path: String) -> Texture2D:
+	if not ResourceLoader.exists(path):
+		return null
+	return load(path) as Texture2D

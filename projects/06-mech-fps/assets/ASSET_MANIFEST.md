@@ -173,6 +173,25 @@ Poly Pizza 是多人投稿站，**每个模型的尺度、朝向、原点都不�
 | `turret` | `turret-mXKbcMPLSS.glb` | CC0 (Kenney) | 2.30 × 0.90 × 1.85 | 1.00 |
 | `turret_cannon` | `turret-cannon-mNJ6poH7Cp.glb` | CC0 (Quaternius) | 1.16 × 0.65 × 1.11 | 1.00 |
 
+## 3b. blockout 表面材质（ambientCG PBR，CC0，2026-09-27）
+
+工程内只拷渲染要用的那几张（Color / NormalGL / Roughness / Metalness），
+完整原件与授权说明见 `assets/textures/ambientcg/SOURCE.md`。
+
+| 表面 | 套图 | 每张贴图覆盖 | 色调 | metallic | 用在哪 |
+|---|---|---|---|---|---|
+| 金属甲板 | MetalPlates001 | 4 m | (0.66,0.71,0.78) | 1.0（带 Metalness 图） | 地面、高台、墙跑墙段、掩体 |
+| 混凝土 | Concrete002 | 6 m | (0.52,0.55,0.60) | 0.0（该套无 Metalness，非金属本就不需要） | 四面外墙、斜坡 |
+
+三个只有做过才知道的点：
+1. **必须三平面投影**（`uv1_triplanar`）。BoxMesh 的 UV 是整盒 0..1，直接贴会把 60 米的地面
+   拉成一条条纹；三平面按局部坐标平铺，`uv1_scale` 的语义随之变成「每米重复几次」，取 `1/每张贴图米数`。
+2. **NormalGL 不是 NormalDX**。ambientCG 两种都发，Godot 用 OpenGL 约定，接反了凹凸方向会颠倒。
+3. **4.x 的属性名和 3.x 不一样**：`roughness_enabled` 在 StandardMaterial3D 里根本不存在
+   （挂上 `roughness_texture` 即生效），`normal_depth` 改名成了 `normal_scale`。
+   写错的后果是**运行期错误只中断当前函数**，材质退回原型网格图，画面看着还是灰盒却不报错
+   ——所以 `smoke_battle.gd` §0c 加了「所有 blockout 盒子都必须带三平面 + 法线 + 粗糙度贴图」的断言。
+
 ## 4. 音效（来自 Kenney Sci-fi / Impact / UI Audio，全部 CC0）
 
 工程内 `assets/audio/sfx/`，语义化重命名（原名保留在 lab 库）：

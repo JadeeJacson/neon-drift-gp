@@ -280,7 +280,8 @@ engines/godot/4.7.2/Godot_v4.7.2-stable_win64.exe --path projects/06-mech-fps
 | 两点锚定自动 fit | `tools/fit_viewmodel.gd` | 静态枪那套「包围盒最长轴 = 枪管」对带手臂的模型不成立（最长轴是肩膀跨度）。改用「握把 → 枪口」两点解相似变换，并**代回场景复验**，偏差 >0.02 m 报 FAIL |
 | 解 → 写配置 → 截图 | `_scratch/vm_tune.py`（一次性脚手架，不进工程） | 六个数手抄容易错，且要试 roll/高度，迭代要压到一条命令 |
 | 运行时接真动画 | `scripts/weapon_controller.gd` 的 `VIEWMODELS.anim / muzzle_node` | 换弹播模型自带的 `Reload`（不再是 tween 抖位置）；曳光与枪口焰取 `Muzzle` 节点的**实时**世界坐标，枪抬起来起点跟着抬 |
-| 断言锁住这条链 | `tools/smoke_battle.gd` §5d（新增 6 条，共 39 条） | 待机姿态枪口节点落在 fit 点上（偏差 0.000 m）、标记节点必须隐藏（否则枪口挂一块常驻白片）、换弹时 `current_animation == "Reload"`、0.5 秒内枪口位移 0.078 m |
+| 断言锁住这条链 | `tools/smoke_battle.gd` §5d + §0c（共 41 条） | 待机姿态枪口节点落在 fit 点上（偏差 0.000 m）、标记节点必须隐藏（否则枪口挂一块常驻白片）、换弹时 `current_animation == "Reload"`、0.5 秒内枪口位移 0.078 m |
+| blockout 表面换 PBR | `tools/build_arena.gd` 的 `PBR` / `PIECE_SURFACE` + `assets/textures/ambientcg/` | 灰盒观感的另一半原因是 23 个盒子全是程序网格贴图。地面/高台/掩体贴 ambientCG MetalPlates001、外墙/斜坡贴 Concrete002，各带 normal + roughness（+ metalness），**三平面投影**免重算 UV。详见 ASSET_MANIFEST §3b |
 
 已接入：`dmr_sniper` 换成 Majikay 的 CC0 双臂 deagle viewmodel（带手 + 4 段真动画）。
 它是 .44 手枪，和「精确射手步枪」的角色只是暂时对得上——**目的是把带手这条链路跑通**，
