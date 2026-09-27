@@ -16,6 +16,15 @@ const ANIM_MAP := {
 	"hurt": ["HitRecieve", "HitRecieve_1", "HitReceive_1", "hit"],
 	"death": ["Death", "death", "Dead"],
 }
+## 位移动画必须循环。这批 Poly Pizza / Quaternius 导出的 GLB **每段 clip 的
+## loop_mode 都是 0（NONE，实测）**，Run 只有 0.79 秒——播完就冻在最后一帧，
+## 敌人变成「滑行的雕像」，制作人实跑看到的就是「人形敌人没有动作」。
+## 射击/受击/死亡是一次性的，不能循环，所以按角色区分而不是全局打开循环。
+## 名字以这些开头的 clip 是位移动画/待机，装配时统一改成线性循环。
+## 这批 Poly Pizza / Quaternius 导出的 GLB **每段 clip 的 loop_mode 都是 0（NONE，实测）**，
+## `Run` 只有 0.79 秒——播完就冻在最后一帧，敌人变成「滑行的雕像」，
+## 制作人实跑看到的就是「人形敌人没有动作」。射击/受击/死亡是一次性的，不在这里。
+const LOOP_CLIP_HINTS := ["Idle", "Run", "Walk", "Move"]
 
 signal died(enemy_type: String, executed: bool)
 signal damaged(enemy_type: String)
@@ -28,6 +37,7 @@ var _stagger_left: float = 0.0
 var _attack_ready_at: float = 0.0
 var _anim: AnimationPlayer
 var _anim_prefix := ""          # clip 名里的骨架前缀，装配时推一次
+var _skeleton: Skeleton3D
 var _model: Node3D
 var _meshes: Array[MeshInstance3D] = []
 var _flash_mat: StandardMaterial3D
@@ -46,7 +56,9 @@ func _ready() -> void:
 	add_to_group("enemies")
 	_model = _find_model(self)
 	_anim = _find_anim_player(self)
+	_skeleton = find_child("Skeleton3D", true, false) as Skeleton3D
 	_detect_anim_prefix()
+	_apply_loop_policy()
 	_meshes = _collect_meshes(self)
 	# 受击闪白靠 material_overlay：不改模型自带材质（GLB 的材质是共享资源，
 	# 改一份会让所有同模型敌人都跟着闪），overlay 是每个实例自己的覆盖层。
@@ -115,6 +127,26 @@ func model_for_test() -> Node3D:
 ## 光看位移判断不了（位移是脚本推的），必须看动画本身有没有播起来。
 func anim_clip_count_for_test() -> int:
 	return 0 if _anim == null else _anim.get_animation_list().size()
+
+
+## 骨骼位置包围盒的对角线长度（相对骨架自身空间）。
+## 冒烟用它判断「动画有没有真的在变形骨骼」：current_animation 只是个字符串，
+## 字符串对、网格却冻结的情况它测不出来——这次就是这么漏掉的。
+func bone_span_for_test() -> float:
+	if _skeleton == null:
+		return 0.0
+	var lo := Vector3(INF, INF, INF)
+	var hi := Vector3(-INF, -INF, -INF)
+	for i in range(_skeleton.get_bone_count()):
+		var o: Vector3 = _skeleton.get_bone_global_pose(i).origin
+		lo = Vector3(minf(lo.x, o.x), minf(lo.y, o.y), minf(lo.z, o.z))
+		hi = Vector3(maxf(hi.x, o.x), maxf(hi.y, o.y), maxf(hi.z, o.z))
+	return (hi - lo).length()
+
+
+## 冒烟用：绕开 AI 直接点一段动画，验证循环策略。
+func force_anim_for_test(kind: String) -> bool:
+	return _play_anim(kind)
 
 
 func animation_name_for_test() -> String:
@@ -313,6 +345,36 @@ func _play_anim(kind: String) -> bool:
 				_anim.play(candidate)
 			return true
 	return false
+
+
+## 一次性把位移动画设成线性循环（原因见 LOOP_CLIP_HINTS 上方注释）。
+## 放在装配时而不是播放时：同一个 Animation 资源被同模型的所有敌人共享，改一次就够，
+## 也不会漏掉不走 _play_anim 的调用路径。
+func _apply_loop_policy() -> void:
+	if _anim == null:
+		return
+	for c in _anim.get_animation_list():
+		var full := String(c)
+		# clip 名可能是 `CharacterArmature|Run`，取最后一段再比前缀
+		var bar := full.rfind("|")
+		var bare := full.substr(bar + 1) if bar >= 0 else full
+		for hint in LOOP_CLIP_HINTS:
+			if bare.begins_with(String(hint)):
+				_anim.get_animation(full).loop_mode = Animation.LOOP_LINEAR
+				break
+
+
+## 冒烟用：某个角色解析到的 clip 现在的循环模式（-1 = 解析不到）。
+func anim_loop_mode_for_test(kind: String) -> int:
+	if _anim == null:
+		return -1
+	for name in ANIM_MAP[kind]:
+		var candidate := String(name)
+		if not _anim.has_animation(candidate):
+			candidate = _anim_prefix + String(name)
+		if _anim.has_animation(candidate):
+			return _anim.get_animation(candidate).loop_mode
+	return -1
 
 
 ## 从 clip 名里推出骨架前缀（`CharacterArmature|Run` → `CharacterArmature|`）。

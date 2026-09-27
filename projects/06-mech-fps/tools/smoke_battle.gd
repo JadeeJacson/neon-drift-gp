@@ -238,7 +238,7 @@ func _initialize() -> void:
 	#     骨架前缀（`CharacterArmature|`）没匹配上时的症状正是「模型滑步」，所以这条必须锁。
 	var soldier := (load("res://scenes/enemies/trooper_soldier.tscn") as PackedScene).instantiate()
 	main.add_child(soldier)
-	soldier.global_position = camera.global_position + Vector3(0, 0, -40)
+	soldier.global_position = camera.global_position + Vector3(0, -20, -40)  # 又远又低：一直停在跑动态，采样才稳定
 	for _i in range(30):
 		await physics_frame
 	var human := soldier as EnemyController
@@ -249,6 +249,31 @@ func _initialize() -> void:
 		_check(not human.animation_name_for_test().is_empty(),
 			"人形敌人必须真的在播 clip（实测「%s」，空=前缀没匹配上，会站桩/滑步）"
 			% human.animation_name_for_test())
+		# 制作人实跑报「人形敌人没有动作」。查下来是这批 GLB 每段 clip 的 loop_mode 都是 0，
+		# Run 只有 0.79 秒，播完就冻在最后一帧。上面那条 current_animation 断言抓不到它
+		# （字符串是对的），所以这里直接断言循环策略。
+		_check(human.anim_loop_mode_for_test("run") == Animation.LOOP_LINEAR,
+			"位移动画必须循环（实测 loop_mode=%d，0=播完冻结）" % human.anim_loop_mode_for_test("run"))
+		_check(human.anim_loop_mode_for_test("idle") == Animation.LOOP_LINEAR,
+			"待机动画必须循环（实测 loop_mode=%d）" % human.anim_loop_mode_for_test("idle"))
+		_check(human.anim_loop_mode_for_test("death") == Animation.LOOP_NONE,
+			"死亡动画不该循环（实测 loop_mode=%d）" % human.anim_loop_mode_for_test("death"))
+		# 再量一次**骨骼包围盒**随时间的变化。注意它的分工：这条抓的是「蒙皮/骨架前缀
+		# 失效导致网格根本不动」，抓不到「播完冻结」——因为 _play_anim 发现 current_animation
+		# 变空会再播一遍，跨度照样不为 0（实测关掉循环后仍有 0.0015）。冻结由上面那三条
+		# loop_mode 断言负责（把它们关掉验证过，确实会红）。
+		var spans: Array = []
+		for _s in range(8):
+			for _j in range(30):
+				await physics_frame
+			spans.append(human.bone_span_for_test())
+		var lo := INF
+		var hi := 0.0
+		for v in spans:
+			lo = minf(lo, float(v))
+			hi = maxf(hi, float(v))
+		_check(hi - lo > 0.0005,
+			'跑动时骨骼必须持续变形（4 秒内幅度跨度 %.5f，接近 0 = 网格根本没跟着骨架动）' % (hi - lo))
 	main.remove_child(soldier)
 	soldier.free()
 

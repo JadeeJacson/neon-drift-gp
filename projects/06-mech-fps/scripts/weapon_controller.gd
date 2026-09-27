@@ -340,6 +340,10 @@ func _play_vm_anim(kind: String, restart: bool = false) -> bool:
 		return false
 	if player.current_animation == clip and not restart:
 		return true
+	# 和敌人那边同一个坑：这批 GLB 导进来每段 clip 的 loop_mode 都是 0（NONE）。
+	# 待机不补循环，2.6 秒后枪就不再呼吸；射击/换弹/拔枪是一次性的，不能循环。
+	player.get_animation(clip).loop_mode = \
+		Animation.LOOP_LINEAR if kind == "idle" else Animation.LOOP_NONE
 	player.play(clip)
 	return true
 
@@ -351,6 +355,8 @@ func _finish_reload() -> void:
 	_reserve -= taken
 	_emit_ammo()
 	reload_finished.emit(_mag)
+	# 一次性片段（Reload/Shoot）播完会停在最后一帧，不接回待机的话枪就僵在抬弹匣那个姿势
+	_play_vm_anim("idle")
 
 
 func _emit_ammo() -> void:
