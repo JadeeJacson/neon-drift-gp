@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TOKYO · 東京 — three.js 城市场景</title>
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #05070d; }
+  #app { position: fixed; inset: 0; }
+  canvas { display: block; }
+
+  #hud {
+    position: fixed; top: 14px; left: 14px; z-index: 10;
+    font-family: "Yu Gothic UI", "Meiryo", "Microsoft YaHei", sans-serif;
+    color: #e8ecf4; user-select: none;
+  }
+  #hud .title {
+    font-size: 15px; letter-spacing: 2px; font-weight: 600;
+    text-shadow: 0 1px 8px rgba(0,0,0,.8);
+  }
+  #hud .title small { opacity: .55; font-weight: 400; letter-spacing: 1px; }
+  #hud .row { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+  #hud button {
+    appearance: none; border: 1px solid rgba(255,255,255,.22);
+    background: rgba(10, 14, 24, .55); color: #e8ecf4;
+    font: 12.5px/1 "Yu Gothic UI", "Meiryo", "Microsoft YaHei", sans-serif;
+    padding: 6px 11px; border-radius: 999px; cursor: pointer;
+    backdrop-filter: blur(6px);
+  }
+  #hud button:hover { background: rgba(60, 80, 130, .55); }
+  #hud button.on { background: rgba(80, 130, 230, .75); border-color: rgba(160,200,255,.8); }
+  #hud .sep { width: 8px; }
+  #hint {
+    position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 10;
+    color: rgba(232,236,244,.6); font: 12px "Yu Gothic UI", "Meiryo", sans-serif;
+    text-shadow: 0 1px 6px rgba(0,0,0,.9); user-select: none; pointer-events: none;
+  }
+  #fps {
+    position: fixed; top: 14px; right: 14px; z-index: 10;
+    color: rgba(232,236,244,.5); font: 11px monospace; text-align: right;
+    text-shadow: 0 1px 4px #000; user-select: none;
+  }
+  #loading {
+    position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center;
+    background: #05070d; color: #9fb4d8; font: 14px "Yu Gothic UI", "Meiryo", sans-serif;
+    letter-spacing: 4px; transition: opacity .8s;
+  }
+  #loading.done { opacity: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<div id="hud">
+  <div class="title">TOKYO <small>· 東京シティ・スケープ</small></div>
+  <div class="row">
+    <button id="btn-day">白天</button>
+    <button id="btn-night">夜晚</button>
+    <button id="btn-auto">昼夜循环</button>
+    <div class="sep"></div>
+    <button id="v-shibuya">涩谷</button>
+    <button id="v-aerial">空中</button>
+    <button id="v-tower">东京塔</button>
+    <button id="v-skytree">晴空塔</button>
+  </div>
+</div>
+<div id="hint">拖拽旋转 · 滚轮缩放 · 右键平移 · N 键切换昼夜</div>
+<div id="fps"></div>
+<div id="loading">TOKYO を生成中…</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "./node_modules/three/build/three.module.js",
+    "three/addons/": "./node_modules/three/examples/jsm/"
+  }
+}
+</script>
+<script>
+  // 运行期错误收集（自查用）
+  window.__errors = [];
+  window.addEventListener('error', (e) => window.__errors.push(String(e.message) + ' @ ' + String(e.filename).split('/').pop() + ':' + e.lineno));
+  window.addEventListener('unhandledrejection', (e) => window.__errors.push('rej: ' + String(e.reason && e.reason.stack || e.reason)));
+</script>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
