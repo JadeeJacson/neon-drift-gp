@@ -215,6 +215,39 @@ engines/godot/4.7.2/Godot_v4.7.2-stable_win64.exe --path projects/06-mech-fps
 
 必须用 `_console` 后缀的版本，Standard 版不输出脚本报错到终端。
 
+### 5.2 本轮素材接入踩到的 Godot 4.7 坑（实测，不是文档抄的）
+
+`docs/00` §5.0b 那份总表本该同步这些，但那个文件此刻正被另一个 agent 改动，
+先记在本项目里，等它空出来再合并过去。
+
+| 坑 | 症状 | 正确写法 |
+|---|---|---|
+| `AnimationPlayer.seek(t)` 不先 `play()` | 四段动画量出来一模一样，误判成「模型没绑定」 | `player.play(clip)` 之后才 `seek()`，再 `await process_frame` |
+| `Skeleton3D.has_bone()` 不存在 | 运行期 `Invalid call. Nonexistent function` | `find_bone(name) >= 0` |
+| `Basis.get_euler_degrees()` 不存在 | 解析错误 | `rad_to_deg(basis.get_euler())` 自己转 |
+| `Transform3D.get_scale()` 不存在 | 解析错误 | `transform.basis.get_scale()` |
+| `StandardMaterial3D.roughness_enabled` / `normal_depth` 是 3.x 名字 | **运行期错误只中断当前函数**，材质静默退回上一档，画面看着仍是灰盒却不报错 | 挂上 `roughness_texture` 即生效；凹凸强度叫 `normal_scale` |
+| 蒙皮网格的 `get_aabb()` 不跟骨骼走 | 包围盒算出来 7.6 × 2.4 × 2.3 m 这种鬼数字，按它 fit 一定错位 | 绑定模型的锚点一律取**骨骼**（`get_bone_global_pose`），不要取网格盒子 |
+| 脚本模式协程里访问已释放对象 | 协程中断 → `quit()` 不执行 → 步骤挂到超时 | 每帧先 `is_instance_valid()` 再读属性 |
+
+### 5.3 素材接入三件套（本轮新增的能力）
+
+```bash
+GODOT=engines/godot/4.7.2/Godot_v4.7.2-stable_win64_console.exe
+# 1) 解剖：节点树 / clip 列表 / 骨骼清单 / 各姿态锚点
+$GODOT --headless --path projects/06-mech-fps -s res://tools/inspect_rig.gd \
+      -- --model=res://assets/models/weapons/akm_viewmodel_hands.glb
+# 2) 自动 fit：把「握把→枪口」两点锚定到相机局部空间，自带复验（偏差 >0.02 m 报 FAIL）
+$GODOT --headless --path projects/06-mech-fps -s res://tools/fit_viewmodel.gd -- \
+      --model=res://assets/models/weapons/akm_viewmodel_hands.glb --clip="Armature|Idle" \
+      --grip-bone="Hand.R.001" --muzzle-bone="Hand.L" --muzzle-forward=3.6 \
+      --target-grip=0.22,-0.24,-0.18 --target-muzzle=0.14,-0.16,-0.70
+# 3) 有窗口截图：viewmodel 姿态、光照氛围、HUD 排版这些只能眼睛判的东西
+engines/godot/4.7.2/Godot_v4.7.2-stable_win64.exe --path projects/06-mech-fps \
+      -s res://tools/capture_view.gd -- --weapon=assault_rifle --pose=reload \
+      --frames=120 --out=_scratch/shots/akm_reload.png
+```
+
 ---
 
 ## 6. 本作的 DoD（在路线图 §0 之上追加）
@@ -283,9 +316,11 @@ engines/godot/4.7.2/Godot_v4.7.2-stable_win64.exe --path projects/06-mech-fps
 | 断言锁住这条链 | `tools/smoke_battle.gd` §5d + §0c（共 41 条） | 待机姿态枪口节点落在 fit 点上（偏差 0.000 m）、标记节点必须隐藏（否则枪口挂一块常驻白片）、换弹时 `current_animation == "Reload"`、0.5 秒内枪口位移 0.078 m |
 | blockout 表面换 PBR | `tools/build_arena.gd` 的 `PBR` / `PIECE_SURFACE` + `assets/textures/ambientcg/` | 灰盒观感的另一半原因是 23 个盒子全是程序网格贴图。地面/高台/掩体贴 ambientCG MetalPlates001、外墙/斜坡贴 Concrete002，各带 normal + roughness（+ metalness），**三平面投影**免重算 UV。详见 ASSET_MANIFEST §3b |
 
-已接入：`dmr_sniper` 换成 Majikay 的 CC0 双臂 deagle viewmodel（带手 + 4 段真动画）。
-它是 .44 手枪，和「精确射手步枪」的角色只是暂时对得上——**目的是把带手这条链路跑通**，
-等素材调研（任务 #20/#21/#22）给出步枪/霰弹的同类模型，用同一个 fit 工具接上。
+已接入两把带手 viewmodel（制作人反馈「没有换弹动作」的正解）：
+**突击步枪** = J-Toastie 的 AKM 双臂 rig（CC-BY 3.0，`Armature|Idle/Reload/Shoot` 三段真动画，
+28 根骨骼含 `Magazine`/`Bolt`/`Trigger`）；**精确射手** = Majikay 的 deagle 双臂 rig（CC0，
+带 `Muzzle` 标记节点）。霰弹仍是静态模型 + tween 兜底，下一轮换成 Pichuliru 的 CC0 pump 枪
+（`Pump`/`Shell`/`Lifter` 是真骨骼）。授权与候选清单见 `ASSET_MANIFEST.md` §2h。
 
 ### 7.3 启动方式与键位
 

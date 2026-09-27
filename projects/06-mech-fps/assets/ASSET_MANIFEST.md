@@ -166,6 +166,45 @@ Poly Pizza 是多人投稿站，**每个模型的尺度、朝向、原点都不�
 三把都能连发的话，单发伤害高的那把就没有存在理由，生态位会塌成一把——
 所以这条分工有专门的断言（`test_fire_mode_roles`：自动武器数量必须恰好为 1）。
 
+## 2h. 素材升级调研结论（2026-09-27，学习自用口径）
+
+完整过程记录在 `_scratch/viewmodel_research_20.md`（428 个候选逐个校验，全 PASS）。
+这里只留「已经用上的、下一步要用的、我拿不到的」三类。
+
+### 已接入
+
+| 角色 | 文件 | 作者 / 授权 | 为什么是它 |
+|---|---|---|---|
+| 突击步枪 | `assets/models/weapons/akm_viewmodel_hands.glb`（870,400 B） | J-Toastie，**CC-BY 3.0**，https://poly.pizza/m/U6l6wjxFhC | Poly Pizza 上唯二「第一人称 + 有手 + 自带真 Reload 剪辑」的素材之一：`Armature\|Idle 2.63s / Reload 2.58s / Shoot 0.17s`，双臂 + 逐指 28 骨，`Magazine`/`Bolt`/`Trigger` 都是真骨骼 |
+| 精确射手 | `assets/models/weapons/deagle_viewmodel_hands.glb`（865,016 B） | Majikay，CC0，https://github.com/majikayogames/SimpleFPSController | 带 `Muzzle` 标记节点，曳光起点能跟着手动（见 §2e） |
+
+**CC-BY 3.0 署名要求**（将来若要发布必须带上；lab 自用暂不显示，但这里必须记着）：
+Portions of artwork are based on "FPS Rig AKM" by J-Toastie (poly.pizza/m/U6l6wjxFhC), CC-BY 3.0.
+
+### 下一步要用（已下载到 `assets/models/weapons/_candidates/`，尚未接入）
+
+| 用途 | 文件 | 授权 | 备注 |
+|---|---|---|---|
+| 霰弹（pump） | `shotgun-pump-west-NfQETBKOiw.glb` | CC0（Pichuliru） | 无剪辑，但 `Pump`/`Shell`/`Lifter` 是真骨骼 → 推护木与抛壳可以只打两个关键帧，比 tween 整块网格像样 |
+| 精确射手（换掉 .44） | `sniper-rifle-west-kwJawENuvA.glb` | CC0（Pichuliru） | `Bolt` + `Magazine` 骨 + `Attach_Muzzle`/`Attach_Scope` 挂点 |
+| 通用持枪手 | `wrad_fps_viewmodel_arms.glb` + 两张 albedo PNG | CC0-1.0（wwwriks，GitHub codeload） | 唯一 CC0 且带 `wrist_ik`/`arm_target` IK 目标的手，可以贴到任意枪的握把上 |
+| 人形敌人 | `swat-Btfn3G5Xv4.glb`（24 段）/ `character-enemy-mdGe4IN31v.glb`（34 段） | CC0（Quaternius） | 都有 `Run_Shoot` / `Gun_Shoot` / `Death`，正好对上 06 的敌型状态机 |
+
+### 两条负面事实（别再重新踩）
+
+1. **这批 Poly Pizza 素材的 GLB 里 0 张内嵌贴图**，材质只有 `baseColorFactor` 纯色
+   （`fps-rig-akm` 是 12 个纯色材质）。想要贴图质感得自己叠 ambientCG 或换素材源。
+2. **J-Toastie 的 Fps Rig 没有枪口标记节点**，`--muzzle-bone=Hand.L --muzzle-forward=3.6`
+   是拿「前手沿两手连线外推」当枪口的近似。要精确枪口得自己在 Blender 里挂一个 `Marker3D`。
+
+### 拿不到的（需制作人本人操作）
+
+| 素材 | 位置 | 为什么拿不到 |
+|---|---|---|
+| SGA Gun Pack、Quaternius 动画枪械包 | itch.io | **DNS 污染**，本机直连全部失败（`gethostbyname_ex('itch.io')` 解析到错地址） |
+| `AK74U \| FREE ANIMATION`(7 段)、`Shotgun animation set`(6 段)、`SNIPER FPS ANIMATION`、`M4 - FPS Weapon Animations Pack`(5 段) | Sketchfab | 下载要登录。它的**公开目录 API 免 token 可用**，已逐个确认 `isDownloadable=true` + CC Attribution，但取文件必须人肉登录 |
+| 任意枪的骨骼动画 | Mixamo | Adobe 账号，且只出 FBX |
+
 ## 3. 场景物件
 
 | ID | 源文件 | 授权 | 实测尺寸 (m) | 缩放 |

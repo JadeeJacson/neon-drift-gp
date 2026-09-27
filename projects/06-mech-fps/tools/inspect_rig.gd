@@ -59,6 +59,17 @@ func _initialize() -> void:
 	for m in marked:
 		print("    %s @ %s" % [(m as Node3D).name, str(_local(node, (m as Node3D)))])
 
+	# 骨骼清单：没有标记节点的 rig（例如 Poly Pizza 的 fps-rig-akm）只能从骨骼里挑锚点，
+	# 光看节点树看不到（骨骼不是 Node3D 子节点，是 Skeleton3D 的数据）。
+	var skel_all := node.find_child("Skeleton3D", true, false) as Skeleton3D
+	if skel_all != null:
+		print("[骨骼清单] 名称 | rest 位置 | 当前姿态位置（模型根局部）")
+		for i in range(skel_all.get_bone_count()):
+			var bn := skel_all.get_bone_name(i)
+			print("    %2d %-26s rest=%s pose=%s" % [
+				i, bn, str(skel_all.get_bone_rest(i).origin),
+				str(_local(node, skel_all) + skel_all.get_bone_global_pose(i).origin)])
+
 	if player == null:
 		quit(0)
 		return

@@ -13,9 +13,15 @@ class_name WeaponController
 ##     带手臂的模型包围盒最长轴是肩膀跨度，套上面的办法必然摆歪。
 ## 两个工具都打印复验偏差，PASS 才粘。
 const VIEWMODELS := {
+	## J-Toastie 的「第一人称 + 两只手 + 真 Reload」AKM rig（CC-BY 3.0，署名见 ASSET_MANIFEST §2h）。
+	## 模型里没有枪口标记节点，锚点用骨骼：握把 = Hand.R.001，枪口 = 前手 Hand.L 沿两手连线外推。
 	"assault_rifle": {
-		"path": "res://assets/models/weapons/assault_rifle.glb",
-		"rot": Vector3(0, 180, 0), "scale": 0.379, "pos": Vector3(0.20, -0.17, -0.34),
+		"path": "res://assets/models/weapons/akm_viewmodel_hands.glb",
+		"rot": Vector3(-14.6412, 79.8479, 4.2348),
+		"scale": 0.0534,
+		"pos": Vector3(0.1295, -0.2260, -0.4313),
+		"muzzle": Vector3(0.14, -0.16, -0.70),
+		"anim": {"idle": "Armature|Idle", "shoot": "Armature|Shoot", "reload": "Armature|Reload"},
 	},
 	"shotgun": {
 		"path": "res://assets/models/weapons/shotgun.glb",
@@ -193,6 +199,21 @@ func vm_animation_for_test() -> String:
 	if player == null:
 		return ""
 	return player.current_animation
+
+
+## 配置里 anim 点名的 clip 有没有真的存在于模型里，返回「角色→片段名」列表（空 = 全都有）。
+## 静态枪没有 AnimationPlayer，返回空即视为通过（它们由 tween 兜底换弹动作）。
+func vm_missing_anim_clips(id: String) -> PackedStringArray:
+	var out := PackedStringArray()
+	var player := _vm_anims.get(id) as AnimationPlayer
+	if player == null:
+		return out
+	var anims: Dictionary = VIEWMODELS[id].get("anim", {})
+	for kind in anims:
+		var clip := String(anims[kind])
+		if not player.has_animation(clip):
+			out.append("%s→%s" % [String(kind), clip])
+	return out
 
 
 ## 清波奖励弹药（WaveDirector 用 call_group 打过来）。

@@ -167,6 +167,17 @@ func _initialize() -> void:
 	# 5d) 带手 viewmodel 的动画链（用户反馈「没有换弹动作」的正解）：
 	#     绑定模型必须真的用自带动画，且曳光起点跟着模型自带的枪口节点走。
 	#     tween 只是静态枪的兜底，有真动画时不该再抖位置。
+	for id in WeaponController.VIEWMODELS:
+		var missing: PackedStringArray = weapon.vm_missing_anim_clips(String(id))
+		_check(missing.is_empty(),
+			"%s 的 viewmodel 动画配置应全部可播（缺：%s）" % [String(id), ", ".join(missing)])
+	weapon.select(0)
+	weapon.force_reload_for_shot()
+	await physics_frame
+	_check(weapon.vm_animation_for_test() == "Armature|Reload",
+		"步枪换弹也该播模型自带的 Reload（实测 %s）" % weapon.vm_animation_for_test())
+	# select() 会把 _reload_until 清零：不复位就会把换弹态带进后面的震屏断言（try_fire 被挡住）
+	weapon.select(0)
 	weapon.select(2)
 	for _i in range(40):
 		await physics_frame   # 等拔枪动作播完（Unholster 0.42s），停在待机姿态
