@@ -120,8 +120,15 @@ func _initialize() -> void:
 	_check(gr.state == GameRoot.State.VICTORY, "五波全清进入 VICTORY（当前 %d）" % gr.state)
 	_check(gr.hud.victory_layer.visible, "胜利结算层可见")
 	_check(gr.score > WaveTable.WAVE_COUNT * WaveTable.CLEAR_BONUS, "总分入账（%d）" % gr.score)
+	# 四行结算明细都要有值：曾经 show_victory 误填失败层，胜利屏只剩分数、其余三行永远是「—」
 	_check(String(gr.hud.victory_stat_score.text).contains(str(gr.score)),
 		"结算屏显示得分（%s）" % gr.hud.victory_stat_score.text)
+	_check(String(gr.hud.victory_stat_waves.text).contains("%d / %d" % [WaveTable.WAVE_COUNT, WaveTable.WAVE_COUNT]),
+		"结算屏显示清波数（%s）" % gr.hud.victory_stat_waves.text)
+	_check(String(gr.hud.victory_stat_kills.text).contains(str(gr.kills)),
+		"结算屏显示击落数（%s）" % gr.hud.victory_stat_kills.text)
+	_check(String(gr.hud.victory_stat_accuracy.text).contains("%"),
+		"结算屏显示命中率（%s）" % gr.hud.victory_stat_accuracy.text)
 
 	# 8) 重开 → 阵亡结算 → 回菜单
 	gr.start_game()

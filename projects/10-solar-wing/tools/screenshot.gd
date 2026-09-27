@@ -14,6 +14,7 @@ func _initialize() -> void:
 	var play := false
 	var with_enemies := false
 	var no_flash := false
+	var want := ""
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="):
 			out_path = arg.get_slice("=", 1)
@@ -23,6 +24,8 @@ func _initialize() -> void:
 			with_enemies = true
 		elif arg == "--noflash":
 			no_flash = true
+		elif arg.begins_with("--state="):
+			want = arg.get_slice("=", 1)
 	var main := _load_main()
 	root.add_child(main)
 	for _i in range(10):
@@ -59,6 +62,33 @@ func _initialize() -> void:
 		else:
 			for _i in range(150):   # 2.5 秒：出怪、引擎音、曳光都有画面
 				await process_frame
+	# 结算/暂停界面取样：走真实状态切换，不手搓 UI
+	var gr2 := main as GameRoot
+	match want:
+		"pause":
+			# 走真实输入路径：派发一个 Esc 键事件给 _unhandled_input
+			var ev := InputEventKey.new()
+			ev.physical_keycode = KEY_ESCAPE
+			ev.pressed = true
+			Input.parse_input_event(ev)
+			for _i in range(20):
+				await process_frame
+		"victory":
+			gr2.kills = 37
+			gr2.score = 12400
+			gr2.player.weapon.shots_fired = 640
+			gr2.player.weapon.hits_landed = 402
+			gr2._on_victory()
+			for _i in range(20):
+				await process_frame
+		"gameover":
+			gr2.kills = 12
+			gr2.score = 3100
+			gr2.player.weapon.shots_fired = 260
+			gr2.player.weapon.hits_landed = 121
+			gr2._on_defeat()
+			for _i in range(20):
+				await process_frame
 	for _i in range(4):
 		await process_frame
 	if play and with_enemies:
@@ -77,6 +107,17 @@ func _initialize() -> void:
 				" fwd=", "%.1f" % to_e.dot(-cam2.global_basis.z),
 				" visual=", e.get_node_or_null("Visual"))
 	var img := root.get_texture().get_image()
+	# 界面内容自检：图片不一定能被人看到，状态/可见性/文案必须可断言
+	if want != "":
+		var hud := gr2.hud
+		print("state=", gr2.state,
+			" menu=", hud.menu_layer.visible,
+			" pause=", hud.pause_layer.visible,
+			" over=", hud.gameover_layer.visible,
+			" win=", hud.victory_layer.visible)
+		print("pause_title=", String(hud.pause_layer.get_node("Center/Box/Title").text))
+		print("over_stats=", hud.stat_score.text, " | ", hud.stat_waves.text, " | ",
+			hud.stat_kills.text, " | ", hud.stat_accuracy.text)
 	var abs_path := out_path
 	if not out_path.contains(":") and not out_path.begins_with("/"):
 		abs_path = ProjectSettings.globalize_path("res://" + out_path)

@@ -34,6 +34,9 @@ var stat_waves: Label
 var stat_kills: Label
 var stat_accuracy: Label
 var victory_stat_score: Label
+var victory_stat_waves: Label
+var victory_stat_kills: Label
+var victory_stat_accuracy: Label
 
 var _msg_t: float = 0.0
 var _damage_a: float = 0.0
@@ -91,8 +94,12 @@ func show_gameover(stats: Dictionary) -> void:
 
 
 func show_victory(stats: Dictionary) -> void:
-	_fill_stats(stats)
-	victory_stat_score.text = String(stats.get("score_text", ""))
+	# 注意：胜利层有自己的一套 Label，不能复用 _fill_stats（那套指向失败层）。
+	# 之前误调 _fill_stats 的后果是胜利屏只有分数、Waves/Kills/Accuracy 永远停在「—」。
+	victory_stat_score.text = "得分　%s" % stats.get("score_text", "0")
+	victory_stat_waves.text = "清波　%d / %d" % [int(stats.get("waves", 0)), WaveTable.WAVE_COUNT]
+	victory_stat_kills.text = "击落　%d" % int(stats.get("kills", 0))
+	victory_stat_accuracy.text = "命中率　%s" % stats.get("accuracy_text", "0%")
 	victory_layer.visible = true
 
 
@@ -177,6 +184,9 @@ func _build() -> void:
 	stat_kills = gameover_layer.get_node("Center/Box/Stats/Kills") as Label
 	stat_accuracy = gameover_layer.get_node("Center/Box/Stats/Accuracy") as Label
 	victory_stat_score = victory_layer.get_node("Center/Box/Stats/Score") as Label
+	victory_stat_waves = victory_layer.get_node("Center/Box/Stats/Waves") as Label
+	victory_stat_kills = victory_layer.get_node("Center/Box/Stats/Kills") as Label
+	victory_stat_accuracy = victory_layer.get_node("Center/Box/Stats/Accuracy") as Label
 	menu_layer.visible = true
 	pause_layer.visible = false
 	gameover_layer.visible = false
