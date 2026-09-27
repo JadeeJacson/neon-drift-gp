@@ -20,6 +20,9 @@ const WEAPONS := {
 		"max_range": 60.0,
 		"min_mult": 0.55,
 		"reserve": 192,
+		## 射击模式：步枪全自动（按住连发），霰弹泵动、精确射手半自动（一发一按）。
+		## 这是手感生态位的一部分——如果三把都能按住连发，单发伤害高的那把就没有存在理由。
+		"fire_mode": "auto",
 		# 反馈强度（CameraShake 消费）。设计口径：步枪靠射速堆压迫，单发反馈必须小，
 		# 否则连射时画面一直微抖；霰弹是「一发的艺术」，单发反馈最重。
 		"recoil": 0.05,
@@ -38,6 +41,7 @@ const WEAPONS := {
 		"max_range": 25.0,
 		"min_mult": 0.25,
 		"reserve": 56,
+		"fire_mode": "pump",
 		"recoil": 0.26,
 		"fov_kick": 4.0,
 		"hitstop": 0.045,
@@ -54,6 +58,7 @@ const WEAPONS := {
 		"max_range": 150.0,
 		"min_mult": 0.85,
 		"reserve": 70,
+		"fire_mode": "semi",
 		"recoil": 0.16,
 		"fov_kick": 3.0,
 		"hitstop": 0.03,
@@ -68,6 +73,16 @@ static func has_id(id: String) -> bool:
 static func display(id: String) -> String:
 	assert(WEAPONS.has(id), "未知武器: " + id)
 	return String(WEAPONS[id]["display"])
+
+
+## "auto" 按住连发 / "semi" 一发一按 / "pump" 泵动（比 semi 更长的射击间隔）
+static func fire_mode(id: String) -> String:
+	assert(WEAPONS.has(id), "未知武器: " + id)
+	return String(WEAPONS[id]["fire_mode"])
+
+
+static func is_automatic(id: String) -> bool:
+	return fire_mode(id) == "auto"
 
 
 static func field(id: String, key: String) -> float:

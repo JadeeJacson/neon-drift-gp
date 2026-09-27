@@ -54,6 +54,16 @@ func _initialize() -> void:
 		_done()
 		return
 
+	# 0) 装饰层必须是纯视觉：Kenney 模块本身零碰撞，若哪天换成带碰撞的模型，
+	#    玩家与敌人都会被看不见的体积卡住（练习期 04 的「空气墙」教训）。
+	var props := main.get_node_or_null(^"Arena/Props")
+	if props != null:
+		var colliders := _count_colliders(props)
+		_check(colliders == 0, "装饰层不该带碰撞体（实测 %d 个）" % colliders)
+		_check(props.get_child_count() > 40, "装饰件太少，观感仍是灰盒（实测 %d）" % props.get_child_count())
+	else:
+		_check(false, "Arena 下没有 Props 装饰层，跑过 build_arena.gd？")
+
 	# 1) 出怪：等首波生成至少一个敌人
 	var enemies := await _wait_first_spawn(director)
 	_check(not enemies.is_empty(), "首波已出怪")
@@ -94,6 +104,49 @@ func _initialize() -> void:
 			"击杀必须通过信号链回补弹药（%d → %d）" % [reserve_before, weapon.reserve()])
 	else:
 		_check(false, "找不到可用于验证回弹的敌人")
+
+	# 5b) 连发：按住扳机时步枪（auto）该打出多发，霰弹（pump）不该。
+	#     这条锁的是「fire_mode 真的生效」，不是具体发数——发数会随帧率与冷却微调变。
+	var auto_shots := await _count_shots_while_held(weapon, "assault_rifle", 60)
+	_check(auto_shots >= 4, "步枪按住 1 秒应连发（实测 %d 发）" % auto_shots)
+	var pump_shots := await _count_shots_while_held(weapon, "shotgun", 60)
+	_check(pump_shots <= 2, "霰弹按住不该连发（实测 %d 发）" % pump_shots)
+
+	# 5c) 枪口点几何：曳光与枪口焰都从实测包围盒算出的枪口点发出，
+	#     位置不对就是实跑看到的「射线不是从枪口出发」。
+	weapon.select(0)
+	var muzzle := weapon.muzzle_global()
+	var to_muzzle := muzzle - camera.global_position
+	var fwd := -camera.global_transform.basis.z
+	_check(to_muzzle.length() > 0.25 and to_muzzle.length() < 1.4,
+		"枪口离相机 %.2fm，不该贴身也不该伸太出" % to_muzzle.length())
+	_check(fwd.dot(to_muzzle.normalized()) > 0.8, "枪口应在视野前方，否则曳光会横穿屏幕")
+	_check(to_muzzle.y < 0.02, "枪口应不高于视线，第一人称枪该在屏幕下方")
+
+	# 5d) 死亡表现：打死之后模型必须有可见变化（倒地/下沉/缩小），
+	#     用户原话是「只是停住然后消失，难判断」。
+	#     注意要在敌人被 queue_free（1.7s）之前采样，且每帧判有效性——
+	#     脚本模式协程里访问已释放对象会直接中断后面的 quit()，整个步骤挂到超时。
+	var dying := _nearest_enemy(director)
+	if dying != null:
+		var dm := dying.model_for_test()
+		var scale_before := dm.scale
+		var y_before := dm.position.y
+		var rot_before := dm.rotation_degrees.x
+		dying.take_damage(999999.0, camera.global_position, false)
+		var changed := false
+		for _i in range(90):
+			await physics_frame
+			if not is_instance_valid(dm):
+				changed = true  # 提前被清理也算「有交代」
+				break
+			if absf(dm.position.y - y_before) > 0.05 or dm.scale.distance_to(scale_before) > 0.02 \
+					or absf(dm.rotation_degrees.x - rot_before) > 1.0:
+				changed = true
+				break
+		_check(changed, "死亡必须有可见交代（下沉 / 缩小 / 倒地），不能只是停住再消失")
+	else:
+		_check(false, "找不到用于验证死亡表现的敌人")
 
 	# 6) 震屏：重反馈武器（霰弹 recoil 0.26）必须把 trauma 顶起来；
 	#    步枪单发 trauma 只有 0.05、衰减 3.2/s，16ms 就归零——那是「连射不该微抖」的设计意图，
@@ -189,6 +242,26 @@ func arena_has_spawns(main: Node) -> bool:
 func _load_main() -> Node:
 	var packed := load("res://scenes/main.tscn") as PackedScene
 	return packed.instantiate()
+
+
+func _count_shots_while_held(weapon: WeaponController, id: String, frames: int) -> int:
+	weapon.set_trigger(false)
+	weapon.select(0 if id == "assault_rifle" else 1)
+	var before := weapon.mag()
+	weapon.set_trigger(true)
+	for _i in range(frames):
+		await physics_frame
+	weapon.set_trigger(false)
+	return before - weapon.mag()
+
+
+func _count_colliders(node: Node) -> int:
+	var n := 0
+	if node is CollisionShape3D or node is StaticBody3D or node is Area3D:
+		n += 1
+	for c in node.get_children():
+		n += _count_colliders(c)
+	return n
 
 
 func _first_shaker() -> CameraShake:

@@ -24,6 +24,8 @@ var _stagger_left: float = 0.0
 var _attack_ready_at: float = 0.0
 var _anim: AnimationPlayer
 var _model: Node3D
+var _meshes: Array[MeshInstance3D] = []
+var _flash_mat: StandardMaterial3D
 var _player: Node3D
 var _bob_phase: float = 0.0
 var _time: float = 0.0
@@ -39,6 +41,15 @@ func _ready() -> void:
 	add_to_group("enemies")
 	_model = _find_model(self)
 	_anim = _find_anim_player(self)
+	_meshes = _collect_meshes(self)
+	# 受击闪白靠 material_overlay：不改模型自带材质（GLB 的材质是共享资源，
+	# 改一份会让所有同模型敌人都跟着闪），overlay 是每个实例自己的覆盖层。
+	_flash_mat = StandardMaterial3D.new()
+	_flash_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_flash_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_flash_mat.albedo_color = Color(1, 1, 1, 0.0)
+	for mi in _meshes:
+		mi.material_overlay = _flash_mat
 	_player = get_tree().get_first_node_in_group("PlayerCharacter")
 
 
@@ -77,6 +88,7 @@ func take_damage(raw_amount: float, _from_position: Vector3, executed: bool = fa
 		_die(executed)
 		return true
 	damaged.emit(enemy_type)
+	_flash_hit()
 	# 一刀秒杀不该硬直（那是重武器/爆头的爽点），小口径连发才需要被打断
 	if eff < _max_hp * 0.22:
 		_stagger_left = 0.22
@@ -86,6 +98,11 @@ func take_damage(raw_amount: float, _from_position: Vector3, executed: bool = fa
 
 func is_dead() -> bool:
 	return _dead
+
+
+## 供冒烟测试检查死亡表现是否真的动了（倒地/下沉/缩小都作用在 _model 上）。
+func model_for_test() -> Node3D:
+	return _model
 
 
 func _apply_movement(decision: Dictionary, dir_flat: Vector3, speed: float, delta: float) -> void:
@@ -136,7 +153,8 @@ func _die(executed: bool) -> void:
 	_hp = 0.0
 	collision_layer = 0
 	set_physics_process(false)
-	_play_anim("death")
+	_spawn_kill_burst()
+	_play_death_motion()
 	died.emit(enemy_type, executed)
 	# 通知波次管理器与武器层（各自用 group 接，避免互相持有引用形成耦合）
 	get_tree().call_group("wave_director", "on_enemy_died", enemy_type, executed)
@@ -146,8 +164,82 @@ func _die(executed: bool) -> void:
 		var heal := EnemyTable.field(enemy_type, "reward_health")
 		if heal > 0.0:
 			get_tree().call_group("player_vitals", "heal", heal)
-	var timer := get_tree().create_timer(3.0)
+	var timer := get_tree().create_timer(1.7)
 	timer.timeout.connect(queue_free)
+
+
+## 受击闪白。用 material_overlay 而不是改模型自带材质——后者是共享资源，
+## 改一份会让场上所有同型号敌人一起闪。
+func _flash_hit() -> void:
+	if _flash_mat == null:
+		return
+	_flash_mat.albedo_color = Color(1, 1, 1, 0.62)
+	var t := create_tween()
+	t.tween_property(_flash_mat, "albedo_color:a", 0.0, 0.11)
+
+
+## 死亡交代：倒地 + 下沉 + 缩小。
+## 用户反馈原话是「只是停住然后消失，难判断」——有内置 Death 动画的（trooper/drone）
+## 光靠动画仍不够明确，所以动画播完照样下沉缩小；没动画的（charger/heavy）先做倒地。
+func _play_death_motion() -> void:
+	var had_anim := _play_anim("death")
+	if _model == null:
+		return
+	if not had_anim:
+		var tip := create_tween()
+		tip.tween_property(_model, "rotation_degrees:x", 76.0, 0.4)
+	var sink := create_tween()
+	sink.tween_interval(0.9 if had_anim else 0.45)
+	sink.tween_property(_model, "position:y", _model.position.y - 0.62, 0.55)
+	sink.set_parallel(true)
+	sink.tween_property(_model, "scale", Vector3.ONE * 0.5, 0.55)
+
+
+## 击杀爆点：一次性粒子 + 短促亮点，让「打死了」在画面和节奏上都有明确落点。
+func _spawn_kill_burst() -> void:
+	var pmat := ParticleProcessMaterial.new()
+	pmat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	pmat.emission_sphere_radius = 0.45
+	pmat.direction = Vector3(0, 1, 0)
+	pmat.spread = 180.0
+	pmat.initial_velocity_min = 3.5
+	pmat.initial_velocity_max = 9.5
+	pmat.gravity = Vector3(0, -14.0, 0)
+
+	var chunk := SphereMesh.new()
+	chunk.radius = 0.07
+	chunk.height = 0.14
+
+	var fx := GPUParticles3D.new()
+	fx.process_material = pmat
+	fx.draw_pass_1 = chunk
+	fx.amount = 26
+	fx.lifetime = 0.6
+	fx.one_shot = true
+	fx.explosiveness = 1.0
+	# 先入树再定位：节点不在树里时写 global_position 会报 !is_inside_tree() 并丢掉位置
+	get_parent().add_child(fx)
+	fx.global_position = global_position + Vector3(0, 1.0, 0)
+	fx.emitting = true
+
+	var light := OmniLight3D.new()
+	light.light_energy = 7.0
+	light.omni_range = 6.0
+	light.light_color = Color(1.0, 0.75, 0.45)
+	fx.add_child(light)
+	var t := fx.create_tween()
+	t.tween_property(light, "light_energy", 0.0, 0.2)
+	var cleanup := get_tree().create_timer(1.4)
+	cleanup.timeout.connect(fx.queue_free)
+
+
+func _collect_meshes(node: Node) -> Array[MeshInstance3D]:
+	var out: Array[MeshInstance3D] = []
+	for c in node.get_children():
+		if c is MeshInstance3D:
+			out.append(c as MeshInstance3D)
+		out.append_array(_collect_meshes(c))
+	return out
 
 
 func _has_los(target: Node3D) -> bool:

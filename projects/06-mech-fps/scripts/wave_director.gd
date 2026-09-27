@@ -86,6 +86,19 @@ func is_finished() -> bool:
 	return _phase == Phase.DONE
 
 
+## 本波还没处理的敌人 = 场上活着的 + 队列里等着出的。HUD 显示「剩余 M」用。
+func remaining() -> int:
+	return _alive + _queue.size()
+
+
+func wave_number() -> int:
+	return _wave_index + 1
+
+
+func total_waves() -> int:
+	return _waves.size()
+
+
 func _spawn_next() -> void:
 	var type: String = _queue.pop_front()
 	var path := String(ENEMY_SCENES.get(type, ""))

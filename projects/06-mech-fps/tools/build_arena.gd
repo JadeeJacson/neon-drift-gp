@@ -11,6 +11,24 @@ extends SceneTree
 
 const OUT_PATH := "res://scenes/arena.tscn"
 const TEX_DIR := "res://assets/textures/prototype/"
+const PROP_DIR := "res://assets/models/environment/space-kit/"
+
+## 装饰层（Kenney Space Kit，实测 1 模块 = 1 米、**零碰撞体**，所以不会造出空气墙）。
+## 只贴墙、只上高台、只铺地面嵌板——中央通路一个摆件都不放，
+## 否则无寻路的敌人会被装饰物卡住（练习期教训：能看见的障碍 = 必须能绕过的障碍）。
+const WALL_PANEL := "structure_detailed.glb"
+const WALL_PIPE := "pipe_straight.glb"
+const COLUMN := "pipe_supportHigh.glb"
+const BIG_MACHINE := "machine_generatorLarge.glb"
+const DISH := "satelliteDish.glb"
+const TURRET := "turret_single.glb"
+const GATE := "gate_simple.glb"
+const RAIL := "rail.glb"
+const RAIL_CORNER := "rail_corner.glb"
+const DESK := "desk_computer.glb"
+const BARREL := "machine_barrelLarge.glb"
+const FLOOR_TILE := "platform_large.glb"
+const STAIRS := "stairs.glb"
 
 ## 出怪点：贴外墙与四角高台顶，中心留空（玩家出生点周围不能有出怪口，
 ## 否则第一波直接刷在脸上，滑铲起手空间为 0）。y 取碰撞体顶面 +0.1 防嵌入。
@@ -116,6 +134,7 @@ func _initialize() -> void:
 
 	_add_atmosphere(root)
 	_add_spawns(root)
+	var props := _add_props(root)
 
 	var packed := PackedScene.new()
 	var err := packed.pack(root)
@@ -130,10 +149,89 @@ func _initialize() -> void:
 		quit(1)
 		return
 
-	print("关卡生成完成：%d 个碰撞体 / %d 三角面 → %s" % [boxes, tris, OUT_PATH])
+	print("关卡生成完成：%d 个碰撞体 / %d 三角面 / %d 个装饰件 → %s" % [boxes, tris, props, OUT_PATH])
 	# pack() 已复制数据，释放临时节点避免退出时的 RID 泄漏警告污染验证输出
 	root.free()
 	quit(0)
+
+
+## 装饰层。每件都是独立绘制调用，所以留了密度上限：壁板间距 8 米、栏杆每边 3 段，
+## 实测落在 ~130 件。真实 draw call 只能在游戏内用编辑器 profiler 看（headless 测不到），
+## 所以这条是预算而不是测量值——观感不够再往上加，加完请实跑看帧数。
+func _add_props(root: Node3D) -> int:
+	var holder := Node3D.new()
+	holder.name = "Props"
+	root.add_child(holder)
+	holder.owner = root
+	var n := 0
+
+	# 1) 四面墙壁板 + 立柱 + 中段管线
+	for side in [-1, 1]:
+		for i in range(-24, 25, 8):
+			n += _prop(holder, WALL_PANEL, Vector3(float(i), 3.0, side * 28.4),
+				Vector3(0, 0 if side > 0 else 180, 0), 3.0)
+			n += _prop(holder, COLUMN, Vector3(float(i) + 3.0, 1.5, side * 28.8),
+				Vector3.ZERO, 3.0)
+			n += _prop(holder, WALL_PIPE, Vector3(float(i), 6.5, side * 28.6),
+				Vector3(0, 90, 0), 2.0)
+			n += _prop(holder, WALL_PANEL, Vector3(side * 28.4, 3.0, float(i)),
+				Vector3(0, 90 if side > 0 else -90, 0), 3.0)
+			n += _prop(holder, COLUMN, Vector3(side * 28.8, 1.5, float(i) + 3.0),
+				Vector3.ZERO, 3.0)
+
+	# 2) 四面墙中央的门（地标，也给玩家一个「那边是出口」的方向感）
+	n += _prop(holder, GATE, Vector3(0, 0, -28.2), Vector3.ZERO, 3.0)
+	n += _prop(holder, GATE, Vector3(0, 0, 28.2), Vector3(0, 180, 0), 3.0)
+	n += _prop(holder, GATE, Vector3(-28.2, 0, 0), Vector3(0, 90, 0), 3.0)
+	n += _prop(holder, GATE, Vector3(28.2, 0, 0), Vector3(0, -90, 0), 3.0)
+
+	# 3) 高台顶部：外沿栏杆 + 控制台 + 大桶 + 角炮塔
+	for cx in [-18, 18]:
+		for cz in [-18, 18]:
+			var top := 6.0
+			for k in range(-4, 5, 4):
+				n += _prop(holder, RAIL, Vector3(float(cx) + float(k) * 1.1, top + 0.1, cz - 5.0),
+					Vector3.ZERO, 3.4)
+				n += _prop(holder, RAIL, Vector3(cx - 5.0, top + 0.1, float(cz) + float(k) * 1.1),
+					Vector3(0, 90, 0), 3.4)
+			n += _prop(holder, RAIL_CORNER, Vector3(cx - 5.0, top + 0.1, cz - 5.0),
+				Vector3(0, 0 if (cx < 0 and cz < 0) else 180, 0), 2.4)
+			n += _prop(holder, DESK, Vector3(cx + 2.0, top, cz + 1.0), Vector3(0, 180, 0), 2.2)
+			n += _prop(holder, BARREL, Vector3(cx - 1.5, top, cz + 2.5), Vector3.ZERO, 2.0)
+			n += _prop(holder, TURRET, Vector3(cx + 2.5, top, cz + 2.5), Vector3(0, 90, 0), 2.0)
+
+	# 4) 墙脚大机器与天线（避开中央通路，也避开高台的滑铲下坡口）
+	for pos in [Vector3(-26, 0, 10), Vector3(26, 0, -10), Vector3(-10, 0, 26), Vector3(10, 0, -26)]:
+		n += _prop(holder, BIG_MACHINE, pos, Vector3(0, 45, 0), 3.0)
+	for pos in [Vector3(26, 0, 12), Vector3(-26, 0, -12), Vector3(12, 0, 26), Vector3(-12, 0, -26)]:
+		n += _prop(holder, DISH, pos, Vector3(0, 30, 0), 3.0)
+
+	# 5) 中央地面嵌板：纯平面（无碰撞），把「一大片灰地板」切成有刻度感的甲板
+	for i in range(-2, 3):
+		for j in range(-2, 3):
+			if absi(i) + absi(j) < 2:
+				continue  # 正中心留空，玩家出生与交火的主区域保持干净
+			n += _prop(holder, FLOOR_TILE, Vector3(float(i) * 4.0, 0.03, float(j) * 4.0),
+				Vector3(0, 0, 0), 1.0)
+
+	print("    装饰件 %d 个（无碰撞，不影响寻路与视线判定）" % n)
+	return n
+
+
+func _prop(holder: Node3D, file: String, pos: Vector3, rot: Vector3, s: float) -> int:
+	var path := PROP_DIR + file
+	if not ResourceLoader.exists(path):
+		push_warning("装饰模块缺失：%s" % file)
+		return 0
+	var inst := (load(path) as PackedScene).instantiate()
+	inst.position = pos
+	inst.rotation_degrees = rot
+	inst.scale = Vector3(s, s, s)
+	holder.add_child(inst)
+	# owner 必须是 root（且此时 holder 已在 root 下），否则 pack() 会静默丢掉内容——
+	# 见 docs/00 §5.0 的 owner 赋值顺序教训
+	inst.owner = holder.owner
+	return 1
 
 
 ## 氛围层：光照 + 天空 + 雾 + glow。硬约束 §0.4「能看」的最小实现，

@@ -76,6 +76,19 @@ func test_mag_and_reserve_sane() -> void:
 		assert_gte(per_mag, 1.5, "%s 一匣打不倒 1.5 个射手，换弹会打断节奏" % id)
 
 
+## 射击模式分工：只有步枪可以按住连发。
+## 三把都能连发时，单发伤害高的那把就没有存在理由，生态位会塌成一把。
+func test_fire_mode_roles() -> void:
+	assert_eq(WeaponTable.fire_mode("assault_rifle"), "auto", "步枪必须全自动，否则玩家要狂点鼠标")
+	assert_eq(WeaponTable.fire_mode("shotgun"), "pump", "霰弹是泵动")
+	assert_eq(WeaponTable.fire_mode("dmr_sniper"), "semi", "精确射手半自动")
+	var autos := 0
+	for id in WeaponTable.ids():
+		if WeaponTable.is_automatic(String(id)):
+			autos += 1
+	assert_eq(autos, 1, "首发三把枪里只能有一把自动武器")
+
+
 func test_unknown_id_is_rejected() -> void:
 	assert_false(WeaponTable.has_id("laser_cannon"), "未登记的武器不该存在")
 	assert_false(EnemyTable.has_type("boss"), "未登记的敌型不该存在")
