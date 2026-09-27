@@ -28,7 +28,13 @@ var _spawn_cursor: int = 0
 var _next_spawn_at: float = 0.0
 var _interval: float = 1.5
 var _cap: int = 6
-var _finished: bool = false
+enum Phase { IDLE, SPAWNING, INTERMISSION, DONE }
+
+## 阶段机是必需的，不是讲究：原本写成「队列空 + 无敌人 → 清波」，
+## 结果 _physics_process 每帧都满足这个条件，于是每帧发一次清波补给、
+## 每帧再排一个下一波计时器。实跑截图上「精确射手 4 / 5430」的发财弹量就是这么来的
+## （144fps × 6 秒间歇 × 36 发）。多排的计时器还会让波次被重复推进。
+var _phase: Phase = Phase.IDLE
 var _player_vitals: PlayerVitals
 
 
@@ -53,8 +59,8 @@ func start() -> void:
 	_next_wave()
 
 
-func _physics_process(delta: float) -> void:
-	if _finished or _wave_index < 0:
+func _physics_process(_delta: float) -> void:
+	if _phase != Phase.SPAWNING:
 		return
 	var now := Time.get_ticks_msec() / 1000.0
 	if _queue.is_empty():
@@ -73,11 +79,11 @@ func on_enemy_died(_enemy_type: String, _executed: bool) -> void:
 
 
 func stop() -> void:
-	_finished = true
+	_phase = Phase.DONE
 
 
 func is_finished() -> bool:
-	return _finished
+	return _phase == Phase.DONE
 
 
 func _spawn_next() -> void:
@@ -104,7 +110,7 @@ func _spawn_next() -> void:
 func _next_wave() -> void:
 	_wave_index += 1
 	if _wave_index >= _waves.size():
-		_finished = true
+		_phase = Phase.DONE
 		victory.emit()
 		return
 	var wave: Dictionary = _waves[_wave_index]
@@ -122,10 +128,14 @@ func _next_wave() -> void:
 		_queue[i] = _queue[j]
 		_queue[j] = tmp
 	_next_spawn_at = Time.get_ticks_msec() / 1000.0 + 1.0
+	_phase = Phase.SPAWNING
 	wave_started.emit(_wave_index + 1, _waves.size(), _queue.size())
 
 
 func _clear_wave() -> void:
+	# 先切阶段再发奖励：清波条件（队列空 + 场上无人）会持续成立，
+	# 不在这里立刻离开 SPAWNING，奖励与下一波计时器就会每帧重复。
+	_phase = Phase.INTERMISSION
 	var wave: Dictionary = _waves[_wave_index]
 	var bonus := int(wave.clear_bonus)
 	get_tree().call_group("weapon", "add_reserve", bonus)

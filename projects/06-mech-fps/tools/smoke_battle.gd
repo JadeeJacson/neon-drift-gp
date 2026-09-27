@@ -103,8 +103,10 @@ func _initialize() -> void:
 		weapon.select(1)
 		weapon.try_fire()
 		await physics_frame
-		_check(shaker.trauma_for_test() >= 0.2,
-			"霰弹开火后 trauma 应≥0.2（实测 %.3f）" % shaker.trauma_for_test())
+		# 阈值取 0.15：步枪满 trauma 只有 0.05（绝不可能过线），霰弹 0.26 扣掉一帧衰减
+		# （3.2/s × 16.7ms ≈ 0.05）后仍有约 0.20。取中间值才不会因为帧时序抖动而假失败。
+		_check(shaker.trauma_for_test() >= 0.15,
+			"霰弹开火后 trauma 应≥0.15（实测 %.3f）" % shaker.trauma_for_test())
 		for _i in range(240):
 			await physics_frame
 		_check(absf(shaker.trauma_for_test()) < 0.0001, "trauma 必须衰减到 0，不能残留偏移")
