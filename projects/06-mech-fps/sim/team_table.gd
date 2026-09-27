@@ -19,6 +19,15 @@ const SCORE_PER_KILL := 1
 const FRIENDLY_FIRE := false
 
 
+## 碰撞层口径（与 player/enemy 场景里的 collision_layer 一致）：
+## 敌人 4、玩家自身 2、关卡 1。队友 bot 单独占一层 8，这样玩家武器的射线
+## （mask = 1|4）**天然穿过后不会打在队友身上**，不需要在射击路径上加特判。
+const LAYER_WORLD := 1
+const LAYER_PLAYER := 2
+const LAYER_ENEMY := 4
+const LAYER_FRIENDLY := 8
+
+
 static func score_for(kills: int) -> int:
 	assert(kills >= 0, "击杀数不能为负")
 	return kills * SCORE_PER_KILL

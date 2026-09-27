@@ -19,6 +19,8 @@ var _ammo_mag: Label
 var _ammo_reserve: Label
 var _ammo_hint: Label
 var _wave_label: Label
+var _team_label: Label
+var _team_mode := false
 var _kills_label: Label
 var _message: Label
 var _hitmarker: Label
@@ -152,9 +154,39 @@ func _on_defeat() -> void:
 
 
 func _on_died() -> void:
+	# 团队模式里玩家死了会重生，不该弹「防线失守」那张结算屏
+	if _team_mode:
+		return
 	for director in get_tree().get_nodes_in_group("wave_director"):
 		director.stop()
 	_on_defeat()
+
+
+## 切到团队歼灭的显示口径：藏掉波次条，顶栏换成「我方 : 敌方 · 剩余时间」。
+func show_team_mode() -> void:
+	_team_mode = true
+	if _wave_label != null:
+		_wave_label.visible = false
+	if _team_label == null:
+		var root := get_node_or_null(^"Root")
+		if root == null:
+			push_error("HUD 还没有 _build()，无法挂团队比分行")
+			return
+		_team_label = _make_label("team", Vector2(0, 22), 26, HORIZONTAL_ALIGNMENT_CENTER)
+		_team_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
+		root.add_child(_team_label)
+	set_team_score(0, 0, TeamTable.TIME_LIMIT)
+
+
+func set_team_score(side_a: int, side_b: int, remaining: float) -> void:
+	if _team_label == null:
+		return
+	var secs := int(maxf(remaining, 0.0))
+	_team_label.text = "我方 %d : %d 敌方 · 剩余 %d:%02d" % [side_a, side_b, secs / 60, secs % 60]
+
+
+func team_score_text_for_test() -> String:
+	return "" if _team_label == null else _team_label.text
 
 
 ## 供冒烟测试读取（控件边界与文本都要能被断言检查）

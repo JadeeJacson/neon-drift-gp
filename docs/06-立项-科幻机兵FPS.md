@@ -343,6 +343,29 @@ engines/godot/4.7.2/Godot_v4.7.2-stable_win64.exe --path projects/06-mech-fps \
 循环模式），不能量「引擎说它在做」的量（current_animation、play() 的返回值）。前者才是 §4.2 说的
 「可断言的表现」，后者只是自证。
 
+### 7.2d 团队歼灭 5v5（2026-09-27 起，本机 bot）
+
+制作人定的方向：**主模式改成本机 bot 的 5v5 团队枪战，波次生存保留为可选模式**。
+落地情况（第一条能跑、能被断言的切片）：
+
+| 层 | 东西 | 状态 |
+|---|---|---|
+| 规则 | `sim/team_table.gd`（队大小 / 先到 30 杀 / 300 秒上限 / 重生 3 秒 / 友伤关闭） | ✅ 有断言 |
+| 索敌 | `sim/targeting.gd`（阵营、视距、朝向锥、平票按下标定序） | ✅ 有断言 |
+| 装配 | `scripts/team_director.gd`（两队生成、计分、重生、判胜负）+ `scripts/enemy_controller.gd` 的 `team` / `acquire_range` / `push_point` | ✅ 独立冒烟 `tools/smoke_team.gd` |
+| 界面 | HUD 顶栏「我方 x : y 敌方 · 剩余 m:ss」，玩家死亡不再弹「防线失守」 | ✅ |
+| 入口 | `-- --mode=team`（默认仍是 `wave`，波次那套七步全绿未受影响） | ✅ |
+
+两个**已知没做好**的地方，别当成已完成：
+1. **击杀节奏太慢**：60 秒只有 1 次击杀。原因是 trooper 的 TTK≈18 秒（160HP / 13伤 / 1.4秒间隔），
+   而 60×60 的竞技场里两队隔着 50 米只有零星几个单位接触。这正是要换运输船图（狭长、接触面大）的理由之一，
+   但真正的答案是 `sim/team_match_sim.gd`（任务 #28）——先有 5v5 的统计断言，再谈数值。
+2. **`smoke_team.gd` 还没进 `verify.mjs`**：那个文件此刻正被别的 agent 改动，等它空出来再加第 8 步。
+
+顺带记一条验证口径的漏洞（本轮撞上）：**GUT 对解析失败的 test_*.gd 是静默忽略的**，
+只打一条 warning，照样报 "All tests passed"。已在 `test_smoke.gd` 加守卫（把目录里每个测试文件
+真的 load 一遍），并用一个故意写坏的文件验证过它会红。
+
 ### 7.3 启动方式与键位
 
 
@@ -350,6 +373,13 @@ engines/godot/4.7.2/Godot_v4.7.2-stable_win64.exe --path projects/06-mech-fps \
 
 ```bash
 engines/godot/4.7.2/Godot_v4.7.2-stable_win64.exe --path projects/06-mech-fps
+```
+
+两种模式（在 lab 根）：
+
+```bash
+engines/godot/4.7.2/Godot_v4.7.2-stable_win64.exe --path projects/06-mech-fps              # 波次生存（默认）
+engines/godot/4.7.2/Godot_v4.7.2-stable_win64.exe --path projects/06-mech-fps -- --mode=team  # 团队歼灭 5v5
 ```
 
 键位：`WASD` 移动 · `Shift` 冲刺 · `Space` 跳（可二段）· `C` 滑铲/下蹲 · `Ctrl` dash ·

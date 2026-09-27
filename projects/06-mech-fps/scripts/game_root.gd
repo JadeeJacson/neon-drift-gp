@@ -9,6 +9,9 @@ class_name GameRoot
 @export var director_path: NodePath = ^"WaveDirector"
 @export var hud_path: NodePath = ^"Hud"
 @export var bgm_path: NodePath = ^"Bgm"
+## 对局模式：wave（5 波生存）| team（5v5 团队歼灭）。
+## 命令行 `-- --mode=team` 优先于这个导出字段，这样制作人不用改文件就能对比两种玩法。
+@export var mode := "wave"
 
 
 func _ready() -> void:
@@ -33,7 +36,45 @@ func _ready() -> void:
 	_place_player_at_spawn(player, spawn_points)
 	hud.bind_player(player)
 	_hook_bgm()
-	director.setup(spawn_points, vitals)
+	if _resolve_mode() == "team":
+		_start_team_mode(director, spawn_points, player, vitals, hud)
+	else:
+		director.setup(spawn_points, vitals)
+
+
+func _resolve_mode() -> String:
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--mode="):
+			return arg.trim_prefix("--mode=")
+	return mode
+
+
+## 团队模式的装配。TeamDirector 在代码里 new 而不是写进 main.tscn：
+## 与 GameRoot 其余接线同理——场景树会被工具重新生成，路径散在 XML 里迟早对不上。
+func _start_team_mode(wave: WaveDirector, spawn_points: Node3D, player: Node3D,
+		vitals: PlayerVitals, hud: GameHud) -> void:
+	wave.stop()
+	var team := TeamDirector.new()
+	team.name = "TeamDirector"
+	add_child(team)
+	team.setup(spawn_points, player, vitals)
+	hud.show_team_mode()
+	team.score_changed.connect(func(a: int, b: int) -> void:
+		hud.set_team_score(a, b, TeamTable.TIME_LIMIT - team.elapsed))
+	team.match_ended.connect(func(winner: int, a: int, b: int) -> void:
+		match winner:
+			TeamTable.TEAM_A:
+				hud.announce("我方 %d : %d 胜利
+回车重开" % [a, b])
+			TeamTable.TEAM_B:
+				hud.announce("我方 %d : %d 失利
+回车重开" % [a, b])
+			_:
+				hud.announce("%d : %d 平局
+回车重开" % [a, b])
+		print("TEAM 结束 winner=%d 比分=%d:%d 用时=%.1fs" % [winner, a, b, team.elapsed]))
+	print("TEAM 模式启动：每队 %d 人，先到 %d 杀或 %d 秒判" % [
+		TeamTable.TEAM_SIZE, TeamTable.KILLS_TO_WIN, int(TeamTable.TIME_LIMIT)])
 
 
 ## BGM 跟着波次状态走：开波切战斗轨，清波切紧张轨，结算收掉。

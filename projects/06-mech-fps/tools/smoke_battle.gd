@@ -277,6 +277,33 @@ func _initialize() -> void:
 	main.remove_child(soldier)
 	soldier.free()
 
+	# 5g) 阵营索敌：bot 的目标必须是「最近的敌方单位」，不是永远盯着玩家。
+	#     这是团队模式（玩家 + 4 个队友 bot 对 5 个敌人）能不能成立的前提。
+	#     两个 bot 放在交火线之外（z=6/8，玩家朝 -X 打），免得干扰别的断言。
+	var ally := (load("res://scenes/enemies/trooper_soldier.tscn") as PackedScene).instantiate() as EnemyController
+	ally.team = TeamTable.TEAM_A
+	main.add_child(ally)
+	ally.global_position = Vector3(-10, 0.1, 6)
+	var foe := (load("res://scenes/enemies/trooper_soldier.tscn") as PackedScene).instantiate() as EnemyController
+	main.add_child(foe)
+	foe.global_position = Vector3(-10, 0.1, 8)
+	for _i in range(30):
+		await physics_frame
+	_check(foe.target_for_test() == ally,
+		"敌方 bot 应打最近的敌方单位（队友 bot），而不是永远盯着玩家")
+	_check(ally.collision_layer == TeamTable.LAYER_FRIENDLY,
+		"队友 bot 必须走独立碰撞层，玩家武器的射线才不会打中自己人")
+	var before := ally.hp_for_test()
+	weapon.select(0)
+	for _i in range(10):
+		weapon.try_fire()
+		await physics_frame
+	_check(ally.hp_for_test() == before, "玩家朝队友方向开枪不该掉队友血")
+	main.remove_child(foe)
+	foe.free()
+	main.remove_child(ally)
+	ally.free()
+
 	# 6) 震屏：重反馈武器（霰弹 recoil 0.26）必须把 trauma 顶起来；
 	#    步枪单发 trauma 只有 0.05、衰减 3.2/s，16ms 就归零——那是「连射不该微抖」的设计意图，
 	#    所以不能用步枪做这条断言（第一版就是这么误判成 FAIL 的）。

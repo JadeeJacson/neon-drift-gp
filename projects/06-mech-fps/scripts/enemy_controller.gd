@@ -30,6 +30,16 @@ signal died(enemy_type: String, executed: bool)
 signal damaged(enemy_type: String)
 
 @export var enemy_type: String = "trooper"
+## 阵营：TeamTable.TEAM_A（玩家队）/ TEAM_B（敌方）。
+## 波次模式全部用默认的 TEAM_B，所以那一层的既有行为一字不变。
+@export var team: int = TeamTable.TEAM_B
+## 索敌半径（米）。0 = 不限，等价于「永远知道目标在哪」——波次模式要的就是这个，
+## 否则远角刷出来的怪会原地不动（那是行为回归，不是改进）。
+## 团队模式由 TeamDirector 设成船体长度量级，逼 bot 往前压而不是隔图对枪。
+@export var acquire_range: float = 0.0
+## 没看见任何敌人时往哪儿推进（团队模式用）。INF = 不推进，保持波次模式的原行为。
+## 没有这条的话 bot 会「看不见就原地罚站」，两队隔着 50 米对峙到时间结束——实测就是这样零击杀。
+@export var push_point: Vector3 = Vector3.INF
 
 var _hp: float
 var _max_hp: float
@@ -42,6 +52,7 @@ var _model: Node3D
 var _meshes: Array[MeshInstance3D] = []
 var _flash_mat: StandardMaterial3D
 var _player: Node3D
+var _target: Node3D          # 本帧锁定的攻击对象（阵营索敌的结果）
 var _bob_phase: float = 0.0
 var _time: float = 0.0
 var _dead: bool = false
@@ -51,9 +62,12 @@ func _ready() -> void:
 	assert(EnemyTable.has_type(enemy_type), "未登记的敌型: " + enemy_type)
 	_hp = EnemyTable.hp(enemy_type)
 	_max_hp = _hp
-	collision_layer = 4
-	collision_mask = 1 | 2
+	# 队友 bot 走独立碰撞层，玩家武器的射线 mask 只含 world|enemy，
+	# 天然不会把队友当靶子（不用在射击代码里加「是不是友军」的特判）。
+	collision_layer = TeamTable.LAYER_FRIENDLY if team == TeamTable.TEAM_A else TeamTable.LAYER_ENEMY
+	collision_mask = TeamTable.LAYER_WORLD | TeamTable.LAYER_PLAYER
 	add_to_group("enemies")
+	add_to_group("combatants")
 	_model = _find_model(self)
 	_anim = _find_anim_player(self)
 	_skeleton = find_child("Skeleton3D", true, false) as Skeleton3D
@@ -72,17 +86,24 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if _dead or _player == null:
+	if _dead:
 		return
+	var target := _acquire_target()
+	if target == null:
+		_push_toward_objective(delta)
+		return
+	if _player == null:
+		return
+	_target = target
 	var now := Time.get_ticks_msec() / 1000.0
 	_stagger_left = maxf(0.0, _stagger_left - delta)
 
-	var to_player := _player.global_position - global_position
+	var to_player := target.global_position - global_position
 	var flat := Vector3(to_player.x, 0.0, to_player.z)
 	var distance := flat.length()
 	var decision := EnemyAI.decide(enemy_type, {
 		"distance": distance,
-		"has_los": _has_los(_player),
+		"has_los": _has_los(target),
 		"attack_ready": now >= _attack_ready_at,
 		"hp_ratio": _hp / _max_hp,
 		"cover_available": _cover_available(),
@@ -94,7 +115,65 @@ func _physics_process(delta: float) -> void:
 
 	if bool(decision.fire) and now >= _attack_ready_at:
 		_attack_ready_at = now + EnemyTable.field(enemy_type, "attack_interval")
-		_attack(_player)
+		_attack(target)
+
+
+## 视野里没有敌人：朝推进点走，同时继续受重力。到点附近就停下等（避免贴着墙抖）。
+func _push_toward_objective(delta: float) -> void:
+	_target = null
+	var speed := EnemyTable.field(enemy_type, "speed")
+	if push_point.is_finite():
+		var to := push_point - global_position
+		var flat := Vector3(to.x, 0.0, to.z)
+		if flat.length() > 2.0:
+			velocity.x = flat.normalized().x * speed * 0.75
+			velocity.z = flat.normalized().z * speed * 0.75
+			_play_anim("run")
+		else:
+			velocity.x = move_toward(velocity.x, 0.0, speed * delta * 6.0)
+			velocity.z = move_toward(velocity.z, 0.0, speed * delta * 6.0)
+			_play_anim("idle")
+	else:
+		velocity.x = 0.0
+		velocity.z = 0.0
+	velocity.y = 0.0 if is_on_floor() else velocity.y - GRAVITY * delta
+	move_and_slide()
+
+
+## 每帧从 combatants 组里挑「该打谁」。纯判定都在 sim/targeting.gd 里（可在 --headless 下断言），
+## 这里只负责把真实节点映射成 {team, pos} 并取回节点。
+func _acquire_target() -> Node3D:
+	var units: Array = []
+	for n in get_tree().get_nodes_in_group("combatants"):
+		var c := n as Node3D
+		if c == null or c == self or not _unit_alive(c):
+			continue
+		units.append({"team": unit_team(c), "pos": c.global_position, "node": c})
+	if _player != null and _unit_alive(_player):
+		units.append({"team": TeamTable.TEAM_A, "pos": _player.global_position, "node": _player})
+	var range_m: float = acquire_range if acquire_range > 0.0 else INF
+	var facing := -global_transform.basis.z
+	var idx := Targeting.acquire(units, team, global_position, facing, range_m)
+	if idx < 0:
+		# 朝向锥里没有敌人：退到「无锥」再找一次，让 bot 转身应敌而不是原地发呆
+		idx = Targeting.acquire(units, team, global_position, Vector3.ZERO, range_m)
+	if idx < 0:
+		return null
+	return units[idx]["node"] as Node3D
+
+
+## 阵营与存活状态：队友 bot 也是 EnemyController，玩家那边只有 Vitals 知道死没死。
+static func unit_team(node: Node) -> int:
+	var foe := node as EnemyController
+	return foe.team if foe != null else TeamTable.TEAM_A
+
+
+func _unit_alive(node: Node) -> bool:
+	var foe := node as EnemyController
+	if foe != null:
+		return not foe.is_dead()
+	var vitals := _find_vitals(node)
+	return vitals == null or not vitals.is_dead()
 
 
 func take_damage(raw_amount: float, _from_position: Vector3, executed: bool = false) -> bool:
@@ -112,6 +191,15 @@ func take_damage(raw_amount: float, _from_position: Vector3, executed: bool = fa
 		_stagger_left = 0.22
 		_play_anim("hurt")
 	return false
+
+
+func hp_for_test() -> float:
+	return _hp
+
+
+## 冒烟用：本帧锁定的目标是谁。阵营接错时（比如永远盯着玩家）只有这里能看出来。
+func target_for_test() -> Node3D:
+	return _target
 
 
 func is_dead() -> bool:
@@ -191,9 +279,14 @@ func _apply_presentation(decision: Dictionary, _now: float, delta: float) -> voi
 
 func _attack(target: Node3D) -> void:
 	_play_anim("shoot")
+	var damage := EnemyTable.field(enemy_type, "attack_damage")
+	# 目标是队友 bot 时它是 EnemyController，不是玩家，走另一条结算
+	if target is EnemyController:
+		(target as EnemyController).take_damage(damage, global_position, false)
+		return
 	var vitals := _find_vitals(target)
 	if vitals != null:
-		vitals.take_damage(EnemyTable.field(enemy_type, "attack_damage"), global_position)
+		vitals.take_damage(damage, global_position)
 
 
 func _die(executed: bool) -> void:

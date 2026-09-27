@@ -47,6 +47,21 @@ func is_dead() -> bool:
 	return _dead
 
 
+## 团队模式的重生：复活 + 满血 + 传送回己方出生点。
+## 波次模式走不到这里（玩家一死就判负），所以这条不影响 PvE 那套结算。
+func revive(at: Vector3) -> void:
+	if not _dead:
+		return
+	_dead = false
+	_hp = max_hp
+	hp_changed.emit(_hp, max_hp)
+	if _body != null:
+		_body.set_physics_process(true)
+		_body.global_position = at
+		_body.velocity = Vector3.ZERO
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+
+
 func _die() -> void:
 	_dead = true
 	died.emit()
