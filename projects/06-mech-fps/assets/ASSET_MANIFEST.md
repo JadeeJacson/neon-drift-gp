@@ -202,6 +202,10 @@ Portions of artwork are based on "FPS Rig AKM" by J-Toastie (poly.pizza/m/U6l6wj
 
 ### 下一步要用（已下载到 `assets/models/weapons/_candidates/`，尚未接入）
 
+候选池的完整清单与「为什么留这几个」见 `assets/models/weapons/_candidates/README.md`。
+首次调研下了 428 个 GLB（140 MB），逐个校验后只留 12 个（7.4 MB），其余删掉——
+留一堆没人用的模型在仓库里只会让人误判「素材已经齐了」。
+
 | 用途 | 文件 | 授权 | 备注 |
 |---|---|---|---|
 | 霰弹（pump） | `shotgun-pump-west-NfQETBKOiw.glb` | CC0（Pichuliru） | 无剪辑，但 `Pump`/`Shell`/`Lifter` 是真骨骼 → 推护木与抛壳可以只打两个关键帧，比 tween 整块网格像样 |
