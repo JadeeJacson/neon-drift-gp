@@ -92,7 +92,7 @@ Poly Pizza 是多人投稿站，**每个模型的尺度、朝向、原点都不�
 中央通路不放任何装饰**——无寻路的敌人被装饰物卡住等于死局（练习期教训）。
 当前 142 件，每件一次 draw call；真实 draw call 与帧数只能在游戏内看（headless 测不到）。
 
-## 2e. 带手的第一人称枪（已入库，**待接入**）
+## 2e. 带手的第一人称枪（**已接入**，2026-09-27 第二轮）
 
 | 项 | 内容 |
 |---|---|
@@ -100,19 +100,45 @@ Poly Pizza 是多人投稿站，**每个模型的尺度、朝向、原点都不�
 | 来源 | Majikay Games / SimpleFPSController，CC0，https://github.com/majikayogames/SimpleFPSController |
 | 实测内容 | 6 网格、188 节点、1 皮肤、51 关节、**89 个 hand/finger 关节**；动画 4 段：`Idle / Reload / Shoot / Unholster` |
 | 导入后的名字坑 | GLB 源文件里叫 `Idle-loop`，**Godot 导入器改成 `Idle`**。按源文件名去播会静默不播（已在 `_play_vm_anim` 加缺 clip 警告） |
+| 接在哪把枪 | `dmr_sniper`（精确射手）。它是 .44 手枪，角色不完全对得上，先用它把「带手 + 真换弹」这条链路跑通 |
 
-**为什么还没接上**（三次尝试的实测数据，别再重复猜）：它是**整套 Rigify 身体骨架**，
-不是「一把枪加两只手」。Idle 姿态下世界包围盒 `1.70 × 1.47 × 1.51 m`，
-中心比相机低 1.07 m、且在相机后方。试过 scale/pos 三组值（0.42/0.28/1.0）全部错位：
-手要么糊满屏幕、要么掉到画面外。
+**上一轮的结论要修正**：当时判断「它是整套 Rigify 身体骨架、按静态枪摆必然错位」是对的，
+但「量包围盒 → 按目标尺寸缩放 → 把中心平移到目标点」这个解法是**错的**——
+带手臂的模型包围盒最长轴是肩膀跨度（实测 1.51 × 1.47 × 1.70 m），不是枪管，
+按盒子中心对齐只会把手臂怼到镜头上。
 
-**正确解法**（下一轮做）：给绑定型 viewmodel 加**自动 fit**——
-在 Weapon 局部空间量出盒子 → 按目标尺寸缩放 → 把盒子中心平移到目标点（如 `(0.12, -0.16, -0.42)`）
-→ 枪口取盒子前端。量盒子必须用**动画姿态下**的包围盒（`tools/capture_view.gd` 已能打印
-`viewmodel_debug()`，含全局 box 与相机 pos/fwd），不能用 bind pose。
+**实际用的解法：两点锚定（`tools/fit_viewmodel.gd`）**。模型里有两个天然锚点：
+握把（`hand_ik_R` 这个 BoneAttachment3D，枪挂在它下面）与枪口（作者留的 `Muzzle` 空网格）。
+量出模型自己的「握把 → 枪口」向量，解一个相似变换（缩放 + 旋转 + 平移）把它映射到
+相机局部空间的目标两点，六个数（rot/scale/pos）就出来了，且脚本会**把解代回场景再量一次**，
+偏差 > 0.02 m 就报 FAIL 不写配置（本轮实测偏差 0.000 m）。
 
-配套能力已就位（静态枪不受影响）：`VIEWMODELS` 支持 `raw`（不自动定向）、`muzzle`（手填枪口点）、
-`anim`（idle/shoot/reload 三段映射到 AnimationPlayer）、`force_reload_for_shot()`。
+```bash
+./engines/godot/4.7.2/Godot_v4.7.2-stable_win64_console.exe --headless --path projects/06-mech-fps \
+  -s res://tools/fit_viewmodel.gd -- --model=res://assets/models/weapons/deagle_viewmodel_hands.glb \
+  --clip=Idle --target-grip=0.23,-0.26,-0.34 --target-muzzle=0.16,-0.18,-0.60
+```
+
+三个只有量出来才知道的事实（省下一轮猜）：
+1. **量必须在动画姿态下量**：`player.seek()` 之前不 `play()` 的话骨骼姿态根本不更新，
+   四段动画量出来一模一样，会误判成「模型没绑定」。
+2. **两点定不出绕枪管轴的自旋**（枪正着拿还是侧着拿），所以留了 `--roll=` 旋钮，靠截图挑；
+   绕锚点轴旋转不改变两个锚点，复验仍然 PASS。
+3. **握把不能离相机太近**：第一版把握把定在 z=-0.08，结果半只手糊满右下角。
+   手要放在 z≈-0.34 才正常。当前值 `roll=0 / scale=0.488 / pos=(0.5572, -0.5116, -0.1338)`
+   是这么试出来的。
+
+运行时配套（`scripts/weapon_controller.gd`）：`VIEWMODELS` 支持 `muzzle`（fit 的目标枪口点，
+静态回退）、`muzzle_node`（模型自带的枪口标记节点，装配时自动隐藏那块标记面片）、
+`anim`（idle/shoot/reload/unholster → AnimationPlayer 片段名）。
+切枪先播 `Unholster`（实测其末帧 = Idle 姿态），换弹播 `Reload` 并**不再**跑 tween；
+曳光与枪口焰取 `Muzzle` 节点的**实时**世界坐标，所以枪抬起来打出的曳光起点也跟着抬。
+`tools/inspect_rig.gd` 是配套的解剖工具（节点树 / clip 列表 / 各姿态锚点），
+接新绑定模型先跑它，别靠猜。
+
+冒烟断言（`smoke_battle.gd` §5d）锁住这条链：枪口标记节点存在且隐藏、
+待机姿态下它落在 fit 解出的点上（偏差 < 0.06 m）、换弹时 `current_animation == "Reload"`、
+且枪口在 0.5 秒内真的位移 > 0.02 m（实测 0.078 m）。
 
 ## 2f. 截图调参工具（新增能力）
 

@@ -140,7 +140,33 @@ func _initialize() -> void:
 	_check(fwd.dot(to_muzzle.normalized()) > 0.8, "枪口应在视野前方，否则曳光会横穿屏幕")
 	_check(to_muzzle.y < 0.02, "枪口应不高于视线，第一人称枪该在屏幕下方")
 
-	# 5d) 死亡表现：打死之后模型必须有可见变化（倒地/下沉/缩小），
+	# 5d) 带手 viewmodel 的动画链（用户反馈「没有换弹动作」的正解）：
+	#     绑定模型必须真的用自带动画，且曳光起点跟着模型自带的枪口节点走。
+	#     tween 只是静态枪的兜底，有真动画时不该再抖位置。
+	weapon.select(2)
+	for _i in range(40):
+		await physics_frame   # 等拔枪动作播完（Unholster 0.42s），停在待机姿态
+	var marker := weapon.muzzle_marker_for_test()
+	_check(marker != null, "绑定 viewmodel 应带枪口标记节点（fit 的锚点之一）")
+	if marker != null:
+		_check(not marker.visible, "枪口标记节点必须隐藏，否则屏幕上挂一块常驻白片")
+		var drift: float = weapon.to_local(weapon.muzzle_global()).distance_to(weapon.muzzle_rest_local())
+		_check(drift < 0.06,
+			"待机姿态下枪口节点应落在 fit 解出的点上（偏 %.3f m，摆放参数被改坏了？）" % drift)
+	weapon.force_reload_for_shot()
+	await physics_frame
+	_check(weapon.vm_animation_for_test() == "Reload",
+		"换弹应播模型自带的 Reload（实测 %s）" % weapon.vm_animation_for_test())
+	var idle_muzzle := weapon.muzzle_global()
+	for _i in range(30):
+		await physics_frame
+	var moved: float = idle_muzzle.distance_to(weapon.muzzle_global())
+	_check(moved > 0.02, "换弹动画必须真的挪动枪口（实测 %.3f m）" % moved)
+	for _i in range(int(WeaponTable.field("dmr_sniper", "reload_time") * 70.0) + 20):
+		await physics_frame   # 让换弹计时走完，别把 reload 状态带进后面的断言
+	weapon.select(0)
+
+	# 5e) 死亡表现：打死之后模型必须有可见变化（倒地/下沉/缩小），
 	#     用户原话是「只是停住然后消失，难判断」。
 	#     注意要在敌人被 queue_free（1.7s）之前采样，且每帧判有效性——
 	#     脚本模式协程里访问已释放对象会直接中断后面的 quit()，整个步骤挂到超时。

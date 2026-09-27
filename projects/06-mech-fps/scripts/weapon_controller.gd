@@ -6,10 +6,12 @@ class_name WeaponController
 ## 分工线（docs/00 §4.3）：本脚本只做「输入 → 射线 → 结算 → 表现」，
 ## 不承担需要跨帧复现的逻辑；那些都在 sim/ 里有对应断言。
 
-## 朝向与缩放由 tools/measure_viewmodels.gd 实测得出（2026-09-27）：
-##   步枪枪管沿局部 +Z（质心 z=+0.20）→ yaw 180；霰弹与精确射手沿 +X → yaw 90。
-##   不这么摆就会出现实跑看到的「有的枪横在屏幕上」——每把投稿模型的前向轴都不一样。
-## rot 单位是度；pos 是相机局部空间；scale 把枪长统一到 ~0.62 m。
+## 摆放参数都是**量出来的**，不是手填的（rot 单位度，pos 在相机局部空间）：
+##   静态枪 → tools/measure_viewmodels.gd（包围盒最长轴 = 枪管）。
+##     不量就统一按 -Z 摆，结果就是第一轮实跑看到的「有的枪横在屏幕上」。
+##   绑定枪 → tools/fit_viewmodel.gd（把「握把点→枪口点」两点锚定到目标位置）。
+##     带手臂的模型包围盒最长轴是肩膀跨度，套上面的办法必然摆歪。
+## 两个工具都打印复验偏差，PASS 才粘。
 const VIEWMODELS := {
 	"assault_rifle": {
 		"path": "res://assets/models/weapons/assault_rifle.glb",
@@ -19,15 +21,18 @@ const VIEWMODELS := {
 		"path": "res://assets/models/weapons/shotgun.glb",
 		"rot": Vector3(0, 90, 0), "scale": 0.806, "pos": Vector3(0.20, -0.16, -0.30),
 	},
-	## Majikay 的 CC0 双臂 viewmodel（865,016 B，实测含 Idle/Reload/Shoot/Unholster 四段动画）
-	## 已入库 `assets/models/weapons/deagle_viewmodel_hands.glb`，但**尚未接上**：
-	## 它是整套 Rigify 身体骨架（Idle 姿态下世界包围盒 1.70 × 1.47 × 1.51 m，
-	## 中心比相机低 1.07 m），不是「一把枪加两只手」，按静态枪那样填 pos/scale 必然错位
-	## （试过 0.42/0.28/1.0 三种都不对）。接它需要改成「量盒子→按目标尺寸缩放→把中心
-	## 平移到目标点」的自动 fit，见 docs/06 §7.3 与 ASSET_MANIFEST §2b。
+	## Majikay 的 CC0 双臂 viewmodel：整套 Rigify 骨架（两条手臂 + 手 + 枪），
+	## 自带 Idle / Reload / Shoot / Unholster 四段真动画，换弹不再是 tween 凑的。
+	## 模型里留了一个 Muzzle 空网格当枪口标记，所以曳光和枪口焰跟着手动，而不是钉死在一个点。
+	## 代价：它是 .44 手枪，和「精确射手步枪」的角色不完全对得上——先用来验证带手 viewmodel 这条链路。
 	"dmr_sniper": {
-		"path": "res://assets/models/weapons/dmr_sniper.glb",
-		"rot": Vector3(0, 90, 0), "scale": 0.274, "pos": Vector3(0.20, -0.15, -0.38),
+		"path": "res://assets/models/weapons/deagle_viewmodel_hands.glb",
+		"rot": Vector3(-35.5469, -146.4307, 172.2205),
+		"scale": 0.4880,
+		"pos": Vector3(0.5572, -0.5116, -0.1338),
+		"muzzle": Vector3(0.1600, -0.1800, -0.6000),
+		"muzzle_node": "Muzzle",
+		"anim": {"idle": "Idle", "shoot": "Shoot", "reload": "Reload", "unholster": "Unholster"},
 	},
 }
 
@@ -69,6 +74,7 @@ var _fired_this_press: bool = false
 var _camera: Camera3D
 var _viewmodels: Dictionary = {}
 var _vm_anims: Dictionary = {}          # id -> AnimationPlayer（只有绑定 viewmodel 才有）
+var _vm_muzzle_nodes: Dictionary = {}   # id -> 模型自带的枪口标记节点（会跟着动画动）
 var _muzzles: Dictionary = {}          # id -> 相机局部空间的枪口点（实测包围盒算出）
 var _muzzle_light: OmniLight3D
 var _tracer: MeshInstance3D
@@ -134,7 +140,9 @@ func select(index: int) -> void:
 	for id in _viewmodels:
 		(_viewmodels[id] as Node3D).visible = (String(id) == _current)
 	_reset_viewmodel_pose()
-	_play_vm_anim("idle")
+	# 拔枪是一次性登场动作，播完停在最后一帧（实测最后一帧 = 待机姿态）；没有它的枪直接进待机。
+	if not _play_vm_anim("unholster", true):
+		_play_vm_anim("idle")
 	_emit_ammo()
 	weapon_switched.emit(WeaponTable.display(_current))
 
@@ -152,7 +160,12 @@ func current_id() -> String:
 	return _current
 
 
+## 枪口在世界空间的当前位置。绑定 viewmodel 用模型自带的 Muzzle 节点（换弹/后座时它会跟着手动），
+## 静态 viewmodel 退回装配时算出的固定点。
 func muzzle_global() -> Vector3:
+	var marker := _vm_muzzle_nodes.get(_current) as Node3D
+	if marker != null:
+		return marker.global_position
 	return to_global(_muzzles.get(_current, Vector3(0, -0.1, -0.5)))
 
 
@@ -162,6 +175,24 @@ func set_trigger(pressed: bool) -> void:
 	_trigger_held = pressed
 	if pressed:
 		_fired_this_press = false
+
+
+## 冒烟断言用的只读探针（docs/00 §4.2：表现层也要能被无头跑检查）。
+## muzzle_rest_local：装配时定下的枪口点（相机局部）；用它验证模型自带的枪口节点
+## 在待机姿态下确实落在 fit 解出来的位置——摆放参数被人手改坏了这条就会红。
+func muzzle_rest_local() -> Vector3:
+	return _muzzles.get(_current, Vector3.ZERO)
+
+
+func muzzle_marker_for_test() -> Node3D:
+	return _vm_muzzle_nodes.get(_current) as Node3D
+
+
+func vm_animation_for_test() -> String:
+	var player := _vm_anims.get(_current) as AnimationPlayer
+	if player == null:
+		return ""
+	return player.current_animation
 
 
 ## 清波奖励弹药（WaveDirector 用 call_group 打过来）。
@@ -273,21 +304,23 @@ func force_reload_for_shot() -> void:
 
 
 ## 播放 viewmodel 自带动画。只有带 anim 配置的绑定模型才会命中。
-func _play_vm_anim(kind: String, restart: bool = false) -> void:
+## 返回是否真的播上了，调用方用它决定要不要退回别的片段（比如切枪时的拔枪动作）。
+func _play_vm_anim(kind: String, restart: bool = false) -> bool:
 	var player := _vm_anims.get(_current) as AnimationPlayer
 	if player == null:
-		return
+		return false
 	var names: Dictionary = VIEWMODELS[_current].get("anim", {})
 	var clip := String(names.get(kind, ""))
 	if clip.is_empty():
-		return
+		return false
 	if not player.has_animation(clip):
 		# 静默不播会让人以为动画坏了却查不到（Idle-loop / Idle 就是这么坑过一次）
 		push_warning("viewmodel 缺少动画 %s（现有：%s）" % [clip, ", ".join(player.get_animation_list())])
-		return
+		return false
 	if player.current_animation == clip and not restart:
-		return
+		return true
 	player.play(clip)
+	return true
 
 
 func _finish_reload() -> void:
@@ -351,10 +384,11 @@ func viewmodel_debug() -> String:
 	if player != null:
 		current = player.current_animation
 		clips = ", ".join(player.get_animation_list())
-	return "VM[%s] pos=%s rot=%s scale=%.3f player=%s current=%s clips=(%s) muzzle=%s box=%s" % [
+	var marker := _vm_muzzle_nodes.get(_current) as Node3D
+	return "VM[%s] pos=%s rot=%s scale=%.3f player=%s current=%s clips=(%s) muzzle=%s live_muzzle=%s box=%s" % [
 		_current, str(vm.position), str(vm.rotation_degrees), vm.scale.x,
 		str(player != null), current, clips, str(_muzzles.get(_current, Vector3.ZERO)),
-		str(_vm_global_box(vm))]
+		str(marker.global_position) if marker != null else "-", str(_vm_global_box(vm))]
 
 
 ## viewmodel 的实际世界包围盒（动画姿态下量，比猜位置可靠）。
@@ -385,15 +419,27 @@ func _build_viewmodels() -> void:
 		inst.rotation_degrees = cfg["rot"]
 		inst.visible = false
 		_viewmodels[id] = inst
-		# raw：绑定模型（带手臂）的静止姿态不等于游戏内姿态，包围盒推不出枪管轴，
-		# 所以用配置里手填的 muzzle，并跳过自动定向。
-		if bool(cfg.get("raw", false)):
+		# 配置里给了 muzzle（fit 工具解出来的目标枪口点）就直接用：
+		# 绑定模型的静止姿态不等于游戏内姿态，包围盒推不出枪管轴。
+		if cfg.has("muzzle"):
 			_muzzles[id] = cfg["muzzle"]
 		else:
 			_muzzles[id] = _compute_muzzle(inst)
 		var player := inst.find_child("AnimationPlayer", true, false) as AnimationPlayer
 		if player != null and cfg.has("anim"):
 			_vm_anims[id] = player
+		# 枪口标记节点（绑定模型自带的 Muzzle 空网格）：曳光与枪口焰用它，
+		# 换弹时枪移走了起点跟着移——写死的那个点做不到。
+		var marker := String(cfg.get("muzzle_node", ""))
+		if not marker.is_empty():
+			var mark_node := inst.find_child(marker, true, false) as Node3D
+			if mark_node == null:
+				push_warning("%s 里没有枪口标记节点 %s，退回静态 muzzle 点" % [id, marker])
+			else:
+				_vm_muzzle_nodes[id] = mark_node
+				# 它是 Blender 里当标记用的面片，不隐藏会在枪口挂一块常驻白片
+				if mark_node is MeshInstance3D:
+					(mark_node as MeshInstance3D).visible = false
 
 
 ## 在 Weapon 局部空间里求「最靠前（-Z 最小）的那一点」，取盒中心的高度作为枪口高度。
@@ -528,7 +574,7 @@ func _animate_reload(duration: float) -> void:
 
 
 func _flash_muzzle() -> void:
-	_muzzle_light.position = _muzzles.get(_current, Vector3.ZERO)
+	_muzzle_light.global_position = muzzle_global()
 	_muzzle_light.light_energy = 5.5
 	var t := create_tween()
 	t.tween_property(_muzzle_light, "light_energy", 0.0, 0.07)
