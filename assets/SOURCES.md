@@ -147,8 +147,8 @@
 | Free Crowd Cheering Sounds（11 条 MP3） | Gregor Quendel | CC-BY 4.0 | `audio/sfx/oga_crowd-cheering/` | https://opengameart.org/content/free-crowd-cheering-sounds | 进球 / 终场观众欢呼 | 2026-09-27 |
 | Retroracing Menu (Synthwave) | Bogart VGM | CC-BY 4.0 | `audio/music/retroracing_menu.mp3` | https://opengameart.org/content/retroracing-menu-synthwave | 主菜单 | 2026-09-27 |
 | Into the Night × Retroracing Nightlife mix | cosmac + Bogart VGM（glitchart 混音发布） | CC-BY 4.0 | `audio/music/intothenight_retroracing_mix.ogg` | https://opengameart.org/content/retroracing-nightlife-into-the-night-cosmac-bogart-vgm | 比赛进行 | 2026-09-27 |
-| Music Jingles · Hit jingles（jingles_HIT03/09 两支，07 工程内副本 `jingle_score_a/b.ogg`） | Kenney | CC0 | lab 库 `audio/music/kenney_music-jingles/` → `projects/07-car-soccer/assets/audio/sfx/goal/` | https://kenney.nl/assets/music-jingles | 进球音 | 2026-09-27 |
-| Font package · Kenney Future（07 工程内副本 `KenneyFuture.ttf`） | Kenney | CC0 | lab 库 `fonts/` → `projects/07-car-soccer/assets/fonts/` | https://kenney.nl（Font package，免费字体包） | HUD 字体 | 2026-09-27 |
+| Music Jingles · Hit jingles（jingles_HIT03/09 两支曾被 07 取用；07 已废弃，库内母本保留） | Kenney | CC0 | lab 库 `audio/music/kenney_music-jingles/` | https://kenney.nl/assets/music-jingles | （历史：07 进球音） | 2026-09-27 |
+| Font package · Kenney Future（曾被 07 取用；07 已废弃，库内母本保留） | Kenney | CC0 | lab 库 `fonts/` | https://kenney.nl（Font package，免费字体包） | （历史：07 HUD 字体） | 2026-09-27 |
 
 **署名清单（万一将来公开需保留）**：Music: Bogart VGM / cosmac / glitchart / Gregor Quendel
 （OpenGameArt.org，CC-BY 4.0）；Poly Pizza 各 CC-BY 模型作者见 §3 表格。
