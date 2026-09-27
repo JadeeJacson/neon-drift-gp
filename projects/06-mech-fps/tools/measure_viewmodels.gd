@@ -12,6 +12,7 @@ const PATHS := {
 	"assault_rifle": "res://assets/models/weapons/assault_rifle.glb",
 	"shotgun": "res://assets/models/weapons/shotgun.glb",
 	"dmr_sniper": "res://assets/models/weapons/dmr_sniper.glb",
+	"deagle_hands": "res://assets/models/weapons/deagle_viewmodel_hands.glb",
 }
 
 ## viewmodel 目标长度（米）。第一人称枪不按真实尺寸画，太长会糊住准星。

@@ -92,7 +92,44 @@ Poly Pizza 是多人投稿站，**每个模型的尺度、朝向、原点都不�
 中央通路不放任何装饰**——无寻路的敌人被装饰物卡住等于死局（练习期教训）。
 当前 142 件，每件一次 draw call；真实 draw call 与帧数只能在游戏内看（headless 测不到）。
 
-## 2d. 射击模式分工（`WeaponTable.fire_mode`）
+## 2e. 带手的第一人称枪（已入库，**待接入**）
+
+| 项 | 内容 |
+|---|---|
+| 文件 | `assets/models/weapons/deagle_viewmodel_hands.glb`（865,016 B） |
+| 来源 | Majikay Games / SimpleFPSController，CC0，https://github.com/majikayogames/SimpleFPSController |
+| 实测内容 | 6 网格、188 节点、1 皮肤、51 关节、**89 个 hand/finger 关节**；动画 4 段：`Idle / Reload / Shoot / Unholster` |
+| 导入后的名字坑 | GLB 源文件里叫 `Idle-loop`，**Godot 导入器改成 `Idle`**。按源文件名去播会静默不播（已在 `_play_vm_anim` 加缺 clip 警告） |
+
+**为什么还没接上**（三次尝试的实测数据，别再重复猜）：它是**整套 Rigify 身体骨架**，
+不是「一把枪加两只手」。Idle 姿态下世界包围盒 `1.70 × 1.47 × 1.51 m`，
+中心比相机低 1.07 m、且在相机后方。试过 scale/pos 三组值（0.42/0.28/1.0）全部错位：
+手要么糊满屏幕、要么掉到画面外。
+
+**正确解法**（下一轮做）：给绑定型 viewmodel 加**自动 fit**——
+在 Weapon 局部空间量出盒子 → 按目标尺寸缩放 → 把盒子中心平移到目标点（如 `(0.12, -0.16, -0.42)`）
+→ 枪口取盒子前端。量盒子必须用**动画姿态下**的包围盒（`tools/capture_view.gd` 已能打印
+`viewmodel_debug()`，含全局 box 与相机 pos/fwd），不能用 bind pose。
+
+配套能力已就位（静态枪不受影响）：`VIEWMODELS` 支持 `raw`（不自动定向）、`muzzle`（手填枪口点）、
+`anim`（idle/shoot/reload 三段映射到 AnimationPlayer）、`force_reload_for_shot()`。
+
+## 2f. 截图调参工具（新增能力）
+
+`tools/capture_view.gd`：**有窗口**跑游戏到第 N 帧并存 PNG（`--headless` 走 dummy 渲染不出图，
+见 docs/00 §4.4）。用法：
+
+```bash
+./engines/godot/4.7.2/Godot_v4.7.2-stable_win64.exe --path projects/06-mech-fps \
+  -s res://tools/capture_view.gd -- --weapon=dmr_sniper --pose=reload --frames=45 \
+  --out=_scratch/shots/reload.png
+```
+
+意义：viewmodel 姿态、HUD 排版、光照氛围这些原本「只能你眼睛判」的东西，
+我现在可以自己看、自己对比迭代。本轮就是靠它发现 HUD 的 `PanelContainer`
+会强制布局子节点、导致弹匣数字与备弹重叠（已改为 Control + ColorRect）。
+
+## 2g. 射击模式分工（`WeaponTable.fire_mode`）
 
 | 枪 | 模式 | 按住扳机的行为 |
 |---|---|---|

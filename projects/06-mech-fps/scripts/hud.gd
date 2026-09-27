@@ -239,22 +239,20 @@ func _build() -> void:
 	root.add_child(_kills_label)
 
 
-func _make_panel(pos: Vector2, size: Vector2) -> PanelContainer:
-	var panel := PanelContainer.new()
-	panel.position = pos
-	panel.custom_minimum_size = size
-	panel.size = size
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var style := StyleBoxFlat.new()
-	style.bg_color = PANEL
-	style.corner_radius_top_left = 4
-	style.corner_radius_top_right = 4
-	style.corner_radius_bottom_left = 4
-	style.corner_radius_bottom_right = 4
-	style.content_margin_left = 6
-	style.content_margin_right = 6
-	panel.add_theme_stylebox_override("panel", style)
-	return panel
+func _make_panel(pos: Vector2, size: Vector2) -> Control:
+	# 用普通 Control + ColorRect 而不是 PanelContainer：Container 会强制布局它的子节点，
+	# 我给的 label.position 会被忽略，结果就是弹匣数字与备弹叠在一起。
+	var host := Control.new()
+	host.position = pos
+	host.custom_minimum_size = size
+	host.size = size
+	host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var bg := ColorRect.new()
+	bg.color = PANEL
+	bg.size = size
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	host.add_child(bg)
+	return host
 
 
 func _make_label(node_name: String, pos: Vector2, font_size: int, align: int) -> Label:

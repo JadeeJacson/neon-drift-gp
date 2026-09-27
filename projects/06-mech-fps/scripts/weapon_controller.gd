@@ -19,6 +19,12 @@ const VIEWMODELS := {
 		"path": "res://assets/models/weapons/shotgun.glb",
 		"rot": Vector3(0, 90, 0), "scale": 0.806, "pos": Vector3(0.20, -0.16, -0.30),
 	},
+	## Majikay 的 CC0 双臂 viewmodel（865,016 B，实测含 Idle/Reload/Shoot/Unholster 四段动画）
+	## 已入库 `assets/models/weapons/deagle_viewmodel_hands.glb`，但**尚未接上**：
+	## 它是整套 Rigify 身体骨架（Idle 姿态下世界包围盒 1.70 × 1.47 × 1.51 m，
+	## 中心比相机低 1.07 m），不是「一把枪加两只手」，按静态枪那样填 pos/scale 必然错位
+	## （试过 0.42/0.28/1.0 三种都不对）。接它需要改成「量盒子→按目标尺寸缩放→把中心
+	## 平移到目标点」的自动 fit，见 docs/06 §7.3 与 ASSET_MANIFEST §2b。
 	"dmr_sniper": {
 		"path": "res://assets/models/weapons/dmr_sniper.glb",
 		"rot": Vector3(0, 90, 0), "scale": 0.274, "pos": Vector3(0.20, -0.15, -0.38),
@@ -62,6 +68,7 @@ var _trigger_held: bool = false
 var _fired_this_press: bool = false
 var _camera: Camera3D
 var _viewmodels: Dictionary = {}
+var _vm_anims: Dictionary = {}          # id -> AnimationPlayer（只有绑定 viewmodel 才有）
 var _muzzles: Dictionary = {}          # id -> 相机局部空间的枪口点（实测包围盒算出）
 var _muzzle_light: OmniLight3D
 var _tracer: MeshInstance3D
@@ -127,6 +134,7 @@ func select(index: int) -> void:
 	for id in _viewmodels:
 		(_viewmodels[id] as Node3D).visible = (String(id) == _current)
 	_reset_viewmodel_pose()
+	_play_vm_anim("idle")
 	_emit_ammo()
 	weapon_switched.emit(WeaponTable.display(_current))
 
@@ -193,6 +201,7 @@ func try_fire() -> void:
 	_play(_shot_sfx_path())
 	_flash_muzzle()
 	_kick_viewmodel()
+	_play_vm_anim("shoot", true)
 
 	var hit := _raycast(from, from + dir * RAY_LENGTH)
 	if hit.is_empty():
@@ -243,17 +252,42 @@ func try_execute() -> void:
 		return
 
 
-func start_reload() -> void:
+func start_reload(force: bool = false) -> void:
 	var mag_size := int(WeaponTable.field(_current, "mag_size"))
-	if _mag >= mag_size or _reserve <= 0:
+	if not force and (_mag >= mag_size or _reserve <= 0):
 		return
 	var duration := WeaponTable.field(_current, "reload_time")
 	_reload_until = Time.get_ticks_msec() / 1000.0 + duration
 	reload_started.emit(duration)
 	_play(SFX.reload)
-	_animate_reload(duration)
+	_play_vm_anim("reload", true)
+	if not _vm_anims.has(_current):
+		_animate_reload(duration)   # 没有绑定动画的静态枪才用 tween 凑换弹动作
 	var timer := get_tree().create_timer(duration)
 	timer.timeout.connect(_finish_reload)
+
+
+## 供截图工具强制进入换弹状态（满弹时也要能看到换弹姿势）。
+func force_reload_for_shot() -> void:
+	start_reload(true)
+
+
+## 播放 viewmodel 自带动画。只有带 anim 配置的绑定模型才会命中。
+func _play_vm_anim(kind: String, restart: bool = false) -> void:
+	var player := _vm_anims.get(_current) as AnimationPlayer
+	if player == null:
+		return
+	var names: Dictionary = VIEWMODELS[_current].get("anim", {})
+	var clip := String(names.get(kind, ""))
+	if clip.is_empty():
+		return
+	if not player.has_animation(clip):
+		# 静默不播会让人以为动画坏了却查不到（Idle-loop / Idle 就是这么坑过一次）
+		push_warning("viewmodel 缺少动画 %s（现有：%s）" % [clip, ", ".join(player.get_animation_list())])
+		return
+	if player.current_animation == clip and not restart:
+		return
+	player.play(clip)
 
 
 func _finish_reload() -> void:
@@ -306,6 +340,35 @@ func _play(path: String) -> void:
 
 ## 装配 viewmodel，并**从模型实际包围盒反算枪口点**。
 ## 这样曳光与枪口焰一定落在枪管前端，改姿态/换模型都不用再手填偏移。
+## 供截图工具与调试输出：当前 viewmodel 的变换、动画播放器状态、枪口点。
+func viewmodel_debug() -> String:
+	var vm := _current_viewmodel()
+	if vm == null:
+		return "VM 缺失（weapon=%s）" % _current
+	var player := _vm_anims.get(_current) as AnimationPlayer
+	var clips := ""
+	var current := "-"
+	if player != null:
+		current = player.current_animation
+		clips = ", ".join(player.get_animation_list())
+	return "VM[%s] pos=%s rot=%s scale=%.3f player=%s current=%s clips=(%s) muzzle=%s box=%s" % [
+		_current, str(vm.position), str(vm.rotation_degrees), vm.scale.x,
+		str(player != null), current, clips, str(_muzzles.get(_current, Vector3.ZERO)),
+		str(_vm_global_box(vm))]
+
+
+## viewmodel 的实际世界包围盒（动画姿态下量，比猜位置可靠）。
+func _vm_global_box(vm: Node3D) -> AABB:
+	var box := AABB()
+	var found := false
+	for m in _all_meshes(vm):
+		var mi := m as MeshInstance3D
+		var box_local := _xform_aabb(mi.get_aabb(), mi.global_transform)
+		box = box_local if not found else box.merge(box_local)
+		found = true
+	return box
+
+
 func _build_viewmodels() -> void:
 	for id in VIEWMODELS:
 		var cfg: Dictionary = VIEWMODELS[id]
@@ -322,7 +385,15 @@ func _build_viewmodels() -> void:
 		inst.rotation_degrees = cfg["rot"]
 		inst.visible = false
 		_viewmodels[id] = inst
-		_muzzles[id] = _compute_muzzle(inst)
+		# raw：绑定模型（带手臂）的静止姿态不等于游戏内姿态，包围盒推不出枪管轴，
+		# 所以用配置里手填的 muzzle，并跳过自动定向。
+		if bool(cfg.get("raw", false)):
+			_muzzles[id] = cfg["muzzle"]
+		else:
+			_muzzles[id] = _compute_muzzle(inst)
+		var player := inst.find_child("AnimationPlayer", true, false) as AnimationPlayer
+		if player != null and cfg.has("anim"):
+			_vm_anims[id] = player
 
 
 ## 在 Weapon 局部空间里求「最靠前（-Z 最小）的那一点」，取盒中心的高度作为枪口高度。
