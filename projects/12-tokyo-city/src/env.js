@@ -115,7 +115,7 @@ export class DayNightRig {
     scene.fog = new THREE.Fog(0xccd9e6, 380, 3100);
 
     // ---- 天空穹顶 ----
-    const skyGeo = new THREE.SphereGeometry(4200, 32, 20);
+    const skyGeo = new THREE.SphereGeometry(8500, 32, 20);
     const skyMat = new THREE.ShaderMaterial({
       uniforms: shared,
       vertexShader: SKY_VERT,
@@ -226,8 +226,8 @@ export class DayNightRig {
     this._tmp.lerpColors(this._cFogNight, this._cFogDay, f);
     this._tmp.lerp(this._cFogDusk, dusk * 0.22);
     this.scene.fog.color.copy(this._tmp);
-    this.scene.fog.near = 320 + 120 * f;
-    this.scene.fog.far = 2600 + 900 * f;
+    this.scene.fog.near = 900 + 200 * f;
+    this.scene.fog.far = 6000 + 3500 * f;
 
     // 辉光：夜里适中（过强会把招牌糊成一片）
     this.bloom.strength = 0.12 + (1 - f) * 0.42;

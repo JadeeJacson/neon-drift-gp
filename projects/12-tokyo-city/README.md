@@ -24,9 +24,12 @@ index.html        入口 + HUD + importmap
 serve.mjs         零依赖静态服务器
 src/main.js       启动、主循环、HUD（含 window.__tokyo 调试钩子）
 src/env.js        昼夜中枢：天空穹顶着色器、日/月、雾、辉光、夜间点光源登记表
-src/layout.js     确定性城市規劃：路网、街区、分区（固定种子）
-src/ground.js     沥青/人行道/标线/斑马线/行道树/路灯
+src/layout.js     确定性城市規劃：路网、街区、圈层分区、海岸线函数（固定种子）
+src/ground.js     海洋/沙滩/河流桥/樱花岸线/路带/垫层/斑马线/树/路灯
 src/buildings.js  实例化建筑 + 立面窗户着色器（onBeforeCompile）
+src/houses.js     郊区独栋与农村村落（坡屋顶/暖窗/农田）
+src/terrain.js    内陆山脉围合
+src/bay.js        东京湾：货轮/集装箱港/桥吊/台场小岛+摩天轮
 src/signs.js      canvas 日文霓虹招牌 / 广告牌 / 轮播大屏
 src/landmarks.js  东京塔、晴空塔、涩谷路口四角
 src/traffic.js    车流（靠左行驶）、高架环线电车、过街人流

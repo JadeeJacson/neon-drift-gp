@@ -5,6 +5,9 @@ import { DayNightRig } from './env.js';
 import { buildLayout } from './layout.js';
 import { buildGround } from './ground.js';
 import { buildBuildings } from './buildings.js';
+import { buildHouses } from './houses.js';
+import { buildMountains } from './terrain.js';
+import { buildBay } from './bay.js';
 import { buildLandmarks } from './landmarks.js';
 import { decorateBuildings, tickScreens } from './signs.js';
 import { Traffic } from './traffic.js';
@@ -21,7 +24,7 @@ renderer.toneMappingExposure = 1.0;
 app.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.5, 9000);
+const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.5, 16000);
 camera.position.set(-30, 60, -260);
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -37,6 +40,9 @@ const layout = buildLayout();
 buildGround(scene, layout);
 const buildings = buildBuildings(scene, layout);
 decorateBuildings(scene, buildings, 777);
+buildHouses(scene, layout);
+buildMountains(scene);
+const bay = buildBay(scene, layout);
 buildLandmarks(scene);
 const traffic = new Traffic(scene, layout);
 
@@ -46,7 +52,9 @@ rig.setMode('night'); // 首屏：夜晚霓虹
 // ---- 视角预设 ----
 const VIEWS = {
   'v-shibuya': { p: [-8, 5.5, 130], t: [0, 15, -10] },
-  'v-aerial': { p: [-540, 330, -500], t: [40, 0, 160] },
+  'v-aerial': { p: [-620, 420, -660], t: [80, 0, 220] },
+  'v-bay': { p: [1210, 170, 880], t: [2500, 20, 260] },
+  'v-mtn': { p: [-1450, 150, 820], t: [-2950, 260, -420] },
   'v-tower': { p: [-230, 120, 150], t: [-480, 160, 620] },
   'v-skytree': { p: [430, 120, 360], t: [1000, 300, -180] },
 };
@@ -97,6 +105,7 @@ let firstFrame = true;
 function tick(dt, elapsed) {
   rig.update(dt, elapsed);
   traffic.update(dt);
+  if (bay.wheel) bay.wheel.rotation.z += dt * 0.12;
   screenT += dt;
   if (screenT > 6) {
     screenT = 0;
@@ -138,7 +147,11 @@ window.__tokyo = {
     const v = VIEWS['v-' + name] || VIEWS[name];
     if (v) flyTo(v, true);
   },
+  view(p, t) {
+    if (Array.isArray(p) && Array.isArray(t)) flyTo({ p, t }, true);
+  },
   get cam() { return { p: camera.position.toArray(), t: controls.target.toArray() }; },
+  get scene() { return scene; },
 };
 
 window.addEventListener('resize', () => {

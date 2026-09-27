@@ -1,11 +1,11 @@
-// ground.js — 沥青地面、人行道垫层、车道标线、涩谷斑马线、行道树、路灯（夜间光池）
+// ground.js — 大地系统：波浪海洋、弧形海岸线、沙滩、河流+桥+樱花岸线、
+// 沥青路带、分区分级垫层、干道交叉口斑马线、行道树/公园树、路灯（夜间光池）
 import * as THREE from 'three';
-import { CROSS } from './layout.js';
+import { CROSS, coastX } from './layout.js';
 import { makeRng } from './layout.js';
 import { makeNoiseTexture, nightEmissive } from './fx.js';
 import { shared } from './env.js';
 
-const MAP = 1300; // 路网半幅（地面更大）
 const LIGHT_POOL_SHADER = {
   vertexShader: /* glsl */ `
     varying vec2 vUv;
@@ -29,31 +29,136 @@ export function buildGround(scene, layout) {
   const g = new THREE.Group();
   g.name = 'ground';
 
-  // 路网实际范围（虚线/路灯/树只铺到路网尽头，不画幽灵路）
-  let extent = 0;
-  for (const r of [...layout.roadsV, ...layout.roadsH]) {
-    extent = Math.max(extent, Math.abs(r.pos) + r.w / 2);
-  }
-  const SPAN = extent + 20;
-
   const asphaltNoise = makeNoiseTexture(256, 120, 26);
-  asphaltNoise.repeat.set(220, 220);
+  asphaltNoise.repeat.set(90, 90);
+  const asphaltMat = new THREE.MeshStandardMaterial({ color: 0x45484d, roughness: 0.96, metalness: 0.0, map: asphaltNoise });
+  const grassNoise = makeNoiseTexture(128, 205, 28);
+  grassNoise.repeat.set(60, 60);
 
-  const asphalt = new THREE.Mesh(
-    new THREE.PlaneGeometry(4200, 4200),
-    new THREE.MeshStandardMaterial({ color: 0x45484d, roughness: 0.96, metalness: 0.0, map: asphaltNoise })
+  // ---- 大地（草地基底，东侧随海岸线收边）----
+  // 多边形绕向必须一致（shape.y = -世界z），否则 earcut 自交出洞露出黑底
+  const Z0 = -3600, Z1 = 3600;
+  const landShape = new THREE.Shape();
+  landShape.moveTo(coastX(Z0) - 30, -Z0);
+  for (let z = Z0 + 100; z <= Z1; z += 100) landShape.lineTo(coastX(z) - 30, -z);
+  landShape.lineTo(-3800, -Z1);
+  landShape.lineTo(-3800, -Z0);
+  landShape.closePath();
+  const landGeo = new THREE.ShapeGeometry(landShape);
+  landGeo.rotateX(-Math.PI / 2);
+  const land = new THREE.Mesh(
+    landGeo,
+    new THREE.MeshStandardMaterial({ color: 0x828a5e, roughness: 1, map: grassNoise })
   );
-  asphalt.rotation.x = -Math.PI / 2;
-  asphalt.receiveShadow = true;
-  g.add(asphalt);
+  land.receiveShadow = true;
+  g.add(land);
 
-  // ---- 人行道垫层（每街区一块，公园/塔基为绿地）----
-  const pads = [];
-  const greens = [];
+  // ---- 沙滩（海岸线两侧的沙带）----
+  const beachShape = new THREE.Shape();
+  beachShape.moveTo(coastX(Z1) - 30, -Z1);
+  for (let z = Z1; z >= Z0; z -= 100) beachShape.lineTo(coastX(z) - 30, -z);
+  for (let z = Z0; z <= Z1; z += 100) beachShape.lineTo(coastX(z) + 42, -z);
+  beachShape.closePath();
+  const beachGeo = new THREE.ShapeGeometry(beachShape);
+  beachGeo.rotateX(-Math.PI / 2);
+  const beach = new THREE.Mesh(
+    beachGeo,
+    new THREE.MeshStandardMaterial({ color: 0xcabb90, roughness: 1 })
+  );
+  beach.position.y = 0.012;
+  beach.receiveShadow = true;
+  g.add(beach);
+
+  // ---- 海（顶点波动 + 法线扰动的反光）----
+  const oceanGeo = new THREE.PlaneGeometry(9000, 9000, 120, 120);
+  const oceanMat = new THREE.MeshStandardMaterial({ color: 0x1e5f8a, roughness: 0.34, metalness: 0.06 });
+  oceanMat.onBeforeCompile = (shader) => {
+    shader.uniforms.uTime = shared.uTime;
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', '#include <common>\nuniform float uTime;\nvarying vec3 vWPos;')
+      .replace('#include <begin_vertex>', `#include <begin_vertex>
+        vec4 wp4 = modelMatrix * vec4(position, 1.0);
+        float w1 = sin(wp4.x * 0.021 + uTime * 0.9) + sin(wp4.z * 0.017 - uTime * 0.7);
+        float w2 = sin((wp4.x + wp4.z) * 0.045 + uTime * 1.7);
+        transformed.z += w1 * 0.055 + w2 * 0.05;
+        vWPos = (modelMatrix * vec4(transformed, 1.0)).xyz;`);
+    shader.fragmentShader = shader.fragmentShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vWPos;\nuniform float uTime;')
+      .replace('#include <normal_fragment_begin>', `#include <normal_fragment_begin>
+        normal = normalize(normal + vec3(
+          sin(vWPos.x * 0.11 + uTime * 1.3) * 0.10 + sin(vWPos.z * 0.053 - uTime) * 0.06, 0.0,
+          cos(vWPos.z * 0.09 + uTime * 1.1) * 0.10 + cos(vWPos.x * 0.047 + uTime) * 0.06));`);
+  };
+  oceanMat.customProgramCacheKey = () => 'ocean-v1';
+  const ocean = new THREE.Mesh(oceanGeo, oceanMat);
+  ocean.rotation.x = -Math.PI / 2;
+  ocean.position.set(4200, -0.42, 0);
+  ocean.receiveShadow = true;
+  g.add(ocean);
+
+  // ---- 河流（穿城入海）+ 两岸 + 樱花岸树 ----
+  const riverZ = layout.river.z, riverW = layout.river.w;
+  const rL = coastX(riverZ) + 46 + 2700;
+  const riverC = (-2700 + coastX(riverZ) + 46) / 2;
+  const river = new THREE.Mesh(
+    new THREE.BoxGeometry(rL, 0.25, riverW),
+    new THREE.MeshStandardMaterial({ color: 0x274f6d, roughness: 0.4, metalness: 0.05 })
+  );
+  river.position.set(riverC, -0.1, riverZ);
+  g.add(river);
+  const bankMat = new THREE.MeshStandardMaterial({ color: 0x8f8b83, roughness: 0.95 });
+  for (const s of [-1, 1]) {
+    const bank = new THREE.Mesh(new THREE.BoxGeometry(rL, 0.5, 3), bankMat);
+    bank.position.set(riverC, 0.16, riverZ + s * (riverW / 2 + 1.2));
+    bank.castShadow = false;
+    bank.receiveShadow = true;
+    g.add(bank);
+  }
+  // 跨河桥（每条与河相交的南北向路一块平桥板 + 护栏）
+  const bridgeMat = new THREE.MeshStandardMaterial({ color: 0x6a6d72, roughness: 0.9 });
+  let bridgeCount = 0;
+  for (const road of layout.roadsV) {
+    if (road.pos > coastX(riverZ) - 20) continue;
+    const deck = new THREE.Mesh(new THREE.BoxGeometry(road.w + 5, 0.14, riverW + 12), bridgeMat);
+    deck.position.set(road.pos, 0.07, riverZ);
+    deck.receiveShadow = true;
+    g.add(deck);
+    for (const s of [-1, 1]) {
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(road.w + 5, 0.55, 0.35), bridgeMat);
+      rail.position.set(road.pos, 0.4, riverZ + s * (riverW / 2 + 5.6));
+      g.add(rail);
+    }
+    bridgeCount++;
+  }
+
+  // ---- 城市路带（沥青条：草地基底上铺出每一 条 路）----
+  let extent = 0;
+  for (const r of [...layout.roadsV, ...layout.roadsH]) extent = Math.max(extent, Math.abs(r.pos) + r.w / 2);
+  const SPAN = extent + 20;
+  const stripGeo = new THREE.BoxGeometry(1, 1, 1);
+  for (const road of [...layout.roadsV, ...layout.roadsH]) {
+    const vertical = layout.roadsV.includes(road);
+    const strip = new THREE.Mesh(stripGeo, asphaltMat);
+    if (vertical) {
+      strip.scale.set(road.w, 0.03, SPAN * 2);
+      strip.position.set(road.pos, 0.015, 0);
+    } else {
+      const eastEnd = coastX(road.pos) - 34; // 不入海
+      const len = eastEnd + SPAN;
+      strip.scale.set(len, 0.03, road.w);
+      strip.position.set(-SPAN + len / 2, 0.015, road.pos);
+    }
+    strip.receiveShadow = true;
+    g.add(strip);
+  }
+
+  // ---- 街区垫层：城区混凝土 / 公园绿地 / 郊区草地 ----
+  const pads = [], greens = [], lawns = [];
   for (const b of layout.blocks) {
     const w = b.x1 - b.x0, d = b.z1 - b.z0;
-    const isGreen = b.zone === 'park' || b.zone === 'towerpark';
-    (isGreen ? greens : pads).push({ x: b.cx, z: b.cz, w, d });
+    if (b.zone === 'park' || b.zone === 'towerpark') greens.push({ x: b.cx, z: b.cz, w, d });
+    else if (b.zone === 'suburb') lawns.push({ x: b.cx, z: b.cz, w, d });
+    else if (b.zone !== 'rural' && b.zone !== 'coast') pads.push({ x: b.cx, z: b.cz, w, d });
   }
   const padMesh = new THREE.InstancedMesh(
     new THREE.BoxGeometry(1, 1, 1),
@@ -69,14 +174,9 @@ export function buildGround(scene, layout) {
     });
   }
   padMesh.receiveShadow = true;
-  padMesh.castShadow = false;
   g.add(padMesh);
 
-  const grassMat = new THREE.MeshStandardMaterial({ color: 0x41602f, roughness: 1.0 });
-  const grassNoise = makeNoiseTexture(128, 110, 46);
-  grassNoise.repeat.set(6, 6);
-  grassMat.map = grassNoise;
-  const greenMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), grassMat, greens.length);
+  const greenMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), grassMat(), greens.length);
   {
     const m = new THREE.Matrix4();
     greens.forEach((p, i) => {
@@ -88,27 +188,55 @@ export function buildGround(scene, layout) {
   greenMesh.receiveShadow = true;
   g.add(greenMesh);
 
-  // ---- 车道中央虚线（白）+ 主干道边线 ----
+  const lawnMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), grassMat(0x8a9664), lawns.length);
+  {
+    const m = new THREE.Matrix4();
+    lawns.forEach((p, i) => {
+      m.makeScale(p.w, 0.2, p.d);
+      m.setPosition(p.x, 0.1, p.z);
+      lawnMesh.setMatrixAt(i, m);
+    });
+  }
+  lawnMesh.receiveShadow = true;
+  g.add(lawnMesh);
+
+  // ---- 公园池塘 ----
+  const parkBlock = layout.blocks.find((b) => b.zone === 'park');
+  if (parkBlock) {
+    const pond = new THREE.Mesh(
+      new THREE.CircleGeometry(42, 24),
+      new THREE.MeshStandardMaterial({ color: 0x2e6284, roughness: 0.25, metalness: 0.1 })
+    );
+    pond.rotation.x = -Math.PI / 2;
+    pond.scale.set(1.4, 0.75, 1);
+    pond.position.set(parkBlock.cx + 20, 0.44, parkBlock.cz);
+    g.add(pond);
+  }
+
+  // ---- 车道中央虚线 + 主干道边线 ----
   const stripeGeo = new THREE.BoxGeometry(1, 1, 1);
   const stripeMat = nightEmissive(
     new THREE.MeshStandardMaterial({ color: 0xd9d9cf, roughness: 0.85, emissive: 0xcfd2d8, emissiveIntensity: 1 }),
     0.32
-  ); // 标线夜间微反光，让路网可读
+  );
   const dashes = [];
   const edgeLines = [];
-  const span = SPAN;
   for (const road of [...layout.roadsV, ...layout.roadsH]) {
     const vertical = layout.roadsV.includes(road);
-    const n = Math.floor((span * 2) / 7);
+    const coastClip = vertical ? SPAN : coastX(road.pos) - 40;
+    const n = Math.floor((SPAN + coastClip) / 7);
     for (let i = 0; i < n; i++) {
-      const t = -span + i * 7;
+      const t = -SPAN + i * 7;
+      if (t > coastClip) break;
       dashes.push(vertical ? { x: road.pos, z: t, sx: 0.35, sz: 3.1 } : { x: t, z: road.pos, sx: 3.1, sz: 0.35 });
     }
     if (road.major) {
       const half = road.w / 2 - 0.8;
       for (const s of [-1, 1]) {
         edgeLines.push(
-          vertical ? { x: road.pos + s * half, z: 0, sx: 0.3, sz: span * 2 } : { x: 0, z: road.pos + s * half, sx: span * 2, sz: 0.3 }
+          vertical
+            ? { x: road.pos + s * half, z: (SPAN - coastClip) / 2 - (SPAN - coastClip) / 2, sx: 0.3, sz: SPAN * 2 }
+            : { x: (-SPAN + coastClip) / 2, z: road.pos + s * half, sx: SPAN + coastClip, sz: 0.3 }
         );
       }
     }
@@ -124,7 +252,6 @@ export function buildGround(scene, layout) {
   }
   dashMesh.receiveShadow = true;
   g.add(dashMesh);
-
   const edgeMesh = new THREE.InstancedMesh(stripeGeo, stripeMat, edgeLines.length);
   {
     const m = new THREE.Matrix4();
@@ -136,64 +263,78 @@ export function buildGround(scene, layout) {
   }
   g.add(edgeMesh);
 
-  buildZebra(g);
-  buildTrees(g, layout, rng, SPAN);
-  buildLamps(g, layout, SPAN);
+  // ---- 斑马线：涩谷全向 + 其余干道交叉口 ----
+  const zebraStripes = [];
+  collectZebra(zebraStripes, CROSS.x, CROSS.z, CROSS.wV, CROSS.wH, 4.2, true);
+  for (const rv of layout.roadsV) {
+    if (!rv.major) continue;
+    for (const rh of layout.roadsH) {
+      if (!rh.major) continue;
+      if (Math.hypot(rv.pos - CROSS.x, rh.pos - CROSS.z) < 10) continue;
+      collectZebra(zebraStripes, rv.pos, rh.pos, rv.w, rh.w, 3.6, false);
+    }
+  }
+  const zebraMat = new THREE.MeshStandardMaterial({ color: 0xe4e4da, roughness: 0.85 });
+  const zebraMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), zebraMat, zebraStripes.length);
+  {
+    const m = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler();
+    zebraStripes.forEach((s, i) => {
+      e.set(0, s.rot, 0);
+      q.setFromEuler(e);
+      m.compose(new THREE.Vector3(s.x, 0.045, s.z), q, new THREE.Vector3(s.sx, 0.04, s.sz));
+      zebraMesh.setMatrixAt(i, m);
+    });
+  }
+  zebraMesh.receiveShadow = true;
+  g.add(zebraMesh);
+
+  // ---- 树：行道树 / 公园树 / 河岸樱花 / 郊野散树 ----
+  buildTrees(g, layout, rng, SPAN, riverZ, riverW, coastX(riverZ));
+
+  // ---- 路灯 ----
+  buildLamps(g, layout, Math.min(SPAN, 1650));
 
   scene.add(g);
 }
 
-// ---- 涩谷全向斑马线（四臂 + 对角）----
-function buildZebra(g) {
-  const mat = new THREE.MeshStandardMaterial({ color: 0xe4e4da, roughness: 0.85 });
-  const stripes = [];
-  const band = 4.2; // 斑马带宽
-  const off = Math.max(CROSS.wV, CROSS.wH) / 2 + 2.5;
-
-  // 北臂（横穿南北向路）：条纹沿 z 长条
-  for (let x = -CROSS.wV / 2 + 1.2; x <= CROSS.wV / 2 - 1.2; x += 1.55) {
-    stripes.push({ x, z: -(off + band / 2), sx: 0.72, sz: band, rot: 0 });
-    stripes.push({ x, z: off + band / 2, sx: 0.72, sz: band, rot: 0 });
-  }
-  // 东西臂
-  for (let z = -CROSS.wH / 2 + 1.2; z <= CROSS.wH / 2 - 1.2; z += 1.55) {
-    stripes.push({ x: -(off + band / 2), z, sx: band, sz: 0.72, rot: 0 });
-    stripes.push({ x: off + band / 2, z, sx: band, sz: 0.72, rot: 0 });
-  }
-  // 两条对角线
-  const diagLen = 30;
-  const dirs = [[1, 1], [1, -1]];
-  for (const [dx, dz] of dirs) {
-    const len = Math.hypot(dx, dz);
-    const ux = dx / len, uz = dz / len;
-    const ang = Math.atan2(uz, ux);
-    for (let t = -diagLen / 2; t <= diagLen / 2; t += 1.5) {
-      stripes.push({
-        x: ux * t - uz * 1.9, z: uz * t + ux * 1.9, // 垂直偏移形成条带
-        sx: 0.72, sz: band, rot: -ang + Math.PI / 2,
-      });
-    }
-  }
-  const mesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), mat, stripes.length);
-  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler();
-  stripes.forEach((s, i) => {
-    e.set(0, s.rot, 0);
-    q.setFromEuler(e);
-    m.compose(new THREE.Vector3(s.x, 0.045, s.z), q, new THREE.Vector3(s.sx, 0.04, s.sz));
-    mesh.setMatrixAt(i, m);
-  });
-  mesh.receiveShadow = true;
-  g.add(mesh);
+function grassMat(color = 0x41602f) {
+  const tex = makeNoiseTexture(128, 205, 28);
+  tex.repeat.set(5, 5);
+  return new THREE.MeshStandardMaterial({ color, roughness: 1, map: tex });
 }
 
-// ---- 行道树（主干道两侧）+ 公园树 ----
-function buildTrees(g, layout, rng, span) {
+// 一处交叉口的全向斑马线（四臂；scramble 加对角）
+function collectZebra(arr, cx, cz, wV, wH, band, diagonal) {
+  const off = Math.max(wV, wH) / 2 + 2.5;
+  for (let x = -wV / 2 + 1.2; x <= wV / 2 - 1.2; x += 1.55) {
+    arr.push({ x: cx + x, z: cz - (off + band / 2), sx: 0.72, sz: band, rot: 0 });
+    arr.push({ x: cx + x, z: cz + off + band / 2, sx: 0.72, sz: band, rot: 0 });
+  }
+  for (let z = -wH / 2 + 1.2; z <= wH / 2 - 1.2; z += 1.55) {
+    arr.push({ x: cx - (off + band / 2), z: cz + z, sx: band, sz: 0.72, rot: 0 });
+    arr.push({ x: cx + off + band / 2, z: cz + z, sx: band, sz: 0.72, rot: 0 });
+  }
+  if (diagonal) {
+    const diagLen = Math.min(wV, wH) + 4;
+    for (const [dx, dz] of [[1, 1], [1, -1]]) {
+      const len = Math.hypot(dx, dz);
+      const ux = dx / len, uz = dz / len;
+      const ang = Math.atan2(uz, ux);
+      for (let t = -diagLen / 2; t <= diagLen / 2; t += 1.5) {
+        arr.push({ x: cx + ux * t - uz * 1.9, z: cz + uz * t + ux * 1.9, sx: 0.72, sz: band, rot: -ang + Math.PI / 2 });
+      }
+    }
+  }
+}
+
+// ---- 行道树 / 公园树 / 樱花 / 郊野散树 ----
+function buildTrees(g, layout, rng, span, riverZ, riverW, riverCoastX) {
   const spots = [];
   for (const road of [...layout.roadsV, ...layout.roadsH]) {
     if (!road.major) continue;
     const vertical = layout.roadsV.includes(road);
-    for (let t = -span; t <= span; t += 27) {
-      if (Math.hypot(vertical ? 0 : t, vertical ? t : 0) < 70) continue; // 路口附近不种
+    for (let t = -Math.min(span, 1700); t <= Math.min(span, 1700); t += 27) {
+      if (Math.hypot(vertical ? 0 : t, vertical ? t : 0) < 70) continue;
       for (const s of [-1, 1]) {
         if (rng() < 0.25) continue;
         const off = (road.w / 2 + 2.6) * s;
@@ -202,14 +343,30 @@ function buildTrees(g, layout, rng, span) {
     }
   }
   for (const b of layout.blocks) {
-    if (b.zone !== 'park' && b.zone !== 'towerpark') continue;
-    const n = Math.floor(((b.x1 - b.x0) * (b.z1 - b.z0)) / 900);
-    for (let i = 0; i < n; i++) {
-      spots.push({
-        x: b.x0 + 6 + rng() * (b.x1 - b.x0 - 12),
-        z: b.z0 + 6 + rng() * (b.z1 - b.z0 - 12),
-        big: true,
-      });
+    if (b.zone === 'park' || b.zone === 'towerpark') {
+      const n = Math.floor(((b.x1 - b.x0) * (b.z1 - b.z0)) / 900);
+      for (let i = 0; i < n; i++) {
+        spots.push({ x: b.x0 + 6 + rng() * (b.x1 - b.x0 - 12), z: b.z0 + 6 + rng() * (b.z1 - b.z0 - 12), big: true });
+      }
+    } else if (b.zone === 'suburb') {
+      const n = 1 + ((rng() * 3) | 0);
+      for (let i = 0; i < n; i++) {
+        spots.push({ x: b.x0 + 8 + rng() * (b.x1 - b.x0 - 16), z: b.z0 + 8 + rng() * (b.z1 - b.z0 - 16) });
+      }
+    } else if (b.zone === 'rural') {
+      const n = 5 + ((rng() * 5) | 0);
+      for (let i = 0; i < n; i++) {
+        spots.push({ x: b.x0 + 10 + rng() * (b.x1 - b.x0 - 20), z: b.z0 + 10 + rng() * (b.z1 - b.z0 - 20), big: true });
+      }
+    }
+  }
+  // 樱花（河岸两列）
+  const cherries = [];
+  for (let x = -2350; x < riverCoastX - 30; x += 34) {
+    if (Math.abs(x) < 40 && false) continue;
+    for (const s of [-1, 1]) {
+      if (rng() < 0.2) continue;
+      cherries.push({ x, z: riverZ + s * (riverW / 2 + 5.5), big: false });
     }
   }
   const n = spots.length;
@@ -217,16 +374,8 @@ function buildTrees(g, layout, rng, span) {
   trunkGeo.translate(0, 1.6, 0);
   const crownGeo = new THREE.IcosahedronGeometry(1, 1);
   crownGeo.translate(0, 4.4, 0);
-  const trunkMesh = new THREE.InstancedMesh(
-    trunkGeo,
-    new THREE.MeshStandardMaterial({ color: 0x5d4a36, roughness: 1 }),
-    n
-  );
-  const crownMesh = new THREE.InstancedMesh(
-    crownGeo,
-    new THREE.MeshStandardMaterial({ color: 0x2f5b2b, roughness: 1, flatShading: true }),
-    n
-  );
+  const trunkMesh = new THREE.InstancedMesh(trunkGeo, new THREE.MeshStandardMaterial({ color: 0x5d4a36, roughness: 1 }), n);
+  const crownMesh = new THREE.InstancedMesh(crownGeo, new THREE.MeshStandardMaterial({ color: 0x2f5b2b, roughness: 1, flatShading: true }), n);
   const m = new THREE.Matrix4();
   spots.forEach((p, i) => {
     const s = p.big ? 1.5 + rng() * 0.7 : 0.85 + rng() * 0.5;
@@ -240,6 +389,21 @@ function buildTrees(g, layout, rng, span) {
   crownMesh.receiveShadow = true;
   g.add(trunkMesh);
   g.add(crownMesh);
+
+  // 樱花：粉色树冠
+  const cTrunk = new THREE.InstancedMesh(trunkGeo, trunkMesh.material, cherries.length);
+  const cCrown = new THREE.InstancedMesh(crownGeo, new THREE.MeshStandardMaterial({ color: 0xe8a8b8, roughness: 1, flatShading: true }), cherries.length);
+  cherries.forEach((p, i) => {
+    const s = 1.0 + rng() * 0.5;
+    m.makeScale(s, s, s);
+    m.setPosition(p.x, 0.3, p.z);
+    cTrunk.setMatrixAt(i, m);
+    cCrown.setMatrixAt(i, m);
+  });
+  cTrunk.castShadow = true;
+  cCrown.castShadow = true;
+  g.add(cTrunk);
+  g.add(cCrown);
 }
 
 // ---- 路灯：杆 + 悬臂 + 夜间发光灯头 + 地面光池 ----

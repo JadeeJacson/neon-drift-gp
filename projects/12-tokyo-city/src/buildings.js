@@ -95,7 +95,7 @@ export function buildBuildings(scene, layout) {
   const rng = makeRng(20260927 ^ 0x5eed);
   const lots = [];
   for (const b of layout.blocks) {
-    if (b.zone === 'park' || b.zone === 'towerpark' || b.zone === 'crossing') continue;
+    if (b.zone === 'park' || b.zone === 'towerpark' || b.zone === 'crossing' || b.zone === 'suburb' || b.zone === 'rural' || b.zone === 'coast') continue;
     subdivide(lots, b, b.zone, rng);
   }
 
@@ -107,7 +107,12 @@ export function buildBuildings(scene, layout) {
     const w = lot.w - inset * 2;
     const d = lot.d - inset * 2;
     if (w < 7 || d < 7) continue;
-    if (lot.zone === 'low' && rng() < 0.05) continue; // 空地
+    if (lot.zone === 'low') {
+      // 低层圈向外交错稀疏，形成「城市→郊区」的渐变
+      const rr = Math.hypot(lot.cx, lot.cz);
+      const thin = 0.05 + THREE.MathUtils.smoothstep(rr, 1000, 1450) * 0.5;
+      if (rng() < thin) continue;
+    }
     const h = heightOf(lot.zone, rng);
     const glass = lot.zone === 'tower' ? 1 : (lot.zone === 'shibuya' && rng() < 0.2 ? 1 : 0);
     list.push({ x: lot.cx, z: lot.cz, w, d, h, zone: lot.zone, glass });
