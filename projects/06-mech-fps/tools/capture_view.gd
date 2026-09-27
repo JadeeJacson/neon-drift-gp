@@ -10,6 +10,7 @@ extends SceneTree
 ##   engines/godot/4.7.2/Godot_v4.7.2-stable_win64_console.exe \
 ##     --path projects/06-mech-fps -s res://tools/capture_view.gd -- \
 ##     --weapon=dmr_sniper --pose=reload --frames=120 --out=_scratch/shots/dmr_reload.png
+##   加 --enemy=trooper --enemy-dist=12 可以往视野里钉一个敌人，用来判「敌人可不可读」
 ##
 ## 注意：脚本模式必须显式 quit()（§5.0b 第 6 条）。
 
@@ -20,6 +21,8 @@ var _weapon := "assault_rifle"
 var _pose := "idle"
 var _frames := 120
 var _out := OUT_DEFAULT
+var _enemy := ""
+var _enemy_dist := 12.0
 
 
 func _initialize() -> void:
@@ -29,6 +32,7 @@ func _initialize() -> void:
 	await process_frame
 
 	var weapon := _main.get_node_or_null(^"Player/CameraHolder/Camera/Weapon") as WeaponController
+	var cam := _main.get_node_or_null(^"Player/CameraHolder/Camera") as Camera3D
 	if weapon == null:
 		push_error("找不到 Weapon 节点，无法摆姿势")
 	else:
@@ -47,6 +51,20 @@ func _initialize() -> void:
 			"execute":
 				weapon.try_execute()
 
+	# 把敌人钉到视野前方：「敌人可不可读」这一项原本只能靠你实跑时撞见，
+	# 现在我能自己截图判断（体型、颜色、跑动动画在 20 米外认不认得出）。
+	if not _enemy.is_empty() and cam != null:
+		var scene_path := String(WaveDirector.ENEMY_SCENES.get(_enemy, ""))
+		if scene_path.is_empty():
+			push_error("没有敌型 %s 的场景" % _enemy)
+		else:
+			var foe := (load(scene_path) as PackedScene).instantiate() as EnemyController
+			_main.add_child(foe)
+			var at := cam.global_position - cam.global_transform.basis.z * _enemy_dist
+			at.y = 0.1
+			foe.global_position = at
+			print("FOE %s @ %s" % [_enemy, str(at)])
+
 	for _i in range(_frames):
 		await process_frame
 
@@ -54,10 +72,8 @@ func _initialize() -> void:
 	# 没有这些就只能靠猜（第一轮我把一个双臂绑定模型按静态枪摆，画面里全是举起的手）。
 	if weapon != null:
 		print(weapon.viewmodel_debug())
-		var cam := weapon.get_parent() as Camera3D
-		if cam != null:
-			print("CAM pos=%s fwd=%s" % [str(cam.global_position),
-				str(-cam.global_transform.basis.z)])
+	if cam != null:
+		print("CAM pos=%s fwd=%s" % [str(cam.global_position), str(-cam.global_transform.basis.z)])
 
 	var image := root.get_texture().get_image()
 	if image == null or image.get_width() == 0:
@@ -90,6 +106,10 @@ func _parse_args() -> void:
 			_frames = int(arg.trim_prefix("--frames="))
 		elif arg.begins_with("--out="):
 			_out = arg.trim_prefix("--out=")
+		elif arg.begins_with("--enemy="):
+			_enemy = arg.trim_prefix("--enemy=")
+		elif arg.begins_with("--enemy-dist="):
+			_enemy_dist = float(arg.trim_prefix("--enemy-dist="))
 
 
 func _abs(p: String) -> String:

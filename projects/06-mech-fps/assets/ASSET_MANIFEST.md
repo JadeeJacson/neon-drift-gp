@@ -14,18 +14,37 @@ Poly Pizza 是多人投稿站，**每个模型的尺度、朝向、原点都不�
 
 | ID | 源文件 | 授权 | 实测尺寸 (m) | 缩放 | 目标高度 | 动画 |
 |---|---|---|---|---|---|---|
-| `trooper` | `mech-o3Ps8z8ByP.glb` | CC0 (Quaternius) | 3.38 × 3.06 × 1.99 | **0.70** | ~2.14 | **17** |
+| `trooper` | `swat_trooper.glb`（原候选名 `swat-Btfn3G5Xv4.glb`） | **CC0** (Quaternius)，poly.pizza/m/Btfn3G5Xv4 | 头骨 y=1.556、`Head_end` y=1.809 → **模型自己就是 1.8 m 人形** | 1.00（不用缩放） | 1.8 | **24** |
 | `swarm_drone` | `robot-enemy-flying-lF3jeRJwiH.glb` | CC0 (Quaternius) | 2.27 × 0.76 × 0.48 | **1.30** | ~0.99 | **6** |
 | `charger` | `mechquadruped-5x1hRpbmdfo.glb` | CC-BY (3Donimus) | 2.06 × 0.59 × 0.49 | **1.50** | ~0.89 | 0（程序化） |
 | `heavy` | `mech-assault-walker-6s3_n8xzzvo.glb` | CC-BY (Alimayo Arango) | 16.43 × 19.31 × 15.54 | **0.26** | ~5.02 | 0（程序化） |
 
-### trooper 的 17 个动画（中距射击型，动画最全）
+### trooper 换成真人形（2026-09-27 素材升级）
+
+原来是 `trooper_mech.glb`（Quaternius 机甲，0.7 缩放凑 2.14 m，17 段动画）。
+制作人要的是「人型敌人」，所以换成 SWAT 人形：`scenes/enemies/trooper_soldier.tscn`
+（旧场景 `trooper_mech.tscn` 已 `git mv` 过来），碰撞体从 radius 0.45 / height 2.0 改成
+**0.35 / 1.8**，胶囊中心 y 从 1.07 改成 **0.9**（`smoke_battle.gd` 的 `COLLIDER_CENTER` 跟着改，
+否则水平射线会从脚底掠过——这个坑第一轮就踩过）。`enemy_table.gd` 的 display 从「机兵射手」改成「武装士兵」。
+
+24 段里战斗可用：`Idle_Gun`（持枪待机）/ `Walk` / `Run` / `Run_Shoot` / `Gun_Shoot`（开火）/
+`HitRecieve`（受击）/ `Death`（死亡），另有 Roll / Kick / Punch / Interact 等备用。
+
+**clip 名带骨架前缀**（`CharacterArmature|Run`），裸名一条都匹配不上，症状是「模型滑步」——
+`EnemyController._detect_anim_prefix()` 在装配时从 clip 列表里推出前缀，`_play_anim()` 先试裸名
+再试带前缀的。Quaternius / KayKit 这批角色全是这个口径，所以这一处改动对后面所有敌人通用。
+
+### 待接入的第二个 / 第三个人形（已在 `_candidates/`）
+
+| 文件 | 授权 | 动画 | 用途设想 |
+|---|---|---|---|
+| `character-enemy-mdGe4IN31v.glb` | CC0 (Quaternius) | **34 段**（含 `Run_Shoot`/`Walk_Shoot`/`Death`/`Duck`/`HitReact`） | 换 `heavy` 的程序化机甲？还是做精英怪，下一轮定 |
+| KayKit Character Pack Adventures（lab 根 `assets/_downloads/KayKit-Character-Pack-Adventures-1.0.zip`） | CC0 | 5 个角色 × **各 76 段**，共享同一骨架 | 一份 AnimationTree 复用五种怪；`1H_Ranged_Reload`/`1H_Ranged_Shoot`/`Death_A` 都在 |
+
+### 旧 mech 模型的动画清单（`trooper_mech.glb`，已不挂在任何敌型上，留着备用）
 
 `Dance` `Death` `Hello` `HitRecieve_1` `HitRecieve_2` `Idle` `Jump` `Jump_Landing`
 `Jump_NoHeight` `Kick` `No` `Pickup` `Run` `Shoot_Big` `Shoot_Small` `Walk` `Yes`
-
-→ 战斗可用映射：`Idle` / `Walk` / `Run` / `Shoot_Big`（开火）/ `HitRecieve_1`（受击硬直）/ `Death`（死亡）。
-这套动画**已经够做完整敌人 AI**，不需要再抓外部动画库。
 
 ### swarm_drone 的 6 个动画
 

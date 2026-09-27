@@ -10,7 +10,7 @@ extends SceneTree
 
 const BASE := "res://assets/models/"
 const TARGETS := [
-	"enemies/trooper_mech.glb",
+	"enemies/swat_trooper.glb",
 	"enemies/swarm_drone.glb",
 	"enemies/charger_mechquadruped.glb",
 	"enemies/heavy_assault_walker.glb",

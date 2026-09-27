@@ -6,7 +6,7 @@ class_name WaveDirector
 const ENEMY_SCENES := {
 	"drone": "res://scenes/enemies/swarm_drone.tscn",
 	"charger": "res://scenes/enemies/charger_melee.tscn",
-	"trooper": "res://scenes/enemies/trooper_mech.tscn",
+	"trooper": "res://scenes/enemies/trooper_soldier.tscn",
 	"heavy": "res://scenes/enemies/heavy_walker.tscn",
 }
 

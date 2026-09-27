@@ -20,7 +20,7 @@ const MAX_FRAMES := 900  # 约 15 秒模拟时间，够首波出怪
 const COLLIDER_CENTER := {
 	"drone": 0.6,
 	"charger": 0.5,
-	"trooper": 1.07,
+	"trooper": 0.9,
 	"heavy": 2.5,
 }
 
@@ -225,6 +225,25 @@ func _initialize() -> void:
 		_check(changed, "死亡必须有可见交代（下沉 / 缩小 / 倒地），不能只是停住再消失")
 	else:
 		_check(false, "找不到用于验证死亡表现的敌人")
+
+	# 5f) 人形敌人的动画链：trooper 已从机械模型换成 Quaternius 的 SWAT 人形（CC0，24 段）。
+	#     位移是脚本推的，光看位置变化证明不了「腿在迈」，只能读 AnimationPlayer 的当前 clip。
+	#     骨架前缀（`CharacterArmature|`）没匹配上时的症状正是「模型滑步」，所以这条必须锁。
+	var soldier := (load("res://scenes/enemies/trooper_soldier.tscn") as PackedScene).instantiate()
+	main.add_child(soldier)
+	soldier.global_position = camera.global_position + Vector3(0, 0, -40)
+	for _i in range(30):
+		await physics_frame
+	var human := soldier as EnemyController
+	_check(human != null, "人形敌人根节点是 EnemyController")
+	if human != null:
+		_check(human.anim_clip_count_for_test() >= 20,
+			"人形敌人应带完整动画库（实测 %d 段）" % human.anim_clip_count_for_test())
+		_check(not human.animation_name_for_test().is_empty(),
+			"人形敌人必须真的在播 clip（实测「%s」，空=前缀没匹配上，会站桩/滑步）"
+			% human.animation_name_for_test())
+	main.remove_child(soldier)
+	soldier.free()
 
 	# 6) 震屏：重反馈武器（霰弹 recoil 0.26）必须把 trauma 顶起来；
 	#    步枪单发 trauma 只有 0.05、衰减 3.2/s，16ms 就归零——那是「连射不该微抖」的设计意图，

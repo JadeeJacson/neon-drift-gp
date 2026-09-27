@@ -34,7 +34,7 @@ const TYPES := {
 		"anim": "procedural",
 	},
 	"trooper": {
-		"display": "机兵射手",
+		"display": "武装士兵",
 		"hp": 160.0,
 		"speed": 5.5,
 		"attack_range": 34.0,

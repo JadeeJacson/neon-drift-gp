@@ -313,8 +313,10 @@ engines/godot/4.7.2/Godot_v4.7.2-stable_win64.exe --path projects/06-mech-fps \
 | 两点锚定自动 fit | `tools/fit_viewmodel.gd` | 静态枪那套「包围盒最长轴 = 枪管」对带手臂的模型不成立（最长轴是肩膀跨度）。改用「握把 → 枪口」两点解相似变换，并**代回场景复验**，偏差 >0.02 m 报 FAIL |
 | 解 → 写配置 → 截图 | `_scratch/vm_tune.py`（一次性脚手架，不进工程） | 六个数手抄容易错，且要试 roll/高度，迭代要压到一条命令 |
 | 运行时接真动画 | `scripts/weapon_controller.gd` 的 `VIEWMODELS.anim / muzzle_node` | 换弹播模型自带的 `Reload`（不再是 tween 抖位置）；曳光与枪口焰取 `Muzzle` 节点的**实时**世界坐标，枪抬起来起点跟着抬 |
-| 断言锁住这条链 | `tools/smoke_battle.gd` §5d + §0c（共 41 条） | 待机姿态枪口节点落在 fit 点上（偏差 0.000 m）、标记节点必须隐藏（否则枪口挂一块常驻白片）、换弹时 `current_animation == "Reload"`、0.5 秒内枪口位移 0.078 m |
+| 断言锁住这条链 | `tools/smoke_battle.gd` §5d + §0c + §5f（共 48 条） | 待机姿态枪口节点落在 fit 点上（偏差 0.000 m）、标记节点必须隐藏（否则枪口挂一块常驻白片）、换弹时 `current_animation == "Reload"`、0.5 秒内枪口位移 0.078 m |
 | blockout 表面换 PBR | `tools/build_arena.gd` 的 `PBR` / `PIECE_SURFACE` + `assets/textures/ambientcg/` | 灰盒观感的另一半原因是 23 个盒子全是程序网格贴图。地面/高台/掩体贴 ambientCG MetalPlates001、外墙/斜坡贴 Concrete002，各带 normal + roughness（+ metalness），**三平面投影**免重算 UV。详见 ASSET_MANIFEST §3b |
+| 中距射手换真人形 | `scenes/enemies/trooper_soldier.tscn` ← Quaternius SWAT（CC0，24 段动画，模型自己就是 1.8 m） | 制作人点名要「人型敌人」。碰撞体改 0.35/1.8、胶囊中心 y 改 0.9，display 从「机兵射手」改「武装士兵」。**clip 名带骨架前缀**（`CharacterArmature|Run`），裸名一条都匹配不上、症状是滑步，所以 `EnemyController` 装配时自动推前缀 |
+| 截图能钉敌人 | `tools/capture_view.gd -- --enemy=trooper --enemy-dist=9` | 「敌人可不可读」原本只能你实跑撞见，现在我能自己看图（24 段动画里战斗可用的 7 段已接上） |
 
 已接入两把带手 viewmodel（制作人反馈「没有换弹动作」的正解）：
 **突击步枪** = J-Toastie 的 AKM 双臂 rig（CC-BY 3.0，`Armature|Idle/Reload/Shoot` 三段真动画，

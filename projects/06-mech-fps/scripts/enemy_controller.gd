@@ -4,12 +4,16 @@ class_name EnemyController
 ## 拿回「状态 + 前进/后退 + 是否开火」，这样 AI 的行为可以在 --headless 下逐帧断言（§4.2）。
 
 const GRAVITY := 24.0
+## 每个角色列的是**候选 clip 名**，按优先级从前往后试，第一个存在的就播。
+## 名字口径要兼容两种导出：裸名（老 mech 模型的 `Shoot_Big`）与带骨架前缀
+## （Quaternius / KayKit 这批人形角色全是 `CharacterArmature|Run`），
+## 写死一套就会静默不播——模型站桩不动，还以为是动画坏了。
 const ANIM_MAP := {
-	"idle": ["Idle", "idle"],
+	"idle": ["Idle_Gun", "Idle", "idle"],
 	"walk": ["Walk", "walk"],
 	"run": ["Run", "run", "Walk"],
-	"shoot": ["Shoot_Big", "Shoot", "shoot", "Attack"],
-	"hurt": ["HitRecieve_1", "HitReceive_1", "hit"],
+	"shoot": ["Gun_Shoot", "Idle_Gun_Shoot", "Shoot_Big", "Shoot", "shoot", "Attack"],
+	"hurt": ["HitRecieve", "HitRecieve_1", "HitReceive_1", "hit"],
 	"death": ["Death", "death", "Dead"],
 }
 
@@ -23,6 +27,7 @@ var _max_hp: float
 var _stagger_left: float = 0.0
 var _attack_ready_at: float = 0.0
 var _anim: AnimationPlayer
+var _anim_prefix := ""          # clip 名里的骨架前缀，装配时推一次
 var _model: Node3D
 var _meshes: Array[MeshInstance3D] = []
 var _flash_mat: StandardMaterial3D
@@ -41,6 +46,7 @@ func _ready() -> void:
 	add_to_group("enemies")
 	_model = _find_model(self)
 	_anim = _find_anim_player(self)
+	_detect_anim_prefix()
 	_meshes = _collect_meshes(self)
 	# 受击闪白靠 material_overlay：不改模型自带材质（GLB 的材质是共享资源，
 	# 改一份会让所有同模型敌人都跟着闪），overlay 是每个实例自己的覆盖层。
@@ -103,6 +109,16 @@ func is_dead() -> bool:
 ## 供冒烟测试检查死亡表现是否真的动了（倒地/下沉/缩小都作用在 _model 上）。
 func model_for_test() -> Node3D:
 	return _model
+
+
+## 供冒烟断言：模型自带的 clip 数与当前播放名。人形敌人「有没有在跑」
+## 光看位移判断不了（位移是脚本推的），必须看动画本身有没有播起来。
+func anim_clip_count_for_test() -> int:
+	return 0 if _anim == null else _anim.get_animation_list().size()
+
+
+func animation_name_for_test() -> String:
+	return "" if _anim == null else _anim.current_animation
 
 
 func _apply_movement(decision: Dictionary, dir_flat: Vector3, speed: float, delta: float) -> void:
@@ -288,10 +304,25 @@ func _find_model(node: Node) -> Node3D:
 func _play_anim(kind: String) -> bool:
 	if _anim == null:
 		return false
-	var names: Array = ANIM_MAP[kind]
-	for name in names:
-		if _anim.has_animation(String(name)):
-			if _anim.current_animation != String(name):
-				_anim.play(String(name))
+	for name in ANIM_MAP[kind]:
+		var clip := String(name)
+		for candidate in [clip, _anim_prefix + clip]:
+			if not _anim.has_animation(candidate):
+				continue
+			if _anim.current_animation != candidate:
+				_anim.play(candidate)
 			return true
 	return false
+
+
+## 从 clip 名里推出骨架前缀（`CharacterArmature|Run` → `CharacterArmature|`）。
+## 装配时算一次，别每帧扫。
+func _detect_anim_prefix() -> void:
+	if _anim == null:
+		return
+	for c in _anim.get_animation_list():
+		var s := String(c)
+		var bar := s.find("|")
+		if bar >= 0:
+			_anim_prefix = s.substr(0, bar + 1)
+			return
