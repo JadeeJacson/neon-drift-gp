@@ -1,9 +1,13 @@
 # 二进制声明：阻止 Git 对二进制素材做文本 diff / 合并 / 换行转换。
 #
-# 刻意**不加** `* text=auto`：本仓库现存文本文件全部是 CRLF（Windows 原生写入，
-# core.autocrlf=false）。一旦开启自动归一化，下次 git add 会把上千个文件重写成 LF，
-# 产生纯噪音的巨型 diff。真要跨环境（Linux/CI）时，单独开一次
-# `git add --renormalize .` 提交，别和功能性改动混在一起。详见 docs/00-形态路线图.md §5.4。
+# 刻意**不加** `* text=auto`：Git 会在 `git add` 时按配置重写行尾，
+# 一旦开启自动归一化，可能把上千个文件重写成另一种行尾，产生纯噪音的巨型 diff。
+# 真正跨环境（Linux/CI）需要统一时，单独开一次 `git add --renormalize .` 提交，
+# 别和功能性改动混在一起。详见 docs/00-形态路线图.md §5.4。
+#
+# **现状（2026-09 实测）**：仓库内文本文件以 **LF** 为主（抽样自写脚本与配置：CRLF 0 个）。
+# 新增文件请直接写 LF，别让编辑器默认写 CRLF——否则 `git diff --check` 会把每个
+# 新增行都报成 trailing whitespace（`-text` 下 \r 会被当作行尾空白）。
 
 # 3D / 图像 / 音频素材
 *.glb binary
@@ -34,7 +38,7 @@
 *.resb binary
 
 # 文本类：显式声明「不做换行归一化」，把现状锁死。
-# 注意：这里不能用 `text`/`text=auto`——那会把已入库的 CRLF blob 重写为 LF，
+# 注意：这里不能用 `text`/`text=auto`——那会让 Git 按 core.autocrlf 重写行尾，
 # 制造一次纯噪音的千文件 diff。`-text` 表示按字节原样存储，
 # 即使日后有人把 core.autocrlf 改成 true 也不会动摇仓库内容。
 *.gd text=false
