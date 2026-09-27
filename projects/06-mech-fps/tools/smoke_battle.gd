@@ -153,16 +153,23 @@ func _initialize() -> void:
 	var pump_shots := await _count_shots_while_held(weapon, "shotgun", 60)
 	_check(pump_shots <= 2, "霰弹按住不该连发（实测 %d 发）" % pump_shots)
 
-	# 5c) 枪口点几何：曳光与枪口焰都从实测包围盒算出的枪口点发出，
-	#     位置不对就是实跑看到的「射线不是从枪口出发」。
-	weapon.select(0)
-	var muzzle := weapon.muzzle_global()
-	var to_muzzle := muzzle - camera.global_position
+	# 5c) 枪口点几何：**三把枪都要过**，不能只测第一把。
+	#     接了带手臂的 rig 之后霰弹的枪口被算到 3.3 米外、0.7 米下方（包围盒把三把枪
+	#     并一起了），而原来这条只 select(0)——所以它当时是绿的，问题靠截图才发现。
 	var fwd := -camera.global_transform.basis.z
-	_check(to_muzzle.length() > 0.25 and to_muzzle.length() < 1.4,
-		"枪口离相机 %.2fm，不该贴身也不该伸太出" % to_muzzle.length())
-	_check(fwd.dot(to_muzzle.normalized()) > 0.8, "枪口应在视野前方，否则曳光会横穿屏幕")
-	_check(to_muzzle.y < 0.02, "枪口应不高于视线，第一人称枪该在屏幕下方")
+	for idx in range(weapon.weapon_order.size()):
+		weapon.select(idx)
+		# 等拔枪动作播完再量：Unholster 的头几帧枪还在腰侧，那时候的枪口方向不算数
+		for _s in range(30):
+			await physics_frame
+		var to_muzzle := weapon.muzzle_global() - camera.global_position
+		var vid := weapon.current_id()
+		_check(to_muzzle.length() > 0.25 and to_muzzle.length() < 1.4,
+			"%s 枪口离相机 %.2fm，不该贴身也不该伸太出" % [vid, to_muzzle.length()])
+		_check(fwd.dot(to_muzzle.normalized()) > 0.8,
+			"%s 枪口应在视野前方，否则曳光会横穿屏幕" % vid)
+		_check(to_muzzle.y < 0.02, "%s 枪口应不高于视线，第一人称枪该在屏幕下方" % vid)
+	weapon.select(0)
 
 	# 5d) 带手 viewmodel 的动画链（用户反馈「没有换弹动作」的正解）：
 	#     绑定模型必须真的用自带动画，且曳光起点跟着模型自带的枪口节点走。

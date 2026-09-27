@@ -464,15 +464,19 @@ func _build_viewmodels() -> void:
 
 
 ## 在 Weapon 局部空间里求「最靠前（-Z 最小）的那一点」，取盒中心的高度作为枪口高度。
-func _compute_muzzle(_inst: Node3D) -> Vector3:
+## 只量**传进来的这把枪**：早先写成遍历 self 的整棵子树，于是把另外两把 viewmodel
+## 连同曳光/粒子一起并进包围盒——接了带手臂的 rig 之后，霰弹的枪口被算到 3.3 米外、
+## 0.7 米下方，曳光又变回「不从枪口出发」。
+func _compute_muzzle(inst: Node3D) -> Vector3:
 	var box := AABB()
 	var found := false
-	for m in _all_meshes(self):
+	var inv := get_global_transform().affine_inverse()
+	for m in _all_meshes(inst):
 		var mi := m as MeshInstance3D
 		# 网格的世界变换 → 折算到本节点（Weapon，位于相机原点）局部空间。
 		# 必须显式标注：_all_meshes 返回无类型 Array，元素是 Variant，
 		# 用 `:=` 推断会撞上本工程「Variant 推断即错误」的规则（§5.0b 第 2 条）。
-		var to_local: Transform3D = get_global_transform().affine_inverse() * mi.global_transform
+		var to_local: Transform3D = inv * mi.global_transform
 		var box_local := _xform_aabb(mi.get_aabb(), to_local)
 		box = box_local if not found else box.merge(box_local)
 		found = true
