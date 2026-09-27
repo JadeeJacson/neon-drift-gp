@@ -398,5 +398,645 @@
     "glb_url": "https://static.poly.pizza/cc50aed9-7e80-4f18-978f-0f0258687c1b.glb",
     "file": "models/weapons/polypizza/blaster-e-type-KgCR3STCKX.glb",
     "query": "blaster"
+  },
+  {
+    "id": "57u6P7Sr7K0",
+    "title": "Simple soccer football",
+    "creator": "Smirnoff Alexander",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/57u6P7Sr7K0",
+    "glb_url": "https://static.poly.pizza/47a40265-29f4-466d-9aa5-d0c093936864.glb",
+    "file": "models/sports/polypizza/simple-soccer-football-57u6P7Sr7K0.glb",
+    "query": "soccer ball"
+  },
+  {
+    "id": "fnDmeCySRhV",
+    "title": "Soccer ball",
+    "creator": "Poly by Google",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/fnDmeCySRhV",
+    "glb_url": "https://static.poly.pizza/3f36d792-bf1e-48f6-8d9d-f16e1680d5e9.glb",
+    "file": "models/sports/polypizza/soccer-ball-fnDmeCySRhV.glb",
+    "query": "soccer ball"
+  },
+  {
+    "id": "9z5905buuy3",
+    "title": "Soccer ball",
+    "creator": "jeremy",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/9z5905buuy3",
+    "glb_url": "https://static.poly.pizza/e05264e4-bc8d-41cb-bb79-401f21613abb.glb",
+    "file": "models/sports/polypizza/soccer-ball-9z5905buuy3.glb",
+    "query": "soccer ball"
+  },
+  {
+    "id": "tDblqBpmOZ",
+    "title": "Football",
+    "creator": "Zsky",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/tDblqBpmOZ",
+    "glb_url": "https://static.poly.pizza/68ea60f4-999c-4164-905f-a0f5ad56c55a.glb",
+    "file": "models/sports/polypizza/football-tDblqBpmOZ.glb",
+    "query": "soccer ball"
+  },
+  {
+    "id": "7t4hmicGHV4",
+    "title": "Soccer goal",
+    "creator": "Poly by Google",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/7t4hmicGHV4",
+    "glb_url": "https://static.poly.pizza/1fbff756-5656-4e8c-ada5-5d968ca95e17.glb",
+    "file": "models/sports/polypizza/soccer-goal-7t4hmicGHV4.glb",
+    "query": "soccer ball"
+  },
+  {
+    "id": "8yoy_wgAlof",
+    "title": "Soccer Field",
+    "creator": "Mark Steelman",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/8yoy_wgAlof",
+    "glb_url": "https://static.poly.pizza/d4d603a6-55f4-408e-8e1c-217b2d7f69be.glb",
+    "file": "models/sports/polypizza/soccer-field-8yoy_wgAlof.glb",
+    "query": "soccer ball"
+  },
+  {
+    "id": "4IwPTeOmq6c",
+    "title": "beach ball",
+    "creator": "the_ normalgamer",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/4IwPTeOmq6c",
+    "glb_url": "https://static.poly.pizza/504cc9cd-cbdc-4724-ab60-5899846aff1d.glb",
+    "file": "models/sports/polypizza/beach-ball-4IwPTeOmq6c.glb",
+    "query": "soccer ball"
+  },
+  {
+    "id": "m8zAwR6eBA",
+    "title": "pokeball",
+    "creator": "Exceptional_3D",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/m8zAwR6eBA",
+    "glb_url": "https://static.poly.pizza/c73c3f70-2c78-4fee-9ee2-8c5db326c1a0.glb",
+    "file": "models/sports/polypizza/pokeball-m8zAwR6eBA.glb",
+    "query": "soccer ball"
+  },
+  {
+    "id": "6TZCkGh76m5",
+    "title": "Football stadium",
+    "creator": "Poly by Google",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/6TZCkGh76m5",
+    "glb_url": "https://static.poly.pizza/c64ea3bf-399e-4e55-ab07-497e0457e699.glb",
+    "file": "models/sports/polypizza/football-stadium-6TZCkGh76m5.glb",
+    "query": "soccer goal"
+  },
+  {
+    "id": "45Ez39JSdz6",
+    "title": "Ballpark",
+    "creator": "Poly by Google",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/45Ez39JSdz6",
+    "glb_url": "https://static.poly.pizza/98e54cbc-cca3-425b-9424-2c5a3d29a095.glb",
+    "file": "models/sports/polypizza/ballpark-45Ez39JSdz6.glb",
+    "query": "stadium"
+  },
+  {
+    "id": "KAHX68dbXO",
+    "title": "Stadium Seats",
+    "creator": "Zsky",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/KAHX68dbXO",
+    "glb_url": "https://static.poly.pizza/b293f1b7-f2a7-4c0b-b22e-af546019f501.glb",
+    "file": "models/sports/polypizza/stadium-seats-KAHX68dbXO.glb",
+    "query": "stadium"
+  },
+  {
+    "id": "3eKUbGjEPv",
+    "title": "Stadium Seats",
+    "creator": "Zsky",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/3eKUbGjEPv",
+    "glb_url": "https://static.poly.pizza/52a535f3-55d0-4d7f-8aa1-cc60653a04e0.glb",
+    "file": "models/sports/polypizza/stadium-seats-3eKUbGjEPv.glb",
+    "query": "stadium"
+  },
+  {
+    "id": "wtYoArecHj",
+    "title": "Stadium Seats",
+    "creator": "Zsky",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/wtYoArecHj",
+    "glb_url": "https://static.poly.pizza/6d47fa2a-aa6b-4826-96d3-70dca21f6817.glb",
+    "file": "models/sports/polypizza/stadium-seats-wtYoArecHj.glb",
+    "query": "stadium"
+  },
+  {
+    "id": "4raJTBfhAfc",
+    "title": "Coliseum",
+    "creator": "Poly by Google",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/4raJTBfhAfc",
+    "glb_url": "https://static.poly.pizza/39e5f465-248d-45af-80d4-b46e676224c5.glb",
+    "file": "models/sports/polypizza/coliseum-4raJTBfhAfc.glb",
+    "query": "stadium"
+  },
+  {
+    "id": "J15vlPVvKK",
+    "title": "Cannon",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/J15vlPVvKK",
+    "glb_url": "https://static.poly.pizza/6d76c733-c77c-46f5-9d4f-af847d4052b3.glb",
+    "file": "models/defense/polypizza/cannon-J15vlPVvKK.glb",
+    "query": "cannon"
+  },
+  {
+    "id": "qIAvoaawib",
+    "title": "Cannon",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/qIAvoaawib",
+    "glb_url": "https://static.poly.pizza/8054a1bd-2117-41cf-be71-31b6cb2d2ef2.glb",
+    "file": "models/defense/polypizza/cannon-qIAvoaawib.glb",
+    "query": "cannon"
+  },
+  {
+    "id": "00gto_PcYMp",
+    "title": "Cannon",
+    "creator": "Poly by Google",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/00gto_PcYMp",
+    "glb_url": "https://static.poly.pizza/9dfd7454-b74c-4fa8-ba18-1bfe280f4446.glb",
+    "file": "models/defense/polypizza/cannon-00gto_PcYMp.glb",
+    "query": "cannon"
+  },
+  {
+    "id": "o452gXvkqD",
+    "title": "Cannon",
+    "creator": "Kenney",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/o452gXvkqD",
+    "glb_url": "https://static.poly.pizza/b573a1a2-9e3e-4946-84a7-442ff15aca85.glb",
+    "file": "models/defense/polypizza/cannon-o452gXvkqD.glb",
+    "query": "cannon"
+  },
+  {
+    "id": "1wgfkTqDt0T",
+    "title": "The Cannon Cleaner",
+    "creator": "Don Carson",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/1wgfkTqDt0T",
+    "glb_url": "https://static.poly.pizza/758e5406-07d7-439e-8c84-f4da3ebe313c.glb",
+    "file": "models/defense/polypizza/the-cannon-cleaner-1wgfkTqDt0T.glb",
+    "query": "cannon"
+  },
+  {
+    "id": "7Y8BEkmUMrk",
+    "title": "045",
+    "creator": "Daisuke Takeoka",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/7Y8BEkmUMrk",
+    "glb_url": "https://static.poly.pizza/b8e7c5df-096d-45f0-88f4-f04a909405b0.glb",
+    "file": "models/defense/polypizza/045-7Y8BEkmUMrk.glb",
+    "query": "laser"
+  },
+  {
+    "id": "h2P7oQ8RVg",
+    "title": "Laser",
+    "creator": "Pichuliru",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/h2P7oQ8RVg",
+    "glb_url": "https://static.poly.pizza/288e16a3-63f9-496b-a274-3262dbac951f.glb",
+    "file": "models/defense/polypizza/laser-h2P7oQ8RVg.glb",
+    "query": "laser"
+  },
+  {
+    "id": "IYdpAod3i2",
+    "title": "Turret",
+    "creator": "MiniPoly",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/IYdpAod3i2",
+    "glb_url": "https://static.poly.pizza/728c2771-e2d9-4aeb-a30c-de23fdc33a68.glb",
+    "file": "models/defense/polypizza/turret-IYdpAod3i2.glb",
+    "query": "laser"
+  },
+  {
+    "id": "LG2SQMEiVG",
+    "title": "Laser Attachment",
+    "creator": "Pichuliru",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/LG2SQMEiVG",
+    "glb_url": "https://static.poly.pizza/a59e76a3-0a56-4092-beb2-39262446fedf.glb",
+    "file": "models/defense/polypizza/laser-attachment-LG2SQMEiVG.glb",
+    "query": "laser"
+  },
+  {
+    "id": "9qGe3grmPlK",
+    "title": "Pew Pew",
+    "creator": "Damon Pidhajecky",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/9qGe3grmPlK",
+    "glb_url": "https://static.poly.pizza/47cb0ff5-7717-4fa5-b165-725f2d7b5ac0.glb",
+    "file": "models/defense/polypizza/pew-pew-9qGe3grmPlK.glb",
+    "query": "laser"
+  },
+  {
+    "id": "iuMDwgTRMU",
+    "title": "Tower",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/iuMDwgTRMU",
+    "glb_url": "https://static.poly.pizza/749bb696-9058-4290-a5d6-92fb97a9a641.glb",
+    "file": "models/defense/polypizza/tower-iuMDwgTRMU.glb",
+    "query": "tower"
+  },
+  {
+    "id": "9jli-2CSYS-",
+    "title": "Tower",
+    "creator": "Anonymous",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/9jli-2CSYS-",
+    "glb_url": "https://static.poly.pizza/75d6b149-90a2-48ba-9b62-6154cfc98cf8.glb",
+    "file": "models/defense/polypizza/tower-9jli-2CSYS-.glb",
+    "query": "tower"
+  },
+  {
+    "id": "sbaM8I229r",
+    "title": "Guard Tower",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/sbaM8I229r",
+    "glb_url": "https://static.poly.pizza/5d56ff95-db7a-43d6-997f-e9eea3f13f53.glb",
+    "file": "models/defense/polypizza/guard-tower-sbaM8I229r.glb",
+    "query": "tower"
+  },
+  {
+    "id": "eWEYV9ppUjv",
+    "title": "Radio tower",
+    "creator": "Poly by Google",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/eWEYV9ppUjv",
+    "glb_url": "https://static.poly.pizza/07fcb8b1-e21d-447f-af83-fc769d808123.glb",
+    "file": "models/defense/polypizza/radio-tower-eWEYV9ppUjv.glb",
+    "query": "tower"
+  },
+  {
+    "id": "ux44tbeQvj",
+    "title": "Bell Tower",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/ux44tbeQvj",
+    "glb_url": "https://static.poly.pizza/fe8e639d-f07d-4512-a38d-3519b44a5fdc.glb",
+    "file": "models/defense/polypizza/bell-tower-ux44tbeQvj.glb",
+    "query": "tower"
+  },
+  {
+    "id": "Rz4U5dZJz8",
+    "title": "Stone Tower",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/Rz4U5dZJz8",
+    "glb_url": "https://static.poly.pizza/2ebc450e-0874-4b5a-bbfa-6e30e29fcc85.glb",
+    "file": "models/defense/polypizza/stone-tower-Rz4U5dZJz8.glb",
+    "query": "tower"
+  },
+  {
+    "id": "egcLMSGiuA",
+    "title": "Tank",
+    "creator": "KolosStudios",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/egcLMSGiuA",
+    "glb_url": "https://static.poly.pizza/ba4513d6-e5c6-4a4b-a027-2eb7097d6516.glb",
+    "file": "models/characters/polypizza/tank-egcLMSGiuA.glb",
+    "query": "tank"
+  },
+  {
+    "id": "FA5daiyZQq",
+    "title": "Tank",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/FA5daiyZQq",
+    "glb_url": "https://static.poly.pizza/4a40c214-87f9-4cdb-bc72-003c96f49f76.glb",
+    "file": "models/characters/polypizza/tank-FA5daiyZQq.glb",
+    "query": "tank"
+  },
+  {
+    "id": "7GG1xDtc8l",
+    "title": "Tank",
+    "creator": "Zsky",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/7GG1xDtc8l",
+    "glb_url": "https://static.poly.pizza/a79322fd-93b8-42bf-a261-b4e639f6270d.glb",
+    "file": "models/characters/polypizza/tank-7GG1xDtc8l.glb",
+    "query": "tank"
+  },
+  {
+    "id": "cW3zvvkMOM",
+    "title": "Tank",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/cW3zvvkMOM",
+    "glb_url": "https://static.poly.pizza/58c387b2-636f-49dc-a900-13b0852717d6.glb",
+    "file": "models/characters/polypizza/tank-cW3zvvkMOM.glb",
+    "query": "tank"
+  },
+  {
+    "id": "4t0RMXCl_Ud",
+    "title": "Tank",
+    "creator": "Poly by Google",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/4t0RMXCl_Ud",
+    "glb_url": "https://static.poly.pizza/bbe23e40-003f-4be1-ba9e-b0dd52a4d006.glb",
+    "file": "models/characters/polypizza/tank-4t0RMXCl_Ud.glb",
+    "query": "tank"
+  },
+  {
+    "id": "Dc4k4CooN3",
+    "title": "Tank",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/Dc4k4CooN3",
+    "glb_url": "https://static.poly.pizza/2568b2cb-58e0-49d8-9d3b-6f208ad281c7.glb",
+    "file": "models/characters/polypizza/tank-Dc4k4CooN3.glb",
+    "query": "tank"
+  },
+  {
+    "id": "yRYJiAJyiM",
+    "title": "Spider",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/yRYJiAJyiM",
+    "glb_url": "https://static.poly.pizza/4259fbdb-afb5-4d40-9108-363625dd6b6e.glb",
+    "file": "models/characters/polypizza/spider-yRYJiAJyiM.glb",
+    "query": "spider"
+  },
+  {
+    "id": "cbFePDoI8yi",
+    "title": "Giant Spider",
+    "creator": "Zane Brant",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/cbFePDoI8yi",
+    "glb_url": "https://static.poly.pizza/a7fb77a6-8425-4a68-8de1-c3b44ad2c281.glb",
+    "file": "models/characters/polypizza/giant-spider-cbFePDoI8yi.glb",
+    "query": "spider"
+  },
+  {
+    "id": "7ky8XvFh9Wf",
+    "title": "Spider",
+    "creator": "jeremy",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/7ky8XvFh9Wf",
+    "glb_url": "https://static.poly.pizza/8275237b-360e-4c4e-97db-4cdf328a774e.glb",
+    "file": "models/characters/polypizza/spider-7ky8XvFh9Wf.glb",
+    "query": "spider"
+  },
+  {
+    "id": "EHYNWew6JK",
+    "title": "Cobweb",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/EHYNWew6JK",
+    "glb_url": "https://static.poly.pizza/51a602a6-76c9-4552-b48d-2950f91126d4.glb",
+    "file": "models/characters/polypizza/cobweb-EHYNWew6JK.glb",
+    "query": "spider"
+  },
+  {
+    "id": "46w8bcXM21v",
+    "title": "Cthulhu Spider Guard",
+    "creator": "sirkitree",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/46w8bcXM21v",
+    "glb_url": "https://static.poly.pizza/18c2f2e5-6623-4f61-8c75-e8ec16b00495.glb",
+    "file": "models/characters/polypizza/cthulhu-spider-guard-46w8bcXM21v.glb",
+    "query": "spider"
+  },
+  {
+    "id": "5EGWBMpuXq",
+    "title": "Adventurer",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/5EGWBMpuXq",
+    "glb_url": "https://static.poly.pizza/bbe369ee-a686-42c7-adad-14356f5f2f15.glb",
+    "file": "models/characters/polypizza/adventurer-5EGWBMpuXq.glb",
+    "query": "walker"
+  },
+  {
+    "id": "84URB-weoAu",
+    "title": "Running Man",
+    "creator": "sirkitree",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/84URB-weoAu",
+    "glb_url": "https://static.poly.pizza/34025c10-6a27-480f-82a0-522052e411c4.glb",
+    "file": "models/characters/polypizza/running-man-84URB-weoAu.glb",
+    "query": "walker"
+  },
+  {
+    "id": "6jqEk8QiL0m",
+    "title": "AT-ST",
+    "creator": "Tom Meyer",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/6jqEk8QiL0m",
+    "glb_url": "https://static.poly.pizza/b905ed1a-fd6f-4b41-9059-4dc85157c5a1.glb",
+    "file": "models/characters/polypizza/at-st-6jqEk8QiL0m.glb",
+    "query": "walker"
+  },
+  {
+    "id": "1Xid2Qhqn2s",
+    "title": "Missile",
+    "creator": "Jarlan Perez",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/1Xid2Qhqn2s",
+    "glb_url": "https://static.poly.pizza/bae77cff-57c6-4cb4-8ccf-7bc61a9b1d20.glb",
+    "file": "models/weapons/polypizza/missile-1Xid2Qhqn2s.glb",
+    "query": "missile"
+  },
+  {
+    "id": "dPVCvXP-S58",
+    "title": "Missile",
+    "creator": "Poly by Google",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/dPVCvXP-S58",
+    "glb_url": "https://static.poly.pizza/908a29de-a70c-467a-ad90-0348e0a5e1cb.glb",
+    "file": "models/weapons/polypizza/missile-dPVCvXP-S58.glb",
+    "query": "missile"
+  },
+  {
+    "id": "9awwTQWYux",
+    "title": "Rocket",
+    "creator": "hat_my_guy",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/9awwTQWYux",
+    "glb_url": "https://static.poly.pizza/244c027c-40f0-45ca-a707-0f8e855c9831.glb",
+    "file": "models/weapons/polypizza/rocket-9awwTQWYux.glb",
+    "query": "missile"
+  },
+  {
+    "id": "RqnAj5N9fL",
+    "title": "Missile Turret",
+    "creator": "Zsky",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/RqnAj5N9fL",
+    "glb_url": "https://static.poly.pizza/79dee9d7-9e8a-4c86-afad-47bf293a0bbe.glb",
+    "file": "models/weapons/polypizza/missile-turret-RqnAj5N9fL.glb",
+    "query": "missile"
+  },
+  {
+    "id": "5iVbfDhRnN7",
+    "title": "Satellite dish",
+    "creator": "Poly by Google",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/5iVbfDhRnN7",
+    "glb_url": "https://static.poly.pizza/c3519412-2dc7-424b-96dc-8a8dc9cd0c25.glb",
+    "file": "models/environment/polypizza/satellite-dish-5iVbfDhRnN7.glb",
+    "query": "radar"
+  },
+  {
+    "id": "V7XQDxF8JC",
+    "title": "Roof Radar",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/V7XQDxF8JC",
+    "glb_url": "https://static.poly.pizza/ac218d89-a903-4cc1-aa32-bd70262cda76.glb",
+    "file": "models/environment/polypizza/roof-radar-V7XQDxF8JC.glb",
+    "query": "radar"
+  },
+  {
+    "id": "0A3nGf2__Mt",
+    "title": "Radar dish",
+    "creator": "Paul Spooner",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/0A3nGf2__Mt",
+    "glb_url": "https://static.poly.pizza/f173b900-d1d0-43fe-ad48-7376f5d87425.glb",
+    "file": "models/environment/polypizza/radar-dish-0A3nGf2__Mt.glb",
+    "query": "radar"
+  },
+  {
+    "id": "K58RQ63qR5",
+    "title": "Generator",
+    "creator": "KolosStudios",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/K58RQ63qR5",
+    "glb_url": "https://static.poly.pizza/e9fc0901-7600-48f4-881d-b546f3df4cec.glb",
+    "file": "models/environment/polypizza/generator-K58RQ63qR5.glb",
+    "query": "generator"
+  },
+  {
+    "id": "ZPlQHwiqTp",
+    "title": "Large Electric Generator",
+    "creator": "miro_art_studio",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/ZPlQHwiqTp",
+    "glb_url": "https://static.poly.pizza/e81145eb-091e-4803-9523-8611bd7e24e4.glb",
+    "file": "models/environment/polypizza/large-electric-generator-ZPlQHwiqTp.glb",
+    "query": "generator"
+  },
+  {
+    "id": "iIyE2f6pEk",
+    "title": "Electric Miner",
+    "creator": "MiniPoly",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/iIyE2f6pEk",
+    "glb_url": "https://static.poly.pizza/158c5236-cd9c-4f00-9a4e-807dddc16a55.glb",
+    "file": "models/environment/polypizza/electric-miner-iIyE2f6pEk.glb",
+    "query": "generator"
+  },
+  {
+    "id": "efgURjIpJbm",
+    "title": "Arc Reactor",
+    "creator": "Heiko Jakob",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/efgURjIpJbm",
+    "glb_url": "https://static.poly.pizza/a044d325-5a97-42e4-8e5e-18e0961d8da0.glb",
+    "file": "models/environment/polypizza/arc-reactor-efgURjIpJbm.glb",
+    "query": "generator"
+  },
+  {
+    "id": "dlBoC4Wkzp2",
+    "title": "Shipping Container",
+    "creator": "Clint Chilcott",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/dlBoC4Wkzp2",
+    "glb_url": "https://static.poly.pizza/6bd1dfdf-9ba0-4b8d-8e96-33d3680fc8b8.glb",
+    "file": "models/environment/polypizza/shipping-container-dlBoC4Wkzp2.glb",
+    "query": "container"
+  },
+  {
+    "id": "dQXRtm5GbO",
+    "title": "Shipping Container",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/dQXRtm5GbO",
+    "glb_url": "https://static.poly.pizza/e56c8efb-940f-4150-9bf8-d468c0165116.glb",
+    "file": "models/environment/polypizza/shipping-container-dQXRtm5GbO.glb",
+    "query": "container"
+  },
+  {
+    "id": "CQMziXZfYh",
+    "title": "Container",
+    "creator": "KolosStudios",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/CQMziXZfYh",
+    "glb_url": "https://static.poly.pizza/c5d60005-4cf2-4570-8e84-9b0b1961fc59.glb",
+    "file": "models/environment/polypizza/container-CQMziXZfYh.glb",
+    "query": "container"
+  },
+  {
+    "id": "vzzCNUB6Zn",
+    "title": "Container Red",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/vzzCNUB6Zn",
+    "glb_url": "https://static.poly.pizza/98061c7f-e85a-4b19-98ee-391e0a2263cd.glb",
+    "file": "models/environment/polypizza/container-red-vzzCNUB6Zn.glb",
+    "query": "container"
+  },
+  {
+    "id": "1C3zb8Q9USk",
+    "title": "Satellite",
+    "creator": "Poly by Google",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/1C3zb8Q9USk",
+    "glb_url": "https://static.poly.pizza/bc748445-ace9-4c1f-b6c8-0e38cb3222de.glb",
+    "file": "models/environment/polypizza/satellite-1C3zb8Q9USk.glb",
+    "query": "satellite"
+  },
+  {
+    "id": "fmYHY1leH_P",
+    "title": "Satellite",
+    "creator": "Poly by Google",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/fmYHY1leH_P",
+    "glb_url": "https://static.poly.pizza/06e36157-284e-46df-8889-cb2b6b03bd2b.glb",
+    "file": "models/environment/polypizza/satellite-fmYHY1leH_P.glb",
+    "query": "satellite"
+  },
+  {
+    "id": "d3Fq5H6ne8E",
+    "title": "International Space Station",
+    "creator": "Poly by Google",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/d3Fq5H6ne8E",
+    "glb_url": "https://static.poly.pizza/f3bbb5ee-e504-49d2-a4a0-43ea4c713968.glb",
+    "file": "models/environment/polypizza/international-space-station-d3Fq5H6ne8E.glb",
+    "query": "satellite"
+  },
+  {
+    "id": "OuHQCigiUR",
+    "title": "Antenna",
+    "creator": "Quaternius",
+    "license": "CC0",
+    "page": "https://poly.pizza/m/OuHQCigiUR",
+    "glb_url": "https://static.poly.pizza/08f832ca-e268-4834-9711-d03986f042e8.glb",
+    "file": "models/environment/polypizza/antenna-OuHQCigiUR.glb",
+    "query": "antenna"
+  },
+  {
+    "id": "cOEOSO0-LIF",
+    "title": "Satellite antenna",
+    "creator": "Hennadiy Kyseliov",
+    "license": "CC-BY",
+    "page": "https://poly.pizza/m/cOEOSO0-LIF",
+    "glb_url": "https://static.poly.pizza/a406bcdf-8491-449d-b812-dd4337d82a91.glb",
+    "file": "models/environment/polypizza/satellite-antenna-cOEOSO0-LIF.glb",
+    "query": "antenna"
   }
 ]
