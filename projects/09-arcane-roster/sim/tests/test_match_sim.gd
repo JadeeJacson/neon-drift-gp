@@ -2,15 +2,18 @@ extends GutTest
 ## 整局跑分的区间断言（docs/00 §4.3：断言**分布**而不是单值）。
 ##
 ## 这是 09 最重要的一组测试：它锁住「这局游戏有没有决策深度」这个结论。
-## **基线来自 20 seed 实测（2026-09-27），改动任何数值表后这里必须重新实测再改区间。**
+## **基线来自 20 seed 实测，改动任何数值表后这里必须重新实测再改区间。**
 ##
 ## 实测记录：
-##   龟缩流 0%  ·  普通 65% · 高手 65%（18 阶段 / 20 seed）
-##   整局 12–16 分钟 · 单场战斗 12.8–13.4 秒
-##   合成次数：龟缩 0 / 普通 7 / 高手 8（升星路线确实被用起来了）
+##   2026-09-27（初版）：龟缩 0% · 普通 65% · 高手 65%
+##   2026-09-28（修复「败仗不掉血」+ 布阵分层 + 战斗越中线 + 摆位接线后）：
+##     龟缩 0% · 普通 55% · 高手 60% · 整局 9–16 分钟 · 单场 12.5–13.7 秒
+##     合成次数：龟缩 0 / 普通 9 / 高手 8
+##     **高手第一次反超普通**——摆位维度打破了 §3.2 的「打平」缺口
 ##
-## 已知缺口（写在这里防止被当成 bug）：**普通与高手目前打平**。四种「更聪明的打法」
-## （囤利息 / 狂刷商店 / 冲主 C / 只买便宜）实测全部更差，见 docs/09-立项 §3.2。
+## 历史缺口（已解决，留档防止被当成 bug）：普通与高手曾长期打平（65% vs 65%），
+## 当时试过四种「更聪明的打法」（囤利息 / 狂刷商店 / 冲主 C / 只买便宜）全部更差。
+## 最终答案是**接上手动摆位**（自走棋的核心决策维度），而不是加新机制。
 
 const RUNS := 16   # 测试里跑 16 局：12 局时画像间的 ±8% 噪声会误报（实测踩过）
 
@@ -125,6 +128,45 @@ func test_damage_comes_from_survivors() -> void:
 	else:
 		assert_eq(dmg, 0, "战胜不应掉血")
 	assert_eq(int(r["winner"]) in [0, 1], true, "battle() 必须回填胜者")
+
+
+func test_lose_damage_always_matches_real_survivors() -> void:
+	# **无条件对账**（诊断 P0-1 的防复发锁）：
+	# 败仗伤害必须逐场等于「sim 结束时 side=ENEMY 且 alive 的非召唤物」的 2★+1 之和。
+	# 原实现拿编成表按**初始 cell**反查 sim，敌人一移动就匹配不上，
+	# 实测 36 场败仗里 21 场记账错误、14 场明明输了却一滴血不掉。
+	# 旧断言「if not win: assert_gt(dmg,0)」只测一场且包在 if 里，抓不住它。
+	var checked := 0
+	var lost := 0
+	for s in range(4):
+		var seed_value := 20260927 + s * 131
+		var rs := RunState.new(seed_value)
+		var rng := SimRng.new(seed_value ^ 0x5EED)
+		while true:
+			MatchSim._plan(rs, MatchSim.PROFILES["普通"], rng)
+			var enemy := rs.make_enemy(seed_value)
+			var sim := BattleSim.new(rs.board_defs(), enemy, seed_value + rs.stage, Traits.bonuses(rs.board))
+			var r := sim.run()
+			rs.apply_battle_result(r, enemy, sim)
+			var logged: Dictionary = rs.stage_log[rs.stage_log.size() - 1]
+			if not bool(logged["win"]):
+				lost += 1
+				var expected := 0
+				for u in sim.units:
+					var d: Dictionary = u
+					if int(d["side"]) == Board.ENEMY and bool(d["alive"]) and not bool(d["is_summon"]):
+						expected += 2 * int(d["star"]) + 1
+				if StageTable.is_boss(rs.stage):
+					expected = int(round(float(expected) * RunState.BOSS_DAMAGE_MULT))
+				assert_gt(expected, 0, "S%d 敌方明明有存活者，对账基线却算出 0" % rs.stage)
+				assert_eq(int(logged["damage"]), expected,
+					"S%d 败仗伤害必须等于真实存活者星级和（记 %d，应 %d）" % [
+						rs.stage, int(logged["damage"]), expected])
+			checked += 1
+			if not rs.advance():
+				break
+	assert_gt(checked, 10, "对账至少要覆盖 10 场战斗（实测 %d 场）" % checked)
+	assert_gt(lost, 0, "样本里必须出现败仗，否则这条测试什么也没锁")
 
 
 func test_sweep_reports_every_metric() -> void:

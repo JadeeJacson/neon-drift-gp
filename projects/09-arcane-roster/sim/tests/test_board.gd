@@ -76,11 +76,23 @@ func test_step_toward_never_increases_distance() -> void:
 		assert_lte(d1, d0, "%s → %s 距离不能变大（%d → %d）" % [from_cell, nxt, d0, d1])
 
 
-func test_step_toward_respects_own_half() -> void:
+func test_step_toward_crosses_halves_in_battle() -> void:
+	# **战斗中的移动不设半场边界**（2026-09-28 设计变更）：
+	# 分层布阵后敌方远程缩在 row 2，若近战被锁死在 row 4，距离 2 > 射程 1，
+	# 永远够不到 → 残局被远程白嫖到超时（实测单场从 13 秒拖到 78 秒）。
+	# 半场隔离只属于**摆位**（auto_place_cell / place_unit 各自有行断言）。
 	var nxt := Board.step_toward(Vector2i(4, 4), Vector2i(4, 0), {}, Board.ALLY)
-	assert_true(Board.ALLY_ROWS.has(nxt.y), "我方单位不能走进敌方半场（落到 %s）" % str(nxt))
+	assert_eq(nxt, Vector2i(4, 3), "战斗中我方单位应能越过中线追击（落到 %s）" % str(nxt))
 	var nxt2 := Board.step_toward(Vector2i(4, 3), Vector2i(4, 7), {}, Board.ENEMY)
-	assert_true(Board.ENEMY_ROWS.has(nxt2.y), "敌方单位不能走进我方半场（落到 %s）" % str(nxt2))
+	assert_eq(nxt2, Vector2i(4, 4), "战斗中敌方单位同样能越过中线（落到 %s）" % str(nxt2))
+
+
+func test_place_rules_still_respect_halves() -> void:
+	# 半场隔离在**摆位**侧必须保持：自动布阵与手动落位都不许跨中线
+	var ally_cell := Board.auto_place_cell(Board.ALLY, {})
+	assert_true(Board.ALLY_ROWS.has(ally_cell.y), "我方自动布阵必须落在我方半场（%s）" % str(ally_cell))
+	var enemy_cell := Board.auto_place_cell(Board.ENEMY, {})
+	assert_true(Board.ENEMY_ROWS.has(enemy_cell.y), "敌方自动布阵必须落在敌方半场（%s）" % str(enemy_cell))
 
 
 func test_step_toward_blocked_returns_self() -> void:

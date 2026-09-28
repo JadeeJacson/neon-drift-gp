@@ -44,7 +44,13 @@ func _init(ally_defs: Array, enemy_defs: Array, seed_value: int, bonus: Dictiona
 		units.append(_make_unit(String(def2["id"]), int(def2["star"]), Board.ENEMY, def2["cell"], false, {}))
 
 
-func _make_unit(id: String, star: int, side: int, cell: Vector2i, is_ally: bool, bonus: Dictionary) -> Dictionary:
+## from_ally_table 决定**去哪张表查数值**（UnitTable 还是 EnemyTable），
+## 阵营 is_ally 一律由 side 推导。**这两个概念必须分开**：召唤物 sk_minion 只存在于
+## UnitTable，但敌方术士召唤出来的它效忠的是敌方。早期版本把两者合成一个 is_ally 参数，
+## 于是「敌方召唤物」被标记成 is_ally=true —— 血条染成我方绿色、战功记在我方头上
+## （docs/09-接手诊断 P0-3）。现在查表与阵营各走一条路，从类型上就不可能再犯。
+func _make_unit(id: String, star: int, side: int, cell: Vector2i, from_ally_table: bool, bonus: Dictionary) -> Dictionary:
+	var is_ally := side == Board.ALLY
 	var base_hp := 0.0
 	var base_atk := 0.0
 	var base_armor := 0.0
@@ -57,7 +63,9 @@ func _make_unit(id: String, star: int, side: int, cell: Vector2i, is_ally: bool,
 	var base_skill := ""
 	var base_policy := 0
 	var base_role := "front"
-	if is_ally:
+	# 查哪张表由 from_ally_table 决定，与阵营无关：敌方术士召唤的 sk_minion
+	# 数值在 UnitTable 里，但效忠敌方（若这里用 is_ally 会去 EnemyTable 查 sk_minion → assert 崩）
+	if from_ally_table:
 		base_hp = UnitTable.hp(id, star)
 		base_atk = UnitTable.atk(id, star)
 		base_armor = UnitTable.armor(id, star)
@@ -104,8 +112,8 @@ func _make_unit(id: String, star: int, side: int, cell: Vector2i, is_ally: bool,
 		"side": side,
 		"star": star,
 		"cell": cell,
-		"display": UnitTable.display(id) if is_ally else EnemyTable.display(id),
-		"model": UnitTable.model(id) if is_ally else EnemyTable.model(id),
+		"display": UnitTable.display(id) if from_ally_table else EnemyTable.display(id),
+		"model": UnitTable.model(id) if from_ally_table else EnemyTable.model(id),
 		"role": base_role,
 		"max_hp": base_hp * (1.0 + hp_pct),
 		"hp": base_hp * (1.0 + hp_pct),
@@ -408,6 +416,8 @@ func _cast(i: int, u: Dictionary, foes: Array) -> bool:
 			var cell := _free_cell_near(my_side, my_cell, occ2)
 			if occ2.has(cell):
 				return false
+			# 仆从的数值永远来自 UnitTable（第 5 参 true = 查玩家表），
+			# 效忠哪一方由 my_side 决定。敌方术士召出的仆从 is_ally 会是 false。
 			var nu := _make_unit("sk_minion", 1, my_side, cell, true, {})
 			nu["is_summon"] = true
 			nu["index"] = units.size()

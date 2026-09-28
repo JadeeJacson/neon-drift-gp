@@ -51,7 +51,7 @@ const DEFS := [
 		"tiers": [
 			{"need": 6, "atk_pct": 0.10},
 		],
-		"desc": "同星级单位达到 5 个时全员攻击 +12%（奖励「不升星换羁绊」的路线）",
+		"desc": "同星级单位达到 6 个时全员攻击 +10%（奖励「不升星换羁绊」的路线）",
 	},
 ]
 
@@ -68,11 +68,7 @@ static func empty_bonus() -> Dictionary:
 static func active(units: Array) -> Array:
 	var out: Array = []
 	for d in DEFS:
-		var count := 0
-		for u in units:
-			if not _matches(d, u):
-				continue
-			count += 1
+		var count := _count_for(d, units)
 		var tiers: Array = d["tiers"]
 		var hit := -1
 		for ti in range(tiers.size()):
@@ -85,7 +81,10 @@ static func active(units: Array) -> Array:
 			"id": String(d["id"]),
 			"name": String(d["name"]),
 			"kind": String(d["kind"]),
-			"tag": String(d["tag"]),
+			# star 羁绊没有 tag（它按星级分组而不是按标签匹配）。
+			# 这里原本硬取 d["tag"]，因为星辉恒不激活而一直没执行到——
+			# 修好激活逻辑的当天就炸了，正是「死代码里藏着断言」的典型。
+			"tag": String(d.get("tag", "")),
 			"tier": hit + 1,
 			"need": int(tiers[hit]["need"]),
 			"count": count,
@@ -94,13 +93,36 @@ static func active(units: Array) -> Array:
 	return out
 
 
+## 该羁绊在给定阵容下计入几个单位。
+## **star 类羁绊必须在这里单独算**，不能下放到 _matches：它问的是
+## 「某一种星级的单位是否凑够 N 个」，这是**阵容级**的性质，单个单位答不了。
+## 早期版本把它写成 `_matches` 的兜底分支 `unit.star >= need(6)`，
+## 而星级上限是 3 → 恒 false → 星辉成了永远点不亮的死羁绊（诊断 P0-2）。
+static func _count_for(def: Dictionary, units: Array) -> int:
+	if String(def["kind"]) == "star":
+		# 按星级分组，取人数最多的那一档
+		var by_star: Dictionary = {}
+		for u in units:
+			var s := int(u["star"])
+			by_star[s] = int(by_star.get(s, 0)) + 1
+		var best := 0
+		for k in by_star:
+			best = maxi(best, int(by_star[k]))
+		return best
+	var n := 0
+	for u in units:
+		if _matches(def, u):
+			n += 1
+	return n
+
+
 static func _matches(def: Dictionary, unit: Dictionary) -> bool:
 	var kind := String(def["kind"])
 	if kind == "faction":
-		return UnitTable.faction(String(unit["id"])) == String(def["tag"])
+		return UnitTable.faction(String(unit["id"])) == String(def.get("tag", ""))
 	if kind == "role":
-		return UnitTable.role(String(unit["id"])) == String(def["tag"])
-	return int(unit["star"]) >= int(def["tiers"][0]["need"])
+		return UnitTable.role(String(unit["id"])) == String(def.get("tag", ""))
+	return false   # star 羁绊走 _count_for，不能按单单位判定
 
 
 ## 汇总加成。同一羁绊只取**最高档**（不叠加多档），跨羁绊才相加。

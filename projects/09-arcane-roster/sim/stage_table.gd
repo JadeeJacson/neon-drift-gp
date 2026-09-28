@@ -14,6 +14,11 @@ class_name StageTable
 
 const STAGE_COUNT := 18
 const BOSS_STAGES := [6, 12, 18]
+## 每个 Boss 阶段出场的 boss，与 BOSS_STAGES 一一对应。
+## **必须做成表**：原实现是 `b_sking if stage != 8 else b_lord`，
+## 而 8 根本不在 BOSS_STAGES 里 → 条件恒真 → 三场 Boss 战打的都是骷髅王，
+## 暗影领主（远程法师 Boss）从来没出场过（诊断 P1-2）。
+const BOSS_IDS := ["b_sking", "b_lord", "b_sking"]
 const STAGE_NAMES := [
 	"边境哨站", "枯木林道", "断桥关", "碎石荒野", "焦土平原", "巨人之墓",
 	"黑石要塞", "腐化祭坛", "寒霜峡谷", "哀嚎地窖", "断魂祭坛", "暗影之门",
@@ -23,6 +28,14 @@ const STAGE_NAMES := [
 
 static func is_boss(stage: int) -> bool:
 	return BOSS_STAGES.has(stage)
+
+
+## 该 Boss 阶段出哪一个 boss。越界兜底到第一个，避免 BOSS_IDS 漏配时崩掉整局
+static func boss_for(stage: int) -> String:
+	var i := BOSS_STAGES.find(stage)
+	if i < 0 or i >= BOSS_IDS.size():
+		return String(BOSS_IDS[0])
+	return String(BOSS_IDS[i])
 
 
 static func stage_name(stage: int) -> String:
@@ -77,7 +90,7 @@ static func roll_enemy(rng: SimRng, stage: int, streak: int) -> Array:
 	var picked: Array = []          # [{id, star}]
 
 	if is_boss(stage):
-		var boss_id := "b_sking" if stage != 8 else "b_lord"
+		var boss_id := boss_for(stage)
 		picked.append({"id": boss_id, "star": 1})
 		budget_left -= EnemyTable.power(boss_id, 1)
 		slots -= 1
@@ -139,8 +152,13 @@ static func place(picked: Array) -> Array:
 	var occ: Dictionary = {}
 	var out: Array = []
 	for p in ordered:
-		var cell := Board.auto_place_cell(Board.ENEMY, occ)
-		occ[cell] = String(p["id"])
+		# 敌方也按职能分层站（远程缩后排）。**Boss 一律按 front 落位**：
+		# 排序已把 boss 压到第一个，但暗影领主是 back，不覆盖的话它会站到 row 2
+		# ——「Boss 站最前排正中让玩家看清」就落空了。
+		var pid := String(p["id"])
+		var role := "front" if EnemyTable.is_boss(pid) else String(EnemyTable.ENEMIES[pid]["role"])
+		var cell := Board.auto_place_cell(Board.ENEMY, occ, role)
+		occ[cell] = pid
 		out.append({"id": String(p["id"]), "star": int(p["star"]), "cell": cell})
 	return out
 

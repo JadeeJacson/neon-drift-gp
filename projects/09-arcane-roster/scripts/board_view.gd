@@ -20,6 +20,7 @@ var _cell_nodes: Dictionary = {}      # Vector2i -> MeshInstance3D
 var _unit_views: Dictionary = {}      # board index -> UnitView
 var _hover: Vector2i = Vector2i(-1, -1)
 var _selected_bench: int = -1
+var _selected_cell: Vector2i = Vector2i(-1, -1)   # 手动摆位：当前选中的场上格子
 
 
 func build() -> void:
@@ -52,8 +53,11 @@ func _refresh_tints() -> void:
 
 func _tint_for(cell: Vector2i) -> Color:
 	var base := Color(0.42, 0.36, 0.30, 0.35) if Board.ALLY_ROWS.has(cell.y) else Color(0.26, 0.32, 0.42, 0.35)
-	if _hover == cell:
-		return Color(0.95, 0.85, 0.45, 0.55)
+	# 手动摆位的三层高亮，亮度递增：可落区 < 悬停 < 已选中
+	if cell == _selected_cell:
+		return Color(0.95, 0.85, 0.45, 0.65)
+	if _hover == cell and Board.ALLY_ROWS.has(cell.y):
+		return Color(0.95, 0.85, 0.45, 0.45)
 	if _selected_bench >= 0 and Board.ALLY_ROWS.has(cell.y):
 		return Color(0.55, 0.70, 0.45, 0.42)
 	return base
@@ -63,6 +67,14 @@ func set_hover(cell: Vector2i) -> void:
 	if _hover == cell:
 		return
 	_hover = cell
+	_refresh_tints()
+
+
+## 手动摆位：选中场上单位所在格（移动模式的起点）
+func set_selected_cell(cell: Vector2i) -> void:
+	if _selected_cell == cell:
+		return
+	_selected_cell = cell
 	_refresh_tints()
 
 

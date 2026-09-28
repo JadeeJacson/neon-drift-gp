@@ -107,15 +107,36 @@ static func column_order() -> Array:
 	return out
 
 
-## 该方「靠近前线」的空格，用于自动布阵。前线优先，同排从中间向外，
+## 该方落位的**行优先级**，从最想站的那一行排到最不想站的。
+## 分职能是必要的：不分的话人口上限 6 < 每行 8 列，
+## 所有人都会挤在最前排一行，远程得不到任何保护。
+##   front（坦克）→ 顶在最前排，替后排挡刀
+##   mid（突进）  → 站第二排，既能接战也不首当其冲
+##   back（远程）→ 站第二排起，往后退
+##
+## **back 不能站最后一排**，这是实测踩到的：远程 range=3，我方最后排 row 7 到
+## 敌方前排 row 3 距离是 4，直接射程外——远程被迫一路往前挪，战斗从 12.8 秒
+## 拖到 38.6 秒（单测 `battle_med < 26` 当场挂掉）。站第二排 row 5 时
+## 到敌方前排距离 2、到敌方中排距离 3，全程在射程内，既有前后层次又能立刻参战。
+static func row_order(side: int, role: String = "") -> Array:
+	# 统一先排成「最靠近前线 → 最远离前线」
+	var seq: Array = [4, 5, 6, 7] if side == ALLY else [3, 2, 1, 0]
+	match role:
+		"mid":
+			return [seq[1], seq[0], seq[2], seq[3]]
+		"back":
+			return [seq[1], seq[2], seq[0], seq[3]]
+	return seq
+
+
+## 该方「靠近前线」的空格，用于自动布阵。同排从中间向外，
 ## 中间优先是为了让开火面覆盖对方后排（AI 布阵与玩家的手动摆位遵循同一套直觉）。
-static func auto_place_cell(side: int, occupied: Dictionary) -> Vector2i:
-	var rows := rows_for(side)
-	var start := 0 if side == ALLY else rows.size() - 1
-	var step := 1 if side == ALLY else -1
+## role 为空时退化为「一律顶前线」（保持旧行为，工具脚本与测试仍在用）。
+static func auto_place_cell(side: int, occupied: Dictionary, role: String = "") -> Vector2i:
 	var order := column_order()
-	for ri in range(rows.size()):
-		var r: int = rows[start + ri * step]
+	for r in row_order(side, role):
+		if not rows_for(side).has(r):
+			continue
 		for c in order:
 			var cell := Vector2i(int(c), r)
 			if not cell_in_bounds(cell):
@@ -129,7 +150,13 @@ static func auto_place_cell(side: int, occupied: Dictionary) -> Vector2i:
 ## **所有候选都必须让切比雪夫距离不增**。这一条是硬约束：曾经把「反向」也放进候选，
 ## 结果被挡住的单位会「前进一格→被规则弹回一格」无限抖动，战斗直接跑到 120s 超时。
 ## 「不增」是靠「横轴绕行也朝目标列靠拢」实现的（lateral 取 dc 的符号）。
-static func step_toward(from_cell: Vector2i, to_cell: Vector2i, occupied: Dictionary, side: int) -> Vector2i:
+##
+## **战斗中不设半场边界**（side 参数仅保留兼容签名）。半场隔离只属于**摆位**
+## （auto_place_cell / place_unit）；战斗里也隔离的话会出死锁：分层布阵后敌方远程
+## 缩在 row 2，我方近战被锁在 row 4，距离 2 > 射程 1，**永远够不到，只能站着被射死**
+## ——实测残局从 13 秒拖到 78 秒（S2 全场 311 tick，最后是我方 3 个近战围不死
+## 1 个缩后排的弓手）。TFT 的战斗单位同样可以越过中线追击。
+static func step_toward(from_cell: Vector2i, to_cell: Vector2i, occupied: Dictionary, side: int = ALLY) -> Vector2i:
 	if from_cell == to_cell:
 		return from_cell
 	var dc := to_cell.x - from_cell.x
@@ -150,8 +177,6 @@ static func step_toward(from_cell: Vector2i, to_cell: Vector2i, occupied: Dictio
 			continue
 		if not cell_in_bounds(cell):
 			continue
-		if not rows_for(side).has(cell.y):
-			continue  # 不越界到对方半场
 		if occupied.has(cell):
 			continue
 		return cell

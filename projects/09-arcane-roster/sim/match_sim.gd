@@ -52,6 +52,9 @@ static func play(profile: Dictionary, seed_value: int) -> Dictionary:
 	var rng := SimRng.new(seed_value ^ 0x5EED)
 	while true:
 		_plan(rs, profile, rng)
+		# 与玩家按 F 走同一个原子操作：不提前开战就真拿不到那 1 金，
+		# 否则跑分比实战每阶段多/少一份收入，通关率结论就偏了
+		rs.start_early()
 		var r := rs.battle(seed_value)
 		if not rs.advance():
 			break

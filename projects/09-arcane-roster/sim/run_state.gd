@@ -42,7 +42,7 @@ var stage_log: Array = []      # 每阶段一行摘要，报告与结算面板�
 var stats: Dictionary = {
 	"interest": 0, "combines": 0, "bought": 0, "sold": 0, "rerolls": 0,
 	"battle_seconds": 0.0, "damage_taken": 0, "units_bought_at": {},
-	"traits_active": 0.0, "win_streak_max": 0, "idle_reroll": 0,
+	"traits_active": 0.0, "win_streak_max": 0, "idle_reroll": 0, "early_bonus": 0,
 }
 
 var _seed: int = 0
@@ -73,11 +73,21 @@ func income() -> Dictionary:
 		streak_bonus = minf(float(1 + streak), float(STREAK_BONUS_CAP))
 	elif streak <= -2:
 		streak_bonus = minf(float(-streak - 1), float(LOSS_RELIEF_CAP))
-	var early := float(EARLY_START_BONUS)
+	# 注意：**这里不再含「提前开战 +1」**。它原来被无条件算进每阶段收入，
+	# 于是「等满倒计时再自动开战」的玩家也白拿这份奖励，奖励就失去意义了。
+	# 现在改成真的提前开战才发，走 start_early()（玩家按 F、跑分画像每阶段都调），
+	# 两边共用同一个原子操作，跑分与实战不会各算一套。
 	return {
-		"base": base, "interest": interest, "streak": streak_bonus, "early": early,
-		"total": base + interest + streak_bonus + early,
+		"base": base, "interest": interest, "streak": streak_bonus,
+		"total": base + interest + streak_bonus,
 	}
+
+
+## 提前开战：立刻结算奖励 +1 金。**玩家与跑分画像共用这一条**——
+## 少了它，跑分比玩家每阶段少 1 金（整局约 17 金），通关率结论就会系统性偏低。
+func start_early() -> void:
+	gold += EARLY_START_BONUS
+	stats["early_bonus"] = int(stats["early_bonus"]) + EARLY_START_BONUS
 
 
 func population_cap() -> int:
@@ -219,7 +229,7 @@ func combine() -> bool:
 		# 合成产物必须**立刻上阵**：留在备战区等于白合（它不会参战，
 		# 而腾出来的 2 个人口正是这条路线存在的理由）
 		if board.size() < population_cap():
-			board.append({"id": pid, "star": star + 1, "cell": _free_cell()})
+			board.append({"id": pid, "star": star + 1, "cell": _free_cell(UnitTable.role(pid))})
 		else:
 			bench.append({"id": pid, "star": star + 1})
 		return true
@@ -271,8 +281,11 @@ func _remove_three(pid: String, star: int) -> void:
 			need -= 1
 
 
-func _free_cell() -> Vector2i:
-	return Board.auto_place_cell(Board.ALLY, occupancy())
+## 自动落位。**必须带 role**：早期版本不分职能，6 个人口全落在最前排 row 4 上
+## （row 4 有 8 列，人口上限正好 6，永远填不满一行就轮不到下一行），
+## 结果是「一字长蛇阵贴脸」——远程和坦克挤成一排，后排羁绊在观感上根本不成立。
+func _free_cell(role: String = "") -> Vector2i:
+	return Board.auto_place_cell(Board.ALLY, occupancy(), role)
 
 
 ## 把备战区第一个单位放上板（自动找空格）
@@ -283,7 +296,8 @@ func place_next() -> bool:
 		return false
 	var u: Dictionary = bench[0]
 	bench.remove_at(0)
-	board.append({"id": String(u["id"]), "star": int(u["star"]), "cell": _free_cell()})
+	var pid := String(u["id"])
+	board.append({"id": pid, "star": int(u["star"]), "cell": _free_cell(UnitTable.role(pid))})
 	return true
 
 
@@ -344,11 +358,9 @@ func apply_battle_result(r: Dictionary, enemy: Array, sim: BattleSim = null) -> 
 	var won_battle := int(r["winner"]) == Board.ALLY
 	var dmg := 0
 	if not won_battle:
-		for e in enemy:
-			var ed: Dictionary = e
-			# 只算活下来的：TFT 的经典规则，也是「残局能翻盘」张力的来源
-			if _survived(sim, ed):
-				dmg += 2 * int(ed["star"]) + 1
+		# 只算活下来的：TFT 的经典规则，也是「残局能翻盘」张力的来源。
+		# 存活与否**必须问 sim 里的真实单位**，不能拿 enemy 编成表去反查——见 _survivor_damage。
+		dmg = _survivor_damage(sim, enemy)
 		if StageTable.is_boss(stage):
 			dmg = int(round(float(dmg) * BOSS_DAMAGE_MULT))
 		hp -= dmg
@@ -368,18 +380,37 @@ func apply_battle_result(r: Dictionary, enemy: Array, sim: BattleSim = null) -> 
 	})
 
 
-## 敌方某个编成条目是否活到结束。sim 为 null（调用方没传）时保守当作存活，
-## 宁可多扣一点血，也不要让「场景层跑出来的战斗」比跑分更便宜
-func _survived(sim: BattleSim, enemy_def: Dictionary) -> bool:
+## 战败伤害 = Σ(2×存活敌方单位星级 + 1)。
+##
+## **这里曾经是本项目最严重的一个 bug**：原实现逐个拿 `enemy_def["cell"]`
+## （编成时的初始格子）去 sim 里找同 id 同 cell 的单位，而自走棋的敌人一定会移动，
+## 于是「找不到 = 当作已死 = 不计伤害」。实测 36 场败仗里 21 场记账错误、
+## **14 场明明输了却一滴血不掉**，难度曲线在这里是断的（诊断 P0-1）。
+##
+## 正确做法是**直接统计 sim 结束时 side==ENEMY 且 alive 的单位**，不去匹配编成表。
+## 两个附带决策：
+##  1. 召唤物不计入。掉血只应由「编成」决定，才对得上 StageTable 的预算曲线；
+##     把战斗中的涌现物算进去，难度就不可预测了。
+##  2. sim == null（调用方没传）时保守按编成全存活计，宁可多扣，
+##     也不要让「场景层跑出来的战斗」比跑分更便宜。
+func _survivor_damage(sim: BattleSim, enemy: Array) -> int:
 	if sim == null:
-		return true
+		var all := 0
+		for e in enemy:
+			var ed: Dictionary = e
+			all += 2 * int(ed["star"]) + 1
+		return all
+	var total := 0
 	for u in sim.units:
 		var d: Dictionary = u
-		if bool(d["is_ally"]):
+		if int(d["side"]) != Board.ENEMY:
 			continue
-		if String(d["id"]) == String(enemy_def["id"]) and d["cell"] == enemy_def["cell"]:
-			return bool(d["alive"])
-	return false
+		if bool(d["is_summon"]):
+			continue
+		if not bool(d["alive"]):
+			continue
+		total += 2 * int(d["star"]) + 1
+	return total
 
 ## 我方战力点数。用于跑分表对照预算：预算 1000 而我方 700 时，输是「设计内」的，
 ## 但如果我方 1200 还输，那就是结算或索敌有 bug——这两个数字是排查的第一分岔口
@@ -411,21 +442,10 @@ func _enemy_hp(sim: BattleSim) -> float:
 	var h := 0.0
 	for u in sim.units:
 		var d: Dictionary = u
-		if not bool(d["is_ally"]):
+		# 用 side 而不是 is_ally：召唤物的 is_ally 与它效忠的一方可能不一致
+		if int(d["side"]) == Board.ENEMY:
 			h += float(d["max_hp"])
 	return h
-
-
-func _enemy_survives(sim: BattleSim, enemy_def: Dictionary) -> bool:
-	for u in sim.units:
-		var d: Dictionary = u
-		if bool(d["is_ally"]):
-			continue
-		if String(d["id"]) == String(enemy_def["id"]):
-			# 同 id 可能有多个（不同星级），按 cell 定位更准
-			if d["cell"] == enemy_def["cell"]:
-				return bool(d["alive"])
-	return false
 
 
 ## 战斗后推进。返回 false 表示整局结束

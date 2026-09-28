@@ -117,11 +117,42 @@ func _initialize() -> void:
 	var hp_before := run.hp
 	var stage_before := run.stage
 	run.apply_battle_result(result, enemy, sim)
-	_check(run.hp <= hp_before, "掉血记账生效", "%d→%d" % [hp_before, run.hp])
+	# **败仗必须掉血**（诊断 P0-1 的场景层锁）：原断言只查「hp 没增加」，
+	# 掉 0 血也通过——正是那个「输了不掉血」bug 一路绿灯的原因
+	if int(result["winner"]) != Board.ALLY:
+		_check(run.hp < hp_before, "败仗必须掉血", "%d→%d" % [hp_before, run.hp])
+	else:
+		_check(run.hp == hp_before, "胜仗不应掉血", "%d→%d" % [hp_before, run.hp])
 	_check(run.stage_log.size() == 1, "阶段日志追加", "%d 条" % run.stage_log.size())
 	var alive := run.advance()
 	_check(alive and run.stage == stage_before + 1, "阶段推进", "S%d → S%d" % [stage_before, run.stage])
 	_check(run.shop.size() == RunState.SHOP_SLOTS, "下一阶段商店已刷新")
+
+	# ---- 手动摆位接线（诊断 P1-1）：状态机与屏幕拾取的数学 ----
+	if run.bench.size() > 0 and run.board.size() < run.population_cap():
+		game.call("_on_bench_clicked", run.bench.size() - 1)
+		_check(int(game.get("_sel_bench")) == run.bench.size() - 1, "点备战位进入落子模式")
+		var occ2 := run.occupancy()
+		var target := Vector2i(-1, -1)
+		for r in Board.ALLY_ROWS:
+			for c in range(Board.COLS):
+				var cc := Vector2i(c, r)
+				if not occ2.has(cc):
+					target = cc
+					break
+			if target.x >= 0:
+				break
+		if target.x >= 0:
+			var placed: bool = run.place_unit(run.bench.size() - 1, target)
+			_check(placed, "落子到空格 %s 成功" % str(target))
+		game.call("_clear_selection")
+		_check(int(game.get("_sel_bench")) == -1 and int(game.get("_sel_board")) == -1, "清除选中")
+	var cam: Camera3D = game.camera_rig.camera
+	if cam != null:
+		var probe_cell := Vector2i(4, 4)
+		var sp: Vector2 = cam.unproject_position(Board.cell_to_world(probe_cell))
+		var back: Vector2i = game.call("_screen_to_cell", sp)
+		_check(back == probe_cell, "屏幕拾取往返一致（%s → 屏幕 → %s）" % [str(probe_cell), str(back)])
 
 	# ---- 场景层真跑一次：让 GameRoot 自己开一场战斗（headless 下只跑几帧） ----
 	_game_root_battle(game)

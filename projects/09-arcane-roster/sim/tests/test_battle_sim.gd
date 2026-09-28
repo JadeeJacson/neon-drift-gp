@@ -124,15 +124,21 @@ func test_battle_is_deterministic() -> void:
 
 
 func test_different_seed_changes_outcome() -> void:
-	var a := BattleSim.new(_lineup(["mage"], 0, [Vector2i(4, 5)]),
-		_lineup(["e_bone", "e_bone", "e_bone"], 1, [Vector2i(4, 3), Vector2i(3, 3), Vector2i(5, 3)]), 1, {})
-	var b := BattleSim.new(_lineup(["mage"], 0, [Vector2i(4, 5)]),
-		_lineup(["e_bone", "e_bone", "e_bone"], 1, [Vector2i(4, 3), Vector2i(3, 3), Vector2i(5, 3)]), 2, {})
-	var ra := a.run()
-	var rb := b.run()
-	# 战斗可以同胜同负，但事件序列不应完全一致
-	assert_true(ra["events"] != rb["events"] or ra["ticks"] != rb["ticks"],
-		"不同种子应产生不同的战斗过程")
+	# 一个 Mage vs 三个骷髅兵：结局固定（mage 必死），过程受随机（暴击/闪避）影响。
+	# **断言必须跨多组种子取或**：单对种子可能撞出恰好相同的 tick 数与事件数
+	# ——修掉「战斗半场隔离」后战斗变短，这种巧合真的发生了（实测挂过一次）。
+	var any_diff := false
+	for s in range(1, 9):
+		var a := BattleSim.new(_lineup(["mage"], 0, [Vector2i(4, 5)]),
+			_lineup(["e_bone", "e_bone", "e_bone"], 1, [Vector2i(4, 3), Vector2i(3, 3), Vector2i(5, 3)]), s, {})
+		var b := BattleSim.new(_lineup(["mage"], 0, [Vector2i(4, 5)]),
+			_lineup(["e_bone", "e_bone", "e_bone"], 1, [Vector2i(4, 3), Vector2i(3, 3), Vector2i(5, 3)]), s + 100, {})
+		var ra := a.run()
+		var rb := b.run()
+		if ra["events"] != rb["events"] or ra["ticks"] != rb["ticks"]:
+			any_diff = true
+			break
+	assert_true(any_diff, "8 组种子对比至少一组过程不同（RNG 必须真的接入战斗）")
 
 
 func test_empty_board_loses_immediately() -> void:

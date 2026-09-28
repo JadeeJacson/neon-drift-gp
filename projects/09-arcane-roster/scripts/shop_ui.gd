@@ -18,7 +18,7 @@ const BENCH_MAX := 9
 signal buy_pressed(slot: int)
 signal reroll_pressed()
 signal ready_pressed()
-signal sell_bench_pressed(index: int)
+signal bench_selected(index: int)
 signal autoplace_pressed()
 signal combine_pressed()
 
@@ -60,12 +60,15 @@ func _make_card(i: int) -> Button:
 	return b
 
 
+## 备战位按钮：点击 = **选中**（再点棋盘格子落位），卖出走 X 键。
+## 原版点击即卖——一场误触就把主力卖了还没有确认，而且让「手动摆位」这个
+## 自走棋核心决策完全没有入口（诊断 P1-1）。
 func _make_bench(i: int) -> Button:
 	var b := Button.new()
 	b.position = BENCH_ORIGIN + Vector2(float(i % 3) * BENCH_SLOT.x, float(i / 3) * BENCH_SLOT.y)
 	b.size = BENCH_SLOT
 	b.text = ""
-	b.pressed.connect(func(): sell_bench_pressed.emit(i))
+	b.pressed.connect(func(): bench_selected.emit(i))
 	add_child(b)
 	return b
 
@@ -122,6 +125,13 @@ func refresh_bench(bench: Array) -> void:
 		else:
 			b.visible = false
 			b.text = ""
+
+
+## 选中备战位的高亮（金色边框感靠 modulate 近似）。index = -1 表示全部取消
+func highlight_bench(index: int) -> void:
+	for j in range(_bench_slots.size()):
+		var b: Button = _bench_slots[j]
+		b.modulate = Color(1.0, 0.88, 0.45) if j == index else Color(1, 1, 1)
 
 
 func refresh_buttons(can_combine: bool, planning: bool) -> void:

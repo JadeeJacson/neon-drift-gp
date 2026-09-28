@@ -31,7 +31,31 @@ func test_trait_takes_highest_tier_only() -> void:
 	# 只取最高档，不能把 I/II/III 叠加（叠加会让羁绊变成无脑堆人数）
 	var t2 := Traits.bonuses([_u("knight"), _u("barbarian"), _u("rogue"), _u("mage")])
 	assert_gt(float(b["atk_pct"]), float(t2["atk_pct"]), "6 人档应高于 4 人档")
-	assert_eq(int(Traits.active(units).size()), 2, "6 圣团 + 1 近卫 = 2 条（近卫门槛 3）")
+	# 6 个圣团（其中 3 个 front）→ 圣团 III + 近卫 I + 星辉（6 个全 1★，同星凑满）。
+	# 星辉是 P0-2 修复后才能激活的：修复前这条断言只数得出 2 条
+	assert_eq(int(Traits.active(units).size()), 3, "圣团 III + 近卫 I + 星辉 = 3 条")
+
+
+func test_constellation_trait_needs_six_same_star() -> void:
+	# 星辉：**同一星级**的单位凑满 6 个才激活。修复前判定写成「单位星级 ≥ 6」，
+	# 而 MAX_STAR=3 → 恒 false，这条羁绊从上线起就一次都没亮过（诊断 P0-2）
+	var all_1star := [_u("knight"), _u("barbarian"), _u("rogue"), _u("mage"), _u("hooded"), _u("knight")]
+	var hit := false
+	for a in Traits.active(all_1star):
+		if str(a["id"]) == "constellation":
+			hit = true
+	assert_true(hit, "6 个同 1★ 必须激活星辉")
+	# 5 个 1★ + 1 个 2★：最大的同星组只有 5，不该激活
+	var mixed := [_u("knight"), _u("barbarian"), _u("rogue"), _u("mage"), _u("hooded"), _u("knight", 2)]
+	for a2 in Traits.active(mixed):
+		assert_false(str(a2["id"]) == "constellation", "混星 5+1 不该激活星辉")
+	# 2★ 阵容同样成立：6 个 2★ 也该点亮
+	var all_2star := [_u("knight", 2), _u("barbarian", 2), _u("rogue", 2), _u("mage", 2), _u("hooded", 2), _u("knight", 2)]
+	var hit2 := false
+	for a3 in Traits.active(all_2star):
+		if str(a3["id"]) == "constellation":
+			hit2 = true
+	assert_true(hit2, "6 个同 2★ 也必须激活星辉")
 
 
 func test_trait_bonuses_are_non_negative() -> void:
@@ -90,9 +114,25 @@ func test_income_components_sum() -> void:
 	var rs := RunState.new(1)
 	rs.gold = 25
 	var inc := rs.income()
+	# 「提前开战 +1」已从 income() 移除（P2 修复）：它原来被无条件算进每阶段收入，
+	# 等满倒计时自动开战的玩家也白拿。现在提前开战才发，走 start_early()。
+	assert_false(inc.has("early"), "income() 不应再包含提前开战项（它走 start_early）")
 	assert_almost_eq(float(inc["total"]),
-		float(inc["base"]) + float(inc["interest"]) + float(inc["streak"]) + float(inc["early"]), 0.001,
+		float(inc["base"]) + float(inc["interest"]) + float(inc["streak"]), 0.001,
 		"总收入必须等于各项之和")
+
+
+func test_early_start_bonus_is_real() -> void:
+	# 提前开战的奖励必须**真的开战才发**：income() 不送，start_early() 才送。
+	# 注意 income() 依赖当前 gold（利息），必须先取明细再 begin_stage，顺序反了会对不上
+	var rs := RunState.new(1)
+	rs.begin_stage()
+	var expected := rs.income()
+	var before := rs.gold
+	rs.begin_stage()
+	assert_eq(rs.gold - before, int(expected["total"]), "阶段收入不含提前开战项")
+	rs.start_early()
+	assert_eq(rs.gold, before + int(expected["total"]) + RunState.EARLY_START_BONUS, "start_early 补上 +1 奖励")
 
 
 func test_streak_bonus_grows_and_caps() -> void:
@@ -205,14 +245,18 @@ func test_placement_is_legal() -> void:
 
 func test_place_unit_rejects_illegal() -> void:
 	var rs := RunState.new(31)
-	rs.gold = 60
-	rs.buy(0)
-	while rs.place_next():
-		pass
-	if rs.bench.size() > 0 and rs.board.size() < rs.population_cap():
-		assert_false(rs.place_unit(0, Vector2i(0, 0)), "不能放到敌方半场")
-		assert_false(rs.place_unit(0, Vector2i(99, 4)), "不能越界")
-		assert_false(rs.place_unit(99, Vector2i(0, 4)), "待命区下标越界")
+	# **断言不能包在 if 里**：原版依赖「买到的单位没自动上阵」这个随机器件，
+	# 条件不成立时整条测试零断言 → GUT 判 risky，一挂就是好几个月。
+	# 直接塞备战单位，四条断言无条件执行。
+	rs.bench.append({"id": "knight", "star": 1})
+	rs.bench.append({"id": "barbarian", "star": 1})
+	assert_false(rs.place_unit(0, Vector2i(0, 0)), "不能放到敌方半场")
+	assert_false(rs.place_unit(0, Vector2i(99, 4)), "不能越界")
+	assert_false(rs.place_unit(0, Vector2i(4, 0)), "不能放到我方半场之外")
+	assert_false(rs.place_unit(99, Vector2i(0, 4)), "待命区下标越界")
+	assert_true(rs.place_unit(0, Vector2i(4, 4)), "合法落位必须成功")
+	assert_false(rs.place_unit(0, Vector2i(4, 4)), "已占的格子不能再放")
+	assert_eq(rs.board.size(), 1, "两次落位只有一次成功")
 
 
 # ---------- 合成 ----------

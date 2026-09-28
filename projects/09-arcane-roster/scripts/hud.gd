@@ -45,7 +45,7 @@ func _ready() -> void:
 	_battle = _mk_label(Vector2(1180, 50), 22, Color(1.0, 0.92, 0.75))
 	_battle.visible = false
 	_hint = _mk_label(Vector2(28, 852), 18, COL_DIM)
-	_hint.text = "1-5 购买 · R 刷新 · C 合成 · A 上阵 · X 卖预备 · F 提前开战 · 拖动鼠标/ Q,E 转视角 · 滚轮缩放 · T 倍速 · Esc 退出"
+	_hint.text = "1-5 购买 · 点备战位→点棋盘落位 · 点场上单位→点格子挪位 · X 卖选中 · R 刷新 · C 合成 · A 自动上阵 · F 提前开战 · 拖动鼠标转视角 · 滚轮缩放 · T 倍速 · Esc 退出"
 	_banner = _mk_label(Vector2(640, 120), 44, Color(1, 0.95, 0.8))
 	_banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_banner.size = Vector2(700, 60)
@@ -149,14 +149,16 @@ func hide_result() -> void:
 	_result.visible = false
 
 
-## 评级：只看三件事（通关 / 剩余生命 / 最大连胜），不搞花哨评分
-static func grade(won: bool, hp_left: int, max_streak: int) -> String:
+## 评级：只看通关与剩余生命。**2026-09-28 重标定**（40 seed 实测）：
+## 修复「败仗不掉血」后均掉血接近翻倍，通关局 hp 中位 ~80、90+ 占四成；
+## 旧阈值（hp≥70 + 连胜≥8）会让 S 占通关局六成，而且实测所有通关局的
+## 最大连胜都 ≥ 8（赢到终盘自然攒满）——连胜条件形同虚设，删除。
+## 现在 S = 近无损通关（约四成通关局），A = 从容通关，B = 惊险通关。
+static func grade(won: bool, hp_left: int, _max_streak: int = 0) -> String:
 	if not won:
 		return "—"
-	if hp_left >= 70 and max_streak >= 8:
+	if hp_left >= 90:
 		return "S"
-	if hp_left >= 40:
+	if hp_left >= 55:
 		return "A"
-	if hp_left > 0:
-		return "B"
-	return "C"
+	return "B"
