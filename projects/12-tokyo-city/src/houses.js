@@ -139,6 +139,7 @@ export function buildHouses(scene, layout) {
   }
 
   const n = spots.length;
+  const rects = []; // 供碰撞网格使用
   const bodyGeo = new THREE.BoxGeometry(1, 1, 1);
   bodyGeo.translate(0, 0.5, 0);
   const roofGeo = new THREE.ConeGeometry(0.72, 1, 4); // 四棱锥屋顶，转 45° 对齐盒体
@@ -159,6 +160,7 @@ export function buildHouses(scene, layout) {
     const bw = (p.big ? 11 : 7.5) + rng() * 4.5;
     const bd = (p.big ? 8 : 6) + rng() * 3.5;
     const bh = (p.big ? 5.5 : 3.2) + rng() * 2.4;
+    rects.push({ x: p.x, z: p.z, hw: bw / 2, hd: bd / 2 });
     m.makeScale(bw, bh, bd);
     m.setPosition(p.x, 0.06, p.z);
     bodyMesh.setMatrixAt(i, m);
@@ -203,5 +205,5 @@ export function buildHouses(scene, layout) {
   fieldMesh.receiveShadow = true;
   scene.add(fieldMesh);
 
-  return { houses: n, fields: nf };
+  return { houses: n, fields: nf, rects };
 }

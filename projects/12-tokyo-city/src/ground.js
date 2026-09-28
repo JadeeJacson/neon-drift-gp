@@ -65,7 +65,7 @@ export function buildGround(scene, layout) {
     beachGeo,
     new THREE.MeshStandardMaterial({ color: 0xcabb90, roughness: 1 })
   );
-  beach.position.y = 0.012;
+  beach.position.y = 0.03;
   beach.receiveShadow = true;
   g.add(beach);
 
@@ -104,7 +104,7 @@ export function buildGround(scene, layout) {
     new THREE.BoxGeometry(rL, 0.25, riverW),
     new THREE.MeshStandardMaterial({ color: 0x274f6d, roughness: 0.4, metalness: 0.05 })
   );
-  river.position.set(riverC, -0.1, riverZ);
+  river.position.set(riverC, -0.18, riverZ);
   g.add(river);
   const bankMat = new THREE.MeshStandardMaterial({ color: 0x8f8b83, roughness: 0.95 });
   for (const s of [-1, 1]) {
@@ -120,7 +120,7 @@ export function buildGround(scene, layout) {
   for (const road of layout.roadsV) {
     if (road.pos > coastX(riverZ) - 20) continue;
     const deck = new THREE.Mesh(new THREE.BoxGeometry(road.w + 5, 0.14, riverW + 12), bridgeMat);
-    deck.position.set(road.pos, 0.07, riverZ);
+    deck.position.set(road.pos, 0.04, riverZ);
     deck.receiveShadow = true;
     g.add(deck);
     for (const s of [-1, 1]) {
@@ -140,13 +140,13 @@ export function buildGround(scene, layout) {
     const vertical = layout.roadsV.includes(road);
     const strip = new THREE.Mesh(stripGeo, asphaltMat);
     if (vertical) {
-      strip.scale.set(road.w, 0.03, SPAN * 2);
-      strip.position.set(road.pos, 0.015, 0);
+      strip.scale.set(road.w, 0.1, SPAN * 2);
+      strip.position.set(road.pos, 0.05, 0);
     } else {
       const eastEnd = coastX(road.pos) - 34; // 不入海
       const len = eastEnd + SPAN;
-      strip.scale.set(len, 0.03, road.w);
-      strip.position.set(-SPAN + len / 2, 0.015, road.pos);
+      strip.scale.set(len, 0.1, road.w);
+      strip.position.set(-SPAN + len / 2, 0.05, road.pos);
     }
     strip.receiveShadow = true;
     g.add(strip);
@@ -181,7 +181,7 @@ export function buildGround(scene, layout) {
     const m = new THREE.Matrix4();
     greens.forEach((p, i) => {
       m.makeScale(p.w - 2, 0.42, p.d - 2);
-      m.setPosition(p.x, 0.21, p.z);
+      m.setPosition(p.x, 0.19, p.z);
       greenMesh.setMatrixAt(i, m);
     });
   }
@@ -246,7 +246,7 @@ export function buildGround(scene, layout) {
     const m = new THREE.Matrix4();
     dashes.forEach((d, i) => {
       m.makeScale(d.sx, 0.04, d.sz);
-      m.setPosition(d.x, 0.03, d.z);
+      m.setPosition(d.x, 0.12, d.z);
       dashMesh.setMatrixAt(i, m);
     });
   }
@@ -257,7 +257,7 @@ export function buildGround(scene, layout) {
     const m = new THREE.Matrix4();
     edgeLines.forEach((d, i) => {
       m.makeScale(d.sx, 0.04, d.sz);
-      m.setPosition(d.x, 0.03, d.z);
+      m.setPosition(d.x, 0.12, d.z);
       edgeMesh.setMatrixAt(i, m);
     });
   }
@@ -281,7 +281,7 @@ export function buildGround(scene, layout) {
     zebraStripes.forEach((s, i) => {
       e.set(0, s.rot, 0);
       q.setFromEuler(e);
-      m.compose(new THREE.Vector3(s.x, 0.045, s.z), q, new THREE.Vector3(s.sx, 0.04, s.sz));
+      m.compose(new THREE.Vector3(s.x, 0.13, s.z), q, new THREE.Vector3(s.sx, 0.04, s.sz));
       zebraMesh.setMatrixAt(i, m);
     });
   }
@@ -371,7 +371,7 @@ function buildTrees(g, layout, rng, span, riverZ, riverW, riverCoastX) {
   }
   const n = spots.length;
   const trunkGeo = new THREE.CylinderGeometry(0.14, 0.22, 3.2, 6);
-  trunkGeo.translate(0, 1.6, 0);
+  trunkGeo.translate(0, 1.25, 0); // 基部下探 0.35m：人行道垫层(0.35)与草地(0)都能“生根”
   const crownGeo = new THREE.IcosahedronGeometry(1, 1);
   crownGeo.translate(0, 4.4, 0);
   const trunkMesh = new THREE.InstancedMesh(trunkGeo, new THREE.MeshStandardMaterial({ color: 0x5d4a36, roughness: 1 }), n);
@@ -464,7 +464,7 @@ function buildLamps(g, layout, span) {
     heads.setMatrixAt(i, m);
   });
   poolSpots.forEach((p, i) => {
-    m.makeTranslation(p.x + Math.sin(p.face) * -2.0, 0.06, p.z + Math.cos(p.face) * -2.0);
+    m.makeTranslation(p.x + Math.sin(p.face) * -2.0, 0.17, p.z + Math.cos(p.face) * -2.0);
     pools.setMatrixAt(i, m);
   });
   pools.count = poolSpots.length;

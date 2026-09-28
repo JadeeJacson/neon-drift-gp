@@ -48,8 +48,8 @@ export function buildBay(scene, layout) {
     const zMid = z + 24;
     const x0 = coastX(z) - 62, x1 = coastX(z + 48) - 62;
     const len = Math.hypot(x1 - x0, 48);
-    const seg = new THREE.Mesh(new THREE.BoxGeometry(len, 0.06, 14), coastRoadMat);
-    seg.position.set((x0 + x1) / 2, 0.028, zMid);
+    const seg = new THREE.Mesh(new THREE.BoxGeometry(len, 0.08, 14), coastRoadMat);
+    seg.position.set((x0 + x1) / 2, 0.05, zMid);
     seg.rotation.y = -Math.atan2(x1 - x0, 48);
     seg.receiveShadow = true;
     g.add(seg);

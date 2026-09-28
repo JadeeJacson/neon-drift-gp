@@ -126,6 +126,10 @@ export class DayNightRig {
     });
     this.sky = new THREE.Mesh(skyGeo, skyMat);
     this.sky.frustumCulled = false;
+    // 对数深度缓冲下自定义 shader 不写 log 深度：天空直接作为最底层背景（不测深度）
+    this.sky.material.depthTest = false;
+    this.sky.material.depthWrite = false;
+    this.sky.renderOrder = -1;
     scene.add(this.sky);
 
     // ---- 太阳（带阴影）----

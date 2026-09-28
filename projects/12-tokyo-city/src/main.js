@@ -10,11 +10,16 @@ import { buildMountains } from './terrain.js';
 import { buildBay } from './bay.js';
 import { buildLandmarks } from './landmarks.js';
 import { decorateBuildings, tickScreens } from './signs.js';
-import { Traffic } from './traffic.js';
+import { Traffic, makeVehicleMaterial } from './traffic.js';
+import { PlayController, buildColliderGrid } from './play.js';
 
 const app = document.getElementById('app');
 
-const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+const renderer = new THREE.WebGLRenderer({
+  antialias: true,
+  powerPreference: 'high-performance',
+  logarithmicDepthBuffer: true, // 大场景（near 1 / far 16000）防远处 z-fighting 闪烁
+});
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
@@ -24,7 +29,7 @@ renderer.toneMappingExposure = 1.0;
 app.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.5, 16000);
+const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 1.0, 16000);
 camera.position.set(-30, 60, -260);
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -40,11 +45,27 @@ const layout = buildLayout();
 buildGround(scene, layout);
 const buildings = buildBuildings(scene, layout);
 decorateBuildings(scene, buildings, 777);
-buildHouses(scene, layout);
+const houseResult = buildHouses(scene, layout);
 buildMountains(scene);
 const bay = buildBay(scene, layout);
-buildLandmarks(scene);
+const crossingBuildings = buildLandmarks(scene);
 const traffic = new Traffic(scene, layout);
+
+// ---- 碰撞网格 + 可玩模式（散步 / 驾驶）----
+const colliderRects = [
+  ...buildings.map((b) => ({ x: b.x, z: b.z, hw: b.w / 2, hd: b.d / 2 })),
+  ...crossingBuildings.map((b) => ({ x: b.x, z: b.z, hw: b.w / 2, hd: b.d / 2 })),
+  ...houseResult.rects,
+];
+const play = new PlayController({
+  scene,
+  camera,
+  controls,
+  dom: renderer.domElement,
+  layout,
+  colliderGrid: buildColliderGrid(colliderRects),
+  carMaterial: makeVehicleMaterial(),
+});
 
 const rig = new DayNightRig(scene, camera, renderer);
 rig.setMode('night'); // 首屏：夜晚霓虹
@@ -87,14 +108,36 @@ modeBtns.day.onclick = () => { rig.setMode('day'); setModeUI('day'); };
 modeBtns.night.onclick = () => { rig.setMode('night'); setModeUI('night'); };
 modeBtns.auto.onclick = () => { rig.setMode('auto'); setModeUI('auto'); };
 for (const [id, v] of Object.entries(VIEWS)) {
-  document.getElementById(id).onclick = () => flyTo(v);
+  document.getElementById(id).onclick = () => { if (play.mode !== 'orbit') play.setMode('orbit'); setPlayUI('orbit'); flyTo(v); };
 }
 window.addEventListener('keydown', (ev) => {
   if (ev.code === 'KeyN') {
     const mode = rig.toggle();
     setModeUI(mode);
   }
+  if (ev.code === 'KeyV') {
+    const m = play.cycle();
+    setPlayUI(m);
+  }
 });
+
+// 可玩模式按钮与提示
+const playBtns = { orbit: document.getElementById('m-orbit'), walk: document.getElementById('m-walk'), drive: document.getElementById('m-drive') };
+const HINTS = {
+  orbit: '拖拽旋转 · 滚轮缩放 · N 切换昼夜 · V 散步 / 驾驶',
+  walk: 'WASD 移动 · Shift 疾跑 · 空格跳跃 · 鼠标视角（点击画面锁定指针，ESC 释放）· V 切换',
+  drive: 'W 油门 · S 刹车/倒车 · A/D 转向 · V 回到观景',
+};
+const hintEl = document.getElementById('hint');
+function setPlayUI(mode) {
+  for (const [k, el] of Object.entries(playBtns)) el.classList.toggle('on', k === mode);
+  hintEl.textContent = HINTS[mode];
+}
+setPlayUI('orbit');
+play.onHint = (mode) => setPlayUI(mode);
+playBtns.orbit.onclick = () => play.setMode('orbit');
+playBtns.walk.onclick = () => play.setMode('walk');
+playBtns.drive.onclick = () => play.setMode('drive');
 
 // ---- 主循环 ----
 const clock = new THREE.Clock();
@@ -111,7 +154,8 @@ function tick(dt, elapsed) {
     screenT = 0;
     tickScreens();
   }
-  controls.update();
+  if (play.mode === 'orbit') controls.update();
+  play.update(dt);
   rig.render();
 
   frames++; fpsT += dt;
@@ -150,6 +194,8 @@ window.__tokyo = {
   view(p, t) {
     if (Array.isArray(p) && Array.isArray(t)) flyTo({ p, t }, true);
   },
+  setPlay(m) { if (['orbit', 'walk', 'drive'].includes(m)) { play.setMode(m); setPlayUI(m); } },
+  get mode() { return play.mode; },
   get cam() { return { p: camera.position.toArray(), t: controls.target.toArray() }; },
   get scene() { return scene; },
 };

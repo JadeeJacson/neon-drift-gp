@@ -24,7 +24,7 @@ totalEmissiveRadiance += vec3(1.0, 0.12, 0.08) * rear * nightF * 2.0;
 `;
 
 function makeVehicleMaterial() {
-    const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.45, metalness: 0.18 });
+  const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.45, metalness: 0.18 });
   mat.onBeforeCompile = (shader) => {
     shader.uniforms.uDay = shared.uDay;
     shader.vertexShader = shader.vertexShader
@@ -38,6 +38,7 @@ function makeVehicleMaterial() {
   mat.customProgramCacheKey = () => 'vehicle-v1';
   return mat;
 }
+export { makeVehicleMaterial };
 
 export class Traffic {
   constructor(scene, layout) {
@@ -246,7 +247,7 @@ export class Traffic {
       const p = this.positionAt(c);
       e.set(0, p.yaw, 0);
       q.setFromEuler(e);
-      v.set(p.x, 0.04, p.z);
+      v.set(p.x, 0.11, p.z);
       m.compose(v, q, s);
       this.carMesh.setMatrixAt(i, m);
     }
@@ -275,7 +276,7 @@ export class Traffic {
       const x = x0 + (x1 - x0) * c.t + c.jit * 0.5;
       const z = z0 + (z1 - z0) * c.t + c.jit;
       const bob = Math.abs(Math.sin(c.t * 90 + i)) * 0.05;
-      v.set(x, 0.05 + bob, z);
+      v.set(x, 0.15 + bob, z);
       e.set(0, Math.atan2(x1 - x0, z1 - z0) * c.dir, 0);
       q.setFromEuler(e);
       m.compose(v, q, s);
