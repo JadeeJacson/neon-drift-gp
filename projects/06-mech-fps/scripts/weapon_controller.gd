@@ -13,30 +13,30 @@ class_name WeaponController
 ##     带手臂的模型包围盒最长轴是肩膀跨度，套上面的办法必然摆歪。
 ## 两个工具都打印复验偏差，PASS 才粘。
 const VIEWMODELS := {
-	## J-Toastie 的「第一人称 + 两只手 + 真 Reload」AKM rig（CC-BY 3.0，署名见 ASSET_MANIFEST §2h）。
-	## 模型里没有枪口标记节点，锚点用骨骼：握把 = Hand.R.001，枪口 = 前手 Hand.L 沿两手连线外推。
+	## 三把枪共用 WeaponPresentation 的握把锚点与枪管轴，所以这里**不再出现**
+	## 手填的 pos/scale/muzzle：静态枪由 _fit_static() 按契约反算，
+	## 绑定枪由 tools/fit_viewmodel.gd 锚定到契约两点后解出来（复验偏差 0.0000 才粘）。
+	## J-Toastie 的 AKM 双臂 rig（CC-BY 3.0，署名见 ASSET_MANIFEST §2h）：
+	## Armature|Idle / Reload / Shoot 三段真动画，28 骨含 Magazine/Bolt/Trigger。
 	"assault_rifle": {
 		"path": "res://assets/models/weapons/akm_viewmodel_hands.glb",
-		"rot": Vector3(-14.6412, 79.8479, 4.2348),
-		"scale": 0.0534,
-		"pos": Vector3(0.1295, -0.2260, -0.4313),
-		"muzzle": Vector3(0.14, -0.16, -0.70),
+		"rot": Vector3(-12.1195, 75.9409, 0.2412),
+		"scale": 0.0552,
+		"pos": Vector3(0.1492, -0.2159, -0.4271),
 		"anim": {"idle": "Armature|Idle", "shoot": "Armature|Shoot", "reload": "Armature|Reload"},
 	},
+	## 静态模型：只有 path + rot（枪管轴向，由 measure_viewmodels.gd 量），其余按契约推。
 	"shotgun": {
 		"path": "res://assets/models/weapons/shotgun.glb",
-		"rot": Vector3(0, 90, 0), "scale": 0.806, "pos": Vector3(0.20, -0.16, -0.30),
+		"rot": Vector3(0, 90, 0), "static": true,
 	},
-	## Majikay 的 CC0 双臂 viewmodel：整套 Rigify 骨架（两条手臂 + 手 + 枪），
-	## 自带 Idle / Reload / Shoot / Unholster 四段真动画，换弹不再是 tween 凑的。
-	## 模型里留了一个 Muzzle 空网格当枪口标记，所以曳光和枪口焰跟着手动，而不是钉死在一个点。
-	## 代价：它是 .44 手枪，和「精确射手步枪」的角色不完全对得上——先用来验证带手 viewmodel 这条链路。
+	## Majikay 的 CC0 双臂 deagle（CC0）：带 Muzzle 标记节点，曳光与枪口焰跟着手动。
+	## 它是 .44 手枪，与「精确射手」的角色只是暂时对得上——先用来验证带手这条链路。
 	"dmr_sniper": {
 		"path": "res://assets/models/weapons/deagle_viewmodel_hands.glb",
-		"rot": Vector3(-35.5469, -146.4307, 172.2205),
-		"scale": 0.4880,
-		"pos": Vector3(0.5572, -0.5116, -0.1338),
-		"muzzle": Vector3(0.1600, -0.1800, -0.6000),
+		"rot": Vector3(-32.1317, -176.3860, -162.7796),
+		"scale": 1.3278,
+		"pos": Vector3(0.5731, -1.0655, 1.0114),
 		"muzzle_node": "Muzzle",
 		"anim": {"idle": "Idle", "shoot": "Shoot", "reload": "Reload", "unholster": "Unholster"},
 	},
@@ -82,6 +82,10 @@ var _viewmodels: Dictionary = {}
 var _vm_anims: Dictionary = {}          # id -> AnimationPlayer（只有绑定 viewmodel 才有）
 var _vm_muzzle_nodes: Dictionary = {}   # id -> 模型自带的枪口标记节点（会跟着动画动）
 var _muzzles: Dictionary = {}          # id -> 相机局部空间的枪口点（实测包围盒算出）
+var _reload_stages: Array = []        # 本次换弹还没响的分段（已按绝对时刻排好）
+var _reload_stage_at: float = 0.0     # 换弹开始的时间戳，用来算分段的绝对时刻
+var _vm_base: Dictionary = {}     # id -> 装配后算出的基准姿态（静态枪的是契约推出来的，不在配置里）
+var _reload_log: Array[String] = []   # 冒烟断言用：本次换弹实际响过的分段
 var _muzzle_light: OmniLight3D
 var _tracer: MeshInstance3D
 var _tracer_mat: StandardMaterial3D
@@ -125,6 +129,21 @@ func _unhandled_input(event: InputEvent) -> void:
 func _process(_delta: float) -> void:
 	if _trigger_held and WeaponTable.is_automatic(_current):
 		try_fire()
+	_fire_reload_stages()
+
+
+## 换弹分段音效：按**时间轴**逐段触发，而不是一进换弹响一次性音效。
+## 这样声音天然与动画对齐（分段比例就是照 clip 的动作阶段定的），
+## 而且切枪打断换弹时，剩下的分段会随 _reload_stages 一起被清掉——
+## 不会出现「枪已经换成霰弹了，步枪的拉机柄声还在响」。
+func _fire_reload_stages() -> void:
+	if _reload_stages.is_empty():
+		return
+	var now := Time.get_ticks_msec() / 1000.0
+	while not _reload_stages.is_empty() and now >= _reload_stage_at + float(_reload_stages[0]["at"]):
+		var stage: Dictionary = _reload_stages.pop_front()
+		_reload_log.append(String(stage["sfx"]))
+		_play("res://assets/audio/sfx/%s.ogg" % String(stage["sfx"]))
 
 
 func select(index: int) -> void:
@@ -140,6 +159,7 @@ func select(index: int) -> void:
 	_next_shot_at = 0.0
 	_reload_until = 0.0
 	_trigger_held = false
+	_reload_stages = []   # 切枪要能掐掉上一把枪没响完的分段音效
 	# 切枪必须重新扣一次扳机：否则上一把枪留下的「这次按压已发过弹」标记
 	# 会让泵动/半自动的新枪直接哑火。
 	_fired_this_press = false
@@ -203,6 +223,15 @@ func vm_animation_for_test() -> String:
 
 ## 配置里 anim 点名的 clip 有没有真的存在于模型里，返回「角色→片段名」列表（空 = 全都有）。
 ## 静态枪没有 AnimationPlayer，返回空即视为通过（它们由 tween 兜底换弹动作）。
+## 冒烟用：本次换弹已经响过的分段音效名（按实际触发顺序）。
+func reload_log_for_test() -> Array[String]:
+	return _reload_log
+
+
+func pending_reload_stages_for_test() -> int:
+	return _reload_stages.size()
+
+
 func vm_missing_anim_clips(id: String) -> PackedStringArray:
 	var out := PackedStringArray()
 	var player := _vm_anims.get(id) as AnimationPlayer
@@ -272,7 +301,7 @@ func try_fire() -> void:
 			_play(SFX.kill)
 		hit_confirmed.emit(killed)
 		var stop := WeaponTable.field(_current, "hitstop")
-		if stop > 0.0:
+		if stop > 0.0 and WeaponPresentation.HITSTOP_ENABLED:
 			get_tree().call_group("shaker", "hitstop", stop)
 	else:
 		hit_confirmed.emit(false)
@@ -310,8 +339,13 @@ func start_reload(force: bool = false) -> void:
 		return
 	var duration := WeaponTable.field(_current, "reload_time")
 	_reload_until = Time.get_ticks_msec() / 1000.0 + duration
+	_reload_stage_at = _reload_until - duration
+	_reload_stages = WeaponPresentation.reload_stages(_current, duration)
+	_reload_log.clear()
 	reload_started.emit(duration)
-	_play(SFX.reload)
+	# 一次性兜底音去掉：分段音效已经覆盖整个换弹过程，再叠一层会听成「咔」一下完事
+	if _reload_stages.is_empty():
+		_play(SFX.reload)
 	_play_vm_anim("reload", true)
 	if not _vm_anims.has(_current):
 		_animate_reload(duration)   # 没有绑定动画的静态枪才用 tween 凑换弹动作
@@ -440,18 +474,23 @@ func _build_viewmodels() -> void:
 		var inst := (load(path) as PackedScene).instantiate()
 		inst.name = "VM_" + String(id)
 		add_child(inst)
-		var s := float(cfg["scale"])
-		inst.scale = Vector3(s, s, s)
-		inst.position = cfg["pos"]
-		inst.rotation_degrees = cfg["rot"]
+		# 静态枪没有 scale/pos（由 _fit_static 按契约反算），所以逐项判存在再赋
+		if cfg.has("rot"):
+			inst.rotation_degrees = cfg["rot"]
+		if cfg.has("scale"):
+			var s := float(cfg["scale"])
+			inst.scale = Vector3(s, s, s)
+		if cfg.has("pos"):
+			inst.position = cfg["pos"]
 		inst.visible = false
 		_viewmodels[id] = inst
-		# 配置里给了 muzzle（fit 工具解出来的目标枪口点）就直接用：
-		# 绑定模型的静止姿态不等于游戏内姿态，包围盒推不出枪管轴。
-		if cfg.has("muzzle"):
-			_muzzles[id] = cfg["muzzle"]
+		_vm_base[id] = {"pos": inst.position, "rot": inst.rotation_degrees}
+		if bool(cfg.get("static", false)):
+			# 静态模型没有手可锚定 → 按契约反算缩放与位移（见 WeaponPresentation）
+			_fit_static(inst, String(id))
 		else:
-			_muzzles[id] = _compute_muzzle(inst)
+			# 绑定模型：pos/rot/scale/muzzle 都是 fit 工具解出来的，锚定的就是契约那两个点
+			_muzzles[id] = WeaponPresentation.muzzle_of(String(id))
 		var player := inst.find_child("AnimationPlayer", true, false) as AnimationPlayer
 		if player != null and cfg.has("anim"):
 			_vm_anims[id] = player
@@ -467,6 +506,40 @@ func _build_viewmodels() -> void:
 				# 它是 Blender 里当标记用的面片，不隐藏会在枪口挂一块常驻白片
 				if mark_node is MeshInstance3D:
 					(mark_node as MeshInstance3D).visible = false
+
+
+## 静态模型按契约摆：先把整枪长度缩放到 body_length，再沿枪管轴平移，
+## 让**实测的最前端**正好落在契约枪口点上。
+## 原来这三把枪的 scale/pos/muzzle 是三轮里分别手填试出来的，彼此没有约束，
+## 结果就是切枪时枪在屏幕上跳位 —— 现在它们共用同一个握把锚点与同一条枪管轴。
+func _fit_static(inst: Node3D, id: String) -> void:
+	var target := WeaponPresentation.muzzle_of(id)
+	inst.rotation_degrees = cfg_rot(id)
+	inst.scale = Vector3.ONE
+	inst.position = Vector3.ZERO
+	var raw := _vm_box(inst)
+	var raw_len := maxf(raw.size.x, raw.size.z)
+	var s := WeaponPresentation.body_length(id) / maxf(raw_len, 0.001)
+	inst.scale = Vector3(s, s, s)
+	var box := _vm_box(inst)
+	var front := Vector3(box.get_center().x, box.get_center().y, box.position.z)
+	inst.position = target - front
+	_muzzles[id] = target
+	_vm_base[id] = {"pos": inst.position, "rot": inst.rotation_degrees}
+
+
+## 某个 viewmodel 在 Weapon 局部空间里的并集包围盒。
+func _vm_box(inst: Node3D) -> AABB:
+	var box := AABB()
+	var found := false
+	var inv := get_global_transform().affine_inverse()
+	for m in _all_meshes(inst):
+		var mi := m as MeshInstance3D
+		var to_local: Transform3D = inv * mi.global_transform
+		var box_local := _xform_aabb(mi.get_aabb(), to_local)
+		box = box_local if not found else box.merge(box_local)
+		found = true
+	return box
 
 
 ## 在 Weapon 局部空间里求「最靠前（-Z 最小）的那一点」，取盒中心的高度作为枪口高度。
@@ -560,11 +633,17 @@ func _current_viewmodel() -> Node3D:
 	return _viewmodels.get(_current) as Node3D
 
 
+## 基准姿态：配置里有就直用；静态枪的是 _fit_static 按契约推出来的，
+## 后坐与换弹的 tween 都以它为原点，否则切回静态枪会抖到原点去。
 func _vm_pos(id: String) -> Vector3:
-	return VIEWMODELS[id]["pos"]
+	return _vm_base[id]["pos"]
 
 
 func _vm_rot(id: String) -> Vector3:
+	return _vm_base[id]["rot"]
+
+
+func cfg_rot(id: String) -> Vector3:
 	return VIEWMODELS[id]["rot"]
 
 

@@ -382,6 +382,31 @@ engines/godot/4.7.2/Godot_v4.7.2-stable_win64.exe --path projects/06-mech-fps \
 验证：`verify.mjs 06` 七步全绿（69 条冒烟，ERROR/WARNING 只剩收尾那 2 条）；
 `tools/smoke_team.gd` 团队模式独立冒烟全绿。敌型显示名改成 突击兵 / 冲锋兵 / 武装射手 / 重装兵（id 不动）。
 
+### 7.2f 第五轮：枪械一致性契约（`sim/weapon_presentation.gd`）
+
+制作人的定义是「统一契约」，落地成四条可断言的规则：
+
+| 契约条目 | 规则 | 谁来保证 |
+|---|---|---|
+| 持握位置 | **所有枪共用一个握把锚点 `GRIP` 与一条枪管轴 `BARREL_AXIS`**，每把只声明「视觉枪管长 / 视觉机身长」两个差异量。静态枪（霰弹）不再手填 scale/pos/muzzle，由 `_fit_static()` 按契约反算：先把机身缩放到声明长度，再平移让**实测枪口**落到契约枪口点 | `test_muzzles_share_one_barrel_axis`（点积 >0.999 卡共轴）+ 冒烟 §5i 逐枪复量，容差 0.06 m |
+| 反馈口径 | 后坐/震屏/fov 的**强弱关系**由 `test_feedback_intensity_ordering` 锁（霰弹 > 精确射手 > 步枪）；**顿帧**是全局开关 `HITSTOP_ENABLED = false`（制作人判定「不用」），数值仍留在 `weapon_table.hitstop` 里，「关掉」和「没这个参数」是两件事 | `test_hitstop_is_globally_off` |
+| 曳光 / 枪口焰 | 起点只有一个解析路径：模型自带标记节点优先（`muzzle_node`），没有就用契约点；两者都在装配时算好并复量 | 冒烟 §5c（三把枪轮流）+ §5i |
+| 换弹分段音效 | 每把枪一份**分段表**：`取弹匣 → 拉机柄 → 装回 → 上膛`（步枪）、`压弹×3 → 拉泵`（霰弹）、`开栓 → 弹夹脱出 → 弹夹入 → 关栓`（栓动）。`at` 是**占换弹时长的比例**，因为三把枪 reload_time 不同而 clip 阶段是按比例对齐的。触发在 `_process` 里按时间轴逐段放，**切枪即清空** | `test_reload_stage_shape` / `test_stage_shapes_differ_by_mechanism` + 冒烟 §5h（段数、顺序、切枪取消） |
+
+素材：6 段换弹音效取自 Kenney RPG Audio（CC0）——`metalClick`→取弹匣、`beltHandle1/2`→拉机柄/拉泵、
+`bookPlace1/2`→弹匣与弹夹归位、`metalLatch`→上膛。`verify_assets.gd` 现在会查这 6 个文件在不在且能否按
+`AudioStream` 加载（分段表里写了名字但文件缺失，运行期只刷 WARNING，听感就是「那段没声」）。
+
+**踩到的坑（都进断言了）**：① `const X := v.normalized()` 在 GDScript 里不是常量表达式，得写死归一化后的数；
+② 静态枪从配置里删掉 scale/pos 之后，`_vm_pos()/_vm_rot()` 这些「以基准姿态为原点」的 tween 全部读空——
+基准姿态改成装配时统一记在 `_vm_base` 里，配置里有没有都一份；③ deagle 的握把锚点原来取的是
+`hand_ik_R`（手腕 IK）而不是枪身，同一个契约点下它会把手腕顶到镜头上、枪掉出画面，
+换成枪本体节点 `Cube_063` 才对——**锚点选错，契约越严越难看**。
+
+验证：`verify.mjs 06` 七步全绿，sim 71 测试 / 855 断言，冒烟 75 条。
+遗留：deagle 那把枪的美术质量明显低于 AK（纯白低模 + 风格不符），它是「先验证链路」的临时角色，
+正式替身是候选池里的 Pichuliru `sniper-rifle-west`（CC0，带 `Bolt`/`Magazine` 骨与 `Attach_Muzzle`）。
+
 ### 7.3 启动方式与键位
 
 

@@ -253,6 +253,43 @@ func _initialize() -> void:
 		main.remove_child(probe)
 		probe.free()
 
+	# 5h) 换弹分段音效：按时间轴逐段响、顺序对、切枪能掐掉。
+	#     这条锁的是「音效与动画事件对齐」这件事本身——以前是一进换弹响一次性音效，
+	#     听起来像「咔」一下完事，跟手上在做什么没关系。
+	weapon.select(0)
+	weapon.force_reload_for_shot()
+	var waited := 0
+	while weapon.pending_reload_stages_for_test() > 0 and waited < 300:
+		await physics_frame
+		waited += 1
+	var stage_log := weapon.reload_log_for_test()
+	var expect: int = (WeaponPresentation.RELOAD_STAGES["assault_rifle"] as Array).size()
+	_check(stage_log.size() == expect,
+		"步枪换弹应响满 %d 段（实测 %d 段）" % [expect, stage_log.size()])
+	_check(stage_log.size() > 1 and stage_log[0] == "reload_mag_release" 			and stage_log[stage_log.size() - 1] == "reload_latch",
+		"分段顺序应是 取弹匣 → … → 上膛（实测 %s）" % ", ".join(stage_log))
+	weapon.select(1)
+	weapon.force_reload_for_shot()
+	for _i in range(20):
+		await physics_frame
+	weapon.select(2)
+	_check(weapon.pending_reload_stages_for_test() == 0,
+		"切枪必须掐掉上一把枪没响完的分段，否则会听到步枪拉机柄响在换完弹之后")
+	for _i in range(200):
+		await physics_frame   # 让 2 号位那次被打断的换弹计时走完，别把状态带进后面
+
+	# 5i) 契约几何：装配层实测的枪口必须落在契约点上（三把枪轮流，上一轮就是这么漏的）
+	for idx in range(weapon.weapon_order.size()):
+		weapon.select(idx)
+		for _i in range(30):
+			await physics_frame
+		var want: Vector3 = WeaponPresentation.muzzle_of(weapon.current_id())
+		var got := weapon.to_local(weapon.muzzle_global())
+		_check(got.distance_to(want) <= WeaponPresentation.MUZZLE_TOLERANCE,
+			"%s 枪口离契约点 %.3f m（容差 %.2f）" % [
+				weapon.current_id(), got.distance_to(want), WeaponPresentation.MUZZLE_TOLERANCE])
+	weapon.select(0)
+
 	# 5f) 人形敌人的动画链：trooper 已从机械模型换成 Quaternius 的 SWAT 人形（CC0，24 段）。
 	#     位移是脚本推的，光看位置变化证明不了「腿在迈」，只能读 AnimationPlayer 的当前 clip。
 	#     骨架前缀（`CharacterArmature|`）没匹配上时的症状正是「模型滑步」，所以这条必须锁。

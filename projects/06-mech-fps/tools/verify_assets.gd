@@ -9,14 +9,23 @@ extends SceneTree
 ##     --headless --path projects/06-mech-fps -s res://tools/verify_assets.gd
 
 const BASE := "res://assets/models/"
+## 换弹分段音效（契约 WeaponPresentation.RELOAD_STAGES 点名的那几个）。
+## 分段表里写了名字但文件不存在的话，运行期只会刷一条「音效缺失」WARNING，
+## 听感上就是「那一段没有声音」——所以在这里当资产契约查掉。
+const SFX_BASE := "res://assets/audio/sfx/"
+const SFX_TARGETS := [
+	"reload_mag_release.ogg", "reload_bolt_back.ogg", "reload_mag_seat.ogg",
+	"reload_latch.ogg", "reload_shell.ogg", "reload_bolt_forward.ogg",
+]
 const TARGETS := [
+	"enemies/blocky/blocky_a.glb",
+	"enemies/blocky/blocky_f.glb",
+	"enemies/blocky/blocky_k.glb",
+	"enemies/blocky/blocky_r.glb",
 	"enemies/swat_trooper.glb",
-	"enemies/swarm_drone.glb",
-	"enemies/charger_mechquadruped.glb",
-	"enemies/heavy_assault_walker.glb",
-	"weapons/assault_rifle.glb",
+	"weapons/akm_viewmodel_hands.glb",
+	"weapons/deagle_viewmodel_hands.glb",
 	"weapons/shotgun.glb",
-	"weapons/dmr_sniper.glb",
 	"props/turret.glb",
 	"props/turret_cannon.glb",
 ]
@@ -27,21 +36,30 @@ var _fails := 0
 func _initialize() -> void:
 	print("=== 06 资产验证 ===")
 	for rel in TARGETS:
-		_report(rel)
+		_report(BASE + rel)
+	for rel in SFX_TARGETS:
+		_report(SFX_BASE + rel)
 	print("=== 失败 %d 项 ===" % _fails)
 	quit(1 if _fails > 0 else 0)
 
 
-func _report(rel: String) -> void:
-	var path := BASE + rel
+func _report(path: String) -> void:
 	if not ResourceLoader.exists(path):
-		print("[缺失] %s" % rel)
+		print("[缺失] %s" % path)
 		_fails += 1
+		return
+	if not path.ends_with(".glb") and not path.ends_with(".gltf"):
+		# 音效这类资源不是场景，只查「在不在、能不能按预期类型加载」
+		var res := load(path)
+		var ok := res is AudioStream
+		if not ok:
+			_fails += 1
+		print("[%s] %s" % ["OK  " if ok else "非音频", path])
 		return
 
 	var packed := load(path) as PackedScene
 	if packed == null:
-		print("[非场景] %s" % rel)
+		print("[非场景] %s" % path)
 		_fails += 1
 		return
 
@@ -70,14 +88,14 @@ func _report(rel: String) -> void:
 
 	var size := box.size
 	if size.length() < 0.001:
-		print("[无网格] %s" % rel)
+		print("[无网格] %s" % path)
 		_fails += 1
 		inst.free()
 		return
 
 	var tag := "OK  " if anim_names.size() > 0 else "无动画"
 	print("%s %-34s 尺寸 %6.2f x %6.2f x %6.2f | mesh %2d | 动画 %2d %s" % [
-		tag, rel, size.x, size.y, size.z, mesh_count, anim_names.size(),
+		tag, path, size.x, size.y, size.z, mesh_count, anim_names.size(),
 		("  " + ", ".join(anim_names.slice(0, 5))) if anim_names.size() > 0 else "",
 	])
 

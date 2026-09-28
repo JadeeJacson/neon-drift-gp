@@ -298,6 +298,18 @@ Portions of artwork are based on "FPS Rig AKM" by J-Toastie (poly.pizza/m/U6l6wj
 | `footstep.ogg` | 脚步 | `footstep_concrete_000.ogg` |
 | `ui_click.ogg` | 界面确认 | `click1.ogg` |
 
+| `reload_mag_release.ogg` | 换弹·取弹匣 / 弹夹脱出 | `metalClick.ogg`（Kenney RPG Audio） |
+| `reload_bolt_back.ogg` | 换弹·拉机柄 / 开栓 | `beltHandle1.ogg` |
+| `reload_bolt_forward.ogg` | 换弹·拉泵 / 关栓 | `beltHandle2.ogg` |
+| `reload_mag_seat.ogg` | 换弹·弹匣（弹夹）归位 | `bookPlace1.ogg` |
+| `reload_shell.ogg` | 换弹·逐发压弹（霰弹） | `bookPlace2.ogg` |
+| `reload_latch.ogg` | 换弹·上膛到位 | `metalLatch.ogg` |
+
+> 这 6 个是**分段音效**，由 `sim/weapon_presentation.gd` 的 `RELOAD_STAGES` 按换弹时间轴触发，
+> 不再是一进换弹响一次性音效。Kenney RPG Audio 里没有枪械专用音，这 6 个是从「皮带抽拉 / 金属卡扣 /
+> 书本放置」这类**同形状的机械声**里挑的——学习用途下够用，真要发布得换专门的枪械音效包。
+> 文件缺失只在运行期刷 WARNING（听感=那段没声），所以 `verify_assets.gd` 把它们列进资产契约查。
+
 > 开火音配了「主音 + 交替音」两套：练习期教训是**同一音高连播会迅速产生机械疲劳感**，
 > 交替播放能让连射听起来有变化。
 
