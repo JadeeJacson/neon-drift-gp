@@ -35,13 +35,17 @@
 | 13 | **three.js**（WebGL 渲染库） | **r128**（CDN 运行时引用，本地无副本） | MIT | `projects/13-solar-flight/index.html` 第 128 行 `script src` |
 | 14 | **three.js**（WebGL 渲染库） | **0.169.0**（npm **精确版本**锁定，非 `^`） | MIT | `projects/14-dead-signal/node_modules/`（已 gitignore） |
 | 14 | **esbuild**（打包器） | **^0.24.0** | MIT | `projects/14-dead-signal/node_modules/`（已 gitignore） |
+| 15 | **three.js**（WebGL 渲染库） | **^0.184.0** | MIT | `projects/15-neon-drift-gp/node_modules/`（已 gitignore） |
+| 15 | **TypeScript**（语言与类型检查） | **^6.0.3** | Apache-2.0 | `projects/15-neon-drift-gp/node_modules/`（已 gitignore） |
+| 15 | **Vite**（dev server 与打包） | **^8.0.13** | MIT | `projects/15-neon-drift-gp/node_modules/`（已 gitignore） |
+| 15 | **Playwright**（视觉回归测试） | **^1.60.0** | Apache-2.0 | `projects/15-neon-drift-gp/node_modules/`（已 gitignore） |
 
 > **13 的 r128 与 12 的 0.180.0 不可混用**：r128 是 2021 年版本，`outputEncoding` / 光照单位
 > 与新版不兼容。13 保持 r128 是制作人「游戏内容先不动」的指令；若升级需整体迁移光照与
 > 色彩管理写法，见 `docs/13-立项-星际航行.md` §5。
 
-> **14 号是第三个版本**：0.169.0（npm 精确版本 + esbuild 打包内联）。三个 Web 项目用了
-> 三个互不相同的 three.js 版本与三种组织方式（12 无构建 / 13 CDN 单文件 / 14 esbuild 打包），
+> **15 号是第四个版本**：0.184.0，且是唯一的 TypeScript 工程（TypeScript 6.0.3 + Vite 8）。四个 Web 项目用了
+> 四个互不相同的 three.js 版本与四种组织方式（12 无构建 / 13 CDN 单文件 / 14 esbuild / 15 Vite），
 > 依赖各装各的，**代码与写法不可跨项目照搬**。新建项目默认走 Godot 主线。见路线图 §1b。
 
 > 09 的 GUT 断言函数集与 06 略有差异，写测试时注意：**GUT 9.7.1 用 `assert_gte`/`assert_lte`，

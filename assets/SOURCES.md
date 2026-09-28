@@ -459,10 +459,10 @@ incompetech `pieces.json`（1442 首，CC-BY 4.0，改版后直链待重新定�
 > 工程 README 明示：**代码与素材均为本工程原创，未复制参考仓库源码，不含任何原厂素材**。
 > 玩法是对公开游戏类型的致敬实现，不涉及原厂素材的复制。
 >
-> **版本隔离**：与 12 号 0.180.0、13 号 r128 三者互不相同，依赖各装各的，
+> **版本隔离**：与 12 号 0.180.0、13 号 r128、15 号 0.184.0 四者互不相同，依赖各装各的，
 > 代码与写法不可跨项目照搬——见路线图 §1b。
 
-## 15. 12 号驾驶游戏新增素材（2026-09-28）
+## 16. 12 号驾驶游戏新增素材（2026-09-28）
 
 > 12 号「东京城市」从「纯程序化场景」升级为「完整驾驶游戏」所需补充的素材。
 > **全部 CC0 1.0**：无登录墙、无 DRM、无需商业授权，与本 lab 的 CC0 优先原则一致。
@@ -488,3 +488,22 @@ incompetech `pieces.json`（1442 首，CC-BY 4.0，改版后直链待重新定�
 > Nature Kit 抽样 `.glb` 魔数为 `glTF`，`Models/GLTF format/` 下 329 个 GLB 齐全；
 > ambientCG 3 张 JPEG 用 .NET `System.Drawing` 实测均为 1024×1024 有效 JPEG。
 > 沿用既有约定：ambientCG 只取 Color / NormalGL / Roughness 三张，`.usdc`/`.blend`/`.mtlx`/`.tres` 不入库。
+
+## 17. 15 号「NEON DRIFT GP 霓虹漂移大奖赛」专项（2026-09-28 外部迁入 · TypeScript + Vite + three.js 0.184.0）
+
+> **零素材下载**：程序化建模为主（蒸汽波 / 波普 / 动漫混搭美术，设计见工程内 `artifacts/design-brief.md`），
+> 故无模型/贴图/音频登记项。外部依赖为下列代码库，均随 `npm install` 装入工程内 `node_modules/`（已 gitignore）。
+
+| 名称 | 作者 | 授权 | 本地位置 | 来源 | 日期 |
+|---|---|---|---|---|---|
+| three.js **^0.184.0**（WebGL 渲染库） | three.js authors | MIT | `projects/15-neon-drift-gp/package.json` | https://npmjs.com/package/three | 2026-09-28 |
+| TypeScript **^6.0.3**（语言与类型检查） | Microsoft | Apache-2.0 | 同上（devDependencies） | https://npmjs.com/package/typescript | 2026-09-28 |
+| Vite **^8.0.13**（dev server 与打包） | Vite authors / Evan You | MIT | 同上（devDependencies） | https://npmjs.com/package/vite | 2026-09-28 |
+| lil-gui **^0.21.0**（调试面板） | George Michael Brower | MIT | 同上（dependencies） | https://npmjs.com/package/lil-gui | 2026-09-28 |
+| Playwright **^1.60.0**（视觉回归测试） | Microsoft | Apache-2.0 | 同上（devDependencies） | https://npmjs.com/package/@playwright/test | 2026-09-28 |
+
+> **版本隔离**：15 号是 lab 内**第四个** three.js 版本（0.184.0），也是唯一的 TypeScript 工程。
+> 与 12 / 13 / 14 的语言、版本、构建方式、产物形态都不同，代码与写法不可跨项目照搬——见路线图 §1b。
+>
+> 编号说明：本节排在 §17 是因为 §16 已被「12 号驾驶游戏新增素材」占用（并发追加），
+> 编号不连续是有意的，内容无缺失。

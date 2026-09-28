@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#12041f" />
+    <link rel="icon" href="data:," />
+    <title>Neon Drift GP · 霓虹漂移大奖赛</title>
+  </head>
+  <body>
+    <main id="app">
+      <canvas id="game-canvas" aria-label="Neon Drift GP playable canvas"></canvas>
+
+      <section id="hud" aria-live="polite">
+        <!-- top-left: position / lap -->
+        <div id="hud-top-left" class="panel">
+          <div class="row">
+            <span class="label">POS</span>
+            <strong id="hud-pos">4/4</strong>
+          </div>
+          <div class="row">
+            <span class="label">LAP</span>
+            <strong id="hud-lap">1/3</strong>
+          </div>
+        </div>
+
+        <!-- top-center: timer -->
+        <div id="hud-top-center" class="panel slim">
+          <span class="label">RACE</span>
+          <strong id="hud-time">00:00.00</strong>
+        </div>
+
+        <!-- top-right: standings -->
+        <ul id="hud-standings" class="panel"></ul>
+
+        <!-- mid messages -->
+        <div id="hud-countdown" hidden>3</div>
+        <div id="hud-message"></div>
+        <div id="hud-drift">DRIFT</div>
+
+        <!-- bottom-left: lap times -->
+        <div id="hud-bottom-left" class="panel">
+          <div class="row">
+            <span class="label">LAP</span>
+            <strong id="hud-lap-time">00:00.00</strong>
+          </div>
+          <div class="row">
+            <span class="label">BEST</span>
+            <strong id="hud-best">--:--.--</strong>
+          </div>
+        </div>
+
+        <!-- bottom-right: speed + boost -->
+        <div id="hud-bottom-right">
+          <div id="speed-block" class="panel">
+            <strong id="hud-speed">000</strong>
+            <span class="unit">KM/H</span>
+          </div>
+          <div id="boost-wrap">
+            <span class="label">BOOST</span>
+            <div id="boost-bar"><div id="hud-boost-fill"></div></div>
+          </div>
+        </div>
+
+        <!-- finish overlay -->
+        <div id="hud-finish" class="overlay" hidden>
+          <div class="overlay-card">
+            <p class="kicker">RACE COMPLETE</p>
+            <h2 id="hud-finish-title">1ST</h2>
+            <p id="hud-finish-detail"></p>
+            <p class="hint">按 R 再来一局 · WASD 驾驶 · Space 漂移 · Shift 氮气</p>
+          </div>
+        </div>
+
+        <!-- controls hint -->
+        <div id="hud-help" class="panel slim">
+          <kbd>WASD</kbd> 驾驶 · <kbd>Space</kbd> 漂移 · <kbd>Shift</kbd> 氮气 · <kbd>R</kbd> 重开
+        </div>
+      </section>
+
+      <div id="touch-controls" aria-hidden="true">
+        <div id="touch-stick">
+          <div id="touch-knob"></div>
+        </div>
+        <div id="touch-actions">
+          <button id="drift-button" type="button">漂移</button>
+          <button id="boost-button" type="button">氮气</button>
+        </div>
+      </div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
