@@ -30,17 +30,14 @@ const VIEWMODELS := {
 		"path": "res://assets/models/weapons/shotgun.glb",
 		"rot": Vector3(0, 90, 0), "static": true,
 	},
-	## Majikay 的 CC0 双臂 deagle（CC0）：带 Muzzle 标记节点，曳光与枪口焰跟着手动。
-	## 它是 .44 手枪，与「精确射手」的角色只是暂时对得上——先用来验证带手这条链路。
-		## roll=90：这张图的「枪的上方向」既不是最小弧旋转给的结果、也不是 180（那样手臂会翻到枪上方），
-		## 是三个候选各截一张图挑出来的（制作人反馈「反着拿」时试过 0/180/-90，都不如 90）。
+	## 第三把枪回到静态 DMR 模型，但摆位由契约反算（static: true）：
+	## 静态模型的包围盒最长轴就是枪管，枪口天然落在枪管线上 —— 不可能「反着拿」。
+	## 试过的两条带手路线都不成立：Majikay deagle 的 roll 要靠 0/90/180 各截图挑，
+	## 挑出来仍然歪；J-Toastie 第二个 rig 的「握把→前手」不是枪管轴，怎么调都对不上。
+	## 带手 viewmodel 现在只有步枪那一个真素材能用，这是素材面的硬限制，不是实现偷懒。
 	"dmr_sniper": {
-		"path": "res://assets/models/weapons/deagle_viewmodel_hands.glb",
-		"rot": Vector3(-5.3350, 156.8635, -70.0974),
-		"scale": 1.3278,
-		"pos": Vector3(-0.4282, -0.6288, 1.1145),
-		"muzzle_node": "Muzzle",
-		"anim": {"idle": "Idle", "shoot": "Shoot", "reload": "Reload", "unholster": "Unholster"},
+		"path": "res://assets/models/weapons/dmr_sniper.glb",
+		"rot": Vector3(0, 90, 0), "static": true,
 	},
 }
 

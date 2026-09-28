@@ -25,7 +25,7 @@ const BARREL_AXIS := Vector3(-0.059596, 0.099307, -0.993295)
 const VIEW := {
 	"assault_rifle": {"barrel": 0.55, "body": 0.62},
 	"shotgun": {"barrel": 0.66, "body": 0.74},
-	"dmr_sniper": {"barrel": 0.46, "body": 0.42},
+	"dmr_sniper": {"barrel": 0.62, "body": 0.66},
 }
 
 ## 枪口点的允许偏差。装配层把模型摆好后必须复量一次，超出即断言失败——

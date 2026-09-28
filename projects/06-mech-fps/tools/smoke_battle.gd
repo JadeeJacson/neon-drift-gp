@@ -185,28 +185,49 @@ func _initialize() -> void:
 		"步枪换弹也该播模型自带的 Reload（实测 %s）" % weapon.vm_animation_for_test())
 	# select() 会把 _reload_until 清零：不复位就会把换弹态带进后面的震屏断言（try_fire 被挡住）
 	weapon.select(0)
-	weapon.select(2)
-	for _i in range(40):
-		await physics_frame   # 等拔枪动作播完（Unholster 0.42s），停在待机姿态
-	var marker := weapon.muzzle_marker_for_test()
-	_check(marker != null, "绑定 viewmodel 应带枪口标记节点（fit 的锚点之一）")
-	if marker != null:
-		_check(not marker.visible, "枪口标记节点必须隐藏，否则屏幕上挂一块常驻白片")
-		var drift: float = weapon.to_local(weapon.muzzle_global()).distance_to(weapon.muzzle_rest_local())
-		_check(drift < 0.06,
-			"待机姿态下枪口节点应落在 fit 解出的点上（偏 %.3f m，摆放参数被改坏了？）" % drift)
-	weapon.force_reload_for_shot()
-	await physics_frame
-	_check(weapon.vm_animation_for_test() == "Reload",
-		"换弹应播模型自带的 Reload（实测 %s）" % weapon.vm_animation_for_test())
-	var idle_muzzle := weapon.muzzle_global()
-	for _i in range(30):
+	# 断言不能钉死在某个武器 id 上（素材面还在换）：先找一把「配置里声明了 anim」的枪。
+	var rigged_index := -1
+	var rigged_clip := ""
+	var rigged_has_marker := false
+	var rigged_name := ""
+	for idx in range(weapon.weapon_order.size()):
+		var id := weapon.weapon_order[idx]
+		var cfg: Dictionary = WeaponController.VIEWMODELS.get(id, {})
+		if cfg.has("anim"):
+			rigged_index = idx
+			rigged_name = String(id)
+			rigged_clip = String((cfg["anim"] as Dictionary).get("reload", ""))
+			rigged_has_marker = cfg.has("muzzle_node")
+			break
+	_check(rigged_index >= 0, "至少有一把枪接了带手 + 真动画的 viewmodel")
+	if rigged_index >= 0:
+		weapon.select(rigged_index)
+		for _i in range(40):
+			await physics_frame   # 等拔枪动作播完，停在待机姿态
+		var marker := weapon.muzzle_marker_for_test()
+		_check(marker != null or not rigged_has_marker,
+			"%s 声明了 muzzle_node 就该找得到（fit 的锚点之一）" % rigged_name)
+		if marker != null:
+			_check(not marker.visible, "枪口标记节点必须隐藏，否则枪口挂一块常驻白片")
+			var drift: float = weapon.to_local(weapon.muzzle_global()).distance_to(weapon.muzzle_rest_local())
+			_check(drift < 0.06,
+				"待机姿态下枪口节点应落在 fit 解出的点上（偏 %.3f m）" % drift)
+		weapon.force_reload_for_shot()
 		await physics_frame
-	var moved: float = idle_muzzle.distance_to(weapon.muzzle_global())
-	_check(moved > 0.02, "换弹动画必须真的挪动枪口（实测 %.3f m）" % moved)
-	for _i in range(int(WeaponTable.field("dmr_sniper", "reload_time") * 70.0) + 20):
-		await physics_frame   # 让换弹计时走完，别把 reload 状态带进后面的断言
-	weapon.select(0)
+		_check(weapon.vm_animation_for_test() == rigged_clip,
+			"%s 换弹应播模型自带的 %s（实测 %s）" % [
+				rigged_name, rigged_clip, weapon.vm_animation_for_test()])
+		# 「枪口跟着手动」只有声明了标记节点的枪才成立：步枪没有 muzzle 节点，
+		# muzzle_global() 退回契约静态点，本来就一动不动（这不是 bug，别误判）。
+		if rigged_has_marker:
+			var idle_muzzle := weapon.muzzle_global()
+			for _i in range(30):
+				await physics_frame
+			var moved: float = idle_muzzle.distance_to(weapon.muzzle_global())
+			_check(moved > 0.02, "换弹动画必须真的挪动枪口（实测 %.3f m）" % moved)
+		for _i in range(int(WeaponTable.field(rigged_name, "reload_time") * 70.0) + 20):
+			await physics_frame   # 让换弹计时走完，别把 reload 状态带进后面的断言
+		weapon.select(0)
 
 	# 5e) 死亡表现：打死之后模型必须有可见变化（倒地/下沉/缩小），
 	#     用户原话是「只是停住然后消失，难判断」。
