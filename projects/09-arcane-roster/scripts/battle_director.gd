@@ -133,9 +133,16 @@ func _sync_views() -> void:
 		var u: Dictionary = sim.units[i]
 		if not _views.has(i):
 			continue
-		var view: UnitView = _views[i]
-		if not is_instance_valid(view):
+		# **必须先弱类型取出再验活性**：死亡动画播完会 queue_free()，但 _views 里
+		# 的引用还挂着。若直接赋给强类型 `var view: UnitView`，赋值本身就会报
+		# 「Trying to assign invalid previously freed instance」——is_instance_valid
+		# 根本执行不到。headless 冒烟抓不到它：tween 由真实帧循环推进，无头下
+		# 同步执行永远走不到 queue_free，所以只有制作人实跑时才会刷屏。
+		# （2026-09-28 实跑日志抓到，与 _view_of 的既有写法对齐）
+		var raw = _views[i]
+		if not is_instance_valid(raw):
 			continue
+		var view: UnitView = raw
 		view.sync(u)
 		# 只在「没有正在播的出手动作」时播移动动画
 		var cell: Vector2i = u["cell"]
