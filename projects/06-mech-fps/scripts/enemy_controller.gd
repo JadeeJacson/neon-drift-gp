@@ -51,6 +51,12 @@ signal damaged(enemy_type: String)
 ## 没看见任何敌人时往哪儿推进（团队模式用）。INF = 不推进，保持波次模式的原行为。
 ## 没有这条的话 bot 会「看不见就原地罚站」，两队隔着 50 米对峙到时间结束——实测就是这样零击杀。
 @export var push_point: Vector3 = Vector3.INF
+## 模型自己的「正面」与 Godot 的 -Z 差多少度。Kenney 方块人是 **+Z 朝前**（导出的
+## 角色全都背对 -Z），不补这 180° 就是制作人看到的「倒着走」。旧机甲是对称造型
+## 才没暴露这个问题。逐场景可覆盖，方便换素材时重校。
+@export var model_yaw := 0.0
+## 手上挂的枪（null = 不挂）。队友与敌人给不同型号，顺便当第二重阵营识别。
+@export var held_weapon: String = "res://assets/models/weapons/assault_rifle.glb"
 
 var _hp: float
 var _max_hp: float
@@ -60,6 +66,9 @@ var _anim: AnimationPlayer
 var _anim_prefix := ""          # clip 名里的骨架前缀，装配时推一次
 var _skeleton: Skeleton3D
 var _parts: Array[Node3D] = []   # 刚性骨架（Kenney 方块人）的部件节点
+var _torso: Node3D
+var _gun: Node3D
+var _muzzle: Node3D
 var _model: Node3D
 var _meshes: Array[MeshInstance3D] = []
 var _flash_mat: StandardMaterial3D
@@ -84,6 +93,8 @@ func _ready() -> void:
 	_anim = _find_anim_player(self)
 	_skeleton = find_child("Skeleton3D", true, false) as Skeleton3D
 	_parts = _collect_parts(self)
+	_torso = find_child("torso", true, false) as Node3D
+	_attach_weapon()
 	_detect_anim_prefix()
 	_apply_loop_policy()
 	_meshes = _collect_meshes(self)
@@ -124,12 +135,61 @@ func _physics_process(delta: float) -> void:
 		"stagger_left": _stagger_left,
 	})
 
+	_turn_to_target(flat.normalized(), delta)
 	_apply_movement(decision, flat.normalized(), EnemyTable.field(enemy_type, "speed"), delta)
 	_apply_presentation(decision, now, delta)
 
 	if bool(decision.fire) and now >= _attack_ready_at:
 		_attack_ready_at = now + EnemyTable.field(enemy_type, "attack_interval")
 		_attack(target)
+		_show_shot(target)
+
+
+## 身体转向目标。原来从不转身：Kenney 方块人一律以「模型 +Z」为正面，
+## 于是追着 -X 方向的目标跑时看着就是倒退（制作人反馈「有的是倒着走的」）。
+func _turn_to_target(dir_flat: Vector3, delta: float) -> void:
+	if _model == null or dir_flat == Vector3.ZERO:
+		return
+	var want := atan2(dir_flat.x, dir_flat.z) + deg_to_rad(model_yaw)
+	_model.rotation.y = lerp_angle(_model.rotation.y, want, minf(delta * 9.0, 1.0))
+
+
+## 手上挂枪：挂在 torso 上，这样躯干前倾/受击时枪跟着走；
+## 枪口挂一个 Marker3D 当曳光与枪口焰的起点（和玩家那边 muzzle_node 的口径一致）。
+func _attach_weapon() -> void:
+	if held_weapon.is_empty() or _model == null or not ResourceLoader.exists(held_weapon):
+		return
+	var anchor := _torso if _torso != null else _model
+	var inst := (load(held_weapon) as PackedScene).instantiate() as Node3D
+	if inst == null:
+		return
+	inst.name = "HeldWeapon"
+	inst.scale = Vector3(0.42, 0.42, 0.42)
+	# torso 局部空间：原点大约在腰，手在胸前偏前下方
+	inst.position = Vector3(0.16, 0.62, -0.52)
+	inst.rotation_degrees = Vector3(0.0, 180.0, 0.0)
+	anchor.add_child(inst)
+	inst.owner = null
+	_gun = inst
+	_muzzle = Marker3D.new()
+	_muzzle.name = "BotMuzzle"
+	_muzzle.position = Vector3(0.0, 0.06, -1.35)   # 枪管前端（挂点局部空间）
+	inst.add_child(_muzzle)
+
+
+## 开火的可见反馈：曳光 + 枪口焰 + 音效。伤害结算早就有了，缺的只是「看得见」。
+func _show_shot(target: Node3D) -> void:
+	var from := muzzle_global()
+	var to := target.global_position + Vector3(0, 1.0, 0)
+	CombatFx.tracer(self, from, to, Color(1.0, 0.62, 0.30, 0.8))
+	CombatFx.flash(self, from)
+	CombatFx.report_shot()
+
+
+func muzzle_global() -> Vector3:
+	if _muzzle != null:
+		return _muzzle.global_position
+	return global_position + Vector3(0, 1.3, 0)
 
 
 ## 视野里没有敌人：朝推进点走，同时继续受重力。到点附近就停下等（避免贴着墙抖）。
@@ -205,6 +265,28 @@ func take_damage(raw_amount: float, _from_position: Vector3, executed: bool = fa
 		_stagger_left = 0.22
 		_play_anim("hurt")
 	return false
+
+
+## 冒烟用：强制走一次「开火 + 可见反馈」，不依赖 AI 的冷却与视线判定。
+func force_attack_for_test() -> void:
+	var t := _acquire_target()
+	if t == null:
+		t = _player
+	if t == null:
+		return
+	_attack(t)
+	_show_shot(t)
+
+
+## 身体（模型）正面与「指向目标」这条线的夹角余弦。倒着走会给出接近 -1 的值。
+func facing_alignment_for_test() -> float:
+	if _model == null or _target == null:
+		return 0.0
+	var fwd := _model.global_transform.basis.z
+	var to := _target.global_position - global_position
+	if to.length() < 0.001:
+		return 0.0
+	return fwd.normalized().dot(to.normalized())
 
 
 func hp_for_test() -> float:

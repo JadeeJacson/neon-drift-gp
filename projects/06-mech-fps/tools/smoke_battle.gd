@@ -382,6 +382,24 @@ func _initialize() -> void:
 	main.remove_child(ally)
 	ally.free()
 
+	# 5j) bot 的开火要「看得见」+ 身体要朝着目标（制作人：给队友和敌人枪，并会攻击；
+	#     以及「有的是倒着走的」——旧机甲是对称造型，换成方块人后朝向问题才暴露出来）。
+	CombatFx.reset_for_test()
+	var shooter := _nearest_enemy(director)
+	if shooter != null:
+		_place_in_front(shooter, camera, 10.0)
+		for _i in range(40):
+			await physics_frame
+		shooter.force_attack_for_test()
+		await physics_frame
+		_check(CombatFx.shots_for_test() > 0, "bot 开火必须留下曳光与枪口焰（原来只有伤害，画面上没动静）")
+		_check(shooter.muzzle_global().distance_to(shooter.global_position) > 0.4,
+			"枪口该在挂的枪上（离身体 %.2f m），不该是身体中心" % shooter.muzzle_global().distance_to(shooter.global_position))
+		_check(shooter.facing_alignment_for_test() > 0.5,
+			"身体必须转向目标（余弦 %.2f，负数=倒着走）" % shooter.facing_alignment_for_test())
+	else:
+		_check(false, "找不到用于验证开火表现的 bot")
+
 	# 6) 震屏：重反馈武器（霰弹 recoil 0.26）必须把 trauma 顶起来；
 	#    步枪单发 trauma 只有 0.05、衰减 3.2/s，16ms 就归零——那是「连射不该微抖」的设计意图，
 	#    所以不能用步枪做这条断言（第一版就是这么误判成 FAIL 的）。
