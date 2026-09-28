@@ -23,6 +23,9 @@ var _team_label: Label
 var _team_mode := false
 var _kills_label: Label
 var _message: Label
+const HIT_RED := Color(1.0, 0.34, 0.30)
+const HIT_RED_KILL := Color(1.0, 0.12, 0.10)
+
 var _hitmarker: Label
 var _damage_flash: ColorRect
 var _kills := 0
@@ -117,7 +120,9 @@ func _on_hit_confirmed(killed: bool) -> void:
 	if killed:
 		_kills += 1
 	_refresh_wave_label()
-	_hitmarker.add_theme_color_override("font_color", WARN_HP if killed else Color(1, 1, 1))
+	# 命中就是红的，击杀只是更亮更大——不做「白=打中、红=打死」那套两色编码，
+	# 实战里根本来不及分辨（制作人 2026-09-27 要求统一红色）
+	_hitmarker.add_theme_color_override("font_color", HIT_RED_KILL if killed else HIT_RED)
 	_hitmarker.text = "✕" if killed else "✛"
 	_hitmarker.scale = Vector2(1.6, 1.6) if killed else Vector2.ONE
 	_hitmarker.modulate = Color(1, 1, 1, 1)

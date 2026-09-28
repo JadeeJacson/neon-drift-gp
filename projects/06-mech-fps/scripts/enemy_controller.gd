@@ -349,7 +349,7 @@ func _die(executed: bool) -> void:
 func _flash_hit() -> void:
 	if _flash_mat == null:
 		return
-	_flash_mat.albedo_color = Color(1, 1, 1, 0.62)
+	_flash_mat.albedo_color = Color(1.0, 0.34, 0.30, 0.62)   # 受击闪红，与命中标记同色系
 	var t := create_tween()
 	t.tween_property(_flash_mat, "albedo_color:a", 0.0, 0.11)
 

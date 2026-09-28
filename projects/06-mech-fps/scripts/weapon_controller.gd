@@ -32,11 +32,13 @@ const VIEWMODELS := {
 	},
 	## Majikay 的 CC0 双臂 deagle（CC0）：带 Muzzle 标记节点，曳光与枪口焰跟着手动。
 	## 它是 .44 手枪，与「精确射手」的角色只是暂时对得上——先用来验证带手这条链路。
+		## roll=90：这张图的「枪的上方向」既不是最小弧旋转给的结果、也不是 180（那样手臂会翻到枪上方），
+		## 是三个候选各截一张图挑出来的（制作人反馈「反着拿」时试过 0/180/-90，都不如 90）。
 	"dmr_sniper": {
 		"path": "res://assets/models/weapons/deagle_viewmodel_hands.glb",
-		"rot": Vector3(-32.1317, -176.3860, -162.7796),
+		"rot": Vector3(-5.3350, 156.8635, -70.0974),
 		"scale": 1.3278,
-		"pos": Vector3(0.5731, -1.0655, 1.0114),
+		"pos": Vector3(-0.4282, -0.6288, 1.1145),
 		"muzzle_node": "Muzzle",
 		"anim": {"idle": "Idle", "shoot": "Shoot", "reload": "Reload", "unholster": "Unholster"},
 	},
@@ -617,6 +619,16 @@ func _build_fx() -> void:
 	var sphere := SphereMesh.new()
 	sphere.radius = 0.045
 	sphere.height = 0.09
+	# 命中特效统一红色（制作人 2026-09-27 的要求）：撞点粒子、命中标记、受击闪白同一个色系，
+	# 「打中了」在画面里只有一种语言，不用记三种颜色各自的含义。
+	var imat := StandardMaterial3D.new()
+	imat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	imat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	imat.albedo_color = Color(1.0, 0.30, 0.26, 0.95)
+	imat.emission_enabled = true
+	imat.emission = Color(1.0, 0.22, 0.18)
+	imat.emission_energy_multiplier = 2.2
+	sphere.material = imat
 
 	_impact = GPUParticles3D.new()
 	_impact.name = "ImpactBurst"
