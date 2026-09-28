@@ -33,10 +33,16 @@
 | 09 | **GUT**（bitwes/Gut） | **9.7.1**（从 06 原样复制，未改版本） | MIT | `projects/09-arcane-roster/addons/gut/` |
 | 12 | **three.js**（WebGL 渲染库） | **0.180.0**（npm，`package.json` 钉版本） | MIT | `projects/12-tokyo-city/node_modules/`（已 gitignore） |
 | 13 | **three.js**（WebGL 渲染库） | **r128**（CDN 运行时引用，本地无副本） | MIT | `projects/13-solar-flight/index.html` 第 128 行 `script src` |
+| 14 | **three.js**（WebGL 渲染库） | **0.169.0**（npm **精确版本**锁定，非 `^`） | MIT | `projects/14-dead-signal/node_modules/`（已 gitignore） |
+| 14 | **esbuild**（打包器） | **^0.24.0** | MIT | `projects/14-dead-signal/node_modules/`（已 gitignore） |
 
 > **13 的 r128 与 12 的 0.180.0 不可混用**：r128 是 2021 年版本，`outputEncoding` / 光照单位
 > 与新版不兼容。13 保持 r128 是制作人「游戏内容先不动」的指令；若升级需整体迁移光照与
 > 色彩管理写法，见 `docs/13-立项-星际航行.md` §5。
+
+> **14 号是第三个版本**：0.169.0（npm 精确版本 + esbuild 打包内联）。三个 Web 项目用了
+> 三个互不相同的 three.js 版本与三种组织方式（12 无构建 / 13 CDN 单文件 / 14 esbuild 打包），
+> 依赖各装各的，**代码与写法不可跨项目照搬**。新建项目默认走 Godot 主线。见路线图 §1b。
 
 > 09 的 GUT 断言函数集与 06 略有差异，写测试时注意：**GUT 9.7.1 用 `assert_gte`/`assert_lte`，
 > 没有 `assert_ge`/`assert_le`**；GDScript 侧也**不要用 `String(x)` 做类型转换**（x 已是 String 时

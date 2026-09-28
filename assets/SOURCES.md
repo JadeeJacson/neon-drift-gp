@@ -443,3 +443,48 @@ incompetech `pieces.json`（1442 首，CC-BY 4.0，改版后直链待重新定�
 > 版本说明：r128 是 2021 年发布的版本，与 12 号用的 0.180.0 相差约 60 个版本，
 > 光照单位与 `outputEncoding` 行为不兼容。**本轮按制作人「游戏内容先不动」的指令保留原版本**；
 > 若将来升级需整体迁移光照与色彩管理写法，见 `docs/13-立项-星际航行.md` §5。
+
+## 15. 14 号「DEAD SIGNAL 死人会发电」专项（2026-09-28 外部迁入 · three.js 0.169.0 + esbuild）
+
+> **零素材下载**：模型 / 贴图 / 音效全部程序化生成（Canvas 贴图工厂、WebAudio 合成、盒子拼装枪模与亡灵），
+> 故无模型/贴图/音频登记项。产物 `dist/index.html`（567 KB）自包含，可离线双击运行。
+> 外部依赖为两个代码库，均随 `npm install` 装入工程内 `node_modules/`（已 gitignore）。
+
+| 名称 | 作者 | 授权 | 本地位置 | 来源 | 日期 |
+|---|---|---|---|---|---|
+| three.js **0.169.0**（WebGL 渲染库，npm **精确版本**锁定） | three.js authors | MIT | `projects/14-dead-signal/package.json` | https://npmjs.com/package/three | 2026-09-28 |
+| esbuild **^0.24.0**（打包器，把 22 个 ESM 模块 + three.js 内联成单文件 HTML） | Evan Wallace | MIT | `projects/14-dead-signal/package.json` | https://npmjs.com/package/esbuild | 2026-09-28 |
+
+> **技术选型参考**：参考仓库 `riba2534/claude-opus-5-5-demo` 的选型（three.js ESM + esbuild 打包内联）。
+> 工程 README 明示：**代码与素材均为本工程原创，未复制参考仓库源码，不含任何原厂素材**。
+> 玩法是对公开游戏类型的致敬实现，不涉及原厂素材的复制。
+>
+> **版本隔离**：与 12 号 0.180.0、13 号 r128 三者互不相同，依赖各装各的，
+> 代码与写法不可跨项目照搬——见路线图 §1b。
+
+## 15. 12 号驾驶游戏新增素材（2026-09-28）
+
+> 12 号「东京城市」从「纯程序化场景」升级为「完整驾驶游戏」所需补充的素材。
+> **全部 CC0 1.0**：无登录墙、无 DRM、无需商业授权，与本 lab 的 CC0 优先原则一致。
+> 原始压缩包统一存于 `assets/_downloads/12-tokyo-supplement/`（HDRI 直接落 `hdri/`，不缓存压缩包）。
+>
+> 用途：HDRI 作 `scene.environment` 环境反射贴图（解决金属材质发黑、无环境光），
+> Nature Kit 提供路旁植被（树 / 灌木 / 草），ambientCG 贴图作路面 PBR 材质。
+> HDRI 均为 **1k / 32-bit_rle_rgbe** Radiance 格式，three.js `RGBELoader` 可直接解析；
+> 刻意不取 4k/8k——1024×512 足够驱动反射，移动端显存友好。
+
+| 名称 | 作者 / 来源 | 来源 URL | 授权条款 | 本地路径 | 下载日期 |
+|---|---|---|---|---|---|
+| **venice_sunset_1k.hdr** — 黄昏城市天光（暖调，主打环境反射） | Poly Haven | https://polyhaven.com/a/venice_sunset （直链 https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/venice_sunset_1k.hdr） | CC0 1.0 | `assets/hdri/polyhaven/venice_sunset_1k.hdr`（1.37 MB） | 2026-09-28 |
+| **urban_alley_01_1k.hdr** — 城市巷道（日间城市天光） | Poly Haven | https://polyhaven.com/a/urban_alley_01 （直链 https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/urban_alley_01_1k.hdr） | CC0 1.0 | `assets/hdri/polyhaven/urban_alley_01_1k.hdr`（1.63 MB） | 2026-09-28 |
+| **dikhololo_night_1k.hdr** — 夜间环境（配合项目夜间霓虹路段） | Poly Haven | https://polyhaven.com/a/dikhololo_night （直链 https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/dikhololo_night_1k.hdr） | CC0 1.0 | `assets/hdri/polyhaven/dikhololo_night_1k.hdr`（1.66 MB） | 2026-09-28 |
+| **Kenney Nature Kit v2.1** — 329 个自然物模型（树 / 灌木 / 草 / 花 / 岩石），含 glTF / FBX / OBJ / STL 多格式 + `License.txt` | Kenney (kenney.nl) | https://kenney.nl/assets/nature-kit （直链 https://kenney.nl/media/pages/assets/nature-kit/37ac38a37b-1677698939/kenney_nature-kit.zip） | CC0 1.0 | `assets/models/environment/kenney_nature-kit/`（3618 文件 / 28.1 MB） | 2026-09-28 |
+| **ambientCG Road 007（1K JPG）** — 路面 PBR 三图：Color / NormalGL / Roughness，1024×1024 | ambientCG | https://ambientcg.com/view?id=Road007 （直链 https://ambientcg.com/get?file=Road007_1K-JPG.zip） | CC0 1.0 | `assets/textures/ambientcg/Road007/`（3 文件 / 2.92 MB） | 2026-09-28 |
+
+> 命名提示：Poly Haven 的城市巷道条目实际名为 **`urban_alley_01`**（带 `_01` 序号），
+> 直链 `urban_alley_1k.hdr` 返回 404，后续抓取请勿省略序号。
+>
+> 校验记录（2026-09-28）：3 个 .hdr 文件头均为 `#?RADIANCE`、`FORMAT=32-bit_rle_rgbe`，文件大小 1.37–1.66 MB；
+> Nature Kit 抽样 `.glb` 魔数为 `glTF`，`Models/GLTF format/` 下 329 个 GLB 齐全；
+> ambientCG 3 张 JPEG 用 .NET `System.Drawing` 实测均为 1024×1024 有效 JPEG。
+> 沿用既有约定：ambientCG 只取 Color / NormalGL / Roughness 三张，`.usdc`/`.blend`/`.mtlx`/`.tres` 不入库。
