@@ -33,6 +33,28 @@ func _ready() -> void:
 		push_error("主场景装配失败：Arena 下没有 SpawnPoints，请重跑 tools/build_arena.gd")
 		return
 
+	# 换地图：主场景里 Arena 是实例化的子节点，运行时换掉比在 .tscn 里做两套主场景干净
+	# （场景树会被 build_arena.gd 重新生成，路径写死在 XML 里迟早对不上）。
+	if _map_name() == "ship":
+		var ship_path := "res://scenes/arena_ship.tscn"
+		if not ResourceLoader.exists(ship_path):
+			push_error("缺少 %s，先跑 build_arena.gd -- --layout=ship" % ship_path)
+		else:
+			# 先摘掉旧的再挂新的：同名节点共存时 Godot 会给新节点改名（Arena2），
+			# 后面所有按 ^"Arena/SpawnPoints" 取路径的代码就找不到运输船了。
+			var slot := arena.get_index()
+			remove_child(arena)
+			arena.free()
+			arena = (load(ship_path) as PackedScene).instantiate() as Node3D
+			arena.name = "Arena"
+			add_child(arena)
+			move_child(arena, slot)
+			spawn_points = arena.get_node_or_null(^"SpawnPoints") as Node3D
+			if spawn_points == null:
+				push_error("运输船场景里没有 SpawnPoints")
+				return
+			print("MAP 切换到运输船")
+
 	_place_player_at_spawn(player, spawn_points)
 	hud.bind_player(player)
 	_hook_bgm()
@@ -40,6 +62,13 @@ func _ready() -> void:
 		_start_team_mode(director, spawn_points, player, vitals, hud)
 	else:
 		director.setup(spawn_points, vitals)
+
+
+func _map_name() -> String:
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--map="):
+			return arg.trim_prefix("--map=")
+	return "arena"
 
 
 func _resolve_mode() -> String:

@@ -114,6 +114,24 @@ func _spawn_bot(team: int) -> void:
 ## 出生点：现在按「z 轴正负」把现有竞技场的 8 个地面出怪点分成两端。
 ## 运输船地图会改成显式的 team_a_* / team_b_* 标记（见 docs/06 §7.4）。
 func _split_spawns(holder: Node3D) -> void:
+	# 优先用显式命名的 team_a_* / team_b_*（运输船图就是靠它把两端分开）。
+	# 没有这两个前缀时（老竞技场）退回「按 z 正负切两端」，保持向后兼容。
+	var named := true
+	for c in holder.get_children():
+		var m := c as Marker3D
+		if m == null:
+			continue
+		var nm := String(m.name)
+		if nm.begins_with("team_a_"):
+			_points_a.append(m.global_position)
+		elif nm.begins_with("team_b_"):
+			_points_b.append(m.global_position)
+		else:
+			named = false
+	if named and not _points_a.is_empty() and not _points_b.is_empty():
+		return
+	_points_a.clear()
+	_points_b.clear()
 	for c in holder.get_children():
 		var m := c as Marker3D
 		if m == null or String(m.name) == "player_spawn":

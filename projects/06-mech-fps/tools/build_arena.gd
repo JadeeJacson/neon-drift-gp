@@ -10,6 +10,52 @@ extends SceneTree
 ##     --headless --path projects/06-mech-fps -s res://tools/build_arena.gd
 
 const OUT_PATH := "res://scenes/arena.tscn"
+const OUT_PATH_SHIP := "res://scenes/arena_ship.tscn"
+
+## 运输船（CF 那张图的骨架，换成科幻货船皮）：长轴沿 X（玩家出生朝 -X，正对船头到船尾），
+## 主甲板 64×18，后 2/3 上面加一层甲板（y=3.2），中段留一个开顶货舱。
+## 出生区在两端：船头 +X、船尾 -X，中间是交火带。
+const SHIP_PIECES: Array = [
+	# --- 船壳 ---
+	[Vector3(0, -0.5, 0), Vector3(64, 1, 18), Vector3.ZERO, 1],          # 主甲板
+	[Vector3(0, 3.0, -9.5), Vector3(64, 8, 1), Vector3.ZERO, 2],         # 右舷
+	[Vector3(0, 3.0, 9.5), Vector3(64, 8, 1), Vector3.ZERO, 2],          # 左舷
+	[Vector3(32.5, 3.0, 0), Vector3(1, 8, 19), Vector3.ZERO, 2],         # 船头
+	[Vector3(-32.5, 3.0, 0), Vector3(1, 8, 19), Vector3.ZERO, 2],        # 船尾
+	# --- 上层甲板（后段）与支撑柱 ---
+	[Vector3(-12, 3.4, 0), Vector3(36, 0.6, 19), Vector3.ZERO, 3],
+	[Vector3(4, 2.0, 6), Vector3(1.0, 4.0, 1.0), Vector3.ZERO, 5],
+	[Vector3(4, 2.0, -6), Vector3(1.0, 4.0, 1.0), Vector3.ZERO, 5],
+	[Vector3(-14, 2.0, 7), Vector3(1.0, 4.0, 1.0), Vector3.ZERO, 5],
+	[Vector3(-14, 2.0, -7), Vector3(1.0, 4.0, 1.0), Vector3.ZERO, 5],
+	# --- 两条登船坡道（左右各一条，方向相反，永远有一条能用）---
+	[Vector3(-1, 1.9, 7.6), Vector3(10, 0.5, 3.2), Vector3(17, 0, 0), 4],
+	[Vector3(-1, 1.9, -7.6), Vector3(10, 0.5, 3.2), Vector3(-17, 0, 0), 4],
+	# --- 货舱集装箱：主甲板 ---
+	[Vector3(12, 1.3, -4), Vector3(6.1, 2.6, 2.4), Vector3.ZERO, 6],
+	[Vector3(20, 1.3, 4), Vector3(6.1, 2.6, 2.4), Vector3(0, 12, 0), 6],
+	[Vector3(6, 1.3, 5), Vector3(6.1, 2.6, 2.4), Vector3.ZERO, 6],
+	[Vector3(20, 1.3, 5), Vector3(3.0, 2.6, 3.0), Vector3.ZERO, 7],   # 船头通道保持畅通：出生点正前方 10 米内不放任何带碰撞的箱子
+	# --- 货舱集装箱：上层甲板（y=3.7 板顶 → 箱子中心 3.7+1.3）---
+	[Vector3(-10, 5.0, 3), Vector3(6.1, 2.6, 2.4), Vector3.ZERO, 6],
+	[Vector3(-20, 5.0, -3), Vector3(6.1, 2.6, 2.4), Vector3(0, -10, 0), 6],
+	[Vector3(-27, 5.0, 4), Vector3(3.0, 2.6, 3.0), Vector3.ZERO, 7],
+]
+
+## 出生点：team_a 在船头、team_b 在船尾；edge_* 是波次模式沿用的老命名。
+const SHIP_SPAWNS: Array = [
+	["player_spawn", Vector3(27.0, 0.1, 0.0)],
+	["team_a_0", Vector3(29.0, 0.1, -5.0)],
+	["team_a_1", Vector3(30.0, 0.1, 0.0)],
+	["team_a_2", Vector3(29.0, 0.1, 5.0)],
+	["team_b_0", Vector3(-29.0, 0.1, -5.0)],
+	["team_b_1", Vector3(-30.0, 0.1, 0.0)],
+	["team_b_2", Vector3(-29.0, 0.1, 5.0)],
+	["edge_bow", Vector3(24.0, 0.1, -6.0)],
+	["edge_stern", Vector3(-24.0, 0.1, 6.0)],
+	["edge_upper", Vector3(-16.0, 4.4, 0.0)],
+	["edge_mid", Vector3(2.0, 0.1, -7.0)],
+]
 const TEX_DIR := "res://assets/textures/prototype/"
 const PROP_DIR := "res://assets/models/environment/space-kit/"
 
@@ -90,14 +136,20 @@ const PIECES: Array = [
 ]
 
 
+var _ship := false
+
+
 func _initialize() -> void:
+	for arg in OS.get_cmdline_user_args():
+		if arg == "--layout=ship":
+			_ship = true
 	var root := Node3D.new()
 	root.name = "Arena"
 
 	var boxes := 0
 	var tris := 0
 	var pbr_boxes := 0
-	for p in PIECES:
+	for p in (SHIP_PIECES if _ship else PIECES):
 		var center: Vector3 = p[0]
 		var size: Vector3 = p[1]
 		var rot_deg: Vector3 = p[2]
@@ -147,13 +199,15 @@ func _initialize() -> void:
 		quit(1)
 		return
 
-	err = ResourceSaver.save(packed, OUT_PATH)
+	err = ResourceSaver.save(packed, OUT_PATH_SHIP if _ship else OUT_PATH)
 	if err != OK:
 		push_error("保存 %s 失败，错误码 %d" % [OUT_PATH, err])
 		quit(1)
 		return
 
-	print("关卡生成完成：%d 个碰撞体 / %d 三角面 / %d 个装饰件 → %s" % [boxes, tris, props, OUT_PATH])
+	print("关卡生成完成：%s %d 个碰撞体 / %d 三角面 / %d 个装饰件 → %s" % [
+		"【运输船】" if _ship else "【竞技场】", boxes, tris, props,
+		OUT_PATH_SHIP if _ship else OUT_PATH])
 	# pack() 已复制数据，释放临时节点避免退出时的 RID 泄漏警告污染验证输出
 	root.free()
 	quit(0)
@@ -163,6 +217,8 @@ func _initialize() -> void:
 ## 实测落在 ~130 件。真实 draw call 只能在游戏内用编辑器 profiler 看（headless 测不到），
 ## 所以这条是预算而不是测量值——观感不够再往上加，加完请实跑看帧数。
 func _add_props(root: Node3D) -> int:
+	if _ship:
+		return _add_props_ship(root)
 	var holder := Node3D.new()
 	holder.name = "Props"
 	root.add_child(holder)
@@ -219,6 +275,28 @@ func _add_props(root: Node3D) -> int:
 				Vector3(0, 0, 0), 1.0)
 
 	print("    装饰件 %d 个（无碰撞，不影响寻路与视线判定）" % n)
+	return n
+
+
+## 船舱装饰：沿两舷挂壁板与立柱（件数与老竞技场保持同一量级，冒烟那条
+## 「装饰件 > 40」的断言才有意义——灰盒观感的修复不能只在一张图上成立）。
+func _add_props_ship(root: Node3D) -> int:
+	var holder := Node3D.new()
+	holder.name = "Props"
+	root.add_child(holder)
+	holder.owner = root
+	var n := 0
+	for side in [-1, 1]:
+		for i in range(-28, 29, 4):
+			n += _prop(holder, WALL_PANEL, Vector3(float(i), 2.6, side * 8.6),
+				Vector3(0, 0 if side > 0 else 180, 0), 2.2)
+		for i in range(-26, 27, 8):
+			n += _prop(holder, COLUMN, Vector3(float(i), 1.6, side * 8.9), Vector3.ZERO, 2.2)
+	for i in range(-24, 25, 6):
+		n += _prop(holder, WALL_PIPE, Vector3(float(i), 5.6, -8.7), Vector3(0, 90, 0), 1.6)
+	for pos in [Vector3(16, 0, 7), Vector3(-6, 0, -7), Vector3(-22, 4.0, 7)]:
+		n += _prop(holder, BARREL, pos, Vector3.ZERO, 1.8)
+	print("    船舱装饰件 %d 个" % n)
 	return n
 
 
@@ -304,7 +382,7 @@ func _add_spawns(root: Node3D) -> void:
 	root.add_child(holder)
 	holder.owner = root
 
-	for s in SPAWNS:
+	for s in (SHIP_SPAWNS if _ship else SPAWNS):
 		var marker := Marker3D.new()
 		marker.name = String(s[0])
 		marker.position = s[1]

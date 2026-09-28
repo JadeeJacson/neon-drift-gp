@@ -407,6 +407,39 @@ engines/godot/4.7.2/Godot_v4.7.2-stable_win64.exe --path projects/06-mech-fps \
 遗留：deagle 那把枪的美术质量明显低于 AK（纯白低模 + 风格不符），它是「先验证链路」的临时角色，
 正式替身是候选池里的 Pichuliru `sniper-rifle-west`（CC0，带 `Bolt`/`Magazine` 骨与 `Attach_Muzzle`）。
 
+### 7.2g 第六轮：运输船地图（第 3 步）
+
+`tools/build_arena.gd -- --layout=ship` → 生成**独立**的 `scenes/arena_ship.tscn`（老竞技场不动）。
+运行时用 `-- --map=ship` 切换（GameRoot 里换 Arena 子节点，不在 .tscn 里做两套主场景）。
+
+骨架（1 米网格，长轴沿 X，玩家出生朝 -X 正对船头到船尾）：
+
+| 段 | 几何 |
+|---|---|
+| 船壳 | 主甲板 64×18，两舷/船头/船尾四面墙高 8 |
+| 上层甲板 | y=3.4、覆盖后 2/3（x −30..6），前 1/3 是开顶货舱（垂直光 + 高低差） |
+| 登船坡道 | 左右各一条、倾角方向相反，永远有一条能用 |
+| 掩体 | 7 个集装箱（6.1×2.6×2.4 与 3×2.6×3），主甲板 4、上甲板 3；**船头出生点正前方 10 米内不放任何带碰撞的箱子** |
+| 出生区 | `team_a_*` 船头 +X、`team_b_*` 船尾 −X，各 3 个；另留 4 个 `edge_*` 给波次模式 |
+| 装饰 | 船舱壁板/立柱/管线/储桶 56 件，零碰撞（断言仍查） |
+
+**为什么这张图对 5v5 是实质性的**：同一套 bot、同一套数值，60 秒内的击杀从老竞技场的 **1 次**
+涨到 **5 次**（`smoke_team.gd` 实测 3:2）。老图 60×60 太宽，两队隔着 50 米互相看不见；
+船体把交火压成一条 16 米宽的走廊 + 两个高度层，接触自然发生。这也回答了「击杀节奏太慢」那条遗留。
+
+`TeamDirector._split_spawns()` 现在**优先认显式命名**的 `team_a_* / team_b_*`，
+没有这两个前缀才退回「按 z 正负切两端」（老竞技场继续可用）。
+
+踩到的两个坑：① 换地图时**先摘旧节点再挂新的**——同名共存会让 Godot 把新节点改名成 Arena2，
+于是所有按 `^"Arena/SpawnPoints"` 取路径的代码全部找不到（症状是「首波已出怪」失败，
+离真正的原因隔了三层）；② 出生点正前方有箱子的话，冒烟里「把敌人钉回枪口前 6 米」会把敌人
+塞进箱子里，于是射线先命中掩体，报的错是「drone 应被子弹打死」——**看起来像战斗逻辑坏了，
+其实是关卡几何**。两条都靠冒烟抓出来，不是靠读代码。
+
+验证：`--map=ship` 下波次冒烟 75 条全绿、团队冒烟全绿；默认地图七步验证全绿（855 断言 / 71 测试）。
+遗留：船体目前还是 BoxMesh + PBR 表面（几何是对的、观感是「灰盒+材质」），
+换成 KayKit Space Base 模块是任务 #21；两层之间的视线遮挡与重生安全性还没做统计断言（#28）。
+
 ### 7.3 启动方式与键位
 
 
@@ -421,6 +454,14 @@ engines/godot/4.7.2/Godot_v4.7.2-stable_win64.exe --path projects/06-mech-fps
 ```bash
 engines/godot/4.7.2/Godot_v4.7.2-stable_win64.exe --path projects/06-mech-fps              # 波次生存（默认）
 engines/godot/4.7.2/Godot_v4.7.2-stable_win64.exe --path projects/06-mech-fps -- --mode=team  # 团队歼灭 5v5
+# 换运输船图（可与 mode 组合）：
+engines/godot/4.7.2/Godot_v4.7.2-stable_win64.exe --path projects/06-mech-fps -- --mode=team --map=ship
+```
+
+生成运输船场景（改完 `build_arena.gd` 的 SHIP_PIECES 后重跑）：
+
+```bash
+engines/godot/4.7.2/Godot_v4.7.2-stable_win64_console.exe --headless --path projects/06-mech-fps   -s res://tools/build_arena.gd -- --layout=ship
 ```
 
 键位：`WASD` 移动 · `Shift` 冲刺 · `Space` 跳（可二段）· `C` 滑铲/下蹲 · `Ctrl` dash ·
