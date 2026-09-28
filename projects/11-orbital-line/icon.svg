@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="20" fill="#0d1117"/>
+  <!-- 机兵头部剪影 -->
+  <path d="M44 34h40a8 8 0 0 1 8 8v22a8 8 0 0 1-8 8H44a8 8 0 0 1-8-8V42a8 8 0 0 1 8-8z" fill="#1f2933"/>
+  <!-- 光学传感器 -->
+  <rect x="50" y="48" width="28" height="9" rx="4.5" fill="#22d3ee"/>
+  <circle cx="57" cy="52.5" r="2.6" fill="#0d1117"/>
+  <circle cx="71" cy="52.5" r="2.6" fill="#0d1117"/>
+  <!-- 肩部 -->
+  <rect x="30" y="76" width="20" height="14" rx="5" fill="#1f2933"/>
+  <rect x="78" y="76" width="20" height="14" rx="5" fill="#1f2933"/>
+  <!-- 颈部 -->
+  <rect x="58" y="70" width="12" height="8" fill="#1f2933"/>
+  <!-- 天线 -->
+  <rect x="86" y="26" width="3" height="14" rx="1.5" fill="#22d3ee"/>
+</svg>
