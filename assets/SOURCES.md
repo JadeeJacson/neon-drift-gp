@@ -419,3 +419,27 @@ incompetech `pieces.json`（1442 首，CC-BY 4.0，改版后直链待重新定�
 | 2k_uranus.jpg | 天王星 | 2048×1024 | `textures/planets/2k_uranus.jpg` | CC-BY 4.0 | 2026-09-27 |
 | 2k_neptune.jpg | 海王星 | 2048×1024 | `textures/planets/2k_neptune.jpg` | CC-BY 4.0 | 2026-09-27 |
 | 8k_stars_milky_way.jpg | 银河星空（天空盒） | 8192×4096 | `textures/planets/8k_stars_milky_way.jpg` | CC-BY 4.0 | 2026-09-27 |
+
+## 13. 12 号「东京城市」专项（2026-09-27，three.js Web 场景）
+
+> 本项目**零素材下载**：全部内容程序化生成（确定性种子），故无模型/贴图/音频登记项。
+> 唯一外部依赖是代码库 three.js，登记如下。招牌文字使用 Windows 系统字体
+> （Yu Gothic / Meiryo / MS Gothic，运行时引用、不分发字体文件，无授权物入库）。
+
+| 名称 | 作者 | 授权 | 本地位置 | 来源 | 日期 |
+|---|---|---|---|---|---|
+| three.js 0.180.0（WebGL 渲染库，npm 安装至 `projects/12-tokyo-city/node_modules/`，已 gitignore，`package.json` 钉版本） | three.js authors | MIT | `projects/12-tokyo-city/package.json` | https://npmjs.com/package/three | 2026-09-27 |
+
+## 14. 13 号「星际航行模拟器」专项（2026-09-28 归位 · three.js r128 Web 单文件）
+
+> 练习期 02「星际航行」的单文件本体（原 `projects/test04.html`），2026-09-28 归位为 13 号工程。
+> **零素材下载**：天体贴图由 canvas 程序化生成，故无模型/贴图/音频登记项。
+> 唯一外部依赖是代码库 three.js，以 CDN 方式运行时引用、本地无副本。
+
+| 名称 | 作者 | 授权 | 本地位置 | 来源 | 日期 |
+|---|---|---|---|---|---|
+| three.js **r128**（WebGL 渲染库，CDN 运行时引用，三源回退 cdnjs → unpkg → jsDelivr；**本地无副本，离线打不开**） | three.js authors | MIT | `projects/13-solar-flight/index.html`（第 128 行 `script src`） | https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js | 2026-09-22（作品创建）/ 2026-09-28（归位登记） |
+
+> 版本说明：r128 是 2021 年发布的版本，与 12 号用的 0.180.0 相差约 60 个版本，
+> 光照单位与 `outputEncoding` 行为不兼容。**本轮按制作人「游戏内容先不动」的指令保留原版本**；
+> 若将来升级需整体迁移光照与色彩管理写法，见 `docs/13-立项-星际航行.md` §5。

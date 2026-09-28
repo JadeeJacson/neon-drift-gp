@@ -30,6 +30,17 @@
 |---|---|---|---|---|
 | 06 | Jeh3no Advanced FSM First Person Controller | Godot 4.4–4.7 兼容（main 分支，2026-09-26 取） | MIT | `projects/06-mech-fps/addons/JehenoAdvancedFirstPersonController/` |
 | 06 | **GUT**（bitwes/Gut） | **9.7.1**（2026-07-10 发布） | MIT | `projects/06-mech-fps/addons/gut/` |
+| 09 | **GUT**（bitwes/Gut） | **9.7.1**（从 06 原样复制，未改版本） | MIT | `projects/09-arcane-roster/addons/gut/` |
+| 12 | **three.js**（WebGL 渲染库） | **0.180.0**（npm，`package.json` 钉版本） | MIT | `projects/12-tokyo-city/node_modules/`（已 gitignore） |
+| 13 | **three.js**（WebGL 渲染库） | **r128**（CDN 运行时引用，本地无副本） | MIT | `projects/13-solar-flight/index.html` 第 128 行 `script src` |
+
+> **13 的 r128 与 12 的 0.180.0 不可混用**：r128 是 2021 年版本，`outputEncoding` / 光照单位
+> 与新版不兼容。13 保持 r128 是制作人「游戏内容先不动」的指令；若升级需整体迁移光照与
+> 色彩管理写法，见 `docs/13-立项-星际航行.md` §5。
+
+> 09 的 GUT 断言函数集与 06 略有差异，写测试时注意：**GUT 9.7.1 用 `assert_gte`/`assert_lte`，
+> 没有 `assert_ge`/`assert_le`**；GDScript 侧也**不要用 `String(x)` 做类型转换**（x 已是 String 时
+> 报 `Invalid call 'String' constructor`），用 `str(x)`。这两点各踩过一次，见 `docs/09-立项` §4.2。
 
 > GUT 只需 CLI（`-s addons/gut/gut_cmdln.gd`），**未启用 `[editor_plugins]`**——本 lab 走纯文本工作流，
 > 不开编辑器也能跑全套断言。将来若要在编辑器里看测试面板，加这一行即可：

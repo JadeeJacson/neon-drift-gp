@@ -1,0 +1,10 @@
+{
+  "name": "solar-flight",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "13 - 星际航行模拟器（three.js r128，太阳系自由飞行）",
+  "scripts": {
+    "start": "node serve.mjs"
+  }
+}
