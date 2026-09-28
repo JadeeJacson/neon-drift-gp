@@ -222,7 +222,20 @@ Poly Pizza 是多人投稿站，**每个模型的尺度、朝向、原点都不�
 | 角色 | 文件 | 作者 / 授权 | 为什么是它 |
 |---|---|---|---|
 | 突击步枪 | `assets/models/weapons/akm_viewmodel_hands.glb`（870,400 B） | J-Toastie，**CC-BY 3.0**，https://poly.pizza/m/U6l6wjxFhC | Poly Pizza 上唯二「第一人称 + 有手 + 自带真 Reload 剪辑」的素材之一：`Armature\|Idle 2.63s / Reload 2.58s / Shoot 0.17s`，双臂 + 逐指 28 骨，`Magazine`/`Bolt`/`Trigger` 都是真骨骼 |
-| 精确射手 | `assets/models/weapons/deagle_viewmodel_hands.glb`（865,016 B） | Majikay，CC0，https://github.com/majikayogames/SimpleFPSController | 带 `Muzzle` 标记节点，曳光起点能跟着手动（见 §2e） |
+| 精确射手 | `assets/models/weapons/dmr_sniper.glb`（静态，配置里 `static: true`） | Poly Pizza | **两条带手路线都试过、都不成立，退回静态 + 契约反算**（见下） |
+
+### 带手 viewmodel 的素材面限制（2026-09-27 实测，别再重复试）
+
+现在**只有步枪那一把真能用**。制作人反馈「第三把枪角度还是不对」之后又试了两条路：
+
+| 路线 | 结果 | 为什么不行 |
+|---|---|---|
+| Majikay deagle（`deagle_viewmodel_hands.glb`，CC0） | roll 靠 0 / 90 / 180 各截图挑，挑到 90 仍然歪 | 它的「枪的上方向」与两点锚定的最小弧旋转差得远，而模型里没有任何 up 参考可锚 |
+| J-Toastie 第二个 rig（`_candidates/fps-rig-uxko5LkGia.glb`，Glock19 双臂） | 复验偏差 0.0000 却解出「枪管朝天」 | 能锚定的只有「握把节点 → 前手骨骼」，而**手枪的前手包在扳机护圈侧面，这条线不是枪管轴** —— 锚点选错时，复验通过只说明数学自洽 |
+| 静态模型 + 契约反算（**当前方案**） | 三把枪枪口离契约点都是 0.000 m | 静态模型的包围盒最长轴就是枪管，`_fit_static()` 把「实测最前端」摆到契约枪口点，角度天然不可能错 |
+
+结论：带手 viewmodel 是**素材问题**，不是实现问题。要三把枪都带手，得拿到「带枪口挂点或明确 up 参考」
+的动画枪械素材（Sketchfab 那几个动画包要登录，见本节末）。
 
 **CC-BY 3.0 署名要求**（将来若要发布必须带上；lab 自用暂不显示，但这里必须记着）：
 Portions of artwork are based on "FPS Rig AKM" by J-Toastie (poly.pizza/m/U6l6wjxFhC), CC-BY 3.0.
