@@ -8,23 +8,34 @@ const GRAVITY := 24.0
 ## 名字口径要兼容两种导出：裸名（老 mech 模型的 `Shoot_Big`）与带骨架前缀
 ## （Quaternius / KayKit 这批人形角色全是 `CharacterArmature|Run`），
 ## 写死一套就会静默不播——模型站桩不动，还以为是动画坏了。
+## 每个角色列的是**候选 clip 名**，按优先级从前往后试。名字口径同时兼容两批素材：
+## Kenney 方块人（全小写、连字符：`sprint` / `holding-both-shoot` / `die`）与
+## Quaternius 人形（带骨架前缀：`CharacterArmature|Run`，见 _detect_anim_prefix）。
 const ANIM_MAP := {
-	"idle": ["Idle_Gun", "Idle", "idle"],
-	"walk": ["Walk", "walk"],
-	"run": ["Run", "run", "Walk"],
-	"shoot": ["Gun_Shoot", "Idle_Gun_Shoot", "Shoot_Big", "Shoot", "shoot", "Attack"],
+	"idle": ["holding-both", "Idle_Gun", "Idle", "idle"],
+	"walk": ["walk", "Walk"],
+	"run": ["sprint", "Run", "run", "Walk"],
+	"shoot": ["holding-both-shoot", "Gun_Shoot", "Idle_Gun_Shoot", "Shoot_Big", "Shoot", "shoot", "Attack"],
 	"hurt": ["HitRecieve", "HitRecieve_1", "HitReceive_1", "hit"],
-	"death": ["Death", "death", "Dead"],
+	"death": ["die", "Death", "death", "Dead"],
 }
 ## 位移动画必须循环。这批 Poly Pizza / Quaternius 导出的 GLB **每段 clip 的
 ## loop_mode 都是 0（NONE，实测）**，Run 只有 0.79 秒——播完就冻在最后一帧，
 ## 敌人变成「滑行的雕像」，制作人实跑看到的就是「人形敌人没有动作」。
 ## 射击/受击/死亡是一次性的，不能循环，所以按角色区分而不是全局打开循环。
+## 队伍配色：同一套骨架、不同颜色，是 5v5 里「一眼分清敌我」的最低成本做法
+## （Kenney 方块人 18 个角色共用同一套节点与贴图布局，换色不换模型）。
+const TEAM_TINT := {
+	TeamTable.TEAM_A: Color(0.55, 0.72, 1.0),   # 我方：偏蓝
+	TeamTable.TEAM_B: Color(1.0, 0.52, 0.45),   # 敌方：偏红
+}
+
 ## 名字以这些开头的 clip 是位移动画/待机，装配时统一改成线性循环。
 ## 这批 Poly Pizza / Quaternius 导出的 GLB **每段 clip 的 loop_mode 都是 0（NONE，实测）**，
 ## `Run` 只有 0.79 秒——播完就冻在最后一帧，敌人变成「滑行的雕像」，
 ## 制作人实跑看到的就是「人形敌人没有动作」。射击/受击/死亡是一次性的，不在这里。
-const LOOP_CLIP_HINTS := ["Idle", "Run", "Walk", "Move"]
+const PART_NAMES := ["head", "torso", "arm-left", "arm-right", "leg-left", "leg-right"]
+const LOOP_CLIP_HINTS := ["idle", "walk", "run", "sprint", "move", "holding-"]
 
 signal died(enemy_type: String, executed: bool)
 signal damaged(enemy_type: String)
@@ -48,6 +59,7 @@ var _attack_ready_at: float = 0.0
 var _anim: AnimationPlayer
 var _anim_prefix := ""          # clip 名里的骨架前缀，装配时推一次
 var _skeleton: Skeleton3D
+var _parts: Array[Node3D] = []   # 刚性骨架（Kenney 方块人）的部件节点
 var _model: Node3D
 var _meshes: Array[MeshInstance3D] = []
 var _flash_mat: StandardMaterial3D
@@ -71,6 +83,7 @@ func _ready() -> void:
 	_model = _find_model(self)
 	_anim = _find_anim_player(self)
 	_skeleton = find_child("Skeleton3D", true, false) as Skeleton3D
+	_parts = _collect_parts(self)
 	_detect_anim_prefix()
 	_apply_loop_policy()
 	_meshes = _collect_meshes(self)
@@ -82,6 +95,7 @@ func _ready() -> void:
 	_flash_mat.albedo_color = Color(1, 1, 1, 0.0)
 	for mi in _meshes:
 		mi.material_overlay = _flash_mat
+	_apply_team_color()
 	_player = get_tree().get_first_node_in_group("PlayerCharacter")
 
 
@@ -220,16 +234,37 @@ func anim_clip_count_for_test() -> int:
 ## 骨骼位置包围盒的对角线长度（相对骨架自身空间）。
 ## 冒烟用它判断「动画有没有真的在变形骨骼」：current_animation 只是个字符串，
 ## 字符串对、网格却冻结的情况它测不出来——这次就是这么漏掉的。
-func bone_span_for_test() -> float:
-	if _skeleton == null:
-		return 0.0
-	var lo := Vector3(INF, INF, INF)
-	var hi := Vector3(-INF, -INF, -INF)
-	for i in range(_skeleton.get_bone_count()):
-		var o: Vector3 = _skeleton.get_bone_global_pose(i).origin
-		lo = Vector3(minf(lo.x, o.x), minf(lo.y, o.y), minf(lo.z, o.z))
-		hi = Vector3(maxf(hi.x, o.x), maxf(hi.y, o.y), maxf(hi.z, o.z))
-	return (hi - lo).length()
+## 动画有没有真的在动的标量签名：所有部件/骨骼到本体原点的距离平方之和。
+## 为什么不用「包围盒对角线」：部件绕自身枢轴转时总跨度几乎不变（实测 0.00224），
+## 而任何部件一动，这个和就一定变。蒙皮型量骨骼姿态，刚性型（Kenney 方块人零蒙皮）
+## 量部件网格中心的世界位置——枢轴本身不随旋转移动，所以必须再乘一次网格中心偏移。
+func motion_signature_for_test() -> float:
+	var pts: Array[Vector3] = []
+	if _skeleton != null:
+		for i in range(_skeleton.get_bone_count()):
+			pts.append(_skeleton.get_bone_global_pose(i).origin)
+	else:
+		for n in _parts:
+			var mesh := n as MeshInstance3D
+			var local := mesh.get_aabb().get_center() if mesh != null else Vector3.ZERO
+			pts.append(to_local(n.global_transform * local))
+	var total := 0.0
+	for p in pts:
+		total += p.length_squared()
+	return total
+
+
+func _collect_parts(node: Node) -> Array[Node3D]:
+	var out: Array[Node3D] = []
+	_walk_parts(node, out)
+	return out
+
+
+func _walk_parts(node: Node, out: Array[Node3D]) -> void:
+	for c in node.get_children():
+		if c is Node3D and String(c.name) in PART_NAMES:
+			out.append(c as Node3D)
+		_walk_parts(c, out)
 
 
 ## 冒烟用：绕开 AI 直接点一段动画，验证循环策略。
@@ -426,6 +461,25 @@ func _find_model(node: Node) -> Node3D:
 	return null
 
 
+## 给每个表面做一份**实例级**材质拷贝再上色：直接改共享材质会让所有同模型敌人一起变色。
+func _apply_team_color() -> void:
+	var tint: Color = TEAM_TINT.get(team, Color.WHITE)
+	if tint == Color.WHITE:
+		return
+	for mi in _meshes:
+		if mi.mesh == null or mi.mesh.get_surface_count() < 1:
+			continue
+		var src := mi.get_active_material(0) as StandardMaterial3D
+		if src == null:
+			continue
+		var own := src.duplicate() as StandardMaterial3D
+		own.albedo_color = tint
+		# 用整节点 material_override 而不是逐面覆盖：后者在 --headless 的 dummy 渲染器里
+		# 会走到 material_get_instance_shader_parameters(null) 并刷一堆 ERROR（实测 72 条），
+		# 污染「零 ERROR」基线。方块人每个部件本来就只有一张脸，整节点覆盖没有副作用。
+		mi.material_override = own
+
+
 func _play_anim(kind: String) -> bool:
 	if _anim == null:
 		return false
@@ -450,8 +504,9 @@ func _apply_loop_policy() -> void:
 		var full := String(c)
 		# clip 名可能是 `CharacterArmature|Run`，取最后一段再比前缀
 		var bar := full.rfind("|")
-		var bare := full.substr(bar + 1) if bar >= 0 else full
+		var bare := (full.substr(bar + 1) if bar >= 0 else full).to_lower()
 		for hint in LOOP_CLIP_HINTS:
+			# 大小写不敏感：Kenney 全小写、Quaternius 首字母大写，只比一种会静默漏掉整批素材
 			if bare.begins_with(String(hint)):
 				_anim.get_animation(full).loop_mode = Animation.LOOP_LINEAR
 				break

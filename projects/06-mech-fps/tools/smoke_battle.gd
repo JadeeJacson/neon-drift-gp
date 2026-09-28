@@ -18,10 +18,10 @@ const MAX_FRAMES := 900  # 约 15 秒模拟时间，够首波出怪
 ## 各敌型碰撞体中心相对根节点的高度（根节点在脚底）。
 ## 摆位时必须补偿这个偏移，否则水平射线会从敌人脚下掠过——测试一开始就是这么打空的。
 const COLLIDER_CENTER := {
-	"drone": 0.6,
-	"charger": 0.5,
+	"drone": 0.65,
+	"charger": 0.81,
 	"trooper": 0.9,
-	"heavy": 2.5,
+	"heavy": 1.28,
 }
 
 var _fails := 0
@@ -233,6 +233,26 @@ func _initialize() -> void:
 	else:
 		_check(false, "找不到用于验证死亡表现的敌人")
 
+	# 5e2) 统一骨架契约：四种敌型必须共用同一套节点与同名 clip（Kenney 方块人）。
+	#      这条存在的意义是防止「某一型偷偷换回旧模型」——骨架一分叉，动画映射与队伍配色
+	#      就会只对部分敌型生效，而那正是制作人这轮要解决的问题。
+	for scene_path in ["res://scenes/enemies/swarm_drone.tscn", "res://scenes/enemies/charger_melee.tscn",
+			"res://scenes/enemies/trooper_soldier.tscn", "res://scenes/enemies/heavy_walker.tscn"]:
+		var packed := load(scene_path) as PackedScene
+		var probe := packed.instantiate() as EnemyController
+		main.add_child(probe)
+		var parts := _part_names(probe)
+		var missing: Array = []
+		for part in ["root", "torso", "head", "arm-left", "arm-right", "leg-left", "leg-right"]:
+			if not parts.has(part):
+				missing.append(part)
+		_check(missing.is_empty(),
+			"%s 缺统一骨架部件 %s" % [scene_path.get_file(), ", ".join(missing)])
+		_check(probe.anim_clip_count_for_test() >= 20,
+			"%s 应有整套 clip（实测 %d）" % [scene_path.get_file(), probe.anim_clip_count_for_test()])
+		main.remove_child(probe)
+		probe.free()
+
 	# 5f) 人形敌人的动画链：trooper 已从机械模型换成 Quaternius 的 SWAT 人形（CC0，24 段）。
 	#     位移是脚本推的，光看位置变化证明不了「腿在迈」，只能读 AnimationPlayer 的当前 clip。
 	#     骨架前缀（`CharacterArmature|`）没匹配上时的症状正是「模型滑步」，所以这条必须锁。
@@ -266,13 +286,13 @@ func _initialize() -> void:
 		for _s in range(8):
 			for _j in range(30):
 				await physics_frame
-			spans.append(human.bone_span_for_test())
+			spans.append(human.motion_signature_for_test())
 		var lo := INF
 		var hi := 0.0
 		for v in spans:
 			lo = minf(lo, float(v))
 			hi = maxf(hi, float(v))
-		_check(hi - lo > 0.0005,
+		_check(hi - lo > 0.02,
 			'跑动时骨骼必须持续变形（4 秒内幅度跨度 %.5f，接近 0 = 网格根本没跟着骨架动）' % (hi - lo))
 	main.remove_child(soldier)
 	soldier.free()
@@ -409,6 +429,19 @@ func _count_shots_while_held(weapon: WeaponController, id: String, frames: int) 
 		await physics_frame
 	weapon.set_trigger(false)
 	return before - weapon.mag()
+
+
+## 收集模型里所有节点名（用来核对统一骨架的部件是否齐备）。
+func _part_names(node: Node) -> Array[String]:
+	var out: Array[String] = []
+	var stack: Array = [node]
+	while not stack.is_empty():
+		var n: Node = stack.pop_back()
+		for c in n.get_children():
+			stack.append(c)
+			if c is Node3D:
+				out.append(String((c as Node).name))
+	return out
 
 
 func _count_colliders(node: Node) -> int:

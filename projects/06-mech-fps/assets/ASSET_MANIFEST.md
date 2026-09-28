@@ -12,6 +12,33 @@ Poly Pizza 是多人投稿站，**每个模型的尺度、朝向、原点都不�
 
 ## 1. 敌人
 
+### 1·统一骨架：Kenney Blocky Characters（2026-09-27 第四轮）
+
+四种敌型全部换成 **Kenney Blocky Characters**（CC0，lab 根 `assets/models/characters/kenney_blocky-characters/`）：
+工程内 `assets/models/enemies/blocky/blocky_{a,f,k,r}.glb`（4 个角色 + 贴图共 780 KB）。
+
+| 事实 | 实测值 | 为什么关键 |
+|---|---|---|
+| 节点结构 | 8 个刚性节点：`root / torso / head / arm-left / arm-right / leg-left / leg-right`，**18 个角色完全一致** | 这就是「统一骨架」：一份动画映射与一份队伍配色覆盖全部敌型 |
+| 蒙皮 | `skins: 0` —— **零蒙皮**，部件是独立节点 | 所以 `get_aabb()` 与部件位置可信，但也意味着「量骨骼」的度量对它是 0（见下） |
+| clip | 每个角色 **27 段，名字一致**：`idle / walk / sprint / holding-both / holding-both-shoot / die / pick-up / emote-*` … | 射击游戏要的状态全都有，不用 Mixamo、不用登录 |
+| 命名坑 | clip 名**保留连字符**（`holding-both-shoot`），且**全小写** | 循环策略原来按 `Idle/Run/Walk` 大写前缀匹配，对这批一条都不命中 → 已改成大小写不敏感并补 `sprint`/`holding-` |
+| 身高 | 模型 2.70 m（Kenney 按大单位做的）→ 缩放 `drone 0.47 / charger 0.60 / trooper 0.667 / heavy 0.95` 得到 1.27 / 1.62 / 1.80 / 2.57 m | 碰撞胶囊与 `smoke_battle.COLLIDER_CENTER` 都按这个重算（0.65 / 0.81 / 0.90 / 1.28） |
+| 队伍配色 | 实例级 `material_override`（我方蓝 0.55,0.72,1.0 / 敌方红 1.0,0.52,0.45）乘在原贴图上 | **不能用逐面覆盖** `set_surface_override_material`：`--headless` 的 dummy 渲染器会走到 `material_get_instance_shader_parameters(null)`，实测刷 72 条 ERROR，污染零 ERROR 基线 |
+
+**更正上一轮的调研结论**：`_scratch/viewmodel_research_20.md` 记的是「kenney_blocky-characters 只有 FBX、无动画」——**错的**。
+包里 `Models/GLB format/` 有 18 个 GLB，每个带 27 段动画；当时只看了 FBX 目录。这条已经影响到决策，所以两处都要留痕。
+
+**度量上的坑**：刚性部件是**绕自身枢轴旋转**的，所以「部件位置包围盒对角线」几乎不变（实测 0.00224），
+挥臂这种大动作在数值上像没动。`EnemyController.motion_signature_for_test()` 改成
+「各部件到本体原点的距离平方之和」，任何部件一动它就变（实测跑动 4 秒跨度 0.064，阈值 0.02）。
+
+### 1b. 旧模型（保留但不挂在敌型上）
+
+`swat_trooper.glb`（Quaternius，CC0，24 段，蒙皮人形）与四台机型号仍在工程里：
+高保真路线随时可以切回去，但**它没有跨角色统一的骨架**，做不了「四种敌型共用一份动画映射」。
+
+
 | ID | 源文件 | 授权 | 实测尺寸 (m) | 缩放 | 目标高度 | 动画 |
 |---|---|---|---|---|---|---|
 | `trooper` | `swat_trooper.glb`（原候选名 `swat-Btfn3G5Xv4.glb`） | **CC0** (Quaternius)，poly.pizza/m/Btfn3G5Xv4 | 头骨 y=1.556、`Head_end` y=1.809 → **模型自己就是 1.8 m 人形** | 1.00（不用缩放） | 1.8 | **24** |

@@ -45,9 +45,11 @@ func test_reward_scale_follows_threat() -> void:
 	assert_eq(EnemyTable.field("drone", "reward_health"), 0.0, "蜂群不该回血")
 
 
+## 与 assets/ASSET_MANIFEST.md §1 对齐。2026-09-27 起四种敌型全部换成 Kenney 方块人：
+## 同一套 8 节点刚性骨架（root/torso/head/arm-*/leg-*）+ 同名 27 段 clip，
+## 所以「程序化驱动」这一档不再是设计意图而是历史遗留 —— 保留 procedural 值会让
+## 装配层继续走那套 bob 分支，四种敌型就永远统一不了。
 func test_anim_source_matches_manifest() -> void:
-	# 与 assets/ASSET_MANIFEST.md 对齐：trooper/drone 用 GLB 内置动画，charger/heavy 走程序化
-	assert_eq(String(EnemyTable.TYPES["trooper"]["anim"]), "glb")
-	assert_eq(String(EnemyTable.TYPES["drone"]["anim"]), "glb")
-	assert_eq(String(EnemyTable.TYPES["charger"]["anim"]), "procedural")
-	assert_eq(String(EnemyTable.TYPES["heavy"]["anim"]), "procedural")
+	for kind in EnemyTable.TYPES:
+		assert_eq(String(EnemyTable.TYPES[kind]["anim"]), "glb",
+			"%s 应走 GLB 内置动画（统一骨架契约）" % String(kind))

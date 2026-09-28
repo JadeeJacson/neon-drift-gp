@@ -6,7 +6,7 @@ class_name EnemyTable
 
 const TYPES := {
 	"drone": {
-		"display": "蜂群无人机",
+		"display": "突击兵",
 		"hp": 45.0,
 		"speed": 9.0,
 		"attack_range": 1.6,
@@ -20,7 +20,7 @@ const TYPES := {
 		"anim": "glb",
 	},
 	"charger": {
-		"display": "冲锋四足",
+		"display": "冲锋兵",
 		"hp": 90.0,
 		"speed": 12.0,
 		"attack_range": 2.4,
@@ -31,10 +31,10 @@ const TYPES := {
 		"threat": 12.0,
 		"reward_ammo": 3.0,
 		"reward_health": 4.0,
-		"anim": "procedural",
+		"anim": "glb",
 	},
 	"trooper": {
-		"display": "武装士兵",
+		"display": "武装射手",
 		"hp": 160.0,
 		"speed": 5.5,
 		"attack_range": 34.0,
@@ -48,7 +48,7 @@ const TYPES := {
 		"anim": "glb",
 	},
 	"heavy": {
-		"display": "重装机甲",
+		"display": "重装兵",
 		"hp": 640.0,
 		"speed": 3.2,
 		"attack_range": 46.0,
@@ -59,7 +59,7 @@ const TYPES := {
 		"threat": 60.0,
 		"reward_ammo": 22.0,
 		"reward_health": 20.0,
-		"anim": "procedural",
+		"anim": "glb",
 	},
 }
 
