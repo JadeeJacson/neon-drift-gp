@@ -170,7 +170,31 @@ export function build(scene) {
   }
 
   // ---------- 抵墙购买点（枪 2 处 + 补弹 2 处） ----------
+  // ---------- 电力开关（西南角）：基座 + 拉杆 + 状态灯，合闸后顶灯转绿、拉杆立起 ----------
+  const leverGroup = new THREE.Group();
+  const leverBase = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.1, 0.5), mat('concrete', { repeat: 1 }));
+  leverBase.position.y = 0.55; leverBase.castShadow = true;
+  leverGroup.add(leverBase);
+  const leverArm = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.7, 8), latMat);
+  leverArm.position.set(0, 1.32, 0); leverArm.rotation.x = -0.75; leverGroup.add(leverArm);   // 初始拉下
+  const leverLampMat = new THREE.MeshBasicMaterial({ color: 0xb02020 });
+  const leverLamp = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 8), leverLampMat);
+  leverLamp.position.set(0, 1.75, 0.12); leverGroup.add(leverLamp);
+  leverGroup.position.set(-24, 0, 18);
+  scene.add(leverGroup);
+  world.addBox(-24, 0.55, 18, 0.9, 1.1, 0.5, { name: '电力开关', tag: 'metal' });
+
+  // ---------- 神秘盒子（院落中东部）：木箱 + 南北两侧的金色发光封条 ----------
+  slab('神秘盒子', 'crate', 1.5, 0.95, 0.95, 12, 0, 10, { repeat: 1 });
+  const boxGlowMat = new THREE.MeshBasicMaterial({ color: 0xffc84d, transparent: true, opacity: 0.75 });
+  const boxGlowS = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 0.16), boxGlowMat);
+  boxGlowS.position.set(12, 0.98, 10.49); scene.add(boxGlowS);
+  const boxGlowN = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 0.16), boxGlowMat);
+  boxGlowN.position.set(12, 0.98, 9.51); boxGlowN.rotation.y = Math.PI; scene.add(boxGlowN);
+
   const buys = [
+    { id: 'power', kind: 'power', cost: 1000, pos: new THREE.Vector3(-24, 0, 19.4), label: '合闸供电 · 1000' },
+    { id: 'mystery', kind: 'mystery', cost: 950, pos: new THREE.Vector3(12, 0, 11.6), label: '神秘盒子 · 950' },
     { id: 'shotgun', kind: 'gun', weapon: 'shotgun', cost: 1200, pos: new THREE.Vector3(-8, 0, -HD + 1.4), label: 'SPAS-12 · 1200' },
     { id: 'smg', kind: 'gun', weapon: 'smg', cost: 900, pos: new THREE.Vector3(26.4, 0, -6), label: 'MP5 · 900' },
     { id: 'ammo1', kind: 'ammo', pos: new THREE.Vector3(0, 0, HD - 1.5), label: '全弹药补给 · 300' },
@@ -179,7 +203,7 @@ export function build(scene) {
   // 购买点地牌：一小块亮色贴地面板，方便玩家辨认
   for (const b of buys) {
     const pad = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.0),
-      new THREE.MeshBasicMaterial({ color: b.kind === 'gun' ? 0x7a6a1f : 0x2e5a3f, transparent: true, opacity: 0.5 }));
+      new THREE.MeshBasicMaterial({ color: b.kind === 'gun' ? 0x7a6a1f : b.kind === 'power' ? 0x1f4a7a : b.kind === 'mystery' ? 0x8a5f10 : 0x2e5a3f, transparent: true, opacity: 0.5 }));
     pad.rotation.x = -Math.PI / 2;
     pad.position.copy(b.pos); pad.position.y = 0.03;
     // 面板朝向院子中心
@@ -267,6 +291,7 @@ export function build(scene) {
     buys,
     beacon,
     lightPole: { spot },
+    powerLever: { lampMat: leverLampMat, arm: leverArm },
     nav: {
       CS, nx, nz, toCell, toPos, walkable, findPath,
       randomPoint() {                               // 随机可走格（预留给出尸兜底）

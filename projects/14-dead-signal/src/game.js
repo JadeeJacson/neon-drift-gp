@@ -301,6 +301,7 @@ function doFire() {
 
 /* ---------- 购买点 ---------- */
 function updateBuyZones() {
+  if (G.box) return;                    // 盒子翻牌中：底部提示由翻牌状态机接管，避免每帧被覆盖
   const P = G.player, pos = P.actor.pos;
   let near = null;
   for (const b of G.map.buys) {
@@ -311,20 +312,67 @@ function updateBuyZones() {
   const b = near.b;
   let label;
   if (b.kind === 'gun' && G.W.unlock[b.weapon]) label = '已购买 · ' + b.label;
+  else if (b.kind === 'power' && G.power) label = '电力已恢复';
+  else if (b.kind === 'mystery' && G.box) label = '盒子开启中…';
   else if (G.points < b.cost) label = '<b>' + b.label + '</b> · 点数不足';
-  else label = '按住 <b>[F]</b> 购买 · ' + b.label;
+  else label = '按住 <b>[F]</b> ' + (b.kind === 'power' ? '合闸' : b.kind === 'mystery' ? '开启' : '购买') + ' · ' + b.label;
   Hud.prompt(label);
-  if (Input.down('use') && (b.kind !== 'gun' || !G.W.unlock[b.weapon]) && G.points >= b.cost) {
+  // 可用性：gun 已买不重复扣钱；power 已合闸不重复；mystery 翻牌中不接受
+  const usable = (b.kind === 'gun' && !G.W.unlock[b.weapon])
+    || (b.kind === 'ammo')
+    || (b.kind === 'power' && !G.power)
+    || (b.kind === 'mystery' && !G.box);
+  if (Input.down('use') && usable && G.points >= b.cost) {
     G.points -= b.cost;
     if (b.kind === 'gun') {
       Sh.unlockWeapon(G.W, b.weapon);
       G.W.cur = Math.max(0, G.W.slots.indexOf(b.weapon));
       Vm.show(b.weapon); Vm.kick('draw');
+      Hud.announce(defs[b.weapon].name + ' 已入列');
+    } else if (b.kind === 'power') {
+      G.power = true;
+      const L = G.map.powerLever;
+      L.lampMat.color.set(0x2ecc71);      // 顶灯由红转绿
+      L.arm.rotation.x = 0.75;            // 拉杆立起
+      Hud.announce('电力已恢复');
+    } else if (b.kind === 'mystery') {
+      // 开盒：立刻扣点进入翻牌，武器在滚动停止时才入列（结果此刻已抽定）
+      G.box = {
+        phase: 'spin', t: 0, dur: 3, lastSwap: -9,
+        result: BOX_POOL[(Math.random() * BOX_POOL.length) | 0]
+      };
     } else {
       Sh.giveAmmo(G.W);
+      Hud.announce('弹药已补满');
     }
     Snd.buy();
-    Hud.announce(b.kind === 'gun' ? defs[b.weapon].name + ' 已入列' : '弹药已补满');
+    Hud.prompt(null);
+  }
+}
+
+/* ---------- 神秘盒子翻牌状态机 ---------- */
+const BOX_POOL = ['rifle', 'shotgun', 'smg', 'pistol'];
+function updateBoxSpin(dt) {
+  if (!G.box || G.box.phase !== 'spin') return;
+  const B = G.box;
+  B.t += dt;
+  const remain = B.dur - B.t;
+  // 滚动间隔从 0.06s 渐增到 0.34s：越接近结束越慢，营造「指针减速」的期待感
+  const interval = 0.06 + (B.t / B.dur) * 0.28;
+  if (G.t - B.lastSwap >= interval) {
+    B.lastSwap = G.t;
+    // 最后一跳直接亮出结果，避免「滚到的名字 ≠ 拿到的枪」的不一致
+    const shown = remain <= interval ? B.result : BOX_POOL[(Math.random() * BOX_POOL.length) | 0];
+    Hud.prompt('<b>' + defs[shown].name + '</b>');
+  }
+  if (B.t >= B.dur) {
+    G.box = null;
+    const w = B.result;
+    Sh.unlockWeapon(G.W, w);
+    G.W.cur = Math.max(0, G.W.slots.indexOf(w));
+    Vm.show(w); Vm.kick('draw');
+    Snd.buy();
+    Hud.announce('盒子给出了 ' + defs[w].name);
     Hud.prompt(null);
   }
 }
@@ -334,6 +382,7 @@ function tickPlay(dt, look) {
   G.t += dt;
   const want = readIntent(look);
   handleActions(want, look);
+  updateBoxSpin(dt);
 
   G.player.update(dt, look, want);
   Sh.updateReload(G.RS, G.W, G.t);
@@ -369,7 +418,7 @@ function visuals(dt, look) {
       shell: G.RS.kind === 'shell' ? (G.t - G.RS.t0) : -1
     });
   }
-  if (G.sky) G.sky.update(dt, G.map && G.map.lightPole);
+  if (G.sky) G.sky.update(dt, G.map && G.map.lightPole, G.power === true);
   Fx.update(dt);
   if (G.map && G.map.beacon) {
     const k = 1 + Math.sin(performance.now() / 480) * 0.25;

@@ -75,7 +75,7 @@ Sky.build = function (scene) {
   let t = 0;
   return {
     dust, moon, beamPivot,
-    update(dt, lightPole) {
+    update(dt, lightPole, power) {
       t += dt;
       // 飘尘缓慢横移并回绕
       const p = dust.geometry.attributes.position.array;
@@ -89,15 +89,21 @@ Sky.build = function (scene) {
       dust.geometry.attributes.position.needsUpdate = true;
       // 探照灯扫动
       beamPivot.rotation.y = Math.sin(t * 0.13) * 1.1 + 0.4;
-      // 电线灯杆的闪烁由 game.js 传入 spotlight。
+      // 灯杆聚光灯由 game.js 传入，且受前哨电力状态控制：
+      //   合闸前 → 整站只有月光与冷色环境光，灯杆是黑的（开电成为有意义的玩家目标）；
+      //   合闸后 → 按「老化灯管」节奏明暗呼吸。
       // 原实现 120 * (f > -0.55 ? 1 : 0.18) * (0.9 + rnd()*0.15) 有三个问题：
       //   ① 硬阈值切换 → 强度在 120 与 21.6 之间瞬间跳变（跌 84%），观感就是「屏幕在闪」；
       //   ② 每帧 rnd() → 叠加一层随机噪点，即使同一状态下也在抖；
       //   ③ t*37 rad/s ≈ 5.9 Hz，60fps 下接近奈奎斯特极限，产生 aliasing。
       // 改为低频 + 平滑：大部分时间接近满亮，偶尔压暗，过渡连续——像老化灯管而非频闪灯。
       if (lightPole && lightPole.spot) {
-        const f = Math.sin(t * 5.3) * Math.sin(t * 2.1);
-        lightPole.spot.intensity = 120 * (0.35 + 0.65 * THREE.MathUtils.smoothstep(f, -0.75, 0.25));
+        if (power !== true) {
+          lightPole.spot.intensity = 0;
+        } else {
+          const f = Math.sin(t * 5.3) * Math.sin(t * 2.1);
+          lightPole.spot.intensity = 120 * (0.35 + 0.65 * THREE.MathUtils.smoothstep(f, -0.75, 0.25));
+        }
       }
     }
   };
