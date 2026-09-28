@@ -145,15 +145,23 @@ export class Bots {
         }
       }
 
-      // 卡住兜底： sideways 蹭过去
+      // 卡住兜底：判定必须按「实际位移 / 期望位移」算，且阈值要含 dt。
+      // 原写法 moved < 0.02 * speed 是不含 dt 的绝对阈值：60fps 下正常行走每帧只移动
+      // 约 0.015 米（speed 0.9），小于阈值 0.03 → 正常前进的僵尸被误判为卡住并触发
+      // 侧向绕行，表现为原地来回震荡（实测 5 只里 3 只如此，距离十几秒不变）。
+      const expect = Math.max(1e-5, (z.speed || 1.5) * dt);
       const moved = Math.hypot(a.pos.x - z.lastX, a.pos.z - z.lastZ);
       z.lastX = a.pos.x; z.lastZ = a.pos.z;
-      if (moved < 0.02 * (z.speed || 1.5)) z.stuckT += dt; else z.stuckT = 0;
+      if (moved < expect * 0.25) z.stuckT += dt;
+      else z.stuckT = Math.max(0, z.stuckT - dt * 2);          // 一恢复移动就快速消气
       if (z.stuckT > 0.9) {
         const side = z.sideSign || (z.sideSign = chance(0.5) ? 1 : -1);
         const nt = tx, nn = tz;
         tx = -tz * side + nt * 0.3; tz = nt * side + nn * 0.3;
-        if (z.stuckT > 2.4) { z.stuckT = 0; z.sideSign = -side; }
+        if (z.stuckT > 2.4) {
+          z.stuckT = 0; z.sideSign = -side;
+          z.path = null; z.repathT = 0;                        // 别只换边，强制重算一条路
+        }
       }
 
       // 施加移动

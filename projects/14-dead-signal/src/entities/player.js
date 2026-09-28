@@ -19,6 +19,7 @@ export class Player {
     this.yaw = 0; this.pitch = 0;
     this.recoilPitch = 0; this.recoilYaw = 0;
     this.adsT = 0; this.crouching = false; this.sprinting = false;
+    this.crouchK = 0;                 // 蹲伏插值进度：0=站立 1=蹲下（必须显式初始化，见 update() 相机段注释）
     this.hp = 100; this.maxHp = 100;
     this.regenDelay = 0;              // 受击后到开始回血的剩余秒数
     this.stamina = 1;                 // 冲刺体力（0~1）
@@ -146,7 +147,12 @@ export class Player {
 
     // --- 相机 ---
     const cam = R.camera;
-    const eye = lerp(EYE.stand, EYE.crouch, this.crouching ? smoothK(this.crouchK = clamp((this.crouchK || 0) + dt / 0.18, 0, 1)) : smoothK(this.crouchK = clamp((this.crouchK || 1) - dt / 0.18, 0, 1)));
+    // 蹲伏插值：crouchK 0=站立、1=蹲下，0.18 秒走完。
+    // 注意：这里绝不能用 `this.crouchK || 1` 兜底——crouchK 递减到 0 时 0 是 falsy，
+    // `0 || 1` 会把它弹回 1，相机高度就在 1.66/0.96 之间反复跳，表现为
+    // 「主角半身卡在地下 + 画面持续闪动」。故 crouchK 在构造函数里显式初始化为 0。
+    this.crouchK = clamp(this.crouchK + (this.crouching ? dt / 0.18 : -dt / 0.18), 0, 1);
+    const eye = lerp(EYE.stand, EYE.crouch, smoothK(this.crouchK));
     this.bob += hv * dt * (this.sprinting ? 1.7 : 1);
     const bobA = this.adsT > 0.6 ? 0.004 : this.sprinting ? 0.05 : 0.028;
     const moving = hv > 0.5 && res.onGround ? 1 : 0;
