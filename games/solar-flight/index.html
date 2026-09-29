@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🚀 星际航行模拟器 · Solar Flight</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{overflow:hidden;background:#000;font-family:'Segoe UI',system-ui,sans-serif;color:#cde;user-select:none}
+canvas{display:block;width:100vw;height:100vh}
+#hud{position:fixed;inset:0;pointer-events:none;z-index:10}
+#hud>*{pointer-events:auto}
+.mono{font-family:'Consolas','SF Mono',monospace}
+.pn{background:rgba(5,15,30,0.85);border:1px solid rgba(80,180,255,0.18);border-radius:10px;backdrop-filter:blur(6px)}
+/* 顶部：时间/引擎控制 */
+#tbar{position:absolute;top:10px;left:12px;display:flex;gap:4px;align-items:center}
+#tbar button{background:rgba(5,15,30,0.7);border:1px solid rgba(80,180,255,0.15);color:#9cf;padding:5px 9px;border-radius:6px;cursor:pointer;font-size:.82em;transition:.15s}
+#tbar button:hover{background:rgba(15,40,80,0.85);color:#fff}
+#tbar button.act{background:rgba(20,80,160,0.8);color:#fff}
+#spd{color:#9cf;font-family:monospace;padding:5px 10px;min-width:72px;text-align:center;background:rgba(5,15,30,0.5);border-radius:6px;border:1px solid rgba(80,180,255,0.12);font-size:.82em}
+/* 顶部：天体导航 */
+#nav{position:absolute;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:3px;flex-wrap:wrap;justify-content:center;max-width:60vw}
+#nav button{background:rgba(5,15,30,0.7);border:1px solid rgba(80,180,255,0.15);color:#567;padding:4px 8px;border-radius:14px;cursor:pointer;font-size:.72em;transition:.15s;white-space:nowrap}
+#nav button:hover{color:#fff;border-color:rgba(80,180,255,0.45)}
+#nav button.act{background:rgba(20,80,160,0.65);color:#fff;border-color:rgba(80,180,255,0.5)}
+/* 信息面板 */
+#info{position:absolute;right:14px;top:14px;width:290px;display:none;max-height:60vh;overflow-y:auto;padding:14px 16px}
+#info h2{color:#fff;font-size:1.12em;margin-bottom:8px}
+#info .rw{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:.82em;line-height:1.5}
+#info .lb{color:#678;white-space:nowrap}
+#info .vl{color:#9cf;text-align:right;max-width:180px}
+#info .cl{position:absolute;right:10px;top:8px;color:#678;cursor:pointer;font-size:1.05em}
+#info .cl:hover{color:#fff}
+/* 帮助 */
+#hlp{position:absolute;bottom:10px;left:12px;font-size:.74em;color:#4a6a86;line-height:1.8;background:rgba(5,15,30,0.5);border:1px solid rgba(80,180,255,0.08);border-radius:8px;padding:8px 12px}
+kbd{background:rgba(255,255,255,0.07);padding:1px 5px;border-radius:3px;border:1px solid rgba(255,255,255,0.1);font-family:monospace;font-size:.92em;color:#9cf}
+/* 标签层 */
+#lbl{position:absolute;inset:0;pointer-events:none}
+#lbl .l{position:absolute;color:rgba(180,210,255,0.6);font-size:.72em;white-space:nowrap;transform:translate(-50%,-150%);text-shadow:0 0 4px #000,0 0 8px #000;pointer-events:none}
+#lbl .l.sel{color:#6cf;font-weight:600}
+#lbl .l.tgt{color:#ffd35e}
+/* ===== 驾驶舱 HUD ===== */
+#cok{position:absolute;inset:0;pointer-events:none;display:none;font-family:'Consolas',monospace;color:#7fe9c8;text-shadow:0 0 6px rgba(60,255,190,0.35)}
+body.view1p #cok{display:block}
+body.view1p #hlp{display:none}
+body.view1p #nav{opacity:.25}
+.frame{position:absolute;inset:6% 8%;border:1px solid rgba(90,230,190,0.14);border-radius:14px;box-shadow:inset 0 0 60px rgba(0,40,30,0.25)}
+.frame::before,.frame::after{content:'';position:absolute;width:26px;height:26px;border:2px solid rgba(90,230,190,0.4)}
+.frame::before{left:-2px;top:-2px;border-right:none;border-bottom:none}
+.frame::after{right:-2px;bottom:-2px;border-left:none;border-top:none}
+/* 十字准星 */
+#xh{position:absolute;top:50%;left:50%;width:46px;height:46px;transform:translate(-50%,-50%)}
+#xh::before,#xh::after{content:'';position:absolute;background:rgba(120,240,200,0.55)}
+#xh::before{left:50%;top:0;width:1px;height:100%;transform:translateX(-50%)}
+#xh::after{top:50%;left:0;height:1px;width:100%;transform:translateY(-50%)}
+#xh i{position:absolute;top:50%;left:50%;width:4px;height:4px;border-radius:50%;background:#7fe9c8;transform:translate(-50%,-50%);box-shadow:0 0 8px #4ff}
+/* 速度矢量标记 */
+#vmark{position:absolute;top:50%;left:50%;width:22px;height:22px;border:1px solid rgba(120,240,200,0.7);border-radius:50%;transform:translate(-50%,-50%)}
+#vmark::after{content:'';position:absolute;left:50%;top:-6px;width:1px;height:6px;background:rgba(120,240,200,0.7)}
+/* 目标航向标记 */
+#tmark{position:absolute;top:50%;left:50%;width:0;height:0}
+#tmark .m{position:absolute;left:-11px;top:-11px;width:22px;height:22px;border:2px solid #ffd35e;transform:rotate(45deg);box-shadow:0 0 8px rgba(255,211,94,.5)}
+/* 仪表：左下 燃料/油门 */
+.gauge{position:absolute;bottom:22px;left:24px;width:230px;font-size:.78em;line-height:1.5}
+.gauge .row{display:flex;justify-content:space-between;margin-bottom:3px;color:#5fbfa0}
+.bar{height:9px;border:1px solid rgba(90,230,190,0.35);border-radius:5px;overflow:hidden;background:rgba(0,20,15,0.4);margin-bottom:9px}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,#2bd6a0,#7fffd0);transition:width .12s}
+.bar.fuel>i{background:linear-gradient(90deg,#ff8a3d,#ffd35e)}
+.bar.fuel.low>i{background:linear-gradient(90deg,#ff3b3b,#ff7a5e);animation:blink .6s steps(2) infinite}
+@keyframes blink{50%{opacity:.35}}
+/* 仪表：右下 速度/引擎 */
+.ro{position:absolute;bottom:22px;right:24px;text-align:right;font-size:.82em;line-height:1.7}
+.ro .big{font-size:2.1em;color:#bff7e4;letter-spacing:1px}
+.ro .u{font-size:.5em;color:#5fbfa0;margin-left:3px}
+#eng{letter-spacing:2px}
+#eng.on{color:#7fffd0}#eng.off{color:#4a6a86}
+/* 顶部任务条 */
+#msn{position:absolute;top:52px;left:50%;transform:translateX(-50%);text-align:center;font-size:.86em;color:#bff7e4;background:rgba(5,20,18,0.55);border:1px solid rgba(90,230,190,0.22);border-radius:8px;padding:6px 16px;max-width:70vw}
+#msn b{color:#ffd35e}
+#msn .d{color:#7fe9c8;font-size:.92em}
+/* 警告 */
+#warn{position:absolute;top:30%;left:50%;transform:translateX(-50%);text-align:center;color:#ff6b6b;font-size:1.2em;letter-spacing:2px;text-shadow:0 0 10px rgba(255,60,60,.6);opacity:0;transition:opacity .2s}
+#warn.show{opacity:1;animation:blink .5s steps(2) infinite}
+/* 提示 toast */
+#toast{position:absolute;top:16%;left:50%;transform:translateX(-50%);text-align:center;color:#7fffd0;font-size:1em;background:rgba(5,25,22,0.7);border:1px solid rgba(90,230,190,0.3);border-radius:8px;padding:8px 20px;opacity:0;transition:opacity .4s}
+#toast.show{opacity:1}
+/* 第三人称状态角标 */
+#chip{position:absolute;top:52px;left:12px;font-family:'Consolas',monospace;font-size:.8em;color:#7fe9c8;background:rgba(5,20,18,0.6);border:1px solid rgba(90,230,190,0.22);border-radius:8px;padding:8px 12px;line-height:1.6;display:none}
+body.view3p #chip{display:block}
+/* 加载层 */
+#load{position:fixed;inset:0;background:#000;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px;color:#9cf;font-size:1.25em;z-index:9999;transition:opacity .6s}
+#load .ring{width:46px;height:46px;border:3px solid rgba(80,180,255,0.2);border-top-color:#5cf;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#load small{color:#456;font-size:.6em;max-width:70vw;text-align:center;line-height:1.6}
+</style>
+</head>
+<body class="view3p">
+<div id="load"><div class="ring"></div><div id="ldtxt">🚀 正在启动引擎…</div><small id="ldsub">首次加载 3D 引擎（three.js）可能需要数秒，请稍候</small></div>
+<div id="hud">
+  <div id="tbar"></div>
+  <div id="nav"></div>
+  <div id="info" class="pn"></div>
+  <div id="lbl"></div>
+  <div id="hlp"><kbd>拖拽</kbd> 转向&emsp;<kbd>W</kbd> 主推进&emsp;<kbd>S</kbd> 制动&emsp;<kbd>A</kbd><kbd>D</kbd> 侧移&emsp;<kbd>Q</kbd><kbd>E</kbd> 滚转<br><kbd>R</kbd><kbd>F</kbd> 升降&emsp;<kbd>Shift</kbd> 加力&emsp;<kbd>滚轮</kbd> 油门&emsp;<kbd>空格</kbd> 切断引擎<br><kbd>V</kbd> 视角(舱内/外)&emsp;<kbd>单击</kbd> 查看天体&emsp;<kbd>M</kbd> 下一目标&emsp;<kbd>T</kbd> 轨道线&emsp;<kbd>N</kbd> 标签</div>
+  <!-- 驾驶舱 HUD -->
+  <div id="cok">
+    <div class="frame"></div>
+    <div id="xh"><i></i></div>
+    <div id="vmark"></div>
+    <div id="tmark"><div class="m"></div></div>
+    <div id="msn"></div>
+    <div class="gauge">
+      <div class="row"><span>燃料 FUEL</span><span id="fuelt">100%</span></div>
+      <div class="bar fuel" id="fuelbar"><i style="width:100%"></i></div>
+      <div class="row"><span>油门 THROTTLE</span><span id="thrt">50%</span></div>
+      <div class="bar"><i id="thrbar" style="width:50%"></i></div>
+    </div>
+    <div class="ro">
+      <div><span class="big" id="vnum">0</span><span class="u">m/s</span></div>
+      <div id="eng" class="off">引擎待机</div>
+      <div style="color:#5fbfa0;margin-top:4px">距目标 <span id="rdist">--</span></div>
+    </div>
+    <div id="warn"></div>
+    <div id="toast"></div>
+  </div>
+  <div id="chip"></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ============================================================
+//  🚀 星际航行模拟器  Solar Flight Simulator
+//  驾驶飞船 · 推进器/燃料/油门 · 任务导航 · 舱内/舱外视角 · 真实光影与日食
+// ============================================================
+const AU = 50, YR = 30;
+const os = p => 2 * Math.PI * 365.25 / (p * YR); // 由公转周期(天)得角速度
+
+// ===== 天体数据（大小放大、距离等比压缩） =====
+const DB = {
+  sun:{n:'太阳',t:'恒星',r:15,o:0,per:0,rot:.05,tilt:7.25,tex:'sun',
+    glow:{c:0xffaa00,s:80},
+    inf:{'类型':'G2V 主序星','直径':'1,392,700 km','表面温度':'5,500 °C','光度':'3.828×10²⁶ W','年龄':'约 46 亿年','描述':'太阳系中心恒星，所有光与热的来源，占太阳系总质量 99.86%。'}},
+  mercury:{n:'水星',t:'类地行星',r:.5,o:.387*AU,per:88,rot:.01,tilt:.03,tex:'mercury',shin:3,
+    inf:{'类型':'类地行星','直径':'4,879 km','公转':'88 天','自转':'58.6 天','温度':'-180~430°C','卫星':'0','描述':'距太阳最近，布满陨石坑，昼夜温差极大。'}},
+  venus:{n:'金星',t:'类地行星',r:1.2,o:.723*AU,per:225,rot:-.005,tilt:177.4,tex:'venus',shin:25,spec:0x555,atm:{c:0xe8d44d,i:.5},
+    inf:{'类型':'类地行星','直径':'12,104 km','公转':'225 天','自转':'243 天(逆向)','温度':'464 °C','大气':'CO₂ 96.5%','描述':'浓厚温室大气，太阳系最热的行星。'}},
+  earth:{n:'地球',t:'类地行星',r:1.3,o:AU,per:365.25,rot:.05,tilt:23.44,tex:'earth',shin:30,spec:0x666,atm:{c:0x4488ff,i:.6},
+    inf:{'类型':'类地行星','直径':'12,742 km','公转':'365.25 天','自转':'23.93 小时','卫星':'1（月球）','大气':'N₂ 78%, O₂ 21%','描述':'已知唯一存在生命的行星。'}},
+  mars:{n:'火星',t:'类地行星',r:.7,o:1.524*AU,per:687,rot:.05,tilt:25.19,tex:'mars',shin:5,atm:{c:0xc1522e,i:.3},
+    inf:{'类型':'类地行星','直径':'6,779 km','公转':'687 天','自转':'24.6 小时','卫星':'2','大气':'CO₂ 95%','描述':'红色星球，拥有太阳系最高火山。'}},
+  jupiter:{n:'木星',t:'气态巨行星',r:5,o:5.203*AU,per:4333,rot:.1,tilt:3.13,tex:'jupiter',shin:15,spec:0x555,
+    inf:{'类型':'气态巨行星','直径':'139,820 km','公转':'11.86 年','卫星':'95+','大气':'H₂ 89%, He 10%','描述':'太阳系最大行星，大红斑是巨型风暴。'}},
+  saturn:{n:'土星',t:'气态巨行星',r:4.2,o:9.537*AU,per:10759,rot:.09,tilt:26.73,tex:'saturn',shin:12,spec:0x555,ring:{i:5.8,o:10.5},
+    inf:{'类型':'气态巨行星','直径':'116,460 km','公转':'29.46 年','卫星':'146+','环系统':'冰块与岩石碎片','描述':'以壮观的环系统闻名，密度低于水。'}},
+  uranus:{n:'天王星',t:'冰巨行星',r:2,o:19.191*AU,per:30687,rot:.04,tilt:97.77,tex:'uranus',shin:15,spec:0x444,atm:{c:0x72d6d0,i:.4},
+    inf:{'类型':'冰巨行星','直径':'50,724 km','公转':'84.01 年','卫星':'27','描述':'自转轴几乎与轨道面平行，像滚动的球。'}},
+  neptune:{n:'海王星',t:'冰巨行星',r:1.9,o:30.069*AU,per:60190,rot:.05,tilt:28.32,tex:'neptune',shin:15,spec:0x444,atm:{c:0x3055c4,i:.4},
+    inf:{'类型':'冰巨行星','直径':'49,244 km','公转':'164.8 年','卫星':'16','描述':'最远的行星，风速最快（2100 km/h）。'}}
+};
+const MB = {
+  moon:{n:'月球',p:'earth',r:.35,o:8,sp:2*Math.PI/10,rot:.02,tex:'moon',
+    inf:{'类型':'天然卫星','直径':'3,474 km','距地球':'384,400 km','公转':'27.3 天','描述':'地球唯一天然卫星，主导潮汐。'}},
+  phobos:{n:'火卫一',p:'mars',r:.1,o:1.5,sp:2*Math.PI/3,rot:.05,tex:'phobos',
+    inf:{'类型':'天然卫星','直径':'22.4 km','公转':'7.7 小时','描述':'火星最大卫星，轨道正在下降。'}},
+  deimos:{n:'火卫二',p:'mars',r:.07,o:2.3,sp:2*Math.PI/8,rot:.03,tex:'deimos',
+    inf:{'类型':'天然卫星','直径':'12.4 km','公转':'30.3 小时','描述':'火星较小的不规则卫星。'}},
+  io:{n:'木卫一',p:'jupiter',r:.3,o:3,sp:2*Math.PI/4,rot:.04,tex:'io',
+    inf:{'类型':'天然卫星','直径':'3,643 km','公转':'1.77 天','描述':'太阳系火山活动最剧烈的天体。'}},
+  europa:{n:'木卫二',p:'jupiter',r:.28,o:4.2,sp:2*Math.PI/6,rot:.03,tex:'europa',shin:50,spec:0x888,
+    inf:{'类型':'天然卫星','直径':'3,122 km','公转':'3.55 天','描述':'冰层下可能有液态海洋。'}},
+  ganymede:{n:'木卫三',p:'jupiter',r:.5,o:5.5,sp:2*Math.PI/9,rot:.03,tex:'ganymede',
+    inf:{'类型':'天然卫星','直径':'5,268 km','公转':'7.15 天','描述':'太阳系最大的卫星，比水星还大。'}},
+  callisto:{n:'木卫四',p:'jupiter',r:.45,o:8,sp:2*Math.PI/14,rot:.02,tex:'callisto',
+    inf:{'类型':'天然卫星','直径':'4,821 km','公转':'16.69 天','描述':'表面最古老，布满陨石坑。'}},
+  titan:{n:'土卫六',p:'saturn',r:.4,o:6,sp:2*Math.PI/15,rot:.02,tex:'titan',atm:{c:0xd48830,i:.4},
+    inf:{'类型':'天然卫星','直径':'5,150 km','公转':'15.95 天','大气':'N₂ 98.4%','描述':'唯一有浓厚大气的卫星，有甲烷湖泊。'}},
+  enceladus:{n:'土卫二',p:'saturn',r:.2,o:3,sp:2*Math.PI/5,rot:.04,tex:'enceladus',shin:50,spec:0x888,
+    inf:{'类型':'天然卫星','直径':'504 km','公转':'1.37 天','描述':'有冰喷泉，冰下可能有海洋。'}}
+};
+
+// ===== 全局状态 =====
+let scene, camera, renderer, raycaster;
+const AB = {};               // id -> {mesh, def, angle, spin, orbitLine, label}
+const clickables = [];
+let showOrb = true, showLbl = true;
+let paused = false;
+const SPEEDS = [1, 5, 20, 50, 200, 1000]; let spdI = 1;
+let selId = null;            // 选中查看信息的天体
+let loaded = false;
+
+// 飞船状态
+const ship = {
+  pos: new THREE.Vector3(0, 0, 0),
+  vel: new THREE.Vector3(),
+  quat: new THREE.Quaternion(),
+  yaw: 0, pitch: 0, roll: 0,
+  throttle: 0.5, fuel: 100, boost: false, engineCut: false,
+};
+let shipMesh, engineGlow, viewMode = '3p'; // '3p' | '1p'
+const THRUST = 26, BRAKE = 20, STRAFE = 14, LIFT = 14, ROLL = 1.6, TURN = 0.0026;
+
+// 任务
+const MISSIONS = [
+  { id: 'earth',  name: '抵达地球轨道',   range: 55 },
+  { id: 'moon',   name: '近距离掠过月球', range: 12 },
+  { id: 'mars',   name: '前往火星',       range: 40 },
+  { id: 'jupiter',name: '探访木星的卫星群', range: 45 },
+  { id: 'saturn', name: '穿越土星环',     range: 30 },
+];
+let missionIdx = 0, missionDone = 0;
+
+// ===== 纹理生成 =====
+const texCache = {};
+function makeTex(id, o) {
+  const c = document.createElement('canvas'); c.width = 512; c.height = 256;
+  const x = c.getContext('2d');
+  x.fillStyle = o.base || '#888'; x.fillRect(0, 0, 512, 256);
+  if (o.bands) {
+    const bh = 256 / o.bands.length;
+    o.bands.forEach((col, i) => { x.fillStyle = col; x.fillRect(0, i * bh, 512, bh + 1); });
+    for (let i = 0; i < 400; i++) { x.globalAlpha = Math.random() * .08; x.fillStyle = Math.random() > .5 ? '#fff' : '#000'; x.beginPath(); x.ellipse(Math.random()*512, Math.random()*256, Math.random()*40+5, Math.random()*3+1, 0, 0, Math.PI*2); x.fill(); }
+  }
+  if (o.patches) {
+    const pc = o.pc || 300, ps = o.ps || 20, pa = o.pa || 1;
+    for (let i = 0; i < pc; i++) { x.globalAlpha = Math.random() * .3 + .05; x.fillStyle = o.patches[i % o.patches.length]; const r = Math.random() * ps + 2; x.beginPath(); x.ellipse(Math.random()*512, Math.random()*256, r, r*pa, Math.random()*Math.PI, 0, Math.PI*2); x.fill(); }
+  }
+  if (o.craters) {
+    for (let i = 0; i < o.craters; i++) { const cx = Math.random()*512, cy = Math.random()*256, cr = Math.random()*4+1; x.globalAlpha = .2 + Math.random()*.2; x.fillStyle = '#444'; x.beginPath(); x.arc(cx, cy, cr, 0, Math.PI*2); x.fill(); x.globalAlpha = .3; x.strokeStyle = '#bbb'; x.lineWidth = .5; x.beginPath(); x.arc(cx, cy, cr+.5, 0, Math.PI*2); x.stroke(); }
+  }
+  if (o.extra) o.extra(x, 512, 256);
+  x.globalAlpha = 1;
+  texCache[id] = new THREE.CanvasTexture(c);
+}
+function buildTextures() {
+  makeTex('sun',{base:'#ffcc33',patches:['#ff9900','#ffaa00','#ffdd44','#ff6600','#fff'],pc:350,ps:30,pa:.7});
+  makeTex('mercury',{base:'#8c7e6d',patches:['#6b5e52','#a89880','#7a6d60','#554840'],pc:400,ps:15,craters:80});
+  makeTex('venus',{base:'#e8d44d',patches:['#d4c040','#f0e070','#c8b030','#f5e880'],pc:350,ps:25,pa:1.5});
+  makeTex('earth',{base:'#2255aa',extra(x,w,h){
+    for(let i=0;i<18;i++){x.globalAlpha=.8;x.fillStyle=['#3a7d2c','#5a8d3c','#8b7d3c','#4a6d2c','#6b8d4c'][i%5];x.beginPath();x.ellipse(Math.random()*w,Math.random()*h,Math.random()*60+20,Math.random()*40+15,Math.random()*Math.PI,0,Math.PI*2);x.fill();}
+    for(let i=0;i<90;i++){x.globalAlpha=Math.random()*.35+.08;x.fillStyle='#fff';x.beginPath();x.ellipse(Math.random()*w,Math.random()*h,Math.random()*30+5,Math.random()*10+3,Math.random()*Math.PI,0,Math.PI*2);x.fill();}
+    x.globalAlpha=.5;x.fillStyle='#fff';x.fillRect(0,0,w,12);x.fillRect(0,h-12,w,12);x.globalAlpha=1;}});
+  makeTex('mars',{base:'#c1522e',patches:['#a04228','#d4683c','#8b3520','#e88860'],pc:350,ps:18,extra(x,w,h){x.globalAlpha=.45;x.fillStyle='#ddd';x.fillRect(0,0,w,6);x.fillRect(0,h-6,w,6);x.globalAlpha=1;}});
+  makeTex('jupiter',{base:'#d4b483',bands:['#f0e8d8','#d4b483','#8b6d4c','#e8d4b0','#6b5035','#d4c0a0','#c8a070','#f0e0c0','#a08060','#e0d0a8'],extra(x,w,h){x.globalAlpha=.45;x.fillStyle='#c05030';x.beginPath();x.ellipse(w*.32,h*.6,35,20,.1,0,Math.PI*2);x.fill();x.fillStyle='#a04020';x.beginPath();x.ellipse(w*.32,h*.6,25,14,.1,0,Math.PI*2);x.fill();x.globalAlpha=1;}});
+  makeTex('saturn',{base:'#d4a843',bands:['#e8c868','#d4a843','#c49838','#e8d8b0','#d0a038','#f0e0b0','#c89830','#e0c858','#d8b850','#e4c060']});
+  makeTex('uranus',{base:'#72d6d0',bands:['#72d6d0','#68ccc6','#7ce0da','#65c8c2','#78d8d2'],patches:['#80e0da','#60c4be'],pc:60,ps:40,pa:2.5});
+  makeTex('neptune',{base:'#3055c4',bands:['#3055c4','#2a4cb8','#3860d0','#2848b0','#3458c8','#2c50bc'],extra(x,w,h){x.globalAlpha=.3;x.fillStyle='#182868';x.beginPath();x.ellipse(w*.6,h*.4,28,16,0,0,Math.PI*2);x.fill();x.globalAlpha=1;}});
+  makeTex('moon',{base:'#aaa',patches:['#888','#999','#777','#bbb'],pc:300,ps:12,craters:100});
+  makeTex('io',{base:'#e8d040',patches:['#d4b030','#f0e060','#c8a020','#e84020','#f5a030'],pc:250,ps:15});
+  makeTex('europa',{base:'#d4c8b0',patches:['#c0b0a0','#b09080','#d8d0c0'],pc:200,ps:10,craters:30,extra(x,w,h){for(let i=0;i<25;i++){x.globalAlpha=.4;x.strokeStyle='#8b6050';x.lineWidth=1+Math.random()*2;x.beginPath();let px=Math.random()*w,py=Math.random()*h;x.moveTo(px,py);for(let j=0;j<6;j++){px+=Math.random()*40-20;py+=Math.random()*20-10;x.lineTo(px,py);}x.stroke();}}});
+  makeTex('ganymede',{base:'#8c7e6d',patches:['#a09080','#706050','#908070','#b0a090'],pc:300,ps:15,craters:50});
+  makeTex('callisto',{base:'#606060',patches:['#505050','#707070','#454545','#808080'],pc:400,ps:10,craters:150});
+  makeTex('titan',{base:'#d48830',patches:['#c87828','#e09840','#b86820','#e8a050'],pc:200,ps:25,pa:2});
+  makeTex('enceladus',{base:'#e0e8f0',patches:['#d0d8e0','#f0f4f8','#c0c8d0'],pc:150,ps:10,craters:20});
+  makeTex('phobos',{base:'#666660',patches:['#555550','#777770','#444440'],pc:200,ps:8,craters:50});
+  makeTex('deimos',{base:'#777770',patches:['#666660','#888880','#555550'],pc:150,ps:6,craters:30});
+}
+function makeGlowTex() {
+  const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d');
+  const g = x.createRadialGradient(128,128,0,128,128,128);
+  g.addColorStop(0,'rgba(255,240,180,1)');g.addColorStop(.1,'rgba(255,220,120,.8)');g.addColorStop(.2,'rgba(255,180,60,.5)');g.addColorStop(.4,'rgba(255,120,30,.2)');g.addColorStop(.6,'rgba(255,80,20,.08)');g.addColorStop(.8,'rgba(255,50,10,.03)');g.addColorStop(1,'rgba(255,30,0,0)');
+  x.fillStyle = g; x.fillRect(0, 0, 256, 256); return new THREE.CanvasTexture(c);
+}
+function makeEngineTex() {
+  const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d');
+  const g = x.createRadialGradient(64,64,0,64,64,64);
+  g.addColorStop(0,'rgba(200,245,255,1)');g.addColorStop(.3,'rgba(90,200,255,.8)');g.addColorStop(.7,'rgba(40,120,255,.25)');g.addColorStop(1,'rgba(20,60,255,0)');
+  x.fillStyle = g; x.fillRect(0,0,128,128); return new THREE.CanvasTexture(c);
+}
+function makeStarTex() {
+  const c = document.createElement('canvas'); c.width = c.height = 32; const x = c.getContext('2d');
+  const g = x.createRadialGradient(16,16,0,16,16,16);
+  g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.3,'rgba(255,255,255,.5)');g.addColorStop(1,'rgba(255,255,255,0)');
+  x.fillStyle = g; x.fillRect(0, 0, 32, 32); return new THREE.CanvasTexture(c);
+}
+function makeRingTex() {
+  const S = 512, c = document.createElement('canvas'); c.width = c.height = S; const ctx = c.getContext('2d');
+  const img = ctx.createImageData(S, S), d = img.data; const cx = S/2, cy = S/2, iR = 140, oR = 255;
+  for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
+    const dx = x - cx, dy = y - cy, r = Math.sqrt(dx*dx + dy*dy); const idx = (y * S + x) * 4;
+    if (r >= iR && r <= oR) { const t = (r - iR) / (oR - iR); let a = .55;
+      if (t > .52 && t < .58) a = .04; if (t > .24 && t < .26) a *= .3; if (t > .74 && t < .76) a *= .35; if (t < .06) a *= t * 16; if (t > .9) a *= (1 - t) * 10;
+      a *= .6 + Math.sin(t * 35) * .4; a = Math.max(0, Math.min(1, a));
+      d[idx]=(185+Math.sin(t*12)*30)|0; d[idx+1]=(165+Math.sin(t*8)*25)|0; d[idx+2]=(135+Math.sin(t*15)*20)|0; d[idx+3]=(a*255)|0;
+    } else d[idx+3] = 0;
+  }
+  ctx.putImageData(img, 0, 0); return new THREE.CanvasTexture(c);
+}
+function makeAtm(r, col, intensity) {
+  const geo = new THREE.SphereGeometry(r * 1.18, 32, 32);
+  const mat = new THREE.ShaderMaterial({
+    uniforms: { gc: { value: new THREE.Color(col) }, it: { value: intensity || .5 } },
+    vertexShader: `varying vec3 vn; void main(){ vn=normalize(normalMatrix*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
+    fragmentShader: `uniform vec3 gc; uniform float it; varying vec3 vn; void main(){ float rim=1.-max(dot(vn,vec3(0.,0.,1.)),0.); float g=pow(rim,3.)*it; gl_FragColor=vec4(gc*g,g); }`,
+    side: THREE.FrontSide, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false
+  });
+  return new THREE.Mesh(geo, mat);
+}
+
+// ===== 场景构建 =====
+function build() {
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
+  renderer.shadowMap.enabled = true;                 // 真实阴影（昼夜分界 + 日食）
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  document.body.insertBefore(renderer.domElement, document.getElementById('hud'));
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x000005);
+
+  camera = new THREE.PerspectiveCamera(66, window.innerWidth / window.innerHeight, .05, 60000);
+  camera.rotation.order = 'YXZ';
+
+  // 太阳点光源：唯一主光源，投射阴影
+  const sunLight = new THREE.PointLight(0xfff2e0, 2.4, 0, 1.6);
+  sunLight.castShadow = true;
+  sunLight.shadow.mapSize.set(2048, 2048);
+  sunLight.shadow.camera.near = 1;
+  sunLight.shadow.camera.far = 2200;
+  sunLight.shadow.bias = -0.0012;
+  scene.add(sunLight);
+  scene.add(new THREE.AmbientLight(0x223344, .12));   // 极弱环境光，保留暗部细节
+
+  raycaster = new THREE.Raycaster();
+
+  buildTextures();
+  buildStarfield();
+  buildSun();
+  buildPlanets();
+  buildMoons();
+  buildRings();
+  buildAsteroids();
+  buildOrbits();
+  buildShip();
+  initLabels();
+  initUI();
+  initInput();
+  placeShipAtStart();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  loop();
+}
+
+function buildStarfield() {
+  const N = 12000; const pos = new Float32Array(N * 3), col = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) {
+    const r = 9000 + Math.random() * 18000; const th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1);
+    pos[i*3]=r*Math.sin(ph)*Math.cos(th); pos[i*3+1]=r*Math.sin(ph)*Math.sin(th); pos[i*3+2]=r*Math.cos(ph);
+    const t = Math.random();
+    if (t < .15) { col[i*3]=1; col[i*3+1]=.7; col[i*3+2]=.5; }
+    else if (t < .35) { col[i*3]=.7; col[i*3+1]=.8; col[i*3+2]=1; }
+    else { const b=.5+Math.random()*.5; col[i*3]=b; col[i*3+1]=b; col[i*3+2]=b; }
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+  const mat = new THREE.PointsMaterial({ size: 1.6, map: makeStarTex(), vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false });
+  scene.add(new THREE.Points(geo, mat));
+}
+
+function buildSun() {
+  const d = DB.sun;
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(d.r, 48, 48), new THREE.MeshBasicMaterial({ map: texCache.sun }));
+  mesh.userData.id = 'sun'; scene.add(mesh);
+  const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex(), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+  glow.scale.set(d.glow.s, d.glow.s, 1); scene.add(glow);
+  AB.sun = { mesh, def: d, angle: 0, spin: 0 }; clickables.push(mesh);
+}
+
+function buildPlanets() {
+  for (const [id, d] of Object.entries(DB)) {
+    if (id === 'sun') continue;
+    const mat = new THREE.MeshPhongMaterial({ map: texCache[d.tex], bumpMap: texCache[d.tex], bumpScale: .02, shininess: d.shin || 5, specular: new THREE.Color(d.spec || 0x222222) });
+    const mesh = new THREE.Mesh(new THREE.SphereGeometry(d.r, 40, 40), mat);
+    mesh.rotation.z = THREE.MathUtils.degToRad(d.tilt || 0);
+    mesh.castShadow = true; mesh.receiveShadow = true;   // 投影 + 被投影 → 日食/凌
+    mesh.userData.id = id; scene.add(mesh);
+    if (d.atm) mesh.add(makeAtm(d.r, d.atm.c, d.atm.i));
+    const angle = Object.keys(DB).indexOf(id) * Math.PI / 4;
+    AB[id] = { mesh, def: d, angle, spin: 0 }; clickables.push(mesh);
+  }
+}
+
+function buildMoons() {
+  for (const [id, d] of Object.entries(MB)) {
+    const mat = new THREE.MeshPhongMaterial({ map: texCache[d.tex], bumpMap: texCache[d.tex], bumpScale: .02, shininess: d.shin || 5, specular: new THREE.Color(d.spec || 0x222222) });
+    const mesh = new THREE.Mesh(new THREE.SphereGeometry(d.r, 24, 24), mat);
+    mesh.castShadow = true; mesh.receiveShadow = true;
+    mesh.userData.id = id; scene.add(mesh);
+    if (d.atm) mesh.add(makeAtm(d.r, d.atm.c, d.atm.i));
+    AB[id] = { mesh, def: d, angle: Math.random() * Math.PI * 2, spin: 0 }; clickables.push(mesh);
+    const pts = []; for (let i = 0; i < 64; i++) { const a = (i / 64) * Math.PI * 2; pts.push(new THREE.Vector3(Math.cos(a) * d.o, 0, Math.sin(a) * d.o)); }
+    const ol = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0x1a3355, transparent: true, opacity: .18 }));
+    scene.add(ol); AB[id].orbitLine = ol;
+  }
+}
+
+function buildRings() {
+  const d = DB.saturn; if (!d.ring) return;
+  const geo = new THREE.RingGeometry(d.ring.i, d.ring.o, 128, 1);
+  const pos = geo.attributes.position, uv = geo.attributes.uv, v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i); const t = (v.length() - d.ring.i) / (d.ring.o - d.ring.i); uv.setXY(i, t, 0.5); }
+  uv.needsUpdate = true;
+  const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: makeRingTex(), transparent: true, side: THREE.DoubleSide, opacity: .85, depthWrite: false }));
+  mesh.rotation.x = Math.PI / 2; AB.saturn.mesh.add(mesh);
+}
+
+function buildAsteroids() {
+  const N = 5000, pos = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) { const a = Math.random() * Math.PI * 2; const d = 2.1 * AU + Math.random() * 1.1 * AU; pos[i*3]=Math.cos(a)*d; pos[i*3+1]=(Math.random()-.5)*6; pos[i*3+2]=Math.sin(a)*d; }
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  scene.add(new THREE.Points(geo, new THREE.PointsMaterial({ color: 0x888877, size: .25, transparent: true, opacity: .4 })));
+}
+
+function buildOrbits() {
+  for (const [id, d] of Object.entries(DB)) {
+    if (d.o === 0) continue;
+    const pts = []; for (let i = 0; i < 160; i++) { const a = (i / 160) * Math.PI * 2; pts.push(new THREE.Vector3(Math.cos(a) * d.o, 0, Math.sin(a) * d.o)); }
+    const ol = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0x1a3355, transparent: true, opacity: .22 }));
+    scene.add(ol); AB[id].orbitLine = ol;
+  }
+}
+
+// ===== 飞船模型 =====
+function buildShip() {
+  shipMesh = new THREE.Group();
+  const hull = new THREE.MeshStandardMaterial({ color: 0xb8c4d0, metalness: .75, roughness: .35 });
+  const dark = new THREE.MeshStandardMaterial({ color: 0x30373f, metalness: .6, roughness: .5 });
+  const glass = new THREE.MeshStandardMaterial({ color: 0x18324a, metalness: .3, roughness: .1, transparent: true, opacity: .85, emissive: 0x0a1a2a });
+
+  // 机身（-Z 为机头方向，与相机默认朝向一致）
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(.28, .42, 2.4, 16), hull);
+  body.rotation.x = Math.PI / 2; body.castShadow = true; shipMesh.add(body);
+  // 机头锥
+  const nose = new THREE.Mesh(new THREE.ConeGeometry(.28, 1, 16), hull);
+  nose.rotation.x = -Math.PI / 2; nose.position.z = -1.7; nose.castShadow = true; shipMesh.add(nose);
+  // 座舱罩
+  const canopy = new THREE.Mesh(new THREE.SphereGeometry(.3, 16, 12, 0, Math.PI*2, 0, Math.PI/2), glass);
+  canopy.position.set(0, .22, -.7); shipMesh.add(canopy);
+  // 主翼
+  const wingGeo = new THREE.BoxGeometry(2.6, .08, .8);
+  const wing = new THREE.Mesh(wingGeo, dark); wing.position.set(0, -.05, .5); wing.castShadow = true; shipMesh.add(wing);
+  // 垂尾
+  const fin = new THREE.Mesh(new THREE.BoxGeometry(.08, .7, .6), dark); fin.position.set(0, .3, 1.1); shipMesh.add(fin);
+  // 引擎喷口 ×2
+  for (const sx of [-.55, .55]) {
+    const eng = new THREE.Mesh(new THREE.CylinderGeometry(.18, .22, .5, 12), dark);
+    eng.rotation.x = Math.PI / 2; eng.position.set(sx, -.05, 1.35); shipMesh.add(eng);
+  }
+  // 引擎辉光（推进时点亮）
+  engineGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeEngineTex(), color: 0x8fdcff, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+  engineGlow.position.set(0, -.05, 1.7); engineGlow.scale.set(1.2, 1.2, 1); shipMesh.add(engineGlow);
+
+  shipMesh.visible = true;
+  scene.add(shipMesh);
+}
+
+// ===== 标签层 =====
+function initLabels() {
+  const box = document.getElementById('lbl');
+  for (const [id, a] of Object.entries(AB)) {
+    const el = document.createElement('div'); el.className = 'l'; el.textContent = a.def.n; box.appendChild(el); a.label = el;
+  }
+}
+function setLabelsVisible(on) { document.getElementById('lbl').style.display = on ? '' : 'none'; }
+function setOrbitsVisible(on) { for (const a of Object.values(AB)) if (a.orbitLine) a.orbitLine.visible = on; }
+
+const _w = new THREE.Vector3();
+function updateLabels() {
+  if (!showLbl) return;
+  const w = innerWidth, h = innerHeight, mt = MISSIONS[missionIdx] ? MISSIONS[missionIdx].id : null;
+  for (const [id, a] of Object.entries(AB)) {
+    if (!a.label) continue;
+    a.mesh.getWorldPosition(_w); _w.project(camera);
+    if (_w.z > 1 || _w.x < -1 || _w.x > 1 || _w.y < -1 || _w.y > 1) { a.label.style.display = 'none'; continue; }
+    a.label.style.display = '';
+    a.label.style.left = (_w.x * .5 + .5) * w + 'px';
+    a.label.style.top = (-_w.y * .5 + .5) * h + 'px';
+    a.label.className = 'l' + (id === selId ? ' sel' : (id === mt ? ' tgt' : ''));
+  }
+}
+
+// ===== UI =====
+function initUI() {
+  const tb = document.getElementById('tbar'); tb.innerHTML = '';
+  const play = document.createElement('button'); play.textContent = '⏯'; play.title = '暂停/播放天体运行'; play.onclick = () => { paused = !paused; refreshUI(); }; tb.appendChild(play);
+  const down = document.createElement('button'); down.textContent = '−'; down.onclick = () => { spdI = Math.max(0, spdI - 1); refreshUI(); }; tb.appendChild(down);
+  const sp = document.createElement('span'); sp.id = 'spd'; tb.appendChild(sp);
+  const up = document.createElement('button'); up.textContent = '+'; up.onclick = () => { spdI = Math.min(SPEEDS.length - 1, spdI + 1); refreshUI(); }; tb.appendChild(up);
+  const vw = document.createElement('button'); vw.textContent = '👤 视角'; vw.title = '舱内/舱外 (V)'; vw.onclick = () => toggleView(); tb.appendChild(vw);
+  const rs = document.createElement('button'); rs.textContent = '⟲ 复位'; rs.title = '回到出发轨道'; rs.onclick = () => placeShipAtStart(); tb.appendChild(rs);
+
+  const nav = document.getElementById('nav'); nav.innerHTML = '';
+  for (const [id, d] of Object.entries(DB)) {
+    const b = document.createElement('button'); b.textContent = d.n; b.dataset.id = id; b.onclick = () => { select(id); }; nav.appendChild(b);
+  }
+  refreshUI();
+}
+function curScale() { return paused ? 0 : SPEEDS[spdI]; }
+function refreshUI() {
+  const sp = document.getElementById('spd'); if (sp) sp.textContent = paused ? '⏸' : '×' + SPEEDS[spdI];
+  document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('act', b.dataset.id === MISSIONS[missionIdx]?.id));
+}
+
+function select(id) { selId = id; showInfo(id); }
+function deselect() { selId = null; document.getElementById('info').style.display = 'none'; }
+function showInfo(id) {
+  const a = AB[id]; if (!a) return;
+  const el = document.getElementById('info');
+  let html = '<span class="cl" title="关闭">✕</span><h2>' + a.def.n + ' <small style="color:#678;font-size:.6em">' + (a.def.t || '天体') + '</small></h2>';
+  for (const [k, v] of Object.entries(a.def.inf || {})) html += '<div class="rw"><span class="lb">' + k + '</span><span class="vl">' + v + '</span></div>';
+  el.innerHTML = html; el.style.display = 'block'; el.querySelector('.cl').onclick = deselect;
+}
+
+// ===== 任务系统 =====
+let allDone = false;
+function missionTarget() { return allDone ? null : AB[MISSIONS[missionIdx].id]; }
+function updateMission() {
+  if (allDone) return;
+  const m = MISSIONS[missionIdx], t = AB[m.id]; if (!t) return;
+  t.mesh.getWorldPosition(_w);
+  const dist = ship.pos.distanceTo(_w);
+  if (dist < m.range) completeMission(m);
+}
+function completeMission(m) {
+  missionDone++; ship.fuel = 100;
+  toast('✔ 任务完成：' + m.name + ' · 燃料已补满');
+  missionIdx++;
+  if (missionIdx >= MISSIONS.length) { allDone = true; toast('🛰 全部任务完成，自由探索太阳系！'); }
+  refreshUI();
+}
+
+// ===== 飞船驾驶 =====
+function placeShipAtStart() {
+  ship.pos.set(0, 26, 150); ship.vel.set(0, 0, 0);
+  ship.yaw = 0; ship.pitch = 0; ship.roll = 0; ship.fuel = 100; ship.engineCut = false; ship.throttle = 0.5;
+  const e = new THREE.Euler(0, 0, 0, 'YXZ'); ship.quat.setFromEuler(e);
+  camera.position.set(0, 28, 158); camera.lookAt(0, 0, 0);
+}
+
+const _fwd = new THREE.Vector3(), _rgt = new THREE.Vector3(), _up = new THREE.Vector3(), _acc = new THREE.Vector3(), _tmp = new THREE.Vector3(), _eye = new THREE.Vector3(), _des = new THREE.Vector3(), _look = new THREE.Vector3();
+function updateShip(dt) {
+  ship.quat.setFromEuler(new THREE.Euler(ship.pitch, ship.yaw, ship.roll, 'YXZ'));
+  _fwd.set(0, 0, -1).applyQuaternion(ship.quat);
+  _rgt.set(1, 0, 0).applyQuaternion(ship.quat);
+  _up.set(0, 1, 0).applyQuaternion(ship.quat);
+
+  const boost = !!keys['shift'];
+  const bk = boost ? 2.6 : 1;
+  const canThrust = ship.fuel > 0 && !ship.engineCut;
+  _acc.set(0, 0, 0); let thrusting = false;
+  if (canThrust) {
+    if (keys['w']) { _acc.addScaledVector(_fwd, THRUST * ship.throttle * bk); thrusting = true; }
+    if (keys['s'] && ship.vel.lengthSq() > 0.02) { _acc.addScaledVector(_tmp.copy(ship.vel).normalize(), -BRAKE * (0.3 + ship.throttle)); thrusting = true; }
+    if (keys['a']) { _acc.addScaledVector(_rgt, -STRAFE * ship.throttle); thrusting = true; }
+    if (keys['d']) { _acc.addScaledVector(_rgt, STRAFE * ship.throttle); thrusting = true; }
+    if (keys['r']) { _acc.addScaledVector(_up, LIFT * ship.throttle); thrusting = true; }
+    if (keys['f']) { _acc.addScaledVector(_up, -LIFT * ship.throttle); thrusting = true; }
+  }
+  if (keys['q']) ship.roll += ROLL * dt;
+  if (keys['e']) ship.roll -= ROLL * dt;
+
+  // 燃料：推进消耗，惰性回充
+  if (thrusting) ship.fuel = Math.max(0, ship.fuel - (keys['w'] ? 4.5 : 2.2) * dt * (boost ? 2.2 : 1));
+  else ship.fuel = Math.min(100, ship.fuel + 3 * dt);
+  ship.thrusting = thrusting; ship.boosting = thrusting && boost;
+
+  ship.vel.addScaledVector(_acc, dt);
+  ship.vel.multiplyScalar(1 - Math.min(0.35 * dt, 0.5)); // 轻微阻尼便于操控
+  const maxS = 130 * bk; if (ship.vel.length() > maxS) ship.vel.setLength(maxS);
+  ship.pos.addScaledVector(ship.vel, dt);
+  shipMesh.position.copy(ship.pos); shipMesh.quaternion.copy(ship.quat);
+
+  const g = thrusting ? (boost ? 2.6 : 1.6) : 0.55;
+  engineGlow.scale.set(g, g, 1);
+  engineGlow.material.color.setHex(boost && thrusting ? 0xffcf8a : 0x8fdcff);
+
+  collide();
+}
+function collide() {
+  for (const [id, a] of Object.entries(AB)) {
+    if (id === 'sun') continue;
+    a.mesh.getWorldPosition(_w);
+    const safe = a.def.r + 2;
+    const d = ship.pos.distanceTo(_w);
+    if (d < safe) {
+      _tmp.copy(ship.pos).sub(_w).normalize();
+      ship.pos.copy(_w).addScaledVector(_tmp, safe + 0.5);
+      ship.vel.multiplyScalar(0.15);
+      warn('⚠ 规避碰撞');
+    }
+  }
+}
+
+function updateCamera(dt) {
+  const k = 1 - Math.pow(0.0009, dt);
+  if (viewMode === '1p') {
+    shipMesh.visible = false;
+    _eye.set(0, .35, -.6).applyQuaternion(ship.quat).add(ship.pos);
+    camera.position.lerp(_eye, k);
+    camera.quaternion.slerp(ship.quat, k);
+  } else {
+    shipMesh.visible = true;
+    _des.set(0, 1.7, 7.5).applyQuaternion(ship.quat).add(ship.pos);
+    camera.position.lerp(_des, k);
+    _look.copy(ship.pos).addScaledVector(_fwd, 14);
+    camera.lookAt(_look);
+  }
+}
+
+// ===== 驾驶舱 HUD =====
+let _warnT = 0, _toastT = 0;
+function warn(msg) { const e = document.getElementById('warn'); e.textContent = msg; e.classList.add('show'); _warnT = performance.now() + 1200; }
+function toast(msg) { const e = document.getElementById('toast'); e.textContent = msg; e.classList.add('show'); _toastT = performance.now() + 2600; }
+
+function project(worldVec) {
+  _tmp.copy(worldVec).project(camera);
+  return { x: (_tmp.x * .5 + .5) * innerWidth, y: (-_tmp.y * .5 + .5) * innerHeight, front: _tmp.z < 1 };
+}
+function updateCockpit(now) {
+  const speed = Math.round(ship.vel.length() * 10);
+  const m = allDone ? null : MISSIONS[missionIdx];
+  let dist = 0, tPos = null;
+  if (m) { const t = AB[m.id]; t.mesh.getWorldPosition(_w); tPos = _w.clone(); dist = ship.pos.distanceTo(_w); }
+
+  // 仪表数值（1p 与 3p 都需要）
+  const fuelt = document.getElementById('fuelt'); if (fuelt) fuelt.textContent = Math.round(ship.fuel) + '%';
+  const fb = document.getElementById('fuelbar'); if (fb) { fb.querySelector('i').style.width = ship.fuel + '%'; fb.classList.toggle('low', ship.fuel < 20); }
+  const thrbar = document.getElementById('thrbar'); if (thrbar) thrbar.style.width = (ship.throttle * 100) + '%';
+  const thrt = document.getElementById('thrt'); if (thrt) thrt.textContent = Math.round(ship.throttle * 100) + '%';
+  const vnum = document.getElementById('vnum'); if (vnum) vnum.textContent = speed;
+  const eng = document.getElementById('eng');
+  if (eng) { const on = ship.thrusting; eng.className = on ? 'on' : 'off'; eng.textContent = ship.engineCut ? '引擎已切断' : (on ? (ship.boosting ? '▲ 加力推进' : '● 主推进') : '○ 引擎待机'); }
+  const rdist = document.getElementById('rdist'); if (rdist) rdist.textContent = m ? (dist < 999 ? dist.toFixed(0) : (dist / AU).toFixed(2) + 'AU') : '—';
+
+  // 任务条
+  const msn = document.getElementById('msn');
+  if (msn) msn.innerHTML = allDone ? '🛰 全部任务完成 · <span class="d">自由探索，点击天体查看资料</span>'
+    : '任务 ' + (missionIdx + 1) + '/' + MISSIONS.length + '：<b>' + m.name + '</b> · <span class="d">抵达 ' + AB[m.id].def.n + ' 附近 ' + m.range + ' 单位内（还剩 ' + Math.max(0, dist - m.range).toFixed(0) + '）</span>';
+
+  // 3p 角标
+  const chip = document.getElementById('chip');
+  if (chip) chip.innerHTML = '🚀 速度 ' + speed + ' m/s · 燃料 ' + Math.round(ship.fuel) + '% · 油门 ' + Math.round(ship.throttle * 100) + '%<br>' + (allDone ? '自由探索' : '目标：' + AB[m.id].def.n + ' · ' + (dist < 999 ? dist.toFixed(0) : (dist / AU).toFixed(2) + 'AU'));
+
+  if (viewMode !== '1p') return;
+
+  // 目标菱形标记（含屏幕外边缘指示）
+  const tm = document.getElementById('tmark');
+  if (tm && tPos) {
+    const s = project(tPos); let px = s.x, py = s.y;
+    const inb = s.front && px > 40 && px < innerWidth - 40 && py > 40 && py < innerHeight - 40;
+    if (!inb) { const cx = innerWidth / 2, cy = innerHeight / 2; let dx = px - cx, dy = py - cy; if (!s.front) { dx = -dx; dy = -dy; } const hw = cx - 70, hh = cy - 70; const sc = Math.min(hw / (Math.abs(dx) || 1e-6), hh / (Math.abs(dy) || 1e-6)); px = cx + dx * sc; py = cy + dy * sc; }
+    tm.style.display = ''; tm.style.left = px + 'px'; tm.style.top = py + 'px'; tm.style.transform = 'translate(-50%,-50%)';
+  } else if (tm) tm.style.display = 'none';
+
+  // 速度矢量标记
+  const vm = document.getElementById('vmark');
+  if (vm) {
+    if (ship.vel.length() > 0.5) { _tmp.copy(ship.pos).addScaledVector(ship.vel, 2); const s = project(_tmp); const inb = s.front && s.x > 0 && s.x < innerWidth && s.y > 0 && s.y < innerHeight; vm.style.display = inb ? '' : 'none'; if (inb) { vm.style.left = s.x + 'px'; vm.style.top = s.y + 'px'; vm.style.transform = 'translate(-50%,-50%)'; } }
+    else vm.style.display = 'none';
+  }
+
+  // 警告
+  if (ship.fuel <= 0) warn('⛔ 燃料耗尽 · 惰性回充中');
+  else if (ship.engineCut) warn('引擎已切断');
+  if (_warnT && now > _warnT) { document.getElementById('warn').classList.remove('show'); _warnT = 0; }
+  if (_toastT && now > _toastT) { document.getElementById('toast').classList.remove('show'); _toastT = 0; }
+}
+
+function toggleView() {
+  viewMode = viewMode === '1p' ? '3p' : '1p';
+  document.body.classList.toggle('view1p', viewMode === '1p');
+  document.body.classList.toggle('view3p', viewMode === '3p');
+  shipMesh.visible = viewMode === '3p';
+}
+
+// ===== 天体运动 =====
+function updateBodies(dt) {
+  const step = curScale() * dt;
+  for (const [id, d] of Object.entries(DB)) {
+    if (id === 'sun') continue;
+    const a = AB[id]; a.angle += os(d.per) * step;
+    a.mesh.position.set(Math.cos(a.angle) * d.o, 0, Math.sin(a.angle) * d.o);
+    a.mesh.rotateY(d.rot * step);
+  }
+  AB.sun.spin += DB.sun.rot * step; AB.sun.mesh.rotation.y = AB.sun.spin;
+  for (const [id, d] of Object.entries(MB)) {
+    const a = AB[id], par = AB[d.p]; if (!par) continue;
+    a.angle += d.sp * step; par.mesh.getWorldPosition(_tmp);
+    a.mesh.position.set(_tmp.x + Math.cos(a.angle) * d.o, _tmp.y, _tmp.z + Math.sin(a.angle) * d.o);
+    a.mesh.rotation.y += d.rot * step;
+    if (a.orbitLine) a.orbitLine.position.copy(_tmp);
+  }
+}
+
+// ===== 输入 =====
+function initInput() {
+  const cv = renderer.domElement; cv.style.cursor = 'grab';
+  let mDn = false, moved = false, downX = 0, downY = 0, lX = 0, lY = 0;
+  const ndc = new THREE.Vector2();
+
+  cv.addEventListener('pointerdown', e => { mDn = true; moved = false; downX = lX = e.clientX; downY = lY = e.clientY; cv.setPointerCapture(e.pointerId); cv.style.cursor = 'grabbing'; });
+  cv.addEventListener('pointermove', e => {
+    if (!mDn) return;
+    const dx = e.clientX - lX, dy = e.clientY - lY; lX = e.clientX; lY = e.clientY;
+    if (Math.abs(e.clientX - downX) + Math.abs(e.clientY - downY) > 4) moved = true;
+    ship.yaw -= dx * TURN; ship.pitch = Math.max(-1.5, Math.min(1.5, ship.pitch - dy * TURN));
+  });
+  cv.addEventListener('pointerup', e => {
+    mDn = false; cv.style.cursor = 'grab'; try { cv.releasePointerCapture(e.pointerId); } catch (_) {}
+    if (moved) return;
+    ndc.x = (e.clientX / innerWidth) * 2 - 1; ndc.y = -(e.clientY / innerHeight) * 2 + 1;
+    raycaster.setFromCamera(ndc, camera);
+    const hit = raycaster.intersectObjects(clickables)[0];
+    if (hit) select(hit.object.userData.id); else deselect();
+  });
+  cv.addEventListener('wheel', e => { e.preventDefault(); ship.throttle = Math.max(0, Math.min(1, ship.throttle + (e.deltaY < 0 ? 0.06 : -0.06))); }, { passive: false });
+
+  window.addEventListener('keydown', e => {
+    const k = e.key.toLowerCase(); keys[k] = true;
+    if (k === ' ') { e.preventDefault(); ship.engineCut = !ship.engineCut; }
+    else if (k === 'v') toggleView();
+    else if (k === 't') { showOrb = !showOrb; setOrbitsVisible(showOrb); }
+    else if (k === 'n') { showLbl = !showLbl; setLabelsVisible(showLbl); }
+    else if (k === 'm') { if (!allDone) { missionIdx = (missionIdx + 1) % MISSIONS.length; refreshUI(); } }
+  });
+  window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+  window.addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
+}
+const keys = {};
+
+// ===== 主循环 =====
+let lastT = 0, fps = 0, fa = 0, fn = 0;
+function loop(t) {
+  requestAnimationFrame(loop);
+  t = (t || 0) / 1000; let dt = t - lastT; lastT = t; if (dt > 0.05) dt = 0.05;
+  const now = performance.now();
+  updateBodies(dt);
+  updateShip(dt);
+  updateCamera(dt);
+  updateMission();
+  updateLabels();
+  updateCockpit(now);
+  fa += dt; fn++; if (fa >= 0.5) { fps = Math.round(fn / fa); fa = 0; fn = 0; }
+  renderer.render(scene, camera);
+  if (!loaded) { loaded = true; const l = document.getElementById('load'); l.style.opacity = '0'; setTimeout(() => l.style.display = 'none', 600); }
+}
+
+// ===== 启动（含 three.js 备用 CDN 降级与看门狗） =====
+function startGame() {
+  try { build(); }
+  catch (err) { showFatal(err); }
+}
+function showFatal(err) {
+  const l = document.getElementById('load'); l.style.opacity = '1'; l.style.display = 'flex';
+  l.innerHTML = '<div style="color:#ff8">⚠ 初始化失败</div><small style="color:#f88">' + (err && err.message ? err.message : err) + '</small><small>请刷新页面重试，或检查浏览器是否支持 WebGL</small>';
+}
+function loadFallback(list, i, ok, fail) {
+  if (i >= list.length) return fail();
+  const s = document.createElement('script'); s.src = list[i];
+  s.onload = () => window.THREE ? ok() : loadFallback(list, i + 1, ok, fail);
+  s.onerror = () => loadFallback(list, i + 1, ok, fail);
+  document.head.appendChild(s);
+}
+function boot() {
+  // 加载计时反馈，避免慢网下误以为卡死
+  let sec = 0; const sub = document.getElementById('ldsub');
+  const tk = setInterval(() => { sec++; if (sub && !loaded) sub.textContent = '首次加载 3D 引擎，已等待 ' + sec + 's…（网络较慢请耐心等待）'; if (loaded) clearInterval(tk); }, 1000);
+  if (window.THREE) return startGame();
+  document.getElementById('ldtxt').textContent = '📡 主源较慢，切换备用源…';
+  loadFallback(['https://unpkg.com/three@0.128.0/build/three.min.js', 'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js'], 0, startGame, () => {
+    const l = document.getElementById('load'); l.style.opacity = '1';
+    l.innerHTML = '<div style="color:#ff8">⚠ 无法加载 3D 引擎</div><small>three.js CDN 连接失败，请检查网络后刷新重试</small>';
+  });
+}
+boot();
+</script>
+</body>
+</html>
