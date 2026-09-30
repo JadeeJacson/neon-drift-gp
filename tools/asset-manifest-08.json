@@ -1,0 +1,127 @@
+[
+  {
+    "id": "kenney_pixel-platformer",
+    "url": "https://kenney.nl/media/pages/assets/pixel-platformer/33bb4921eb-1696667883/kenney_pixel-platformer.zip",
+    "dest": "assets/tilesets/kenney_pixel-platformer",
+    "license": "CC0",
+    "source_page": "https://kenney.nl/assets/pixel-platformer",
+    "note": "200 assets：16×16 平台跳跃 tileset + 角色 + 背景层，08 关卡 blockout 主力"
+  },
+  {
+    "id": "kenney_rpg-audio",
+    "url": "https://kenney.nl/media/pages/assets/rpg-audio/8e99002d76-1677590336/kenney_rpg-audio.zip",
+    "dest": "assets/audio/sfx/kenney_rpg-audio",
+    "license": "CC0",
+    "source_page": "https://kenney.nl/assets/rpg-audio",
+    "note": "50 个：脚步/跳跃/受击/拾取，横版动作必需的贴身音效"
+  },
+  {
+    "id": "kenney_digital-audio",
+    "url": "https://kenney.nl/media/pages/assets/digital-audio/216eac4753-1677590265/kenney_digital-audio.zip",
+    "dest": "assets/audio/sfx/kenney_digital-audio",
+    "license": "CC0",
+    "source_page": "https://kenney.nl/assets/digital-audio",
+    "note": "60 个：电子 blip/UI，霓虹界面的选择与确认音"
+  },
+  {
+    "id": "kenney_input-prompts",
+    "url": "https://kenney.nl/media/pages/assets/input-prompts/8de120163f-1783763952/kenney_input-prompts_1.5.zip",
+    "dest": "assets/ui/kenney_input-prompts",
+    "license": "CC0",
+    "source_page": "https://kenney.nl/assets/input-prompts",
+    "note": "1500 个键鼠/手柄提示图标，HUD 操作引导用"
+  },
+  {
+    "id": "oga_knight-hero",
+    "url": "https://opengameart.org/sites/default/files/knight_hero_platfomer.zip",
+    "dest": "assets/sprites/oga_knight-hero",
+    "license": "CC0",
+    "source_page": "https://opengameart.org/content/knight-hero-platformer-animation-pack",
+    "note": "骑士横版动作动画包：跑/跳/攻击/翻滚，可作主角候选与动画帧率参照"
+  },
+  {
+    "id": "oga_retro-lines",
+    "url": "https://opengameart.org/sites/default/files/Retro-Lines.zip",
+    "dest": "assets/tilesets/oga_retro-lines",
+    "license": "CC0",
+    "source_page": "https://opengameart.org/content/retro-lines-16x16-platformer-assets",
+    "note": "16×16 极简线条平台素材，霓虹剪影风的现成参照"
+  },
+  {
+    "id": "oga_pixel-adventure-1",
+    "url": "https://opengameart.org/sites/default/files/Pixel%20Adventure%201.zip",
+    "dest": "assets/sprites/pixel-adventure-1",
+    "license": "CC-BY 4.0（Pixel Frog，需署名）",
+    "source_page": "https://opengameart.org/content/pixel-adventure-1",
+    "note": "主角动画骨架：骑士/法师/盗贼等 8 角色的 idle/run/jump/fall/attack/hurt 全帧 + 敌人 + 陷阱 + tileset；itch 原站本机不可达，本包是 OGA 镜像"
+  },
+  {
+    "id": "kenney_roguelike-rpg-pack",
+    "url": "https://kenney.nl/media/pages/assets/roguelike-rpg-pack/12c03cd78b-1677697420/kenney_roguelike-rpg-pack.zip",
+    "dest": "assets/tilesets/kenney_roguelike-rpg-pack",
+    "license": "CC0",
+    "source_page": "https://kenney.nl/assets/roguelike-rpg-pack",
+    "note": "1700 个 16×16 tile（墙/地/装饰/角色），房间制 roguelite 关卡拼接用"
+  },
+  {
+    "id": "kenney_mini-dungeon",
+    "url": "https://kenney.nl/media/pages/assets/mini-dungeon/6cd72dc849-1785314274/kenney_mini-dungeon.zip",
+    "dest": "assets/tilesets/kenney_mini-dungeon",
+    "license": "CC0",
+    "source_page": "https://kenney.nl/assets/mini-dungeon",
+    "note": "8×8 迷你 tileset，小分辨率原型快速搭房间结构"
+  },
+  {
+    "id": "kenney_fonts",
+    "url": "https://kenney.nl/media/pages/assets/kenney-fonts/8d5435c213-1677661710/kenney_kenney-fonts.zip",
+    "dest": "assets/fonts/kenney_fonts",
+    "license": "CC0",
+    "source_page": "https://kenney.nl/assets/kenney-fonts",
+    "note": "11 个 TTF（含 Kenney Pixel / Future 等像素风），HUD 与菜单文本用"
+  },
+  {
+    "id": "oga_bgm_sirens-in-darkness",
+    "url": "https://opengameart.org/sites/default/files/012_Sirens_in_Darkness_0.mp3",
+    "dest": "assets/audio/music",
+    "as": "sirens-in-darkness_cynicinmusic.mp3",
+    "license": "CC0（cynicinmusic）",
+    "source_page": "https://opengameart.org/content/sirens-in-darkness",
+    "note": "探索/潜行段氛围，深潜主题主 BGM 候选（CC0 无署名压力）"
+  },
+  {
+    "id": "oga_bgm_perpetual-tension",
+    "url": "https://opengameart.org/sites/default/files/Zander%20Noriega%20-%20Perpetual%20Tension.mp3",
+    "dest": "assets/audio/music",
+    "as": "perpetual-tension_zander-noriega.mp3",
+    "license": "CC-BY 3.0（Zander Noriega，需署名）",
+    "source_page": "https://opengameart.org/content/perpetual-tension",
+    "note": "战斗/紧迫段 BGM 候选"
+  },
+  {
+    "id": "oga_bgm_in-darkness",
+    "url": "https://opengameart.org/sites/default/files/Of%20Far%20Different%20Nature%20-%20In%20Darkness%20%28CC-BY%29_0.mp3",
+    "dest": "assets/audio/music",
+    "as": "in-darkness_of-far-different-nature.mp3",
+    "license": "CC-BY 4.0（Of Far Different Nature，需署名）",
+    "source_page": "https://opengameart.org/content/in-darkness",
+    "note": "Boss 波/高压段 BGM 候选"
+  },
+  {
+    "id": "oga_sfx_hesitation-synth-loop",
+    "url": "https://opengameart.org/sites/default/files/POL-hesitation-short.mp3",
+    "dest": "assets/audio/music",
+    "as": "hesitation-synthloop_p02lypol.mp3",
+    "license": "CC-BY 3.0（P02LYP0L，需署名）",
+    "source_page": "https://opengameart.org/content/hesitation-synth-electronic-loop",
+    "note": "纯电子 synth 短循环，标题屏/菜单的「霓虹」音色样本（体积小，先拿到手试）"
+  },
+  {
+    "id": "oga_ref_cyberpunk-noir-tiles",
+    "url": "https://opengameart.org/sites/default/files/void-tiles_0.png",
+    "dest": "assets/references",
+    "as": "neon-tileset_cyberpunk-noir.png",
+    "license": "CC-BY 4.0（需署名）",
+    "source_page": "https://opengameart.org/content/cyberpunk-noir-tileset",
+    "note": "cyberpunk noir tileset，霓虹环景的现成调色盘参照（高饱和青紫 + 深黑底）"
+  }
+]

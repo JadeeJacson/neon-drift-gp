@@ -483,6 +483,20 @@ incompetech `pieces.json`（1442 首，CC-BY 4.0，改版后直链待重新定�
 | **dikhololo_night_1k.hdr** — 夜间环境（配合项目夜间霓虹路段） | Poly Haven | https://polyhaven.com/a/dikhololo_night （直链 https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/dikhololo_night_1k.hdr） | CC0 1.0 | `assets/hdri/polyhaven/dikhololo_night_1k.hdr`（1.66 MB） | 2026-09-28 |
 | **Kenney Nature Kit v2.1** — 329 个自然物模型（树 / 灌木 / 草 / 花 / 岩石），含 glTF / FBX / OBJ / STL 多格式 + `License.txt` | Kenney (kenney.nl) | https://kenney.nl/assets/nature-kit （直链 https://kenney.nl/media/pages/assets/nature-kit/37ac38a37b-1677698939/kenney_nature-kit.zip） | CC0 1.0 | `assets/models/environment/kenney_nature-kit/`（3618 文件 / 28.1 MB） | 2026-09-28 |
 | **ambientCG Road 007（1K JPG）** — 路面 PBR 三图：Color / NormalGL / Roughness，1024×1024 | ambientCG | https://ambientcg.com/view?id=Road007 （直链 https://ambientcg.com/get?file=Road007_1K-JPG.zip） | CC0 1.0 | `assets/textures/ambientcg/Road007/`（3 文件 / 2.92 MB） | 2026-09-28 |
+| **overcast_industrial_courtyard.hdr** — 阴天工业庭院天光，低对比冷调 | Poly Haven（摄影 Grzegorz Wronkowski） | https://polyhaven.com/a/overcast_industrial_courtyard | CC0 1.0 | `assets/hdri/overcast_industrial_courtyard.hdr`（5.92 MB） | 2026-09-28 |
+| **ambientCG Concrete 002（1K JPG）** — 混凝土 PBR：Color / NormalGL / Roughness | ambientCG | https://ambientcg.com/a/Concrete002 | CC0 1.0 | `assets/textures/ambientcg/Concrete002/`（3 文件 / 1.42 MB） | 2026-09-28 |
+| **ambientCG Metal Plates 001（1K JPG）** — 金属板 PBR：Color / NormalGL / NormalDX / Roughness / Metalness / Displacement | ambientCG | https://ambientcg.com/a/MetalPlates001 | CC0 1.0 | `assets/textures/ambientcg/MetalPlates001/`（6 文件 / 3.55 MB） | 2026-09-28 |
+
+> 后三项是同一批抓取里**已入库但当时未登记**的补记（12 号接入路面贴图时核对发现）。
+> 登记信息于 2026-09-28 通过官方接口核验，非凭记忆填写：
+> `api.polyhaven.com/info/overcast_industrial_courtyard` 返回作者 Grzegorz Wronkowski、
+> 分类 Courtyards & Quads；`ambientcg.com/api/v2/full_json?id=Concrete002|MetalPlates001`
+> 返回 displayName「Concrete 002」/「Metal Plates 001」与官方短链。
+>
+> **当前未被 12 号引用**：Concrete002 与 MetalPlates001 已入库待用（街区垫层混凝土 /
+> 金属构件是候选用途）；overcast_industrial_courtyard 是备选 HDRI，现用的是
+> `assets/hdri/polyhaven/urban_alley_01_1k.hdr`。按硬约束「素材逐项登记」，
+> 入库即登记，不因暂未使用而略去。
 
 > 命名提示：Poly Haven 的城市巷道条目实际名为 **`urban_alley_01`**（带 `_01` 序号），
 > 直链 `urban_alley_1k.hdr` 返回 404，后续抓取请勿省略序号。
@@ -510,3 +524,11 @@ incompetech `pieces.json`（1442 首，CC-BY 4.0，改版后直链待重新定�
 >
 > 编号说明：本节排在 §17 是因为 §16 已被「12 号驾驶游戏新增素材」占用（并发追加），
 > 编号不连续是有意的，内容无缺失。
+
+
+## §18 · 15 霓虹漂移 v1 音频（2026-09-28）
+
+| 名称 | 作者 | 来源 | 授权 | 用途 |
+|---|---|---|---|---|
+| 8-Bit jingles jingles_NES00.ogg | Kenney | kenney.nl Music Jingles | CC0 | award.ogg 完赛 |
+| 8-Bit jingles jingles_NES03.ogg | Kenney | kenney.nl Music Jingles | CC0 | go.ogg 起跑 |

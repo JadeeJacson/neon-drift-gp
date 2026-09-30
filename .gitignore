@@ -40,6 +40,11 @@ _scratch/
 _tmp/
 *.log
 
+# 解包铺错位置后的隔离区（内容均已重建到一包一目录的同名位置，确认后可直接删）
+assets/_flat-leftovers/
+# 下载半成品
+*.part
+
 # AI 助手运行时数据（内容与 docs/ 重复，不作权威记录）
 .workbuddy/
 .workbuddy-ai/
@@ -51,3 +56,7 @@ _tmp/
 # 用 /* 而非 / 结尾，才能对单个文件做例外放行：polypizza-index.json 是断点重下的依据
 assets/_downloads/*
 !assets/_downloads/polypizza-index.json
+
+# 工具运行时目录（非项目内容，不应入库）
+.playwright-mcp/
+.worktrees/

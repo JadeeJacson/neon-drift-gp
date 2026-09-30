@@ -1,0 +1,239 @@
+<!-- AI生成 -->
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#12041f" />
+  <title>Game Lab · 网页游戏大厅</title>
+  <style>
+    :root {
+      --bg: #12041f;
+      --ink: #f8f4ff;
+      --muted: rgba(248, 244, 255, 0.62);
+      --pink: #ff2d95;
+      --cyan: #2dfff3;
+      --yellow: #ffe600;
+      --purple: #b84dff;
+      --panel: rgba(18, 6, 40, 0.78);
+      --border: rgba(255, 45, 149, 0.45);
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      background:
+        radial-gradient(ellipse at 20% -10%, rgba(184, 77, 255, 0.28), transparent 50%),
+        radial-gradient(ellipse at 80% 0%, rgba(255, 45, 149, 0.18), transparent 45%),
+        var(--bg);
+      min-height: 100vh;
+    }
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 40px 20px 64px;
+    }
+    header { text-align: center; margin-bottom: 36px; }
+    .kicker {
+      letter-spacing: 0.3em;
+      font-size: 0.72rem;
+      color: var(--cyan);
+      margin: 0 0 10px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 6vw, 3rem);
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-shadow: 3px 3px 0 var(--pink);
+    }
+    .sub {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+    }
+    .card {
+      display: flex;
+      flex-direction: column;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      box-shadow:
+        0 0 0 1px rgba(45, 255, 243, 0.08),
+        0 16px 40px rgba(0, 0, 0, 0.35);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+    .card:hover, .card:focus-visible {
+      transform: translateY(-3px);
+      border-color: var(--cyan);
+      box-shadow:
+        0 0 0 1px rgba(45, 255, 243, 0.35),
+        0 0 32px rgba(45, 255, 243, 0.22),
+        0 20px 48px rgba(0, 0, 0, 0.4);
+      outline: none;
+    }
+    .art {
+      height: 140px;
+      position: relative;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+    .art .glyph {
+      font-size: 3.2rem;
+      filter: drop-shadow(0 0 16px rgba(0, 0, 0, 0.45));
+      z-index: 1;
+    }
+    .art .tag {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      z-index: 1;
+    }
+    .art.drift {
+      background:
+        repeating-linear-gradient(90deg, transparent 0 14px, rgba(45,255,243,0.12) 14px 15px),
+        linear-gradient(160deg, #3a0a5c, #12041f 60%, #0d1a3a);
+    }
+    .art.tokyo {
+      background:
+        linear-gradient(to top, rgba(18,4,31,0.2), transparent 40%),
+        repeating-linear-gradient(0deg, transparent 0 18px, rgba(255,45,149,0.08) 18px 19px),
+        linear-gradient(180deg, #1a0a40, #0a1030 55%, #05070d);
+    }
+    .art.solar {
+      background:
+        radial-gradient(circle at 70% 30%, rgba(255, 230, 0, 0.35), transparent 28%),
+        radial-gradient(circle at 30% 70%, rgba(45, 255, 243, 0.2), transparent 35%),
+        linear-gradient(160deg, #07041c, #12042a 50%, #03030c);
+    }
+    .body { padding: 16px 18px 20px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .body h2 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+    .body p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.5;
+      flex: 1;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .chip {
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      color: var(--cyan);
+      border: 1px solid rgba(45, 255, 243, 0.35);
+      background: rgba(45, 255, 243, 0.08);
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .play {
+      margin-top: 10px;
+      display: inline-block;
+      text-align: center;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      font-size: 0.82rem;
+      padding: 10px 12px;
+      border-radius: 4px;
+      background: rgba(255, 45, 149, 0.16);
+      border: 1px solid var(--pink);
+      color: var(--ink);
+    }
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+    }
+    footer a { color: var(--cyan); }
+  </style>
+</head>
+<body>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+
+  <div class="wrap">
+    <header>
+      <p class="kicker">WEB GAMES · 可直接游玩</p>
+      <h1>GAME LAB</h1>
+      <p class="sub">游戏实验室的网页作品大厅 — 点击卡片开玩，无需安装</p>
+    </header>
+
+    <main class="grid">
+      <a class="card" href="./games/neon-drift-gp/index.html">
+        <div class="art drift"><span class="tag">RACING</span><span class="glyph">🏎️</span></div>
+        <div class="body">
+          <h2>Neon Drift GP</h2>
+          <p>蒸汽波街机漂移。3 赛道，竞速 / 计时 / 杯赛，涂装解锁与氮气甩尾。</p>
+          <div class="meta">
+            <span class="chip">3 赛道</span>
+            <span class="chip">杯赛</span>
+            <span class="chip">触屏</span>
+          </div>
+          <span class="play">开始游玩 →</span>
+        </div>
+      </a>
+
+      <a class="card" href="./games/tokyo-city/index.html">
+        <div class="art tokyo"><span class="tag">SCENE</span><span class="glyph">🗼</span></div>
+        <div class="body">
+          <h2>Tokyo Cityscape</h2>
+          <p>程序化东京城市 3D 场景。涩谷、东京塔、晴空塔，昼夜切换与街头漫游。</p>
+          <div class="meta">
+            <span class="chip">日夜</span>
+            <span class="chip">驾驶</span>
+            <span class="chip">three.js</span>
+          </div>
+          <span class="play">开始游玩 →</span>
+        </div>
+      </a>
+
+      <a class="card" href="./games/solar-flight/index.html">
+        <div class="art solar"><span class="tag">SPACE</span><span class="glyph">🚀</span></div>
+        <div class="body">
+          <h2>Solar Flight</h2>
+          <p>太阳系自由航行模拟。行星轨道、时间加速、五段导航任务与自由探索。</p>
+          <div class="meta">
+            <span class="chip">太阳系</span>
+            <span class="chip">任务</span>
+            <span class="chip">CDN</span>
+          </div>
+          <span class="play">开始游玩 →</span>
+        </div>
+      </a>
+    </main>
+
+    <footer>
+      Game Lab · 静态托管 · Godot Web 版陆续加入
+    </footer>
+  </div>
+</body>
+</html>

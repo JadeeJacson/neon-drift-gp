@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TOKYO · 東京 — three.js 城市场景</title>
+<style>
+  :root { color-scheme: dark; }
+  /* 作者样式里的 display 会盖过 UA 的 [hidden]{display:none}，
+     HUD 切换显隐就全部失效（速度表会在观景模式也露出来）。这里统一兜底。 */
+  [hidden] { display: none !important; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #05070d; }
+  #app { position: fixed; inset: 0; }
+  canvas { display: block; }
+
+  #hud {
+    position: fixed; top: 14px; left: 14px; z-index: 10;
+    font-family: "Yu Gothic UI", "Meiryo", "Microsoft YaHei", sans-serif;
+    color: #e8ecf4; user-select: none;
+  }
+  #hud .title {
+    font-size: 15px; letter-spacing: 2px; font-weight: 600;
+    text-shadow: 0 1px 8px rgba(0,0,0,.8);
+  }
+  #hud .title small { opacity: .55; font-weight: 400; letter-spacing: 1px; }
+  #hud .row { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+  #hud button {
+    appearance: none; border: 1px solid rgba(255,255,255,.22);
+    background: rgba(10, 14, 24, .55); color: #e8ecf4;
+    font: 12.5px/1 "Yu Gothic UI", "Meiryo", "Microsoft YaHei", sans-serif;
+    padding: 6px 11px; border-radius: 999px; cursor: pointer;
+    backdrop-filter: blur(6px);
+  }
+  #hud button:hover { background: rgba(60, 80, 130, .55); }
+  #hud button.on { background: rgba(80, 130, 230, .75); border-color: rgba(160,200,255,.8); }
+  #hud .sep { width: 8px; }
+  #hint {
+    position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 10;
+    color: rgba(232,236,244,.6); font: 12px "Yu Gothic UI", "Meiryo", sans-serif;
+    text-shadow: 0 1px 6px rgba(0,0,0,.9); user-select: none; pointer-events: none;
+  }
+  #fps {
+    position: fixed; top: 14px; right: 14px; z-index: 10;
+    color: rgba(232,236,244,.5); font: 11px monospace; text-align: right;
+    text-shadow: 0 1px 4px #000; user-select: none;
+  }
+  #loading {
+    position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center;
+    background: #05070d; color: #9fb4d8; font: 14px "Yu Gothic UI", "Meiryo", sans-serif;
+    letter-spacing: 4px; transition: opacity .8s;
+  }
+  #loading.done { opacity: 0; pointer-events: none; }
+
+  /* ---- 驾驶 HUD ---- */
+  #speedo {
+    position: fixed; left: 18px; bottom: 16px; z-index: 10;
+    display: flex; align-items: baseline; gap: 6px;
+    color: #e8ecf4; text-shadow: 0 2px 10px rgba(0,0,0,.9);
+    user-select: none; pointer-events: none;
+  }
+  #speed-num { font: 700 52px/1 "Segoe UI", system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+  #speed-unit { font: 13px/1 "Yu Gothic UI", "Meiryo", sans-serif; opacity: .7; }
+  #drift-read {
+    position: fixed; left: 18px; bottom: 76px; z-index: 10;
+    font: 600 17px/1 "Segoe UI", system-ui, sans-serif; font-variant-numeric: tabular-nums;
+    color: #ffd76a; text-shadow: 0 2px 10px rgba(0,0,0,.9);
+    user-select: none; pointer-events: none; opacity: 0; transition: opacity .2s;
+  }
+
+  #objective {
+    position: fixed; top: 96px; right: 14px; z-index: 10;
+    min-width: 190px; text-align: right; color: #e8ecf4;
+    text-shadow: 0 2px 10px rgba(0,0,0,.9); user-select: none; pointer-events: none;
+  }
+  #obj-title { font: 600 13px/1.4 "Yu Gothic UI", "Meiryo", sans-serif; letter-spacing: 1px; opacity: .95; }
+  #obj-sub { font: 12px/1.4 "Yu Gothic UI", "Meiryo", sans-serif; opacity: .65; margin-top: 2px; }
+  #obj-timer {
+    font: 700 30px/1.1 "Segoe UI", system-ui, sans-serif; font-variant-numeric: tabular-nums;
+    margin-top: 4px;
+  }
+  #obj-timer.urgent { color: #ff6a5e; animation: pulse .6s infinite alternate; }
+  @keyframes pulse { from { opacity: 1; } to { opacity: .45; } }
+
+  #minimap {
+    position: fixed; right: 14px; bottom: 16px; z-index: 10;
+    width: 168px; height: 168px; border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.18);
+    background: rgba(6,9,16,.55); backdrop-filter: blur(4px);
+    opacity: .92;
+  }
+
+  /* ---- 面板 ---- */
+  .panel {
+    position: fixed; inset: 0; z-index: 30;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(4,6,12,.62); backdrop-filter: blur(7px);
+  }
+  .panel[hidden] { display: none; }
+  .panel-card {
+    width: min(560px, 92vw); max-height: 84vh; overflow-y: auto;
+    background: rgba(12,16,26,.94);
+    border: 1px solid rgba(255,255,255,.14); border-radius: 16px;
+    padding: 22px 24px; color: #e8ecf4;
+    font-family: "Yu Gothic UI", "Meiryo", "Microsoft YaHei", sans-serif;
+    box-shadow: 0 24px 70px rgba(0,0,0,.6);
+  }
+  .panel-card h2 { margin: 0 0 4px; font-size: 19px; letter-spacing: 2px; }
+  .panel-card .muted { font-size: 12.5px; opacity: .6; margin-bottom: 16px; line-height: 1.6; }
+  .circuit {
+    display: block; width: 100%; text-align: left; cursor: pointer;
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12);
+    border-radius: 11px; padding: 11px 14px; margin-bottom: 9px; color: #e8ecf4;
+    font: inherit; transition: background .15s, border-color .15s;
+  }
+  .circuit:hover { background: rgba(80,130,230,.18); border-color: rgba(150,190,255,.5); }
+  .circuit .row1 { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .circuit .nm { font-size: 15px; font-weight: 600; }
+  .circuit .tag { font-size: 11px; opacity: .55; }
+  .circuit .bl { font-size: 12px; opacity: .68; margin-top: 3px; line-height: 1.5; }
+  .circuit .best { font-size: 12px; color: #7ee3a8; font-variant-numeric: tabular-nums; }
+  .panel-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .btn {
+    appearance: none; cursor: pointer; color: #e8ecf4;
+    background: rgba(30,44,70,.85); border: 1px solid rgba(255,255,255,.18);
+    border-radius: 9px; padding: 9px 16px;
+    font: 13px/1 "Yu Gothic UI", "Meiryo", "Microsoft YaHei", sans-serif;
+  }
+  .btn:hover { background: rgba(60,92,150,.9); }
+  .btn.primary { background: rgba(70,120,225,.9); border-color: rgba(160,200,255,.7); }
+  .btn.primary:hover { background: rgba(96,150,255,.95); }
+
+  #countdown {
+    position: fixed; inset: 0; z-index: 25;
+    display: flex; align-items: center; justify-content: center;
+    font: 800 130px/1 "Segoe UI", system-ui, sans-serif;
+    color: #fff; text-shadow: 0 6px 40px rgba(0,0,0,.85);
+    pointer-events: none; opacity: 0;
+  }
+  #countdown.show { opacity: 1; }
+  #countdown.go { color: #7dff8a; }
+
+  .res-grid { display: grid; grid-template-columns: 1fr auto; gap: 7px 16px; margin: 14px 0 4px; font-size: 14px; }
+  .res-grid .k { opacity: .6; }
+  .res-grid .v { text-align: right; font-variant-numeric: tabular-nums; }
+  .res-grid .v.big { font-size: 20px; font-weight: 700; }
+  .record { color: #ffd76a; font-weight: 700; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<div id="hud">
+  <div class="title">TOKYO <small>· 東京シティ・スケープ</small></div>
+  <div class="row">
+    <button id="btn-day">白天</button>
+    <button id="btn-night">夜晚</button>
+    <button id="btn-auto">昼夜循环</button>
+    <div class="sep"></div>
+    <button id="v-shibuya">涩谷</button>
+    <button id="v-aerial">空中</button>
+    <button id="v-bay">海湾</button>
+    <button id="v-mtn">山村</button>
+    <button id="v-tower">东京塔</button>
+    <button id="v-skytree">晴空塔</button>
+    <div class="sep"></div>
+    <button id="m-orbit" class="on">观景</button>
+    <button id="m-walk">散步</button>
+    <button id="m-drive">驾驶</button>
+    <div class="sep"></div>
+    <button id="m-play">玩法</button>
+  </div>
+</div>
+<div id="hint">拖拽旋转 · 滚轮缩放 · WASD 自由移动 · Q/E 升降 · N 切换昼夜 · V 散步 / 驾驶</div>
+<div id="speedo" hidden><span id="speed-num">0</span><span id="speed-unit">km/h</span></div>
+<div id="drift-read">漂移 0</div>
+<div id="objective" hidden>
+  <div id="obj-title"></div>
+  <div id="obj-sub"></div>
+  <div id="obj-timer">00:00.0</div>
+</div>
+<canvas id="minimap" width="336" height="336" hidden></canvas>
+<div id="countdown"></div>
+
+<!-- 玩法选择 -->
+<div class="panel" id="menu-panel" hidden>
+  <div class="panel-card">
+    <h2>玩法</h2>
+    <div class="muted">竞速：按顺序穿过赛道闸门，圈速进本地存档。跑腿：接单后倒计时送达。<br />漂移时持续加分，撞车清零。</div>
+    <div id="circuit-list"></div>
+    <div class="panel-actions">
+      <button class="btn primary" id="btn-dispatch">接跑腿派单</button>
+      <button class="btn" id="btn-menu-close">返回</button>
+    </div>
+    <div class="muted" id="job-preview" style="margin:12px 0 0"></div>
+  </div>
+</div>
+
+<!-- 结算 -->
+<div class="panel" id="res-panel" hidden>
+  <div class="panel-card">
+    <h2 id="res-title">结算</h2>
+    <div class="muted" id="res-sub"></div>
+    <div class="res-grid" id="res-body"></div>
+    <div class="panel-actions">
+      <button class="btn primary" id="btn-again">再来一次</button>
+      <button class="btn" id="btn-free">自由驾驶</button>
+    </div>
+  </div>
+</div>
+
+<div id="fps"></div>
+<div id="loading">TOKYO を生成中…</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+  }
+}
+</script>
+<script>
+  // 运行期错误收集（自查用）
+  window.__errors = [];
+  window.addEventListener('error', (e) => window.__errors.push(String(e.message) + ' @ ' + String(e.filename).split('/').pop() + ':' + e.lineno));
+  window.addEventListener('unhandledrejection', (e) => window.__errors.push('rej: ' + String(e.reason && e.reason.stack || e.reason)));
+</script>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

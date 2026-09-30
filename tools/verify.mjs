@@ -50,7 +50,11 @@ function countProblems(text, ignoreTeardown = false) {
   // 于是固定报 `N ObjectDB instances were leaked` + `M resources still in use at exit`。
   // 实测：smoke（脚本模式）与 load（--quit）都会各报 2 条，量级与是否 -s 无关。
   // 这属于引擎收尾顺序，但排除必须按步骤显式声明，且计数照常打印——见 §5.0b 第 7 条。
-  const teardownRe = /ObjectDB instances were leaked|resources still in use at exit/;
+  // 2026-09-27（09 立项）追加：UI 多的工程（Label/Button + 导入纹理）退场时还会多报
+  //   `N RID allocations of type '...' were leaked at exit`（ERROR）
+  //   `N RIDs of type "..." were leaked`（WARNING）
+  // 同样是收尾顺序、同样只出现在加载即退出的步骤，业务层 ERROR/WARNING 仍然必须为 0。
+  const teardownRe = /ObjectDB instances were leaked|resources still in use at exit|RID allocations of type .* were leaked at exit|RIDs of type .* were leaked/;
   const patterns = [/\bERROR:/g, /\bWARNING:/g, /SCRIPT ERROR/g];
   let n = 0;
   let teardown = 0;
@@ -133,17 +137,36 @@ const GUT = [
   '-gexit',
 ];
 
-run('sim-tests', GUT, {
-  parse: (out) => {
-    // 全过时 GUT 只打「Asserts  430」，有失败时才打「Asserts  416/428」
-    const m = out.match(/Asserts\s+(\d+)(?:\s*\/\s*(\d+))?/);
-    const t = out.match(/Passing Tests\s+(\d+)/);
-    const f = out.match(/Failing Tests\s+(\d+)/);
-    if (!m && !t) return '无 GUT 输出（可能没有测试目录）';
-    const asserts = m ? (m[2] ? m[1] + '/' + m[2] : m[1]) : '?';
-    return `断言 ${asserts}  通过 ${t ? t[1] : '?'}  失败 ${f ? f[1] : '0'}`;
-  },
-});
+// sim/tests 是「玩法逻辑」的地基。TA 基准场（16）这类无玩法工程没有这一层，
+// 以前会无条件跑 GUT 而直接 FAIL；现在按目录存在与否启用，缺失时明确跳过。
+if (fs.existsSync(path.join(project, 'sim', 'tests'))) {
+  run('sim-tests', GUT, {
+    parse: (out) => {
+      // 全过时 GUT 只打「Asserts  430」，有失败时才打「Asserts  416/428」
+      const m = out.match(/Asserts\s+(\d+)(?:\s*\/\s*(\d+))?/);
+      const t = out.match(/Passing Tests\s+(\d+)/);
+      const f = out.match(/Failing Tests\s+(\d+)/);
+      if (!m && !t) return '无 GUT 输出（可能没有测试目录）';
+      const asserts = m ? (m[2] ? m[1] + '/' + m[2] : m[1]) : '?';
+      return `断言 ${asserts}  通过 ${t ? t[1] : '?'}  失败 ${f ? f[1] : '0'}`;
+    },
+  });
+}
+
+if (fs.existsSync(path.join(project, 'tools', 'ta_health_check.gd'))) {
+  // TA 基准场专用：无头只能验「场景装配」（几何面数、程序贴图是否真接到材质上、
+  // 预设开关、灯与阴影配额）；画面必须开窗口看，见工程 README。
+  run('ta-struct', [...headless, '-s', 'res://tools/ta_health_check.gd'], {
+    timeout: 180000,
+    ignoreTeardown: true,
+    parse: (out) => {
+      const ok = (out.match(/^\[OK\]/gm) || []).length;
+      const bad = (out.match(/^\[FAIL\]/gm) || []).length;
+      const tris = out.match(/TA-CHECK tris_arraymesh=(\d+)/);
+      return `断言 ${ok} 通过 / ${bad} 失败` + (tris ? `  ArrayMesh ${(+tris[1] / 1000).toFixed(0)}k 面` : '');
+    },
+  });
+}
 
 if (fs.existsSync(path.join(project, 'tools', 'verify_assets.gd'))) {
   run('assets', [...headless, '-s', 'res://tools/verify_assets.gd']);
@@ -172,7 +195,9 @@ if (fs.existsSync(path.join(project, 'tools', 'sim_report.gd'))) {
     parse: (out) => {
       const lines = out.split(/\r?\n/).filter((l) => /通关率|%/.test(l) && !/^=/.test(l));
       const rates = [];
-      for (const label of ['龟缩流', '普通', '高手']) {
+      // 画像名按项目而异：06 用「龟缩流/普通/高手」，11 用「乱建/均衡/最优」。
+      // 这里只做展示用的正则提取，匹配不到不影响 PASS/FAIL 判定。
+      for (const label of ['龟缩流', '普通', '高手', '乱建', '均衡', '最优']) {
         const m = out.match(new RegExp(label + '\\s+(\\d+)%'));
         if (m) rates.push(label + ' ' + m[1] + '%');
       }

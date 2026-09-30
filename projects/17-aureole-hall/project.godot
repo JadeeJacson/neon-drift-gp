@@ -1,0 +1,52 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; 17 · AUREOLE 光晕中庭 —— Godot 4.7.2 技术美术（TA）渲染上限测试场
+; 零外部素材：几何 / 贴图 / 材质全部在 GDScript 里程序化生成（不复用既有素材）。
+; 工程里没有任何 assets/ 引用，删掉 .godot 重建也不缺文件。
+
+config_version=5
+
+[application]
+
+config/name="17 AUREOLE HALL"
+config/description="Godot 4.7.2 TA 渲染上限测试场 · Forward+ / SDFGI / SSAO+SSIL / 体积雾 / TAA · 全程序化零素材 · 自由漫游查看器"
+run/main_scene="res://scenes/arena.tscn"
+config/features=PackedStringArray("4.7", "Forward Plus")
+; Esc 交给脚本处理：第一次释放鼠标，第二次才退出（见 bench_root.gd）
+run/quit_on_escape=false
+
+[display]
+
+window/size/viewport_width=1600
+window/size/viewport_height=900
+window/stretch/mode="disabled"
+
+[rendering]
+
+; 渲染路径：SDFGI / SSIL / 体积雾只在 Forward+ 下全量可用，这里显式写死
+renderer/rendering_method="forward_plus"
+; 抗锯齿：TAA 收敛静态画面 + 2x MSAA 处理透明/边缘；SDFGI 与体积雾噪声也被 TAA 抹平
+anti_aliasing/quality/use_taa=true
+anti_aliasing/quality/msaa_3d=2
+anti_aliasing/quality/use_debanding=true
+; 阴影：方向光 4096 + 16bit + 软阴影最高档（光柱边缘质量的关键）
+lights_and_shadows/directional_shadow/size=4096
+lights_and_shadows/directional_shadow/16_bits=true
+lights_and_shadows/directional_shadow/soft_shadow_filter_quality=3
+lights_and_shadows/directional_shadow/angle=0.5
+lights_and_shadows/positional_shadow/atlas_size=4096
+lights_and_shadows/positional_shadow/atlas_16_bits=true
+lights_and_shadows/positional_shadow/soft_shadow_filter_quality=3
+; 环境光遮蔽 / 间接光缝（质量项走项目级，开关在 WorldEnvironment 里）
+environment/ssao/quality=2
+environment/ssil/quality=2
+environment/volumetric_fog/volume_size=128
+environment/volumetric_fog/volume_depth=128
+; SDFGI：静态场景收敛慢一点换质量
+global_illumination/sdfgi/frames_to_converge=10
+; 贴图：4x 各向异性
+textures/default_filters/anisotropic_filtering=4
+; 3D 渲染缩放（截图工具运行期可临时改，见 tools/capture_shots.gd --scale=）
+scaling/3d/scale_3d=1.0

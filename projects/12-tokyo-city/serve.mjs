@@ -6,6 +6,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
+// lab 共享素材区：12 号要用引擎音 / HDRI / 路面贴图。
+// 浏览器把项目目录当根，无法直接 ../.. 取到 lab 的 assets/，所以开一条 /assets/ 路由。
+// 两条路径都做 containment 校验，避免 ../ 穿越（硬约束 6：素材只落在 lab 内）。
+const LAB_ASSETS = path.resolve(ROOT, '..', '..', 'assets');
 const PORT = Number(process.argv[2]) || 8177;
 
 const MIME = {
@@ -24,8 +28,11 @@ const MIME = {
 http
   .createServer((req, res) => {
     const urlPath = decodeURIComponent((req.url || '/').split('?')[0]);
-    let filePath = path.normalize(path.join(ROOT, urlPath));
-    if (!filePath.startsWith(ROOT)) {
+    const fromLab = urlPath === '/assets' || urlPath.startsWith('/assets/');
+    const base = fromLab ? LAB_ASSETS : ROOT;
+    const rel = fromLab ? urlPath.slice('/assets/'.length) : urlPath;
+    let filePath = path.normalize(path.join(base, rel));
+    if (!filePath.startsWith(base)) {
       res.writeHead(403);
       res.end('forbidden');
       return;

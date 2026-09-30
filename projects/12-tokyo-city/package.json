@@ -5,7 +5,8 @@
   "type": "module",
   "description": "12 - 东京市 3D 场景 demo（three.js，白天/夜晚）",
   "scripts": {
-    "start": "node serve.mjs"
+    "start": "node serve.mjs",
+    "test": "node tools/race-check.mjs"
   },
   "dependencies": {
     "three": "^0.180.0"
