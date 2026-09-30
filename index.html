@@ -1,3 +1,4 @@
+<!-- AI生成 -->
 <!doctype html>
 <html lang="zh-CN">
 <head>
@@ -124,6 +125,11 @@
         radial-gradient(circle at 30% 70%, rgba(45, 255, 243, 0.2), transparent 35%),
         linear-gradient(160deg, #07041c, #12042a 50%, #03030c);
     }
+    .art.dive {
+      background:
+        radial-gradient(circle at 50% 120%, rgba(45, 255, 243, 0.30), transparent 45%),
+        linear-gradient(180deg, #021a2e, #04122a 55%, #0a0420);
+    }
     .body { padding: 16px 18px 20px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
     .body h2 {
       margin: 0;
@@ -177,6 +183,8 @@
   </style>
 </head>
 <body>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+
   <div class="wrap">
     <header>
       <p class="kicker">WEB GAMES · 可直接游玩</p>
@@ -222,6 +230,20 @@
             <span class="chip">太阳系</span>
             <span class="chip">任务</span>
             <span class="chip">CDN</span>
+          </div>
+          <span class="play">开始游玩 →</span>
+        </div>
+      </a>
+
+      <a class="card" href="./games/neon-dive/index.html">
+        <div class="art dive"><span class="tag">GODOT</span><span class="glyph">🌊</span></div>
+        <div class="body">
+          <h2>Neon Dive</h2>
+          <p>2D 横版动作 Roguelite。霓虹深潜、敌群 A* 寻路、氧电跑分与视差调色。</p>
+          <div class="meta">
+            <span class="chip">Roguelite</span>
+            <span class="chip">横版</span>
+            <span class="chip">Godot</span>
           </div>
           <span class="play">开始游玩 →</span>
         </div>
