@@ -46,6 +46,12 @@ export class PlayController {
     this.mode = 'orbit';
     this.onHint = () => {};
     this.onCrash = () => {};   // 碰撞回调（游戏系统用来清漂移分）
+    this.onTrafficHit = () => {};
+    this.touch = null;         // TouchControls（手机触控），main.js 注入
+    this.traffic = null;       // Traffic（车流碰撞），main.js 注入
+    this.locked = false;       // 倒计时 / 暂停时锁住车
+    this.shakeEnabled = true;  // 设置项：镜头震动
+    this.odometer = 0;         // 累计行驶距离（米），用于统计
 
     // ---- 步行状态 ----
     this.pos = new THREE.Vector3(-8, 0, 140);
@@ -64,7 +70,7 @@ export class PlayController {
 
     // ---- 指针锁定（步行视角）----
     dom.addEventListener('click', () => {
-      if (this.mode === 'walk' && document.pointerLockElement !== dom) {
+      if (this.mode === 'walk' && !this.touch?.enabled && document.pointerLockElement !== dom) {
         dom.requestPointerLock();
       }
     });
@@ -111,7 +117,7 @@ export class PlayController {
     } else if (mode === 'walk') {
       this.pos.set(-8, 0, 140);
       this.yaw = Math.PI; this.pitch = -0.05; this.vy = 0;
-      this.dom.requestPointerLock?.();
+      if (!this.touch?.enabled) this.dom.requestPointerLock?.();
     } else if (mode === 'drive') {
       // 出生点：路口前，能直接上马路；朝向沿 x=0 主干道向北
       this.car.reset(-6, 190, Math.PI);
@@ -134,6 +140,39 @@ export class PlayController {
       }
     }
     return 0.1;
+  }
+
+  // 单个矩形的圆 vs AABB 推挤（车流用）
+  _collideRect(pos, radius, r, hitCb) {
+    const dx = pos.x - r.x, dz = pos.z - r.z;
+    const px = Math.abs(dx) - (r.hw + radius);
+    const pz = Math.abs(dz) - (r.hd + radius);
+    if (px >= 0 || pz >= 0) return;
+    let nx = 0, nz = 0;
+    if (px > pz) { pos.x += Math.sign(dx || 1) * -px; nx = Math.sign(dx || 1); }
+    else { pos.z += Math.sign(dz || 1) * -pz; nz = Math.sign(dz || 1); }
+    hitCb(nx, nz, Math.min(-px, -pz));
+  }
+
+  /** 把车放回最近的道路中心线，车头顺着道路方向（卡墙角 / 迷路时用） */
+  respawn(point) {
+    const car = this.car;
+    if (point) {
+      car.reset(point.x, point.z, point.yaw);
+    } else {
+      const { roadsV, roadsH } = this.layout;
+      const nv = roadsV.reduce((a, b) => (Math.abs(b.pos - car.pos.x) < Math.abs(a.pos - car.pos.x) ? b : a));
+      const nh = roadsH.reduce((a, b) => (Math.abs(b.pos - car.pos.z) < Math.abs(a.pos - car.pos.z) ? b : a));
+      const fx = Math.sin(car.yaw), fz = Math.cos(car.yaw);
+      if (Math.abs(nv.pos - car.pos.x) <= Math.abs(nh.pos - car.pos.z)) {
+        car.reset(nv.pos + (fz >= 0 ? 1 : -1) * nv.w * 0.18, car.pos.z, fz >= 0 ? 0 : Math.PI);
+      } else {
+        car.reset(car.pos.x, nh.pos + (fx >= 0 ? -1 : 1) * nh.w * 0.18, fx >= 0 ? Math.PI / 2 : -Math.PI / 2);
+      }
+      this._collide(car.pos, 1.25);
+    }
+    this.camYaw = car.yaw;
+    this.shake = 0;
   }
 
   // 圆 vs AABB 群推挤。hitCb 返回被撞到的法向（用于让车「贴着」墙滑而不是弹开）
@@ -223,15 +262,25 @@ export class PlayController {
     if (k.has('KeyS') || k.has('ArrowDown')) move.sub(fwd);
     if (k.has('KeyD') || k.has('ArrowRight')) move.add(right);
     if (k.has('KeyA') || k.has('ArrowLeft')) move.sub(right);
+    let run2 = run;
+    if (this.touch?.enabled) {
+      const ts = this.touch.state;
+      move.addScaledVector(fwd, ts.moveY).addScaledVector(right, ts.moveX);
+      if (ts.run) run2 = true;
+      const look = this.touch.consumeLook();
+      this.yaw -= look.dx * 0.005;
+      this.pitch = Math.max(-1.45, Math.min(1.45, this.pitch - look.dy * 0.005));
+    }
     const moving = move.lengthSq() > 0;
     if (moving) {
-      move.normalize().multiplyScalar(speed * dt);
+      const mag = Math.min(1, move.length());
+      move.normalize().multiplyScalar((run2 ? RUN : speed) * dt * Math.max(mag, 0.35));
       this.pos.add(move);
     }
 
     // 跳跃 / 重力
     const ground = this._groundHeight(this.pos.x, this.pos.z);
-    if (k.has('Space') && this.onGround) {
+    if ((k.has('Space') || this.touch?.state.jump) && this.onGround) {
       this.vy = JUMP_V;
       this.onGround = false;
     }
@@ -264,9 +313,23 @@ export class PlayController {
       steer: (k.has('KeyA') || k.has('ArrowLeft') ? 1 : 0) - (k.has('KeyD') || k.has('ArrowRight') ? 1 : 0),
       handbrake: k.has('Space'),
     };
+    if (this.touch?.enabled) {
+      const t = this.touch.drive;
+      input.throttle = input.throttle || t.throttle;
+      input.brake = input.brake || t.brake;
+      if (t.steer) input.steer = t.steer;
+      input.handbrake = input.handbrake || t.handbrake;
+    }
+    if (this.locked) {
+      // 倒计时：发动机可以轰，但车不许动
+      input.throttle = 0; input.brake = 0; input.handbrake = true;
+      this.car.vel.set(0, 0);
+    }
 
     let hitDepth = 0, hitNx = 0, hitNz = 0;
+    const px = this.car.pos.x, pz = this.car.pos.z;
     this.car.update(dt, input);
+    if (this.locked) { this.car.pos.x = px; this.car.pos.z = pz; this.car.vel.set(0, 0); }
 
     // 碰撞：把速度里撞墙的那一分吃掉，剩下的沿墙滑（不再是「整体乘 0.35」的顿挫感）
     this._collide(this.car.pos, 1.25, (nx, nz, depth) => {
@@ -283,6 +346,31 @@ export class PlayController {
       this.shake = Math.min(CAM.crashCap, this.shake + Math.min(CAM.crashCap, -vn * CAM.crashPerImpact));
     }
 
+    // 车流：和墙一样「吃掉朝向对方的速度」，但额外把一部分动量传给对方，并让对方停车
+    if (this.traffic) {
+      const rects = this.traffic.nearbyRects(this.car.pos.x, this.car.pos.z, 10);
+      let best = null;
+      for (const r of rects) {
+        this._collideRect(this.car.pos, 1.25, r, (nx, nz, depth) => {
+          if (!best || depth > best.depth) best = { nx, nz, depth, r };
+        });
+      }
+      if (best) {
+        const vn = this.car.vel.x * best.nx + this.car.vel.y * best.nz;
+        if (vn < 0) {
+          this.car.vel.x -= vn * best.nx * 1.25;   // 略带反弹
+          this.car.vel.y -= vn * best.nz * 1.25;
+          if (-vn > 3) {
+            this.onCrash(-vn);
+            this.onTrafficHit(-vn);
+            best.r.car.stun = 2.5;
+          }
+          this.shake = Math.min(CAM.crashCap, this.shake + Math.min(CAM.crashCap, -vn * CAM.crashPerImpact));
+        }
+      }
+    }
+    this.odometer += Math.hypot(this.car.pos.x - px, this.car.pos.z - pz);
+
     this._driveCamera(dt);
   }
 
@@ -296,7 +384,7 @@ export class PlayController {
     // 震动：碰撞瞬间 + 高速持续微颤（两种镜头共用）
     this.shake = Math.max(0, this.shake - dt * CAM.crashDecay);
     const speedRumble = clamp((kph - CAM.rumbleStart) / 250, 0, 1) * CAM.rumblePerSpeed;
-    const rumble = speedRumble + this.shake * CAM.crashShake;
+    const rumble = this.shakeEnabled ? speedRumble + this.shake * CAM.crashShake : 0;
     const t = performance.now() * 0.001;
 
     if (this.camMode === 1) {

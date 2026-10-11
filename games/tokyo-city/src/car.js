@@ -47,7 +47,8 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 export class Car {
   constructor({ scene, x = -8, z = 150, yaw = Math.PI, bodyColor = 0xd84a35 } = {}) {
-    this.tune = TUNE;
+    // 每台车一份调校副本：车库改装只改自己的，不污染全局默认值
+    this.tune = { ...TUNE };
 
     // ---- 状态 ----
     this.pos = new THREE.Vector3(x, 0, z);
@@ -78,6 +79,7 @@ export class Car {
       new THREE.MeshStandardMaterial({ color: bodyColor, roughness: 0.32, metalness: 0.35, emissive: 0x5a1206, emissiveIntensity: 1 }),
       0.35
     );
+    this.paintMat = paint;
     const glass = new THREE.MeshStandardMaterial({ color: 0x0d1014, roughness: 0.18, metalness: 0.5 });
     const trim = new THREE.MeshStandardMaterial({ color: 0x1b1d22, roughness: 0.7, metalness: 0.2 });
     const chrome = new THREE.MeshStandardMaterial({ color: 0xb8bcc4, roughness: 0.25, metalness: 0.9 });
@@ -169,6 +171,17 @@ export class Car {
     // 半路转弯时更会变成侧倾。表现就是「一给油车头就往下扎」。
     g.rotation.order = 'YXZ';
     scene.add(g);
+  }
+
+  /** 车库涂装：车漆颜色 + 同色系的夜间自发光 */
+  setPaint(hex) {
+    this.paintMat.color.setHex(hex);
+    this.paintMat.emissive.setHex(hex).multiplyScalar(0.28);
+  }
+
+  /** 车库改装：传入完整调校（见 progress.tunedCar） */
+  setTune(tune) {
+    this.tune = { ...TUNE, ...tune };
   }
 
   reset(x, z, yaw) {

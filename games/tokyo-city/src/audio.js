@@ -1,16 +1,17 @@
 // audio.js — 引擎 / 碰撞 / 胎噪。
 //
-// 素材来自 lab 共享区（CC0，已登记在 assets/SOURCES.md 第 15 节）：
+// 素材来源与授权见 CREDITS.md：
 //   引擎循环  assets/audio/sfx/oga_racing-engine-loops/loop_*.wav
 //   碰撞      assets/audio/sfx/kenney_impact-sounds/impactMetal_*.ogg
-// 通过 serve.mjs 的 /assets/ 路由取（见该文件顶部说明）。
+// 界面音效（倒计时、闸门、金币、喇叭、完赛）用振荡器现场合成，不额外占下载体积。
 //
 // 两条浏览器铁律：
 //   1) AudioContext 必须等用户手势才能启动 → arm() 挂一次性监听，交互前不建 ctx。
 //   2) 引擎音用 playbackRate 变调：wav 循环会同时变快变调，恰好就是引擎随转速升调的感觉，
 //      不用合成音。这里刻意不做「音高不变、只变音量」的假引擎。
 const ASSET = './assets/audio/sfx/';
-const ENGINE_LOOPS = ['loop_0.wav', 'loop_1_0.wav', 'loop_2_0.wav', 'loop_3_0.wav', 'loop_4_0.wav', 'loop_5_0.wav'];
+// 只用得到第一条能解码的循环；其余 5 条原本也会被打包下载，已从仓库移除
+const ENGINE_LOOPS = ['loop_0.wav'];
 const IMPACTS = [
   'impactMetal_heavy_000.ogg', 'impactMetal_heavy_002.ogg', 'impactMetal_heavy_004.ogg',
   'impactMetal_medium_001.ogg', 'impactMetal_medium_003.ogg',
@@ -32,6 +33,7 @@ export class AudioEngine {
     this.buffers = {};
     this.started = false;
     this._pendingImpact = 0;
+    this.volume = 0.7;
   }
 
   /** 等第一次用户手势再真正建 AudioContext */
@@ -52,7 +54,7 @@ export class AudioEngine {
     if (ctx.state === 'suspended') { try { await ctx.resume(); } catch { /* 等下一次手势 */ } }
 
     this.master = ctx.createGain();
-    this.master.gain.value = 0.5;
+    this.master.gain.value = this.volume * 0.75;
     this.master.connect(ctx.destination);
 
     await this.load();
@@ -154,6 +156,49 @@ export class AudioEngine {
   }
 
   setVolume(v) {
-    if (this.master) this.master.gain.value = clamp(v, 0, 1);
+    this.volume = clamp(v, 0, 1);
+    if (this.master) this.master.gain.value = this.volume * 0.75;
+  }
+
+  /** 暂停 / 切后台：直接挂起整个 AudioContext */
+  setPaused(on) {
+    if (!this.ctx) return;
+    if (on && this.ctx.state === 'running') this.ctx.suspend().catch(() => {});
+    if (!on && this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
+  }
+
+  // ---- 合成界面音效 ----
+  _tone(freq, dur, { type = 'sine', vol = 0.2, at = 0, slide = 0 } = {}) {
+    if (!this.ctx || !this.master || this.ctx.state !== 'running') return;
+    const ctx = this.ctx;
+    const t0 = ctx.currentTime + at;
+    const o = ctx.createOscillator();
+    o.type = type;
+    o.frequency.setValueAtTime(freq, t0);
+    if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, freq * slide), t0 + dur);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol, t0 + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g).connect(this.master);
+    o.start(t0);
+    o.stop(t0 + dur + 0.02);
+    o.onended = () => { try { o.disconnect(); g.disconnect(); } catch { /* 已断开 */ } };
+  }
+
+  sfx(name) {
+    switch (name) {
+      case 'tick': this._tone(660, 0.16, { type: 'square', vol: 0.09 }); break;
+      case 'go': this._tone(990, 0.42, { type: 'square', vol: 0.11 }); break;
+      case 'gate': this._tone(1320, 0.12, { vol: 0.12 }); this._tone(1760, 0.14, { vol: 0.09, at: 0.06 }); break;
+      case 'lap': [784, 988, 1175].forEach((f, i) => this._tone(f, 0.18, { type: 'triangle', vol: 0.13, at: i * 0.08 })); break;
+      case 'checkpoint': [880, 1320].forEach((f, i) => this._tone(f, 0.2, { type: 'triangle', vol: 0.13, at: i * 0.09 })); break;
+      case 'coin': this._tone(1568, 0.08, { type: 'square', vol: 0.06 }); this._tone(2093, 0.22, { type: 'square', vol: 0.06, at: 0.07 }); break;
+      case 'honk': this._tone(392, 0.32, { type: 'sawtooth', vol: 0.07 }); this._tone(466, 0.32, { type: 'sawtooth', vol: 0.05 }); break;
+      case 'fail': this._tone(330, 0.5, { type: 'sawtooth', vol: 0.08, slide: 0.5 }); break;
+      case 'finish': [523, 659, 784, 1047].forEach((f, i) => this._tone(f, 0.32, { type: 'triangle', vol: 0.14, at: i * 0.11 })); break;
+      case 'click': this._tone(1200, 0.04, { type: 'square', vol: 0.035 }); break;
+      default: break;
+    }
   }
 }

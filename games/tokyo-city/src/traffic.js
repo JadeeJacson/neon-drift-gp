@@ -107,6 +107,19 @@ export class Traffic {
     scene.add(this.group);
   }
 
+  /** 玩家附近的车流碰撞盒（车头沿 x 或 z 轴，AABB 足够） */
+  nearbyRects(x, z, r = 12) {
+    const out = this._rects || (this._rects = []);
+    out.length = 0;
+    for (const c of this.cars) {
+      if (c.x == null || Math.abs(c.x - x) > r || Math.abs(c.z - z) > r) continue;
+      out.push(c.vertical
+        ? { x: c.x, z: c.z, hw: 0.95, hd: 2.2, car: c }
+        : { x: c.x, z: c.z, hw: 2.2, hd: 0.95, car: c });
+    }
+    return out;
+  }
+
   positionAt(c) {
     // 日本靠左行驶：行进方向左侧偏移
     if (c.vertical) {
@@ -256,15 +269,31 @@ export class Traffic {
     this.group.add(this.crowdMesh);
   }
 
-  update(dt) {
+  /**
+   * player：玩家车 { pos, vel }（不在驾驶时传 null）。
+   * 车流会在玩家挡在本车道前方时减速让行；被撞后原地停一会儿再走。
+   */
+  update(dt, player = null) {
     // 车流
     const m = this._m, q = this._q, e = this._e, v = this._v, s = this._s;
     for (let i = 0; i < this.cars.length; i++) {
       const c = this.cars[i];
-      c.t += c.dir * c.speed * dt;
+      if (c.cur == null) { c.cur = c.speed; c.stun = 0; }
+      let want = c.speed;
+      if (c.stun > 0) { c.stun -= dt; want = 0; }
+      else if (player && c.x != null) {
+        // 玩家在本车前方 3~22m、横向 2.6m 以内 → 刹车让行
+        const dx = player.pos.x - c.x, dz = player.pos.z - c.z;
+        const along = c.vertical ? dz * c.dir : dx * c.dir;
+        const across = c.vertical ? dx : dz;
+        if (along > 0 && along < 22 && Math.abs(across) < 2.6) want = along < 8 ? 0 : c.speed * (along - 8) / 14;
+      }
+      c.cur += (want - c.cur) * Math.min(1, dt * (want < c.cur ? 4 : 1.2));
+      c.t += c.dir * c.cur * dt;
       if (c.t > 1250) c.t = -1250;
       if (c.t < -1250) c.t = 1250;
       const p = this.positionAt(c);
+      c.x = p.x; c.z = p.z;
       e.set(0, p.yaw, 0);
       q.setFromEuler(e);
       v.set(p.x, 0.11, p.z);

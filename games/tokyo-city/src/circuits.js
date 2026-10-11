@@ -56,6 +56,33 @@ export const JOBS = [
   mkJob('j5', '涩谷站', SHIBUYA, '郊区住宅区', SUBURB, 2000, '涩谷 → 郊区（长途）'),
 ];
 
+// 地标打卡赛：按顺序经过东京的代表地标，最后回到涩谷。
+// 订单点与打卡点共用同一批「已验证可达」的坐标（见上方 ODAIBA 的说明）。
+export const RALLY = {
+  id: 'rally', name: '东京地标打卡', difficulty: '耐力',
+  blurb: '涩谷 → 东京塔 → 湾岸台场 → 晴空塔 → 回到涩谷。路线自己选，越快越好。',
+  points: [
+    { name: '东京塔', xz: TOWER },
+    { name: '湾岸台场', xz: ODAIBA },
+    { name: '晴空塔', xz: SKYTREE },
+    { name: '涩谷站', xz: SHIBUYA },
+  ],
+  start: SHIBUYA,
+};
+
+/** 城市路网是棋盘格，用曼哈顿距离估算真实路程 */
+export function roadDistance(a, b) {
+  return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]);
+}
+
+export function rallyDistance(r = RALLY) {
+  let d = 0, prev = r.start;
+  for (const p of r.points) { d += roadDistance(prev, p.xz); prev = p.xz; }
+  return d;
+}
+
+export const POINT_RADIUS = 13;    // 订单点 / 打卡点的到达判定半径（米）
+
 export const GATE_SPACING = 210;   // 目标闸间距（米）
 export const GATE_RADIUS = 11;     // 判定半径（米）
 export const GATE_HIT_RADIUS = 9;  // 闸门环面半径（与判定一致，视觉上「穿环而过」）
