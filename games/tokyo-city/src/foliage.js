@@ -1,4 +1,4 @@
-// foliage.js — Kenney Nature Kit 植被接入（CC0，已登记 SOURCES.md §15）。
+// foliage.js — Kenney Nature Kit 植被接入（CC0，见 CREDITS.md）。
 //
 // 之前城里的绿只有三种东西：程序化行道树（圆柱 + 二十面体球冠）、公园一块纯色绿板、
 // 郊区一块纯色草坪板。远看还行，走进去就很假——尤其公园和农村，整块地是空的。

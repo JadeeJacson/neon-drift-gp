@@ -158,6 +158,8 @@ export class DayNightRig {
     this.bloom = new UnrealBloomPass(new THREE.Vector2(1920, 1080), 0.2, 0.55, 0.88);
     this.composer.addPass(this.bloom);
     this.composer.addPass(new OutputPass());
+    this.bloomOn = true;
+    this.focus = { x: 0, z: 0 };
 
     this._cFogDay = new THREE.Color(0xccd9e6);
     this._cFogNight = new THREE.Color(0x060a13);
@@ -209,8 +211,11 @@ export class DayNightRig {
     const elev = -14 + 72 * f;
     const sunDir = dirFrom(elev, -32);
     shared.uSunDir.value.copy(sunDir);
-    this.sun.position.copy(sunDir).multiplyScalar(1500);
-    this.sun.target.position.set(0, 0, 0);
+    // 阴影跟随玩家 / 镜头焦点：原来固定照在原点 ±700m，开出市中心就没有影子了。
+    // 焦点按 16m 网格吸附，避免阴影贴图每帧亚像素滑动造成的边缘闪烁。
+    const fx = Math.round(this.focus.x / 16) * 16, fz = Math.round(this.focus.z / 16) * 16;
+    this.sun.target.position.set(fx, 0, fz);
+    this.sun.position.copy(sunDir).multiplyScalar(1500).add(this.sun.target.position);
 
     // 月亮：固定东南高空
     const moonDir = dirFrom(48, 35);
@@ -246,7 +251,28 @@ export class DayNightRig {
     }
   }
 
+  /** 画质：阴影贴图尺寸（0 = 关闭阴影）、阴影覆盖半径 */
+  setShadows(size, extent = 700) {
+    const on = size > 0;
+    this.sun.castShadow = on;
+    this.renderer.shadowMap.enabled = on;
+    if (on && this.sun.shadow.mapSize.x !== size) {
+      this.sun.shadow.mapSize.set(size, size);
+      this.sun.shadow.map?.dispose();
+      this.sun.shadow.map = null;
+    }
+    const sc = this.sun.shadow.camera;
+    sc.left = -extent; sc.right = extent; sc.top = extent; sc.bottom = -extent;
+    sc.updateProjectionMatrix();
+  }
+
+  /** 画质：辉光后处理开关。关掉时直接渲染，省掉 5 级模糊链 */
+  setBloom(on) { this.bloomOn = on; }
+
+  setFocus(x, z) { this.focus.x = x; this.focus.z = z; }
+
   render() {
-    this.composer.render();
+    if (this.bloomOn) this.composer.render();
+    else this.renderer.render(this.scene, this.camera);
   }
 }

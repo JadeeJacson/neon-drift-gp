@@ -1,4 +1,4 @@
-// envmap.js — HDRI 环境光照接入（Poly Haven，CC0，已登记 SOURCES.md §15）。
+// envmap.js — HDRI 环境光照接入（Poly Haven，CC0，见 CREDITS.md）。
 //
 // 解决的是 env.js 里一直存在的一个问题：程序化城市里所有金属材质（车漆、车轮、
 // 晴空塔格构、东京塔桁架）没有环境贴图反射时会发黑，夜里尤其明显。
