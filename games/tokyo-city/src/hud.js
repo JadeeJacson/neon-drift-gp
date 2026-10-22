@@ -1,4 +1,5 @@
-// hud.js — 驾驶 HUD：速度表 / 计时 / 漂移分 / 目标提示 / 小地图 / 倒计时 / 结算面板。
+// hud.js — 驾驶 HUD：速度表 / 计时 / 漂移分 / 目标提示 / 导航箭头 / 小地图 / 倒计时 / 提示条。
+// 各种面板（菜单、结算、车库、设置）在 ui.js。
 //
 // 小地图的做法：路网是静态的，所以只在启动时把整个路网烘焙进一张离屏 canvas，
 // 之后每帧只从这张图上按「以车为中心」裁一块出来 blit。
@@ -26,8 +27,13 @@ export class Hud {
     this.objTimer = el('obj-timer');
     this.minimap = el('minimap');
     this.countdown = el('countdown');
-    this.menuPanel = el('menu-panel');
-    this.resPanel = el('res-panel');
+    this.objExtra = el('obj-extra');
+    this.nav = el('nav');
+    this.navArrow = el('nav-arrow');
+    this.navLabel = el('nav-label');
+    this.navDist = el('nav-dist');
+    this.moneyEl = el('money');
+    this.toasts = el('toasts');
 
     this.mmCtx = this.minimap.getContext('2d');
     this.bakeRoadmap();
@@ -101,13 +107,16 @@ export class Hud {
     if (!on) {
       this.driftRead.style.opacity = 0;
       this.objective.hidden = true;
+      this.nav.hidden = true;
     }
   }
 
-  setObjective(text, sub, timerSec, urgent) {
+  setObjective(text, sub, timerSec, urgent, extra) {
+    if (!text && !sub && timerSec == null) { this.objective.hidden = true; return; }
     this.objective.hidden = false;
     this.objTitle.textContent = text || '';
     this.objSub.textContent = sub || '';
+    this.objExtra.textContent = extra || '';
     if (timerSec == null) {
       this.objTimer.textContent = '';
     } else {
@@ -123,11 +132,40 @@ export class Hud {
     else { this.countdown.textContent = String(n); this.countdown.classList.remove('go'); }
   }
 
+  setMoney(n) { this.moneyEl.textContent = '¥' + Math.round(n).toLocaleString(); }
+
+  /** 屏幕中上方的短提示（圈速、打卡、撞车…） */
+  toast(text, kind = '') {
+    const t = document.createElement('div');
+    t.className = 'toast ' + kind;
+    t.textContent = text;
+    this.toasts.appendChild(t);
+    while (this.toasts.children.length > 3) this.toasts.firstChild.remove();
+    setTimeout(() => t.classList.add('out'), 1900);
+    setTimeout(() => t.remove(), 2400);
+  }
+
+  /**
+   * 指向导航目标的箭头。camYaw 与车 yaw 同一约定：前方 = (sin, cos)，角度增大 = 向左。
+   */
+  updateNav(target, car, camYaw) {
+    if (!target) { this.nav.hidden = true; return; }
+    this.nav.hidden = false;
+    const dx = target.x - car.pos.x, dz = target.z - car.pos.z;
+    const dist = Math.hypot(dx, dz);
+    let rel = Math.atan2(dx, dz) - camYaw;
+    while (rel > Math.PI) rel -= Math.PI * 2;
+    while (rel < -Math.PI) rel += Math.PI * 2;
+    this.navArrow.style.transform = `rotate(${(-rel * 180) / Math.PI}deg)`;
+    this.navLabel.textContent = target.label;
+    this.navDist.textContent = dist >= 1000 ? (dist / 1000).toFixed(1) + ' km' : Math.round(dist) + ' m';
+  }
+
   // ---- 小地图 ----
-  drawMinimap(car, game) {
+  drawMinimap(car, game, traffic) {
     const ctx = this.mmCtx;
     const W = this.minimap.width;
-    const { minX, minZ, scale, size } = this.mmWorld;
+    const { minX, minZ, scale } = this.mmWorld;
     const viewM = 1500;                       // 小地图覆盖 1500m 见方
     const srcPx = viewM * scale;
     const sx = (car.pos.x - minX) * scale - srcPx / 2;
@@ -135,9 +173,6 @@ export class Hud {
 
     ctx.clearRect(0, 0, W, W);
     ctx.save();
-    ctx.beginPath();
-    ctx.rect(0, 0, W, W);
-    ctx.clip();
     ctx.fillStyle = '#070d16';
     ctx.fillRect(0, 0, W, W);
     ctx.imageSmoothingEnabled = true;
@@ -147,100 +182,77 @@ export class Hud {
     const toX = (x) => (x - car.pos.x) * viewScale + W / 2;
     const toY = (z) => (z - car.pos.z) * viewScale + W / 2;
 
+    // 车流
+    if (traffic) {
+      ctx.fillStyle = 'rgba(200,210,230,.45)';
+      const half = viewM / 2;
+      for (const c of traffic.cars) {
+        if (c.x == null || Math.abs(c.x - car.pos.x) > half || Math.abs(c.z - car.pos.z) > half) continue;
+        ctx.fillRect(toX(c.x) - 1.5, toY(c.z) - 1.5, 3, 3);
+      }
+    }
+
     // 闸门
-    if (game && game.mode === 'circuit' && game.circuit) {
+    if (game && game.mode === 'circuit' && game.circuit && game.active) {
       const gates = game.circuit.gates;
+      ctx.strokeStyle = 'rgba(70,150,255,.35)';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      gates.forEach((g, i) => (i ? ctx.lineTo(toX(g.x), toY(g.z)) : ctx.moveTo(toX(g.x), toY(g.z))));
+      ctx.closePath();
+      ctx.stroke();
       for (let i = 0; i < gates.length; i++) {
         const g = gates[i];
         const isNext = i === game.gateIndex;
-        ctx.fillStyle = isNext ? '#4dffa6' : 'rgba(70,150,255,.55)';
+        ctx.fillStyle = isNext ? '#4dffa6' : i === 0 ? '#ffffff' : 'rgba(70,150,255,.7)';
         ctx.beginPath();
-        ctx.arc(toX(g.x), toY(g.z), isNext ? 6 : 4, 0, Math.PI * 2);
+        ctx.arc(toX(g.x), toY(g.z), isNext ? 7 : 4, 0, Math.PI * 2);
         ctx.fill();
       }
     }
-    // 派单目标
-    if (game && game.mode === 'job' && game.jobStage) {
-      const j = game.activeJob;
-      const t = game.jobStage === 'pickup' ? j.fromXZ : j.toXZ;
-      ctx.fillStyle = '#ffd23d';
-      ctx.beginPath();
-      ctx.arc(toX(t[0]), toY(t[1]), 7, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(255,210,61,.6)';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(toX(t[0]), toY(t[1]), 13, 0, Math.PI * 2);
-      ctx.stroke();
+
+    // 导航目标：超出地图范围时钉在边缘，并画成箭头
+    const t = game?.navTarget;
+    if (t && game.mode !== 'circuit') {
+      let x = toX(t.x), y = toY(t.z);
+      const m = 14;
+      const inside = x >= m && x <= W - m && y >= m && y <= W - m;
+      const color = game.mode === 'rally' ? '#ff5fd2' : game.jobStage === 'pickup' ? '#4dffa6' : '#ffd23d';
+      if (!inside) {
+        const cx = W / 2, cy = W / 2;
+        const ang = Math.atan2(y - cy, x - cx);
+        const k = Math.min((W / 2 - m) / Math.abs(Math.cos(ang) || 1e-6), (W / 2 - m) / Math.abs(Math.sin(ang) || 1e-6));
+        x = cx + Math.cos(ang) * k; y = cy + Math.sin(ang) * k;
+        ctx.save();
+        ctx.translate(x, y); ctx.rotate(ang);
+        ctx.fillStyle = color;
+        ctx.beginPath(); ctx.moveTo(12, 0); ctx.lineTo(-6, -9); ctx.lineTo(-6, 9); ctx.closePath(); ctx.fill();
+        ctx.restore();
+      } else {
+        ctx.fillStyle = color;
+        ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = color; ctx.globalAlpha = 0.6; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(x, y, 15, 0, Math.PI * 2); ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
     }
 
     // 自车：三角形指向车头
-    const cx = W / 2, cy = W / 2;
-    ctx.translate(cx, cy);
+    ctx.translate(W / 2, W / 2);
     ctx.rotate(-car.yaw);
     ctx.fillStyle = '#ff5f4a';
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(0, -9);
-    ctx.lineTo(6.5, 7);
-    ctx.lineTo(0, 3.5);
-    ctx.lineTo(-6.5, 7);
+    ctx.moveTo(0, -11);
+    ctx.lineTo(8, 9);
+    ctx.lineTo(0, 4.5);
+    ctx.lineTo(-8, 9);
     ctx.closePath();
+    ctx.stroke();
     ctx.fill();
     ctx.restore();
   }
-
-  // ---- 面板 ----
-  buildMenu(circuits, job) {
-    const list = el('circuit-list');
-    list.innerHTML = '';
-    for (const c of circuits) {
-      const b = document.createElement('button');
-      b.className = 'circuit';
-      b.innerHTML =
-        `<div class="row1"><span class="nm">${c.name}</span>` +
-        `<span class="tag">${c.laps} 圈 · ${c.difficulty}</span></div>` +
-        `<div class="bl">${c.blurb}</div>` +
-        `<div class="best">${c.best != null ? '最佳 ' + fmtTime(c.best) : '尚无记录'}</div>`;
-      b.onclick = () => this.onPickCircuit?.(c.id);
-      list.appendChild(b);
-    }
-    el('job-preview').textContent = `当前派单：${job.label} · 限时 ${job.limit}s · 酬金 ¥${job.pay}`;
-  }
-
-  openMenu() { this.menuPanel.hidden = false; }
-  closeMenu() { this.menuPanel.hidden = true; }
-  get menuOpen() { return !this.menuPanel.hidden; }
-
-  showResult(r) {
-    const title = el('res-title'), sub = el('res-sub'), body = el('res-body');
-    const row = (k, v, big) => `<div class="k">${k}</div><div class="v${big ? ' big' : ''}">${v}</div>`;
-    if (r.type === 'circuit') {
-      title.textContent = r.title + ' 完成';
-      sub.innerHTML = r.record
-        ? '<span class="record">新纪录！</span> 刷新了本地最佳成绩'
-        : `最佳成绩 ${fmtTime(r.prevBest)}`;
-      body.innerHTML =
-        row('用时', fmtTime(r.time), true) +
-        row('圈数', `${r.laps} 圈`) +
-        row('漂移分', r.drift) +
-        row('撞车', r.crashes + ' 次') +
-        row('奖金', '¥' + r.payout.toLocaleString());
-    } else {
-      title.textContent = r.title;
-      sub.textContent = r.success ? '准时送达，订单完成' : (r.reason || '订单失败');
-      body.innerHTML =
-        row('结果', r.success ? '完成' : '失败', true) +
-        row('用时', fmtTime(r.time)) +
-        row('剩余时间', r.success ? fmtTime(r.left) : '—') +
-        row('漂移分', r.drift) +
-        row('撞车', r.crashes + ' 次') +
-        row('酬金', '¥' + r.payout.toLocaleString());
-    }
-    this.resPanel.hidden = false;
-  }
-
-  closeResult() { this.resPanel.hidden = true; }
-  get resultOpen() { return !this.resPanel.hidden; }
 }
 
 export { fmtTime };

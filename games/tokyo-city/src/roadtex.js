@@ -1,4 +1,4 @@
-// roadtex.js — ambientCG Road007 沥青 PBR 接入（CC0，已登记 SOURCES.md §15）。
+// roadtex.js — ambientCG Road007 沥青 PBR 接入（CC0，见 CREDITS.md）。
 //
 // 之前路面是「一块纯色 + 一张高频噪声」，近看是糊的、远看是噪点。
 // 换上真实的 albedo / 法线 / 粗糙度三张图之后，路面才有骨料颗粒和湿痕。
