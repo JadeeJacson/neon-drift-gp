@@ -54,7 +54,7 @@ THE SOFTWARE.
 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>RANGE — 0.24 · 战术实验区</title>
+    <title>RANGE — 0.25 · 战术实验区</title>
     <style>
       :root {
         color-scheme: dark;
@@ -883,7 +883,7 @@ THE SOFTWARE.
         <div class="sub">PRIVATE TRAINING FACILITY / 01</div>
       </header>
       <main class="panel">
-        <div class="eyebrow" id="badge">BUILD 0.24 / 战术实验区</div>
+        <div class="eyebrow" id="badge">BUILD 0.25 / 战术实验区</div>
         <h1 id="menuTitle">第一枪，已就绪。</h1>
         <p class="intro">
           M4A1 / P226 / AK-47 / MP5<br />教程引导、六区 CQB 与幽灵挑战。<br />辨认目标，再扣动扳机。
@@ -983,9 +983,9 @@ THE SOFTWARE.
 <p>仅状态回放；不伤害、不补弹、不计分。无任意帧接管。自由镜头只沿世界轴平移。</p></section>
     <section id="hud" hidden aria-label="探索界面">
       <div class="topbar">
-        <div><strong>RANGE.</strong><small>0.24 / PHYSICS + STATE</small></div>
+        <div><strong>RANGE.</strong><small>0.25 / PHYSICS + STATE</small></div>
         <div class="topright">
-          <span id="fps">0.24 / OFFLINE</span><br /><span id="position"
+          <span id="fps">0.25 / OFFLINE</span><br /><span id="position"
             >X 0.0 Z 8.0</span
           ><button id="pause">ESC · 暂停</button>
         </div>
@@ -1134,7 +1134,7 @@ THE SOFTWARE.
     </div>
     <script>
 /* ═══════════════════════════════════════════════════════════════════
-  RANGE 0.24.0「战术实验区」· 设置与操控版（0.22 基线 → 0.23 移动适配 → 0.24 双端设置/灵敏度/开镜切换/射击转向，见 SECTION B0/F/G/H）
+  RANGE 0.25.0「战术实验区」· 红点瞄具版（0.22 基线 → 0.23 移动适配 → 0.24 设置操控 → 0.25 统一细边框红点，见 SECTION B0/B0b/F/G/H）
   来源: JadeeJacson/neon-drift-gp @ main, games/range/index.html
         （2026-10-26 提交「新增四款练手小游戏」，原始构建 1,029,475 字节）
   还原: 内联 JS 经 js-beautify 格式化（不折行/保留换行），并在已验证边界插入分区注释。
@@ -19733,7 +19733,7 @@ void main() {
    * 改动后请跑 test/smoke.js（桌面回归）与 test/mobile.js（移动端验收）。
    * ════════════════════════════════════════════════════════════════════════ */
   var RANGE_CONFIG = {
-    release: "0.24.0",
+    release: "0.25.0",
     render: {
       maxPixelRatio: 1.65,        // 桌面渲染像素比上限
       mobileMaxPixelRatio: 1.3    // 移动端像素比上限（性能优先）
@@ -19743,6 +19743,14 @@ void main() {
       stickDeadzone: 0.25,        // 摇杆死区（归一化）
       lookScale: 1.0,             // 转向灵敏度倍率（叠加游戏内灵敏度设置）
       tapKeyHoldMs: 120           // 点按键的虚拟按键保持时长
+    },
+    sights: {
+      ringRadius: .030,         // 步枪红点环半径 m
+      pistolRingRadius: .016,   // 手枪迷你红点环半径 m
+      rimThickness: .0018,      // 细边框厚度 m（验收 ≤0.002）
+      dotSize: .006,            // 步枪红点 sprite 尺寸
+      pistolDotSize: .0045,     // 手枪红点尺寸
+      lensOpacity: .05          // 镜片透明度
     },
     studio: {
       walkSpeed: 5,               // 战术实验区步行速度
@@ -31197,6 +31205,51 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     return n.colorSpace = me, n
   }
 
+  /* ════════════════════════════════════════════════════════════════════════
+   * [SECTION B0b] RANGE_SIGHT — 统一细边框红点瞄准镜构建器（0.25 新增）
+   * 所有武器瞄具统一为细边框红点；光轴 sightCenter 由各武器保持原值。
+   * 参数集中在 RANGE_CONFIG.sights。
+   * ════════════════════════════════════════════════════════════════════════ */
+  var RANGE_SIGHT = {
+    build(parent, center, opts = {}) {
+      const C = RANGE_CONFIG.sights;
+      const R = opts.radius ?? C.ringRadius;
+      const rim = C.rimThickness;
+      const g = new qt;
+      g.name = "reddotSight";
+      g.position.copy(center);
+      const housing = new Xt({ color: 0x1a1d1f, metalness: .85, roughness: .35 });
+      const ring = new at(new ei(R, rim, 10, 48), housing);
+      g.add(ring);
+      const lens = new at(new va(Math.max(.004, R - rim * 2), 40), new he({ color: 0x8fb6c9, transparent: !0, opacity: C.lensOpacity, depthWrite: !1, side: Be }));
+      lens.position.z = -.0005;
+      g.add(lens);
+      const baseH = R * .7;
+      const base = new at(new Ei(R * 1.15, baseH, R * .9, 2, Math.min(.002, baseH * .3)), new Xt({ color: 0x23272a, metalness: .8, roughness: .45 }));
+      base.position.y = -R - baseH / 2 + .002;
+      g.add(base);
+      if (opts.hood) for (const sgn of [-1, 1]) {
+        const wing = new at(new Ei(.003, R * 1.6, .012, 2, .001), housing);
+        wing.position.set(sgn * (R + .0025), R * .15, .004);
+        g.add(wing);
+      }
+      parent.add(g);
+      return { group: g, lens, ring, spec: { type: "reddot", ringRadius: R, rimThickness: rim, dotSize: opts.dotSize ?? C.dotSize, hood: !!opts.hood } };
+    },
+    dotTexture() {
+      return lp((ctx, w, h) => {
+        const grd = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2);
+        grd.addColorStop(0, "#ffffff");
+        grd.addColorStop(.16, "#ff2a1a");
+        grd.addColorStop(.42, "#ff2a1a");
+        grd.addColorStop(.55, "rgba(255,42,26,.4)");
+        grd.addColorStop(1, "rgba(255,42,26,0)");
+        ctx.fillStyle = grd;
+        ctx.fillRect(0, 0, w, h);
+      }, 64, 64);
+    }
+  };
+
   function Qg() {
     let s = new qt;
     s.name = "M4A1";
@@ -31312,31 +31365,15 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     let y = new qt;
     y.position.set(0, .094, .135), y.name = "chargingHandle", s.add(y), l(y, 0, 0, 0, .098, .017, .026, i, .003), l(y, -.056, 0, -.014, .024, .015, .037, e, .003), l(s, 0, .151, -.052, .05, .027, .077, e, .003), l(s, 0, .173, -.052, .025, .025, .052, i, .003);
     let _ = new I(0, .231, -.075);
-    h(s, 0, .231, -.075, .054, .13, e, "z", 32, !0);
-    for (let E of [-.141, -.009]) {
-      let F = new at(new ei(.054, .007, 8, 40), i);
-      F.position.set(0, .231, E), s.add(F)
-    }
-    h(s, .068, .231, -.075, .017, .036, e, "x"), h(s, 0, .295, -.075, .017, .035, e, "y");
-    let x = new at(new va(.049, 40), new he({
-      color: 6735810,
-      transparent: !0,
-      opacity: .08,
-      depthWrite: !1,
-      side: Be
-    }));
-    x.position.set(0, .231, -.137), s.add(x);
-    let S = lp((E, F, L) => {
-        let U = E.createRadialGradient(F / 2, L / 2, 0, F / 2, L / 2, F / 2);
-        U.addColorStop(0, "#fff9d5"), U.addColorStop(.12, "#ff5038"), U.addColorStop(.36, "#f6321870"), U.addColorStop(1, "#ff220000"), E.fillStyle = U, E.fillRect(0, 0, F, L)
-      }, 64, 64),
+    let x = RANGE_SIGHT.build(s, _, { radius: RANGE_CONFIG.sights.ringRadius, hood: true }).lens;
+    let S = RANGE_SIGHT.dotTexture(),
       w = new Ws(new vs({
         map: S,
         transparent: !0,
         depthWrite: !1,
         toneMapped: !1
       }));
-    w.position.copy(_), w.scale.set(.008, .008, 1), s.add(w);
+    w.position.copy(_), w.scale.set(RANGE_CONFIG.sights.dotSize, RANGE_CONFIG.sights.dotSize, 1), s.add(w);
     let A = lp((E, F, L) => {
         E.clearRect(0, 0, F, L), E.fillStyle = "#adb4aa", E.font = "bold 35px Arial", E.fillText("RANGE / M4A1", 20, 65), E.font = "23px monospace", E.fillText("5.56 \xD7 45   \u2022   001", 20, 106), E.font = "20px Arial", E.fillText("SAFE    SEMI    AUTO", 20, 156)
       }),
@@ -31377,6 +31414,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       muzzle: g,
       sightCenter: _,
       dot: w,
+      sight: { type: "reddot", ringRadius: RANGE_CONFIG.sights.ringRadius, rimThickness: RANGE_CONFIG.sights.rimThickness, dotSize: RANGE_CONFIG.sights.dotSize, hood: true },
       grip: new I(.015, -.17, .11),
       support: new I(-.035, -.064, -.36)
     }
@@ -31515,14 +31553,9 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (let x = .038; x < .109; x += .009) a(c, _ * .038, .064, x, .003, .051, .004, n, .001);
     for (let _ = -.155; _ < -.1; _ += .012) a(c, 0, .108, _, .04, .002, .004, n, .001);
     l(s, 0, .063, -.165, .016, .05, i), l(s, 0, .063, -.192, .01, .002, n), l(c, 0, .063, -.185, .019, .004, n);
-    for (let _ of [-1, 1]) {
-      a(c, _ * .018, .116, .101, .013, .028, .018, n, .002);
-      let x = new at(new Qe(.0038, 8, 6), o);
-      x.position.set(_ * .018, .124, .111), c.add(x)
-    }
-    a(c, 0, .116, -.169, .01, .022, .024, n, .002);
-    let d = new at(new Qe(.0035, 8, 6), o);
-    d.position.set(0, .124, -.158), c.add(d), l(s, 0, .031, .146, .012, .042, n, "x"), a(s, 0, .063, .144, .025, .032, .02, i, .003).rotation.x = -.35;
+    RANGE_SIGHT.build(c, new I(0, .124, .101), { radius: RANGE_CONFIG.sights.pistolRingRadius });
+    let d = new Ws(new vs({ map: RANGE_SIGHT.dotTexture(), transparent: !0, depthWrite: !1, toneMapped: !1 }));
+    d.position.set(0, .124, .101), d.scale.set(RANGE_CONFIG.sights.pistolDotSize, RANGE_CONFIG.sights.pistolDotSize, 1), c.add(d), l(s, 0, .031, .146, .012, .042, n, "x"), a(s, 0, .063, .144, .025, .032, .02, i, .003).rotation.x = -.35;
     for (let _ of [-1, 1]) a(s, _ * .039, .009, .051, .009, .013, .04, n, .003), a(s, _ * .04, -.015, .078, .009, .012, .027, e, .003), l(s, _ * .039, -.025, .052, .009, .005, n, "x");
     let f = document.createElement("canvas");
     f.width = 512, f.height = 128;
@@ -31558,6 +31591,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       charging: c,
       muzzle: g,
       sightCenter: new I(0, .124, .101),
+      sight: { type: "reddot", ringRadius: RANGE_CONFIG.sights.pistolRingRadius, rimThickness: RANGE_CONFIG.sights.rimThickness, dotSize: RANGE_CONFIG.sights.pistolDotSize, hood: false },
       grip: new I(.016, -.112, .092),
       support: new I(-.029, -.12, .065)
     }
@@ -31627,9 +31661,10 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     c(p, 0, t ? -.35 : -.315, t ? -.185 : -.11, t ? .078 : .052, .016, t ? .104 : .076, o).rotation.x = t ? .55 : .25;
     let m = new qt;
     m.name = "action", m.position.z = -.04, e.add(m), c(m, .044, .025, -.04, .009, .045, .09, r), d(m, .07, .027, -.025, .009, .055, o, "x");
-    for (let T of [-.018, .018]) c(e, T, .137, .05, .012, .025, .028, o, .002);
     let g = new I(0, .148, .05);
-    t && c(e, 0, .13, .025, .045, .015, .12, n);
+    RANGE_SIGHT.build(e, g, { radius: RANGE_CONFIG.sights.ringRadius * .85 });
+    let rd = new Ws(new vs({ map: RANGE_SIGHT.dotTexture(), transparent: !0, depthWrite: !1, toneMapped: !1 }));
+    rd.position.copy(g), rd.scale.set(RANGE_CONFIG.sights.dotSize, RANGE_CONFIG.sights.dotSize, 1), e.add(rd);
     let y = new Ce;
     y.position.set(0, .01, t ? -.846 : -.64), e.add(y);
     let _ = document.createElement("canvas");
@@ -31661,6 +31696,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       charging: u || m,
       muzzle: y,
       sightCenter: g,
+      sight: { type: "reddot", ringRadius: RANGE_CONFIG.sights.ringRadius * .85, rimThickness: RANGE_CONFIG.sights.rimThickness, dotSize: RANGE_CONFIG.sights.dotSize, hood: false },
       grip: new I(.015, -.17, .11),
       support: new I(-.035, -.064, f)
     }
@@ -33024,7 +33060,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       Oi = !1, ge.stop(), Oe.suspend();
       return
     }
-    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.24 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
+    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.25 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
   }
   ge.onPause = Sn;
   ge.onLookMode = s => {
@@ -33129,7 +33165,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (let i = 0; i < e; i++) fr.update(t / e, ke, Yt, ge);
       ki()
     }
-    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.24 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
+    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.25 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
   }
 /* ════════════════════════════════════════════════════════════════════════
  * [SECTION E] QA 调试接口 window.__RANGE__（URL 带 ?qa 时启用扩展方法）
@@ -33549,6 +33585,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     touch: RANGE_TOUCH,
     settings: () => Yt.settings,
     adsActive: () => ke.ads,
+    sights: () => fr.models.map(m => ({ id: m.root.name, ...m.sight, sightCenter: m.sightCenter.toArray() })),
     settingsUI: RANGE_SETTINGS,
     qa: window.__RANGE__
   };
