@@ -54,7 +54,7 @@ THE SOFTWARE.
 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>RANGE — 0.29 · 战术实验区</title>
+    <title>RANGE — 0.30 · 战术实验区</title>
     <style>
       :root {
         color-scheme: dark;
@@ -899,6 +899,27 @@ THE SOFTWARE.
       #dkrTime { font-size: 24px; font-weight: 800; }
       #dkrBest { font-size: 13px; margin: 6px 0 14px; opacity: .8; }
       @media (pointer: coarse) { .dkCardBtn { width: 64px; height: 88px; } #dkLevelList { grid-template-columns: repeat(5, 1fr); } }
+      /* ═══ RANGE 0.30 · BREACH 劫案翼 + 粗野主义 ═══ */
+      #breachHud { position: fixed; left: calc(18px + env(safe-area-inset-left)); top: calc(60px + env(safe-area-inset-top)); z-index: 55; pointer-events: none; color: #e8e4dc; font-family: monospace; text-shadow: 0 1px 4px #000; }
+      #breachHud[hidden] { display: none; }
+      #brMap { font-size: 16px; font-weight: 800; letter-spacing: .25em; }
+      #brPhase { font-size: 13px; color: #ff3b30; font-weight: 700; margin: 2px 0; }
+      #brAlarm { font-size: 24px; font-weight: 800; color: #ff3b30; }
+      #brLoot { font-size: 14px; }
+      #brHealth { font-size: 16px; color: #ff3b30; letter-spacing: 3px; }
+      #brHint { font-size: 11px; opacity: .75; margin-top: 6px; max-width: 240px; }
+      #breachMenu, #breachResult { position: fixed; inset: 0; z-index: 160; background: rgba(18,16,14,.9); display: flex; align-items: center; justify-content: center; }
+      #breachMenu[hidden], #breachResult[hidden] { display: none; }
+      .brCard { background: #2a2622; color: #e8e4dc; border: 1px solid #5a5248; border-radius: 0; width: min(480px, 94vw); max-height: 92dvh; overflow: auto; font-family: monospace; }
+      .brCard h2 { color: #ff3b30; letter-spacing: .15em; border-bottom: 2px solid #ff3b30; padding-bottom: 8px; font-size: 16px; }
+      .brSub { font-size: 12px; opacity: .8; margin: 8px 0 12px; }
+      #brMapList { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+      #brMapList button { background: #1a1816; border: 1px solid #5a5248; color: #e8e4dc; padding: 14px 10px; font-family: monospace; cursor: pointer; text-align: left; }
+      #brMapList button:hover { border-color: #ff3b30; }
+      #brMapList button small { display: block; opacity: .6; font-size: 10px; margin-top: 4px; }
+      .brCard button { background: #ff3b30; color: #fff; border: none; padding: 9px 16px; font-family: monospace; cursor: pointer; margin: 4px 4px 0 0; }
+      #brrScore { font-size: 28px; font-weight: 800; color: #ff3b30; margin: 8px 0; }
+      #brrStats { font-size: 12px; margin: 8px 0 14px; line-height: 1.6; }
 </style>
   </head>
   <body>
@@ -977,7 +998,7 @@ THE SOFTWARE.
         <div class="sub">PRIVATE TRAINING FACILITY / 01</div>
       </header>
       <main class="panel">
-        <div class="eyebrow" id="badge">BUILD 0.29 / 战术实验区</div>
+        <div class="eyebrow" id="badge">BUILD 0.30 / 战术实验区</div>
         <h1 id="menuTitle">第一枪，已就绪。</h1>
         <p class="intro">
           M4A1 / P226 / AK-47 / MP5<br />教程引导、六区 CQB 与幽灵挑战。<br />辨认目标，再扣动扳机。
@@ -1006,7 +1027,7 @@ THE SOFTWARE.
         <button id="start">进入靶场 →</button>
         <div class="secondary">
           <button id="reset">重置出生点</button
-          ><button id="helpToggle">操作说明</button><button id="settingsOpen">游戏设置</button><button id="reactiveToggle">反应靶场 · 关</button><button id="staticEnter" class="studioEntry">STATIC · 时间只随你流动 →</button><button id="forensicsEnter" class="studioEntry">FORENSICS · 法证瞄准训练 →</button><button id="deckEnter" class="studioEntry">DECK RUN · 卡牌速通 →</button>
+          ><button id="helpToggle">操作说明</button><button id="settingsOpen">游戏设置</button><button id="reactiveToggle">反应靶场 · 关</button><button id="staticEnter" class="studioEntry">STATIC · 时间只随你流动 →</button><button id="forensicsEnter" class="studioEntry">FORENSICS · 法证瞄准训练 →</button><button id="deckEnter" class="studioEntry">DECK RUN · 卡牌速通 →</button><button id="breachEnter" class="studioEntry">BREACH · 可破坏劫案 →</button>
         </div>
         <div class="settings">
           <label for="sensitivity"
@@ -1077,9 +1098,9 @@ THE SOFTWARE.
 <p>仅状态回放；不伤害、不补弹、不计分。无任意帧接管。自由镜头只沿世界轴平移。</p></section>
     <section id="hud" hidden aria-label="探索界面">
       <div class="topbar">
-        <div><strong>RANGE.</strong><small>0.29 / PHYSICS + STATE</small></div>
+        <div><strong>RANGE.</strong><small>0.30 / PHYSICS + STATE</small></div>
         <div class="topright">
-          <span id="fps">0.29 / OFFLINE</span><br /><span id="position"
+          <span id="fps">0.30 / OFFLINE</span><br /><span id="position"
             >X 0.0 Z 8.0</span
           ><button id="pause">ESC · 暂停</button>
         </div>
@@ -1246,6 +1267,31 @@ THE SOFTWARE.
         <button id="dkrMenu">关卡菜单</button>
       </div>
     </div>
+    <div id="breachHud" hidden>
+      <div id="brMap">WAREHOUSE</div>
+      <div id="brPhase">规划阶段</div>
+      <div id="brAlarm"></div>
+      <div id="brLoot">赃物 0/3</div>
+      <div id="brHealth">● ● ●</div>
+      <div id="brHint">点击地面标记路线 · 空格开始行动</div>
+    </div>
+    <div id="breachMenu" hidden>
+      <div class="sbCard brCard">
+        <h2>BREACH · 可破坏劫案</h2>
+        <p class="brSub">规划路线 → 执行。打穿墙体创造视线，避开守卫，取赃撤离。</p>
+        <div id="brMapList"></div>
+        <button id="brBack">返回</button>
+      </div>
+    </div>
+    <div id="breachResult" hidden>
+      <div class="sbCard brCard">
+        <h2 id="brrTitle">行动结束</h2>
+        <div id="brrScore"></div>
+        <div id="brrStats"></div>
+        <button id="brrRetry">重跑</button>
+        <button id="brrMenu">地图菜单</button>
+      </div>
+    </div>
     <div id="settingsOverlay" hidden>
       <div id="settingsDesktop" class="settingsCard" hidden>
         <header><h2>游戏设置 · 桌面端</h2><button id="settingsCloseD">✕ 关闭</button></header>
@@ -1314,7 +1360,7 @@ THE SOFTWARE.
     </div>
     <script>
 /* ═══════════════════════════════════════════════════════════════════
-  RANGE 0.29.0「战术实验区」· DECK RUN 卡牌翼（…→ 0.28 法证 → 0.29 卡牌速通+赛璐璐，见 SECTION L）
+  RANGE 0.30.0「战术实验区」· BREACH 劫案翼（…→ 0.29 卡牌 → 0.30 劫案+粗野主义+模块/破坏套件，见 SECTION M）
   来源: JadeeJacson/neon-drift-gp @ main, games/range/index.html
         （2026-10-26 提交「新增四款练手小游戏」，原始构建 1,029,475 字节）
   还原: 内联 JS 经 js-beautify 格式化（不折行/保留换行），并在已验证边界插入分区注释。
@@ -19913,7 +19959,7 @@ void main() {
    * 改动后请跑 test/smoke.js（桌面回归）与 test/mobile.js（移动端验收）。
    * ════════════════════════════════════════════════════════════════════════ */
   var RANGE_CONFIG = {
-    release: "0.29.0",
+    release: "0.30.0",
     render: {
       maxPixelRatio: 1.65,        // 桌面渲染像素比上限
       mobileMaxPixelRatio: 1.3    // 移动端像素比上限（性能优先）
@@ -33248,7 +33294,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       Oi = !1, ge.stop(), Oe.suspend();
       return
     }
-    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.29 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
+    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.30 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
   }
   ge.onPause = Sn;
   ge.onLookMode = s => {
@@ -33353,7 +33399,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (let i = 0; i < e; i++) fr.update(t / e, ke, Yt, ge);
       ki()
     }
-    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.29 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
+    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.30 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
   }
 /* ════════════════════════════════════════════════════════════════════════
  * [SECTION E] QA 调试接口 window.__RANGE__（URL 带 ?qa 时启用扩展方法）
@@ -34563,6 +34609,219 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
   })();
 
   RANGE_API.deckrun = RANGE_DECKRUN;
+  RANGE_API.draw = () => ki();
+
+  /* ════════════════════════════════════════════════════════════════════════
+   * [SECTION M] BREACH 劫案 + 粗野主义 + 模块套件 D3 + 破坏套件 D4（0.30 / M6）
+   * RANGE_KIT：网格模数房间装配（墙/地/掩体/门）。RANGE_DESTRUCT：预碎裂墙体，
+   * 命中脱落创造视线。RANGE_BREACH：5 图，规划→执行双阶段，守卫巡逻+射击，
+   * 赃物计分+警报倒计时+粗野主义混凝土/应急红。
+   * ════════════════════════════════════════════════════════════════════════ */
+  var RANGE_KIT = (() => {
+    function concreteTex(base) {
+      return lp((ctx, w, h) => {
+        ctx.fillStyle = base; ctx.fillRect(0, 0, w, h);
+        for (let i = 0; i < 2600; i++) { const g = 120 + Math.random() * 80; ctx.fillStyle = "rgba(" + g + "," + g + "," + (g - 8) + ",0.12)"; ctx.fillRect(Math.random() * w, Math.random() * h, 2, 2); }
+        ctx.strokeStyle = "rgba(0,0,0,0.15)"; for (let i = 0; i < 6; i++) { ctx.beginPath(); ctx.moveTo(Math.random() * w, 0); ctx.lineTo(Math.random() * w, h); ctx.stroke(); }
+      }, 128, 128);
+    }
+    const tex = concreteTex("#8a8580");
+    const wallMat = new Xt({ map: tex, roughness: .92, metalness: 0 });
+    const floorMat = new Xt({ color: 0x5a5550, roughness: .95 });
+    function floor(g, x, z, w, d) { const m = new at(new Ei(w, .2, d, 1, .02), floorMat); m.position.set(x, -.1, z); m.receiveShadow = true; g.add(m); return m; }
+    function wall(g, x, z, w, h, ry) { const m = new at(new Ei(w, h, .25, 1, .02), wallMat); m.position.set(x, h / 2, z); m.rotation.y = ry || 0; m.castShadow = m.receiveShadow = true; g.add(m); return m; }
+    function cover(g, x, z, w, h) { const m = new at(new Ei(w, h, w, 2, .04), wallMat); m.position.set(x, h / 2, z); m.castShadow = true; g.add(m); return m; }
+    function assemble(g, layout) {
+      floor(g, 0, -10, 30, 40);
+      for (const w of layout.walls) wall(g, w[0], w[1], w[2], w[3] || 3, w[4] || 0);
+      for (const c of layout.cover) cover(g, c[0], c[1], c[2] || 1.2, c[3] || 1.2);
+    }
+    return { wallMat, floorMat, floor, wall, cover, assemble, concreteTex };
+  })();
+
+  var RANGE_DESTRUCT = (() => {
+    const chunks = [];
+    function wall(g, x, z, w, h, cols, rows) {
+      const cw = w / cols, ch = h / rows;
+      const grp = new qt; grp.position.set(x, 0, z); g.add(grp);
+      const list = [];
+      for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) {
+        const m = new at(new Ei(cw * .96, ch * .96, .22, 1, .01), RANGE_KIT.wallMat);
+        m.position.set((i - (cols - 1) / 2) * cw, (j + .5) * ch, 0);
+        m.userData.chunk = true; grp.add(m);
+        const c = { mesh: m, alive: true, grp }; list.push(c); chunks.push(c);
+      }
+      return list;
+    }
+    function breakChunk(c) {
+      if (!c.alive) return;
+      c.alive = false;
+      const wp = c.mesh.getWorldPosition(new I);
+      c.grp.remove(c.mesh);
+      const f = c.mesh; f.position.copy(wp); oi.add(f);
+      const v = new I((Math.random() - .5) * 2, Math.random() * 2, (Math.random() - .5) * 2 + 1.5);
+      const born = performance.now();
+      (function a() { const t = (performance.now() - born) / 1e3; if (t > 1.4) { oi.remove(f); return; } v.y -= 9.8 * .016; f.position.addScaledVector(v, .016); f.rotation.x += .08; f.rotation.z += .05; if (f.position.y < .1) { f.position.y = .1; v.y *= -.2; v.x *= .6; v.z *= .6; } requestAnimationFrame(a); })();
+    }
+    function aliveMeshes() { return chunks.filter(c => c.alive).map(c => c.mesh); }
+    function reset() { for (const c of chunks) { if (c.mesh.parent) c.mesh.parent.remove(c.mesh); } chunks.length = 0; }
+    return { wall, breakChunk, aliveMeshes, reset, get chunks() { return chunks; } };
+  })();
+
+  var RANGE_BREACH = (() => {
+    const maps = [
+      { name: "WAREHOUSE", walls: [[-12, -10, 24, 3, Math.PI / 2], [12, -10, 24, 3, Math.PI / 2], [0, -28, 24, 3, 0]], cover: [[-4, -8], [4, -14], [0, -20]], destruct: [[0, -16, 6, 3, 6, 3]], guards: [[-6, -12], [6, -22]], loot: [[-8, -10], [8, -18], [0, -26]], exit: [0, 6] },
+      { name: "MOTEL", walls: [[-10, -10, 20, 3, Math.PI / 2], [10, -10, 20, 3, Math.PI / 2], [0, -26, 20, 3, 0]], cover: [[-3, -6], [3, -12], [-3, -18]], destruct: [[0, -14, 5, 3, 5, 3], [0, -22, 5, 3, 5, 3]], guards: [[-5, -10], [5, -18], [0, -24]], loot: [[-7, -8], [7, -16], [0, -24]], exit: [0, 6] },
+      { name: "VILLA", walls: [[-11, -10, 22, 3, Math.PI / 2], [11, -10, 22, 3, Math.PI / 2], [0, -27, 22, 3, 0]], cover: [[-4, -7], [4, -13], [0, -19], [-6, -23]], destruct: [[0, -15, 6, 3, 6, 3]], guards: [[-6, -11], [6, -19], [0, -25]], loot: [[-8, -9], [8, -17], [0, -25]], exit: [0, 6] },
+      { name: "MALL", walls: [[-13, -10, 26, 3, Math.PI / 2], [13, -10, 26, 3, Math.PI / 2], [0, -30, 26, 3, 0]], cover: [[-5, -8], [5, -14], [-5, -20], [5, -26]], destruct: [[0, -18, 7, 3, 7, 3]], guards: [[-7, -12], [7, -22], [0, -28], [-3, -16]], loot: [[-9, -10], [9, -20], [0, -28]], exit: [0, 6] },
+      { name: "TV STATION", walls: [[-12, -10, 24, 3, Math.PI / 2], [12, -10, 24, 3, Math.PI / 2], [0, -29, 24, 3, 0]], cover: [[-4, -9], [4, -15], [0, -21], [-6, -25]], destruct: [[0, -17, 6, 3, 6, 3], [0, -25, 6, 3, 6, 3]], guards: [[-6, -13], [6, -21], [0, -27]], loot: [[-8, -11], [8, -19], [0, -27]], exit: [0, 6] }
+    ];
+    const group = new qt; group.name = "breach"; group.visible = false; oi.add(group);
+    const guardMat = new Xt({ color: 0x3a3530, roughness: .7 });
+    const lootMat = new Xt({ color: 0xffd23c, emissive: 0x553300, roughness: .3, metalness: .6 });
+    const ray = new Yn;
+    let active = false, mapIdx = 0, phase = "plan", alarm = 0, health = 3, loot = [], guards = [], projectiles = [], markers = [], destructWalls = [], lootGot = 0, alarmMax = 60;
+    let savedMats = [], origBg = null, redLight = null;
+
+    function applyBrutal() {
+      savedMats = [];
+      oi.traverse(o => { if (o.isMesh && o.parent !== group) { savedMats.push([o, o.material]); o.material = RANGE_KIT.wallMat; } });
+      origBg = oi.background; if (origBg && origBg.isColor) oi.background = origBg.clone().set(0x1a1816);
+      redLight = new Si(0xff2020, 2.5, 40); redLight.position.set(0, 4, -12); group.add(redLight);
+    }
+    function restoreBrutal() { savedMats.forEach(([o, m]) => o.material = m); savedMats = []; oi.background = origBg; if (redLight) group.remove(redLight); }
+    function clearMap() {
+      RANGE_DESTRUCT.reset();
+      for (const g of guards) group.remove(g.mesh);
+      for (const l of loot) group.remove(l.mesh);
+      for (const p of projectiles) group.remove(p.mesh);
+      for (const m of markers) group.remove(m);
+      group.children.filter(c => c.userData.kit).forEach(c => group.remove(c));
+      guards = []; loot = []; projectiles = []; markers = []; destructWalls = [];
+    }
+    function loadMap(i) {
+      clearMap(); mapIdx = i; phase = "plan"; alarm = alarmMax; health = 3; lootGot = 0;
+      const M = maps[i];
+      const kit = new qt; kit.userData.kit = true; group.add(kit);
+      RANGE_KIT.assemble(kit, M);
+      for (const [x, z, w, h, c, r] of M.destruct) destructWalls.push(...RANGE_DESTRUCT.wall(group, x, z, w, h, c, r));
+      for (const [x, z] of M.guards) {
+        const body = new qt; body.position.set(x, 0, z);
+        const torso = new at(new Ei(.5, 1.2, .35, 2, .05), guardMat); torso.position.y = 1.0; body.add(torso);
+        const head = new at(new Qe(.22, 12, 10), guardMat); head.position.y = 1.8; body.add(head);
+        group.add(body);
+        guards.push({ mesh: body, base: [x, z], cd: 2 + Math.random() * 2, alive: true, phase: Math.random() * 6.28, hitMeshes: [torso, head] });
+      }
+      for (const [x, z] of M.loot) { const m = new at(new Ei(.35, .35, .35, 2, .04), lootMat); m.position.set(x, .6, z); group.add(m); loot.push({ mesh: m, got: false }); }
+      Yt.position.set(M.exit[0], 0, M.exit[1]); Yt.velocity.set(0, 0, 0); Yt.yaw = Math.PI; Yt.pitch = 0; Yt.spawn();
+      gt("#brMap").textContent = M.name;
+      setPhase("plan"); refreshHud();
+    }
+    function setPhase(p) {
+      phase = p;
+      gt("#brPhase").textContent = p === "plan" ? "规划阶段 · 点击地面标记" : "执行阶段 · 警报倒计时";
+      gt("#brHint").textContent = p === "plan" ? "点击地面标记路线 · 按空格开始行动" : "打穿墙体 · 取赃 · 回出口撤离";
+    }
+    function refreshHud() {
+      gt("#brAlarm").textContent = phase === "exec" ? alarm.toFixed(1) + "s" : "";
+      gt("#brLoot").textContent = "赃物 " + lootGot + "/" + loot.length;
+      gt("#brHealth").textContent = "● ".repeat(health).trim() + " ○ ".repeat(3 - health).trim();
+    }
+    function startExec() { if (phase === "plan") { setPhase("exec"); ln.tone(880, .3, .16, 0, "square"); } }
+    function tick(s) {
+      Yt.update(s); ke.update(s);
+      if (phase === "exec") {
+        alarm -= s;
+        if (alarm <= 0) { finish(false, "警报超时"); return; }
+        for (const g of guards) {
+          if (!g.alive) continue;
+          g.phase += s; g.mesh.position.x = g.base[0] + Math.sin(g.phase * .5) * 1.5;
+          g.cd -= s;
+          const dist = g.mesh.position.distanceTo(Yt.position);
+          if (g.cd <= 0 && dist < 22) {
+            g.cd = 1.8 + Math.random();
+            const dir = Yt.position.clone().add(new I(0, 1.2, 0)).sub(g.mesh.position.clone().add(new I(0, 1.5, 0))).normalize();
+            const pm = new at(new Qe(.08, 8, 6), new Xt({ color: 0xff3b30, emissive: 0xff2020 })); pm.position.copy(g.mesh.position).add(new I(0, 1.5, 0)); group.add(pm);
+            projectiles.push({ mesh: pm, vel: dir.multiplyScalar(9), life: 0 });
+            ln.tone(400, .05, .06, 0, "square");
+          }
+        }
+        for (const p of projectiles) {
+          p.life += s; p.mesh.position.addScaledVector(p.vel, s);
+          if (p.mesh.position.distanceTo(Yt.position.clone().add(new I(0, 1.2, 0))) < .45) { p.dead = true; health--; refreshHud(); ln.tone(160, .2, .16, 0, "sawtooth"); if (health <= 0) { finish(false, "被击倒"); return; } }
+          if (p.life > 6) p.dead = true;
+        }
+        projectiles = projectiles.filter(p => { if (p.dead) { group.remove(p.mesh); return false; } return true; });
+        // 取赃
+        for (const l of loot) { if (!l.got && Yt.position.distanceTo(l.mesh.position) < 1.2) { l.got = true; lootGot++; group.remove(l.mesh); ln.tone(1200, .1, .12, 0, "triangle"); refreshHud(); } }
+        // 撤离
+        if (Yt.position.distanceTo(new I(maps[mapIdx].exit[0], 0, maps[mapIdx].exit[1])) < 1.8 && lootGot > 0) { finish(true, "撤离成功"); return; }
+      }
+      refreshHud();
+      ge.end();
+    }
+    const prevShot = ke.onShot;
+    ke.onShot = s => {
+      prevShot && prevShot(s);
+      if (!active) return;
+      ray.set(He.position, new I(...s.direction).normalize());
+      // 破坏墙体
+      const wh = ray.intersectObjects(RANGE_DESTRUCT.aliveMeshes(), false)[0];
+      if (wh) { const c = RANGE_DESTRUCT.chunks.find(x => x.mesh === wh.object); if (c) { RANGE_DESTRUCT.breakChunk(c); ln.tone(220, .1, .12, 0, "sawtooth"); } }
+      // 守卫
+      if (phase === "exec") {
+        const gm = []; guards.filter(g => g.alive).forEach(g => gm.push(...g.hitMeshes));
+        const gh = ray.intersectObjects(gm, false)[0];
+        if (gh) { const g = guards.find(x => x.hitMeshes.includes(gh.object)); if (g) { g.alive = false; group.remove(g.mesh); ln.tone(1400, .1, .12, 0, "square"); } }
+      }
+    };
+    // 规划标记（点击地面）
+    function planMark(clientX, clientY) {
+      if (phase !== "plan") return;
+      const ndc = new Mt((clientX / innerWidth) * 2 - 1, -(clientY / innerHeight) * 2 + 1);
+      ray.setFromCamera(ndc, He);
+      // 与 y=0 地面求交
+      const t = -ray.ray.origin.y / ray.ray.direction.y;
+      if (t > 0) { const p = ray.ray.origin.clone().addScaledVector(ray.ray.direction, t); const m = new at(new Qe(.15, 8, 6), new Xt({ color: 0xff3b30, emissive: 0x550000 })); m.position.set(p.x, .1, p.z); group.add(m); markers.push(m); }
+    }
+    function finish(success, reason) {
+      const score = lootGot * 500 + (success ? 1000 : 0) + Math.round(alarm * 10);
+      gt("#brrTitle").textContent = success ? "撤离成功" : "行动失败";
+      gt("#brrScore").textContent = score + " 分";
+      gt("#brrStats").textContent = reason + " · 赃物 " + lootGot + "/" + loot.length + " · 剩余警报 " + Math.max(0, alarm).toFixed(1) + "s";
+      gt("#breachResult").hidden = false; gt("#breachHud").hidden = true;
+      try { const k = "range-breach-best-" + mapIdx; const b = +(localStorage.getItem(k) || 0); if (score > b) localStorage.setItem(k, JSON.stringify(score)); } catch {}
+    }
+    function openMenu() {
+      gt("#breachMenu").hidden = false;
+      gt("#brMapList").innerHTML = maps.map((M, i) => "<button data-map='" + i + "'>" + M.name + "<small>" + M.guards.length + " 守卫 · " + M.loot.length + " 赃物</small></button>").join("");
+      gt("#brMapList").querySelectorAll("button").forEach(b => b.onclick = () => startMap(+b.dataset.map));
+    }
+    function startMap(i) { gt("#breachMenu").hidden = true; gt("#breachResult").hidden = true; gt("#breachHud").hidden = false; loadMap(i); }
+    function enter() {
+      RANGE_WINGS._setActive("breach");
+      active = true; group.visible = true;
+      Oi = !0; Dn = !0; gt("#menu").hidden = !0; gt("#hud").hidden = !1;
+      applyBrutal(); RANGE_STYLE.show(false); openMenu();
+    }
+    function exit() {
+      RANGE_WINGS._setActive(null);
+      active = false; group.visible = false; clearMap(); restoreBrutal();
+      gt("#breachHud").hidden = true; gt("#breachMenu").hidden = true; gt("#breachResult").hidden = true;
+      Oi = !1; gt("#menu").hidden = !1; gt("#hud").hidden = !0;
+    }
+    addEventListener("keydown", e => { if (active && e.code === "Space" && phase === "plan") { e.preventDefault(); startExec(); } });
+    gt("#breachEnter").onclick = () => RANGE_WINGS.enter("breach");
+    gt("#brBack").onclick = () => RANGE_WINGS.exit();
+    gt("#brrRetry").onclick = () => startMap(mapIdx);
+    gt("#brrMenu").onclick = () => { gt("#breachResult").hidden = true; openMenu(); };
+    RANGE_WINGS.register("breach", { enter, exit, tick });
+    return { get active() { return active; }, get phase() { return phase; }, maps, enter, exit, startMap, loadMap, startExec, planMark, finish, get guards() { return guards; }, get loot() { return loot; }, get destruct() { return RANGE_DESTRUCT; } };
+  })();
+
+  RANGE_API.kit = RANGE_KIT;
+  RANGE_API.destruct = RANGE_DESTRUCT;
+  RANGE_API.breach = RANGE_BREACH;
   RANGE_API.draw = () => ki();
 
   fr.update(1 / 120, ke, Yt, ge);
