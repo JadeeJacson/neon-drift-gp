@@ -1,8 +1,9 @@
-# RANGE 0.36.0
+# RANGE 0.37.0
 
 单文件 Three.js 网页靶场。本文件为可读开发构建（RANGE-0.24.0.html），可直接维护。
 
 ## 版本
+- 0.37.0（P1）：补齐A组半落地项——逐空间混响真生效(wetGain)、空间音频接实战(playAt+命中空间音)、导入幽灵真竞速、BREACH警报增援波次、FORENSICS新科目(flick/switchspeed共8)、跨翼完成XP、等级解锁武器皮肤。修复BREACH死亡后tick不止/health负值。
 - 0.36.0（N5）：HUNT 恐怖捕食者翼（黑暗+手电、捕食者学习AI记玩家常躲点、声音=死亡奔跑引怪、取物→撤离、应急红/静电氛围、3夜）+ BREACH 深化（地图5→8、潜行/强攻双评分）。平台化阶段 N1–N5 全部完成。
 - 0.35.0（N4）：FORENSICS Pro 产品化（常模百分位/灵敏度匹配器/训练计划/笔迹分析）+ RHYTHM 节奏翼（120BPM程序化节拍、踩拍Perfect/Good/Miss倍率、8段落、评级，模拟时间时钟暂停安全）。
 - 0.34.0（N3）：RANGE_EDITOR 关卡编辑器/UGC（顶视网格编辑墙/掩体/靶/出生点/出口、RANGE_KIT装配、保存/分享码/本地库、试玩翼）+ Modding 指南（RANGE_API参考+示例翼模板）。

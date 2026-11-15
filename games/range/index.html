@@ -54,7 +54,7 @@ THE SOFTWARE.
 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>RANGE — 0.36 · 战术实验区</title>
+    <title>RANGE — 0.37 · 战术实验区</title>
     <style>
       :root {
         color-scheme: dark;
@@ -1048,7 +1048,7 @@ THE SOFTWARE.
         <div class="sub">PRIVATE TRAINING FACILITY / 01</div>
       </header>
       <main class="panel">
-        <div class="eyebrow" id="badge">BUILD 0.36 / 战术实验区</div>
+        <div class="eyebrow" id="badge">BUILD 0.37 / 战术实验区</div>
         <h1 id="menuTitle">第一枪，已就绪。</h1>
         <p class="intro">
           M4A1 / P226 / AK-47 / MP5<br />教程引导、六区 CQB 与幽灵挑战。<br />辨认目标，再扣动扳机。
@@ -1148,9 +1148,9 @@ THE SOFTWARE.
 <p>仅状态回放；不伤害、不补弹、不计分。无任意帧接管。自由镜头只沿世界轴平移。</p></section>
     <section id="hud" hidden aria-label="探索界面">
       <div class="topbar">
-        <div><strong>RANGE.</strong><small>0.36 / PHYSICS + STATE</small></div>
+        <div><strong>RANGE.</strong><small>0.37 / PHYSICS + STATE</small></div>
         <div class="topright">
-          <span id="fps">0.36 / OFFLINE</span><br /><span id="position"
+          <span id="fps">0.37 / OFFLINE</span><br /><span id="position"
             >X 0.0 Z 8.0</span
           ><button id="pause">ESC · 暂停</button>
         </div>
@@ -1490,7 +1490,7 @@ THE SOFTWARE.
     </div>
     <script>
 /* ═══════════════════════════════════════════════════════════════════
-  RANGE 0.36.0「战术实验区」· 恐怖捕食者与劫案深化（…→ 0.35 法证节奏 → 0.36 HUNT 恐怖翼+BREACH 深化，见 SECTION S）
+  RANGE 0.37.0「战术实验区」· 补齐与真生效（…→ 0.36 恐怖劫案 → 0.37 A 组半落地项补齐，见 SECTION T）
   来源: JadeeJacson/neon-drift-gp @ main, games/range/index.html
         （2026-10-26 提交「新增四款练手小游戏」，原始构建 1,029,475 字节）
   还原: 内联 JS 经 js-beautify 格式化（不折行/保留换行），并在已验证边界插入分区注释。
@@ -20089,7 +20089,7 @@ void main() {
    * 改动后请跑 test/smoke.js（桌面回归）与 test/mobile.js（移动端验收）。
    * ════════════════════════════════════════════════════════════════════════ */
   var RANGE_CONFIG = {
-    release: "0.36.0",
+    release: "0.37.0",
     render: {
       maxPixelRatio: 1.65,        // 桌面渲染像素比上限
       mobileMaxPixelRatio: 1.3    // 移动端像素比上限（性能优先）
@@ -33424,7 +33424,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       Oi = !1, ge.stop(), Oe.suspend();
       return
     }
-    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.36 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
+    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.37 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
   }
   ge.onPause = Sn;
   ge.onLookMode = s => {
@@ -33529,7 +33529,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (let i = 0; i < e; i++) fr.update(t / e, ke, Yt, ge);
       ki()
     }
-    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.36 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
+    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.37 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
   }
 /* ════════════════════════════════════════════════════════════════════════
  * [SECTION E] QA 调试接口 window.__RANGE__（URL 带 ?qa 时启用扩展方法）
@@ -34434,7 +34434,9 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       switching: { name: "SWITCHING", desc: "切换激活靶 30s", dur: 30 },
       precision: { name: "PRECISION", desc: "小靶精准 30s", dur: 30 },
       speed: { name: "SPEED", desc: "反应速度 10 轮", dur: 999 },
-      recoil: { name: "RECOIL", desc: "压枪散布 30 发", dur: 999 }
+      recoil: { name: "RECOIL", desc: "压枪散布 30 发", dur: 999 },
+      flick: { name: "FLICK", desc: "随机甩枪 30s", dur: 30 },
+      switchspeed: { name: "SWITCH SPEED", desc: "快速切换 30s", dur: 30 }
     };
     const group = new qt; group.name = "forensics"; group.visible = false; oi.add(group);
     const tMat = new Xt({ color: 0x222222, roughness: .6 });
@@ -34467,9 +34469,9 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       clearTargets(); score = 0; shots = 0; hits = 0; rec = []; hitRec = []; round = 0; recoilPts = []; trackTime = 0;
       cur = drill; timer = drills[drill].dur;
       Yt.position.set(0, 0, 8); Yt.velocity.set(0, 0, 0); Yt.yaw = 0; Yt.pitch = 0; Yt.spawn();
-      if (drill === "gridshot") { for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) mkTarget(i * 1.5, 1.6 + j * 1.2, -12, .22, true); }
+      if (drill === "gridshot" || drill === "flick") { for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) mkTarget(i * 1.5, 1.6 + j * 1.2, -12, drill === "flick" ? .16 : .22, true); }
       else if (drill === "tracking") { mkTarget(0, 1.6, -12, .3, true); }
-      else if (drill === "switching") { mkTarget(-2, 1.6, -12, .28, true); mkTarget(2, 1.6, -12, .28, false); switchActive = 0; }
+      else if (drill === "switching" || drill === "switchspeed") { mkTarget(-2, 1.6, -12, .28, true); mkTarget(2, 1.6, -12, .28, false); switchActive = 0; }
       else if (drill === "precision") { for (let i = 0; i < 5; i++) mkTarget((i - 2) * 1.2, 1.6 + (i % 2) * .8, -14, .1, true); }
       else if (drill === "speed") { round = 0; speedStart = -1; }
       else if (drill === "recoil") { mkTarget(0, 1.6, -20, 2.5, true); }
@@ -34515,9 +34517,9 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
         const t = targets.find(x => x.mesh === hit.object);
         hitRec.push({ t: performance.now(), point: hit.point.toArray() });
         ln.tone(1200, .05, .1, 0, "square");
-        if (cur === "gridshot") { score += 100; const p = randPos(); t.mesh.position.set(p[0], p[1], p[2]); }
+        if (cur === "gridshot" || cur === "flick") { score += cur === "flick" ? 130 : 100; const p = randPos(); t.mesh.position.set(p[0], p[1], p[2]); }
         else if (cur === "precision") { score += 150; const p = randPos(); t.mesh.position.set(p[0], p[1], p[2]); }
-        else if (cur === "switching") { score += 120; t.active = false; t.mesh.material = tMat; switchActive = 1 - switchActive; targets[switchActive].active = true; targets[switchActive].mesh.material = tMatActive; }
+        else if (cur === "switching" || cur === "switchspeed") { score += cur === "switchspeed" ? 150 : 120; t.active = false; t.mesh.material = tMat; switchActive = 1 - switchActive; targets[switchActive].active = true; targets[switchActive].mesh.material = tMatActive; }
         else if (cur === "speed") { const rt = (performance.now() - speedStart); score += Math.max(10, Math.round(600 - rt)); round++; group.remove(t.mesh); targets = targets.filter(x => x !== t); speedStart = -1; }
       }
       refreshHud();
@@ -34656,7 +34658,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       const pool = cards.filter(c => !hand.includes(c));
       while (hand.length < 3) { const c = pool[Math.floor(Math.random() * pool.length)]; if (!hand.includes(c)) hand.push(c); }
       // 幽灵
-      try { const g = JSON.parse(localStorage.getItem("range-deck-ghost-" + i) || "null"); ghostPlay = g; } catch { ghostPlay = null; }
+      try { let g = null; const imp = JSON.parse(localStorage.getItem("range-imported-ghost") || "null"); if (imp && imp.wing === "deckrun" && imp.data) g = imp.data; else g = JSON.parse(localStorage.getItem("range-deck-ghost-" + i) || "null"); ghostPlay = g; } catch { ghostPlay = null; }
       if (ghostPlay) { ghostMesh = new at(new Qe(.25, 12, 8), new Xt({ color: 0x88aaff, transparent: true, opacity: .4 })); group.add(ghostMesh); }
       gt("#dkLevel").textContent = "LEVEL " + (i + 1);
       renderHand(); refreshHud();
@@ -34831,7 +34833,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     const guardMat = new Xt({ color: 0x3a3530, roughness: .7 });
     const lootMat = new Xt({ color: 0xffd23c, emissive: 0x553300, roughness: .3, metalness: .6 });
     const ray = new Yn;
-    let active = false, mapIdx = 0, phase = "plan", alarm = 0, health = 3, loot = [], guards = [], projectiles = [], markers = [], destructWalls = [], lootGot = 0, alarmMax = 60;
+    let active = false, mapIdx = 0, phase = "plan", alarm = 0, health = 3, loot = [], guards = [], projectiles = [], markers = [], destructWalls = [], lootGot = 0, alarmMax = 60, reinfWave = 0;
     let savedMats = [], origBg = null, redLight = null;
 
     function applyBrutal() {
@@ -34851,7 +34853,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       guards = []; loot = []; projectiles = []; markers = []; destructWalls = [];
     }
     function loadMap(i) {
-      clearMap(); mapIdx = i; phase = "plan"; alarm = alarmMax; health = 3; lootGot = 0;
+      clearMap(); mapIdx = i; phase = "plan"; alarm = alarmMax; health = 3; lootGot = 0; reinfWave = 0;
       const M = maps[i];
       const kit = new qt; kit.userData.kit = true; group.add(kit);
       RANGE_KIT.assemble(kit, M);
@@ -34876,14 +34878,26 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     function refreshHud() {
       gt("#brAlarm").textContent = phase === "exec" ? alarm.toFixed(1) + "s" : "";
       gt("#brLoot").textContent = "赃物 " + lootGot + "/" + loot.length;
-      gt("#brHealth").textContent = "● ".repeat(health).trim() + " ○ ".repeat(3 - health).trim();
+      gt("#brHealth").textContent = "● ".repeat(Math.max(0, health)).trim() + " ○ ".repeat(Math.max(0, 3 - health)).trim();
     }
     function startExec() { if (phase === "plan") { setPhase("exec"); ln.tone(880, .3, .16, 0, "square"); } }
     function tick(s) {
+      if (!gt("#breachResult").hidden) { ge.end(); return; }
       Yt.update(s); ke.update(s);
       if (phase === "exec") {
         alarm -= s;
         if (alarm <= 0) { finish(false, "警报超时"); return; }
+        const wave = alarm < 20 ? 2 : alarm < 40 ? 1 : 0;
+        if (wave > reinfWave) {
+          reinfWave = wave;
+          for (let k = 0; k < 2; k++) {
+            const sil = RANGE_SILHOUETTE.build(["rifle", "melee"][k]);
+            const body = sil.group; const rx = (Math.random() < .5 ? -1 : 1) * 10; body.position.set(rx, 0, -20 - Math.random() * 8);
+            group.add(body);
+            guards.push({ mesh: body, base: [rx, -24], cd: 1.5, alive: true, phase: Math.random() * 6.28, hitMeshes: sil.hitMeshes, silType: "rifle" });
+          }
+          gt("#brPhase").textContent = "执行阶段 · 增援抵达!"; ln.tone(660, .3, .16, 0, "square");
+        }
         for (const g of guards) {
           if (!g.alive) continue;
           g.phase += s; g.mesh.position.x = g.base[0] + Math.sin(g.phase * .5) * 1.5;
@@ -35068,7 +35082,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
    * 逐空间混响预设 + 音乐音量/静音设置（持久化）。增强现有 ln（Vu）。
    * ════════════════════════════════════════════════════════════════════════ */
   var RANGE_AUDIO = (() => {
-    let inited = false, musicGain = null, ambient = [], intensityGain = null, intensityOsc = null, sfxPan = null;
+    let inited = false, musicGain = null, ambient = [], intensityGain = null, intensityOsc = null, sfxPan = null, wetGain = null;
     let musicVol = .5, muted = false, intensity = 0, space = "range";
     const spaces = { range: .22, static: .12, forensics: .08, deckrun: .18, breach: .4, hunt: .5 };
     function init() {
@@ -35087,10 +35101,20 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       // 空间声像 SFX 总线
       sfxPan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
       if (sfxPan) sfxPan.connect(ln.master);
+      wetGain = ctx.createGain(); wetGain.gain.value = spaces[space] ?? .22;
+      if (ln.reverb) { try { ln.reverb.disconnect(); } catch (e) {} ln.reverb.connect(wetGain); wetGain.connect(ln.master); }
       applySpace();
     }
     function applySpace() { if (ln.reverb && ln.reverb.buffer) { /* reverb gain 在 ln 内部，按空间调 master 湿声比例近似 */ } }
-    function setSpace(s) { space = s; if (ln.ctx && ln.reverb) { const wet = spaces[s] ?? .22; try { ln.reverb.gain && (ln.reverb.gain.value = wet); } catch {} } }
+    function setSpace(s) { space = s; if (wetGain) wetGain.gain.value = spaces[s] ?? .22; }
+    function playAt(worldPos, freq, dur = .08, vol = .1, type = "sine") {
+      const rel = worldPos.clone().sub(Yt.position);
+      const dist = rel.length();
+      const right = new I(1, 0, 0).applyQuaternion(He.quaternion);
+      const pan = dist > .01 ? Math.max(-1, Math.min(1, rel.normalize().dot(right))) : 0;
+      const atten = Math.max(.15, 1 - dist / 40);
+      spatialTone(freq, pan, dur, vol * atten, type);
+    }
     function setMusicVolume(v) { musicVol = v; if (musicGain) musicGain.gain.setTargetAtTime(muted ? 0 : v * .3, ln.ctx.currentTime, .05); try { localStorage.setItem("range-music-vol", String(v)); } catch {} }
     function setMute(m) { muted = m; if (musicGain) musicGain.gain.setTargetAtTime(m ? 0 : musicVol * .3, ln.ctx.currentTime, .03); if (ln.master) ln.master.gain.setTargetAtTime(m ? 0 : ln.volume * .35, ln.ctx.currentTime, .03); const b = gt("#muteToggle"); if (b) b.textContent = "静音 · " + (m ? "开" : "关"); try { localStorage.setItem("range-mute", m ? "1" : "0"); } catch {} }
     function setIntensity(v) { intensity = Math.max(0, Math.min(1, v)); if (intensityGain && ln.ctx) { intensityGain.gain.setTargetAtTime(intensity * .12, ln.ctx.currentTime, .2); intensityOsc.frequency.setTargetAtTime(110 + intensity * 110, ln.ctx.currentTime, .2); } }
@@ -35112,7 +35136,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     try { musicVol = +(localStorage.getItem("range-music-vol") ?? .5); muted = localStorage.getItem("range-mute") === "1"; } catch {}
     if (mv) { mv.value = musicVol; mv.oninput = () => setMusicVolume(+mv.value); }
     const mt = gt("#muteToggle"); if (mt) mt.onclick = () => setMute(!muted);
-    return { init, setSpace, setMusicVolume, setMute, setIntensity, spatialTone, get musicVol() { return musicVol; }, get muted() { return muted; }, get intensity() { return intensity; }, get inited() { return inited; }, spaces };
+    return { init, setSpace, setMusicVolume, setMute, setIntensity, spatialTone, playAt, get musicVol() { return musicVol; }, get muted() { return muted; }, get intensity() { return intensity; }, get inited() { return inited; }, get wet() { return wetGain ? wetGain.gain.value : 0; }, spaces };
   })();
 
   RANGE_API.audio = RANGE_AUDIO;
@@ -35473,6 +35497,69 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
   })();
 
   RANGE_API.hunt = RANGE_HUNT;
+  RANGE_API.draw = () => ki();
+
+  /* ════════════════════════════════════════════════════════════════════════
+   * [SECTION T] 补齐集成层（0.37 / P1）：A2 命中空间音 · A7 跨翼 XP · A8 等级皮肤
+   * ════════════════════════════════════════════════════════════════════════ */
+  // A2：每次计分命中按世界位置播放空间音
+  (function () {
+    const prev = ke.onScoredHit;
+    ke.onScoredHit = h => { prev && prev(h); if (h && h.point && window.RANGE_API.audio) { try { RANGE_API.audio.playAt(new I(...h.point), h.killed ? 2400 : 1500, .06, .08, "square"); } catch (e) {} } };
+  })();
+  // A7：跨翼完成 XP（监听各翼结算面板首次显示）
+  (function () {
+    const panels = { staticResult: 150, forensicsResult: 120, deckResult: 140, breachResult: 160, rhythmResult: 130, huntResult: 180 };
+    const seen = {};
+    (function watch() {
+      requestAnimationFrame(watch);
+      for (const id of Object.keys(panels)) {
+        const el = gt("#" + id);
+        if (el && !el.hidden && !seen[id]) { seen[id] = true; if (window.RANGE_API.profile) RANGE_API.profile.addXP(panels[id]); }
+        else if (el && el.hidden) seen[id] = false;
+      }
+    })();
+  })();
+  // A8：等级解锁武器皮肤
+  var RANGE_SKINS = (() => {
+    const skins = [
+      { id: "default", name: "标准", level: 1, color: null },
+      { id: "gold", name: "黄金", level: 3, color: 0xc8963c },
+      { id: "crimson", name: "赤红", level: 5, color: 0xa03030 },
+      { id: "arctic", name: "极地", level: 8, color: 0xb8c4d0 },
+      { id: "void", name: "虚空", level: 12, color: 0x3a2a5a }
+    ];
+    let cur = "default";
+    try { cur = localStorage.getItem("range-skin") || "default"; } catch {}
+    function apply() {
+      const s = skins.find(x => x.id === cur) || skins[0];
+      fr.models.forEach(m => m.root.traverse(o => {
+        if (o.isMesh && o.material && o.material.metalness > .5) {
+          if (!o.userData.baseColor) o.userData.baseColor = o.material.color.getHex();
+          if (s.color !== null) o.material.color.setHex(s.color); else o.material.color.setHex(o.userData.baseColor);
+        }
+      }));
+    }
+    function unlocked() { const l = window.RANGE_API.profile ? RANGE_API.profile.level : 1; return skins.filter(s => l >= s.level); }
+    function set(id) { if (!unlocked().find(s => s.id === id)) return; cur = id; try { localStorage.setItem("range-skin", id); } catch {} apply(); }
+    // 注入皮肤选择到档案面板
+    const card = gt("#profilePanel .sbCard");
+    if (card) {
+      const div = document.createElement("div");
+      div.style.cssText = "font-size:12px;margin:8px 0";
+      div.innerHTML = "<b>武器皮肤</b>（等级解锁）<div id='skinList' style='display:flex;gap:6px;flex-wrap:wrap;margin-top:6px'></div>";
+      card.insertBefore(div, gt("#pfExport"));
+      const render = () => {
+        const l = window.RANGE_API.profile ? RANGE_API.profile.level : 1;
+        gt("#skinList").innerHTML = skins.map(s => "<button data-skin='" + s.id + "' style='padding:4px 10px;border-radius:6px;border:1px solid rgba(235,195,117,.4);background:" + (s.id === cur ? "#ebc375" : "#0d1f18") + ";color:" + (s.id === cur ? "#14251c" : (l >= s.level ? "#f2e9d8" : "#555")) + ";cursor:pointer;font-size:11px'>" + s.name + (l >= s.level ? "" : " Lv" + s.level) + "</button>").join("");
+        gt("#skinList").querySelectorAll("button").forEach(b => b.onclick = () => { set(b.dataset.skin); render(); });
+      };
+      const obs = new MutationObserver(() => { if (!gt("#profilePanel").hidden) render(); });
+      obs.observe(gt("#profilePanel"), { attributes: true, attributeFilter: ["hidden"] });
+    }
+    return { skins, set, apply, unlocked, get current() { return cur; } };
+  })();
+  RANGE_API.skins = RANGE_SKINS;
   RANGE_API.draw = () => ki();
 
   fr.update(1 / 120, ke, Yt, ge);
