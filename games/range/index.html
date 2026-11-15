@@ -54,7 +54,7 @@ THE SOFTWARE.
 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>RANGE — 0.44 · 战术实验区</title>
+    <title>RANGE — 0.45 · 战术实验区</title>
     <style>
       :root {
         color-scheme: dark;
@@ -1103,7 +1103,7 @@ THE SOFTWARE.
         <div class="sub">PRIVATE TRAINING FACILITY / 01</div>
       </header>
       <main class="panel">
-        <div class="eyebrow" id="badge">BUILD 0.44 / 战术实验区</div>
+        <div class="eyebrow" id="badge">BUILD 0.45 / 战术实验区</div>
         <h1 id="menuTitle">第一枪，已就绪。</h1>
         <p class="intro">
           M4A1 / P226 / AK-47 / MP5<br />教程引导、六区 CQB 与幽灵挑战。<br />辨认目标，再扣动扳机。
@@ -1203,9 +1203,9 @@ THE SOFTWARE.
 <p>仅状态回放；不伤害、不补弹、不计分。无任意帧接管。自由镜头只沿世界轴平移。</p></section>
     <section id="hud" hidden aria-label="探索界面">
       <div class="topbar">
-        <div><strong>RANGE.</strong><small>0.44 / PHYSICS + STATE</small></div>
+        <div><strong>RANGE.</strong><small>0.45 / PHYSICS + STATE</small></div>
         <div class="topright">
-          <span id="fps">0.44 / OFFLINE</span><br /><span id="position"
+          <span id="fps">0.45 / OFFLINE</span><br /><span id="position"
             >X 0.0 Z 8.0</span
           ><button id="pause">ESC · 暂停</button>
         </div>
@@ -1433,7 +1433,7 @@ THE SOFTWARE.
       <div class="sbCard edCard">
         <h2>关卡编辑器 · UGC</h2>
         <div id="edPalette">
-          <button data-tool="wall" class="on">墙</button><button data-tool="cover">掩体</button><button data-tool="target">靶</button><button data-tool="spawn">出生点</button><button data-tool="exit">出口</button><button data-tool="erase">擦除</button>
+          <button data-tool="wall" class="on">墙</button><button data-tool="cover">掩体</button><button data-tool="target">靶</button><button data-tool="spawn">出生点</button><button data-tool="exit">出口</button><button data-tool="erase">擦除</button><button id="edRotate">旋转</button><button id="edUndo">撤销</button>
         </div>
         <canvas id="edCanvas" width="300" height="400"></canvas>
         <div id="edControls">
@@ -1567,7 +1567,7 @@ THE SOFTWARE.
     </div>
     <script>
 /* ═══════════════════════════════════════════════════════════════════
-  RANGE 0.44.0「战术实验区」· 贴图质感（…→ 0.43 敌人动画 → 0.44 程序化法线/粗糙度贴图/光照）
+  RANGE 0.45.0「战术实验区」· 玩法深度（…→ 0.44 贴图质感 → 0.45 BREACH人质/编辑器旋转撤销/捕食者AI）
   来源: JadeeJacson/neon-drift-gp @ main, games/range/index.html
         （2026-10-26 提交「新增四款练手小游戏」，原始构建 1,029,475 字节）
   还原: 内联 JS 经 js-beautify 格式化（不折行/保留换行），并在已验证边界插入分区注释。
@@ -20166,7 +20166,7 @@ void main() {
    * 改动后请跑 test/smoke.js（桌面回归）与 test/mobile.js（移动端验收）。
    * ════════════════════════════════════════════════════════════════════════ */
   var RANGE_CONFIG = {
-    release: "0.44.0",
+    release: "0.45.0",
     render: {
       maxPixelRatio: 1.65,        // 桌面渲染像素比上限
       mobileMaxPixelRatio: 1.3    // 移动端像素比上限（性能优先）
@@ -33501,7 +33501,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       Oi = !1, ge.stop(), Oe.suspend();
       return
     }
-    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.44 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
+    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.45 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
   }
   ge.onPause = Sn;
   ge.onLookMode = s => {
@@ -33606,7 +33606,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (let i = 0; i < e; i++) fr.update(t / e, ke, Yt, ge);
       ki()
     }
-    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.44 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
+    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.45 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
   }
 /* ════════════════════════════════════════════════════════════════════════
  * [SECTION E] QA 调试接口 window.__RANGE__（URL 带 ?qa 时启用扩展方法）
@@ -34932,7 +34932,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     const guardMat = new Xt({ color: 0x3a3530, roughness: .7 });
     const lootMat = new Xt({ color: 0xffd23c, emissive: 0x553300, roughness: .3, metalness: .6 });
     const ray = new Yn;
-    let active = false, mapIdx = 0, phase = "plan", alarm = 0, health = 3, loot = [], guards = [], projectiles = [], markers = [], destructWalls = [], lootGot = 0, alarmMax = 60, reinfWave = 0;
+    let active = false, mapIdx = 0, phase = "plan", alarm = 0, health = 3, loot = [], guards = [], projectiles = [], markers = [], destructWalls = [], lootGot = 0, alarmMax = 60, reinfWave = 0, hostages = [], rescued = 0;
     let savedMats = [], origBg = null, redLight = null;
 
     function applyBrutal() {
@@ -34948,8 +34948,9 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (const l of loot) group.remove(l.mesh);
       for (const p of projectiles) group.remove(p.mesh);
       for (const m of markers) group.remove(m);
+      for (const h of hostages) group.remove(h.mesh);
       group.children.filter(c => c.userData.kit).forEach(c => group.remove(c));
-      guards = []; loot = []; projectiles = []; markers = []; destructWalls = [];
+      guards = []; loot = []; projectiles = []; markers = []; destructWalls = []; hostages = []; rescued = 0;
     }
     function loadMap(i) {
       clearMap(); mapIdx = i; phase = "plan"; alarm = alarmMax; health = 3; lootGot = 0; reinfWave = 0;
@@ -34965,6 +34966,8 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
         guards.push({ mesh: body, sil, base: [x, z], cd: 2 + Math.random() * 2, alive: true, phase: Math.random() * 6.28, hitMeshes: sil.hitMeshes, silType });
       }
       for (const [x, z] of M.loot) { const m = new at(new Ei(.35, .35, .35, 2, .04), lootMat); m.position.set(x, .6, z); group.add(m); loot.push({ mesh: m, got: false }); }
+      const hcount = mapIdx < 3 ? 1 : 0;
+      for (let h = 0; h < hcount; h++) { const hx = (Math.random() - .5) * 12, hz = -14 - Math.random() * 8; const m = new at(new Ei(.4, .9, .3, 2, .05), new Xt({ color: 0x3cc8c8, emissive: 0x114444, roughness: .5 })); m.position.set(hx, .45, hz); group.add(m); hostages.push({ mesh: m, saved: false }); }
       Yt.position.set(M.exit[0], 0, M.exit[1]); Yt.velocity.set(0, 0, 0); Yt.yaw = Math.PI; Yt.pitch = 0; Yt.spawn();
       gt("#brMap").textContent = M.name;
       setPhase("plan"); refreshHud();
@@ -34976,7 +34979,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     }
     function refreshHud() {
       gt("#brAlarm").textContent = phase === "exec" ? alarm.toFixed(1) + "s" : "";
-      gt("#brLoot").textContent = "赃物 " + lootGot + "/" + loot.length;
+      gt("#brLoot").textContent = "赃物 " + lootGot + "/" + loot.length + (hostages.length ? " · 人质 " + rescued + "/" + hostages.length : "");
       gt("#brHealth").textContent = "● ".repeat(Math.max(0, health)).trim() + " ○ ".repeat(Math.max(0, 3 - health)).trim();
     }
     function startExec() { if (phase === "plan") { setPhase("exec"); ln.tone(880, .3, .16, 0, "square"); } }
@@ -35018,6 +35021,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
         projectiles = projectiles.filter(p => { if (p.dead) { group.remove(p.mesh); return false; } return true; });
         // 取赃
         for (const l of loot) { if (!l.got && Yt.position.distanceTo(l.mesh.position) < 1.2) { l.got = true; lootGot++; group.remove(l.mesh); ln.tone(1200, .1, .12, 0, "triangle"); refreshHud(); } }
+        for (const h of hostages) { if (!h.saved && Yt.position.distanceTo(h.mesh.position) < 1.4) { h.saved = true; rescued++; group.remove(h.mesh); alarm = Math.max(0, alarm - 10); ln.tone(1600, .15, .14, 0, "triangle"); if (window.RANGE_API.access) RANGE_API.access.subtitle("人质已解救"); refreshHud(); } }
         // 撤离
         if (Yt.position.distanceTo(new I(maps[mapIdx].exit[0], 0, maps[mapIdx].exit[1])) < 1.8 && lootGot > 0) { finish(true, "撤离成功"); return; }
       }
@@ -35050,7 +35054,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     }
     function finish(success, reason) {
       const stealth = guards.filter(g => !g.alive).length === 0;
-      const score = lootGot * 500 + (success ? 1000 : 0) + Math.round(alarm * 10) + (stealth && success ? 800 : 0);
+      const score = lootGot * 500 + rescued * 300 + (success ? 1000 : 0) + Math.round(alarm * 10) + (stealth && success ? 800 : 0);
       gt("#brrTitle").textContent = success ? "撤离成功" : "行动失败";
       gt("#brrScore").textContent = score + " 分";
       gt("#brrStats").textContent = reason + " · 赃物 " + lootGot + "/" + loot.length + " · 剩余警报 " + Math.max(0, alarm).toFixed(1) + "s · " + (stealth ? "潜行奖励 +800" : "强攻路线");
@@ -35082,7 +35086,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     gt("#brrMenu").onclick = () => { gt("#breachResult").hidden = true; openMenu(); };
     hi.domElement.addEventListener("pointerdown", e => { if (active && phase === "plan") planMark(e.clientX, e.clientY); });
     RANGE_WINGS.register("breach", { enter, exit, tick });
-    return { get active() { return active; }, get phase() { return phase; }, maps, enter, exit, startMap, loadMap, startExec, planMark, finish, get guards() { return guards; }, get loot() { return loot; }, get markers() { return markers; }, get destruct() { return RANGE_DESTRUCT; } };
+    return { get active() { return active; }, get phase() { return phase; }, maps, enter, exit, startMap, loadMap, startExec, planMark, finish, get guards() { return guards; }, get loot() { return loot; }, get markers() { return markers; }, get hostages() { return hostages; }, get rescued() { return rescued; }, get destruct() { return RANGE_DESTRUCT; } };
   })();
 
   RANGE_API.kit = RANGE_KIT;
@@ -35337,7 +35341,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
    * ════════════════════════════════════════════════════════════════════════ */
   var RANGE_EDITOR = (() => {
     const GW = 15, GH = 20, CELL = 20;
-    let tool = "wall", data = null, playing = false;
+    let tool = "wall", data = null, playing = false, wallRot = 0, history = [];
     const group = new qt; group.name = "editorMap"; group.visible = false; oi.add(group);
     const tMat = new Xt({ color: 0xebc375, roughness: .5, emissive: 0x332200 });
     const ray = new Yn;
@@ -35361,10 +35365,11 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       const x = Math.floor((e.clientX - r.left) / r.width * GW), y = Math.floor((e.clientY - r.top) / r.height * GH);
       if (x < 0 || y < 0 || x >= GW || y >= GH) return;
       const rm = arr => { const i = arr.findIndex(p => p[0] === x && p[1] === y); if (i >= 0) arr.splice(i, 1); };
+      history.push(JSON.stringify(data)); if (history.length > 40) history.shift();
       if (tool === "erase") { rm(data.walls); rm(data.cover); rm(data.targets); }
       else if (tool === "spawn") data.spawn = [x, y];
       else if (tool === "exit") data.exit = [x, y];
-      else { rm(data.walls); rm(data.cover); rm(data.targets); data[tool === "wall" ? "walls" : tool === "cover" ? "cover" : "targets"].push([x, y]); }
+      else { rm(data.walls); rm(data.cover); rm(data.targets); data[tool === "wall" ? "walls" : tool === "cover" ? "cover" : "targets"].push(tool === "wall" ? [x, y, wallRot] : [x, y]); }
       draw();
     });
     gt("#edPalette").querySelectorAll("button").forEach(b => b.onclick = () => { tool = b.dataset.tool; gt("#edPalette").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); });
@@ -35382,7 +35387,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       const kit = new qt; kit.userData.kit = true; group.add(kit);
       RANGE_KIT.floor(kit, (GW / 2 - .5) * 2 - 14, (GH / 2 - .5) * -2 + 10, GW * 2 + 4, GH * 2 + 4);
       const toWorld = (x, y) => [(x - GW / 2 + .5) * 2, (GH / 2 - .5 - y) * -2 + 2];
-      for (const [x, y] of data.walls) { const [wx, wz] = toWorld(x, y); RANGE_KIT.wall(kit, wx, wz, 2, 3, 0); }
+      for (const w of data.walls) { const [wx, wz] = toWorld(w[0], w[1]); RANGE_KIT.wall(kit, wx, wz, 2, 3, w[2] || 0); }
       for (const [x, y] of data.cover) { const [wx, wz] = toWorld(x, y); RANGE_KIT.cover(kit, wx, wz, 1.2, 1.2); }
       for (const [x, y] of data.targets) { const [wx, wz] = toWorld(x, y); const m = new at(new Qe(.3, 14, 10), tMat); m.position.set(wx, 1.6, wz); group.add(m); targets.push({ mesh: m, alive: true }); }
       const [sx, sz] = toWorld(...data.spawn); const [ex, ez] = toWorld(...data.exit);
@@ -35400,12 +35405,14 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     function stop() { RANGE_KIT.clearColliders(); playing = false; RANGE_WINGS._setActive(null); group.visible = false; Oi = !1; gt("#menu").hidden = !1; gt("#hud").hidden = !0; gt("#editorHud").hidden = !0; gt("#editorPanel").hidden = !1; }
     gt("#edPlay").onclick = play;
     gt("#edExit").onclick = () => stop();
+    gt("#edRotate").onclick = () => { wallRot = (wallRot + Math.PI / 2) % Math.PI; gt("#edRotate").textContent = wallRot ? "旋转90°" : "旋转"; };
+    gt("#edUndo").onclick = () => { if (history.length) { data = JSON.parse(history.pop()); draw(); } };
     gt("#editorEnter").onclick = () => { gt("#editorPanel").hidden = false; draw(); renderLib(); };
     gt("#edClose").onclick = () => { if (playing) stop(); gt("#editorPanel").hidden = true; };
     addEventListener("keydown", e => { if (playing && e.code === "Escape") stop(); });
     RANGE_WINGS.register("editor", { enter: play, exit: stop, tick });
     draw();
-    return { get data() { return data; }, set data(v) { data = v; draw(); }, blank, play, stop, draw, get targets() { return targets; }, get playing() { return playing; }, lib };
+    return { get data() { return data; }, set data(v) { data = v; draw(); }, blank, play, stop, draw, rotate: () => { wallRot = (wallRot + Math.PI / 2) % Math.PI; }, undo: () => { if (history.length) { data = JSON.parse(history.pop()); draw(); } }, get wallRot() { return wallRot; }, get targets() { return targets; }, get playing() { return playing; }, lib };
   })();
 
   RANGE_API.editor = RANGE_EDITOR;
@@ -35529,6 +35536,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     const group = new qt; group.name = "hunt"; group.visible = false; oi.add(group);
     let active = false, night = 0, predator = null, item = null, hasItem = false, flash = null, redLight = null;
     let savedMats = [], savedLights = [], origBg = null, noise = 0, lastHeard = null, visitGrid = {}, dead = false, extracted = false;
+    let predMemory = {}; try { predMemory = JSON.parse(localStorage.getItem("range-pred-memory") || "{}"); } catch (e) {}
     const darkMat = new Xt({ color: 0x1a1a1e, roughness: .95 });
     function applyDark() {
       savedMats = [];
@@ -35549,7 +35557,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     }
     function clearNight() { RANGE_KIT.clearColliders(); if (predator) group.remove(predator.mesh); if (item) group.remove(item); group.children.filter(c => c.userData.kit).forEach(c => group.remove(c)); predator = null; item = null; }
     function loadNight(i) {
-      clearNight(); night = i; hasItem = false; dead = false; extracted = false; noise = 0; lastHeard = null; visitGrid = {};
+      clearNight(); night = i; hasItem = false; dead = false; extracted = false; noise = 0; lastHeard = null; visitGrid = Object.assign({}, predMemory);
       const N = nights[i];
       const kit = new qt; kit.userData.kit = true; group.add(kit);
       RANGE_KIT.floor(kit, 0, -10, 26, 40);
@@ -35570,6 +35578,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       // 记录玩家常躲点（学习）
       const cell = Math.round(Yt.position.x / 3) + "," + Math.round(Yt.position.z / 3);
       visitGrid[cell] = (visitGrid[cell] || 0) + s;
+      if (Math.random() < .01) { predMemory = Object.assign({}, visitGrid); try { localStorage.setItem("range-pred-memory", JSON.stringify(predMemory)); } catch (e) {} }
       // 捕食者听觉：噪声大则追最近听到点
       if (noise > .35) lastHeard = Yt.position.clone();
       if (predator) {
@@ -35586,8 +35595,9 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
           }
           goal = predator.target;
         }
+        predator.lunge = Math.max(0, (predator.lunge || 0) - s); const pdist = predator.mesh.position.distanceTo(Yt.position); if (pdist < 6 && Math.random() < .006) predator.lunge = .6;
         const dir = goal.clone().sub(predator.mesh.position); dir.y = 0;
-        if (dir.length() > .3) { dir.normalize(); if (noise <= .35 && Math.sin(predator.phase * .7) > .55) { const perp = new I(-dir.z, 0, dir.x); dir.addScaledVector(perp, .8).normalize(); } const np = predator.mesh.position.clone().addScaledVector(dir, predator.speed * (noise > .35 ? 1.6 : 1) * s); if (!RANGE_ANIM.collide([np.x, 0, np.z], .4)) predator.mesh.position.copy(np); predator.mesh.lookAt(goal.x, predator.mesh.position.y, goal.z); RANGE_ANIM.pose(predator.sil, "walk", performance.now() / 1000); }
+        if (dir.length() > .3) { dir.normalize(); if (noise <= .35 && Math.sin(predator.phase * .7) > .55) { const perp = new I(-dir.z, 0, dir.x); dir.addScaledVector(perp, .8).normalize(); } const np = predator.mesh.position.clone().addScaledVector(dir, predator.speed * (noise > .35 ? 1.6 : 1) * (predator.lunge > 0 ? 2.2 : 1) * s); if (!RANGE_ANIM.collide([np.x, 0, np.z], .4)) predator.mesh.position.copy(np); predator.mesh.lookAt(goal.x, predator.mesh.position.y, goal.z); RANGE_ANIM.pose(predator.sil, "walk", performance.now() / 1000); }
         const dist = predator.mesh.position.distanceTo(Yt.position);
         gt("#huHeart").textContent = dist < 4 ? "♥♥♥ 危险!" : dist < 8 ? "♥♥ 接近" : "♥ 安全";
         predator.heartT = (predator.heartT || 0) - s; if (dist < 8 && predator.heartT <= 0) { predator.heartT = dist < 4 ? .35 : .75; ln.tone(55, .1, .22, 0, "sine"); ln.tone(50, .08, .14, .12, "sine"); }
@@ -35607,7 +35617,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     gt("#hurNext").onclick = () => { gt("#huntResult").hidden = true; gt("#huntHud").hidden = false; loadNight(night + 1 < nights.length ? night + 1 : 0); };
     gt("#hurExit").onclick = () => RANGE_WINGS.exit();
     RANGE_WINGS.register("hunt", { enter, exit, tick });
-    return { get active() { return active; }, nights, enter, exit, loadNight, get predator() { return predator; }, get hasItem() { return hasItem; }, get dead() { return dead; }, get extracted() { return extracted; }, get noise() { return noise; } };
+    return { get active() { return active; }, nights, enter, exit, loadNight, get predator() { return predator; }, get hasItem() { return hasItem; }, get dead() { return dead; }, get extracted() { return extracted; }, get noise() { return noise; }, get memory() { return predMemory; } };
   })();
 
   RANGE_API.hunt = RANGE_HUNT;
