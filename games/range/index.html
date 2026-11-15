@@ -54,7 +54,7 @@ THE SOFTWARE.
 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>RANGE — 0.42 · 战术实验区</title>
+    <title>RANGE — 0.43 · 战术实验区</title>
     <style>
       :root {
         color-scheme: dark;
@@ -1103,7 +1103,7 @@ THE SOFTWARE.
         <div class="sub">PRIVATE TRAINING FACILITY / 01</div>
       </header>
       <main class="panel">
-        <div class="eyebrow" id="badge">BUILD 0.42 / 战术实验区</div>
+        <div class="eyebrow" id="badge">BUILD 0.43 / 战术实验区</div>
         <h1 id="menuTitle">第一枪，已就绪。</h1>
         <p class="intro">
           M4A1 / P226 / AK-47 / MP5<br />教程引导、六区 CQB 与幽灵挑战。<br />辨认目标，再扣动扳机。
@@ -1203,9 +1203,9 @@ THE SOFTWARE.
 <p>仅状态回放；不伤害、不补弹、不计分。无任意帧接管。自由镜头只沿世界轴平移。</p></section>
     <section id="hud" hidden aria-label="探索界面">
       <div class="topbar">
-        <div><strong>RANGE.</strong><small>0.42 / PHYSICS + STATE</small></div>
+        <div><strong>RANGE.</strong><small>0.43 / PHYSICS + STATE</small></div>
         <div class="topright">
-          <span id="fps">0.42 / OFFLINE</span><br /><span id="position"
+          <span id="fps">0.43 / OFFLINE</span><br /><span id="position"
             >X 0.0 Z 8.0</span
           ><button id="pause">ESC · 暂停</button>
         </div>
@@ -1567,7 +1567,7 @@ THE SOFTWARE.
     </div>
     <script>
 /* ═══════════════════════════════════════════════════════════════════
-  RANGE 0.42.0「战术实验区」· 修复二（…→ 0.41 修复一 → 0.42 对象池/翼碰撞/辅助瞄准/字幕/1-bit柔化）
+  RANGE 0.43.0「战术实验区」· 敌人动画（…→ 0.42 修复二 → 0.43 敌人程序化动画/碰撞/死亡效果）
   来源: JadeeJacson/neon-drift-gp @ main, games/range/index.html
         （2026-10-26 提交「新增四款练手小游戏」，原始构建 1,029,475 字节）
   还原: 内联 JS 经 js-beautify 格式化（不折行/保留换行），并在已验证边界插入分区注释。
@@ -20166,7 +20166,7 @@ void main() {
    * 改动后请跑 test/smoke.js（桌面回归）与 test/mobile.js（移动端验收）。
    * ════════════════════════════════════════════════════════════════════════ */
   var RANGE_CONFIG = {
-    release: "0.42.0",
+    release: "0.43.0",
     render: {
       maxPixelRatio: 1.65,        // 桌面渲染像素比上限
       mobileMaxPixelRatio: 1.3    // 移动端像素比上限（性能优先）
@@ -33501,7 +33501,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       Oi = !1, ge.stop(), Oe.suspend();
       return
     }
-    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.42 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
+    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.43 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
   }
   ge.onPause = Sn;
   ge.onLookMode = s => {
@@ -33606,7 +33606,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (let i = 0; i < e; i++) fr.update(t / e, ke, Yt, ge);
       ki()
     }
-    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.42 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
+    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.43 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
   }
 /* ════════════════════════════════════════════════════════════════════════
  * [SECTION E] QA 调试接口 window.__RANGE__（URL 带 ?qa 时启用扩展方法）
@@ -34382,7 +34382,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
         const stype = r.boss ? "predator" : ["pistol", "rifle", "melee", "heavy", "predator"][Math.floor(Math.random() * 5)];
         const sil = RANGE_SILHOUETTE.build(stype);
         const mesh = sil.group; mesh.position.set(x, y - 1.0, z); mesh.scale.setScalar(r.boss ? 1.4 : .85); group.add(mesh);
-        drones.push({ mesh, base: y - 1.0, cd: 1.5 + Math.random() * 1.5, phase: Math.random() * 6.28, alive: true, silType: stype, hitMeshes: sil.hitMeshes, hp: r.boss ? 3 : 1 });
+        drones.push({ mesh, sil, base: y - 1.0, cd: 1.5 + Math.random() * 1.5, phase: Math.random() * 6.28, alive: true, silType: stype, hitMeshes: sil.hitMeshes, hp: r.boss ? 3 : 1 });
       }
       gt("#staticRoom").textContent = "ROOM " + (i + 1) + " / " + rooms.length;
       msg("时间只随你流动 · 移动或转向让时间前进");
@@ -34400,7 +34400,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       return Math.max(move, look, fire);
     }
     function killDrone(d) {
-      d.alive = false; group.remove(d.mesh);
+      d.alive = false; RANGE_ANIM.death(d.sil, group);
       for (let i = 0; i < 10; i++) { RANGE_POOL.frag(group, d.mesh.position, i % 2 ? droneMat : whiteMat, 3, () => active); }
       ln.tone(1400, .15, .14, 0, "square"); ln.tone(2200, .1, .08, .02, "sine"); if (window.RANGE_API.profile) RANGE_API.profile.reportKill(1);
       refreshHud();
@@ -34433,7 +34433,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       // 无人机
       for (const d of drones) {
         if (!d.alive) continue;
-        d.phase += dt; d.mesh.position.y = d.base + Math.sin(d.phase * 1.5) * .15;
+        d.phase += dt; d.mesh.position.y = d.base + Math.sin(d.phase * 1.5) * .15; RANGE_ANIM.pose(d.sil, "idle", d.phase);
         d.cd -= dt;
         if (d.cd <= 0) {
           d.cd = 2.2 + Math.random() * 1.5;
@@ -34941,7 +34941,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
         const sil = RANGE_SILHOUETTE.build(silType);
         const body = sil.group; body.position.set(x, 0, z);
         group.add(body);
-        guards.push({ mesh: body, base: [x, z], cd: 2 + Math.random() * 2, alive: true, phase: Math.random() * 6.28, hitMeshes: sil.hitMeshes, silType });
+        guards.push({ mesh: body, sil, base: [x, z], cd: 2 + Math.random() * 2, alive: true, phase: Math.random() * 6.28, hitMeshes: sil.hitMeshes, silType });
       }
       for (const [x, z] of M.loot) { const m = new at(new Ei(.35, .35, .35, 2, .04), lootMat); m.position.set(x, .6, z); group.add(m); loot.push({ mesh: m, got: false }); }
       Yt.position.set(M.exit[0], 0, M.exit[1]); Yt.velocity.set(0, 0, 0); Yt.yaw = Math.PI; Yt.pitch = 0; Yt.spawn();
@@ -34978,7 +34978,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
         }
         for (const g of guards) {
           if (!g.alive) continue;
-          g.phase += s; g.mesh.position.x = g.base[0] + Math.sin(g.phase * .5) * 1.5;
+          g.phase += s; const nx = g.base[0] + Math.sin(g.phase * .5) * 1.5; if (!RANGE_ANIM.collide([nx, 0, g.mesh.position.z], .4)) g.mesh.position.x = nx; RANGE_ANIM.pose(g.sil, "walk", g.phase);
           g.cd -= s;
           const dist = g.mesh.position.distanceTo(Yt.position);
           if (g.cd <= 0 && dist < 22) {
@@ -35015,7 +35015,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       if (phase === "exec") {
         const gm = []; guards.filter(g => g.alive).forEach(g => gm.push(...g.hitMeshes));
         const gh = ray.intersectObjects(gm, false)[0];
-        if (gh) { const g = guards.find(x => x.hitMeshes.includes(gh.object)); if (g) { g.alive = false; group.remove(g.mesh); ln.tone(1400, .1, .12, 0, "square"); if (window.RANGE_API.profile) RANGE_API.profile.reportKill(1); } }
+        if (gh) { const g = guards.find(x => x.hitMeshes.includes(gh.object)); if (g) { g.alive = false; RANGE_ANIM.death(g.sil, group); ln.tone(1400, .1, .12, 0, "square"); if (window.RANGE_API.profile) RANGE_API.profile.reportKill(1); } }
       }
     };
     // 规划标记（点击地面）
@@ -35087,23 +35087,26 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       const mat = new Xt({ color: T.color, roughness: .65, metalness: .1 });
       const dark = new Xt({ color: 0x1a1a1a, roughness: .6 });
       const g = new qt; g.name = "sil-" + type;
-      const hit = [];
+      const hit = []; const parts = {};
       let torsoW = .5, torsoH = 1.2, headR = .22, shoulderW = 0;
       if (type === "melee") { torsoW = .62; torsoH = 1.15; }
       if (type === "heavy") { torsoW = .8; torsoH = 1.3; shoulderW = .95; headR = .26; }
       if (type === "predator") { torsoW = .38; torsoH = 1.5; headR = .18; }
-      const torso = new at(new Ei(torsoW, torsoH, .35, 2, .05), mat); torso.position.y = 1.0; g.add(torso); hit.push(torso);
+      const torso = new at(new Ei(torsoW, torsoH, .35, 2, .05), mat); torso.position.y = 1.0; torso.userData.part = "torso"; g.add(torso); hit.push(torso); parts.torso = torso;
       const head = new at(type === "predator" ? new Ei(.2, .42, .24, 2, .04) : new Qe(headR, 12, 10), type === "heavy" ? dark : mat);
-      head.position.y = 1.0 + torsoH / 2 + headR; g.add(head); hit.push(head);
-      // 腿
-      for (const s of [-1, 1]) { const leg = new at(new Ei(.16, .8, .2, 1, .03), dark); leg.position.set(s * torsoW * .3, .4, 0); g.add(leg); }
-      // 肩/武器特征
+      head.position.y = 1.0 + torsoH / 2 + headR; head.userData.part = "head"; g.add(head); hit.push(head); parts.head = head;
+      // 腿（枢轴在髋部，便于摆动）
+      for (const s of [-1, 1]) { const pivot = new qt; pivot.position.set(s * torsoW * .3, .8, 0); const leg = new at(new Ei(.16, .8, .2, 1, .03), dark); leg.position.y = -.4; pivot.add(leg); g.add(pivot); parts[s < 0 ? "legL" : "legR"] = pivot; }
+      // 臂（枢轴在肩部）
+      for (const s of [-1, 1]) { const pivot = new qt; pivot.position.set(s * (torsoW / 2 + .08), 1.0 + torsoH / 2 - .15, 0); const arm = new at(new Ei(.12, .6, .14, 1, .03), dark); arm.position.y = -.3; pivot.add(arm); g.add(pivot); parts[s < 0 ? "armL" : "armR"] = pivot; }
       if (shoulderW) { const sh = new at(new Ei(shoulderW, .25, .4, 2, .05), dark); sh.position.y = 1.0 + torsoH / 2 - .1; g.add(sh); }
-      if (type === "pistol") { const arm = new at(new Ei(.12, .12, .5, 1, .02), dark); arm.position.set(torsoW / 2, 1.2, -.3); g.add(arm); }
-      if (type === "rifle") { const rifle = new at(new Ei(.1, .14, .8, 1, .02), dark); rifle.position.set(0, 1.15, -.4); g.add(rifle); }
-      if (type === "melee") { const blade = new at(new Ei(.06, .9, .12, 1, .01), new Xt({ color: 0xcccccc, metalness: .8, roughness: .3 })); blade.position.set(torsoW / 2 + .1, 1.3, -.2); blade.rotation.z = -.4; g.add(blade); }
+      let weapon = null;
+      if (type === "pistol") { weapon = new at(new Ei(.12, .12, .5, 1, .02), dark); weapon.position.set(torsoW / 2, 1.2, -.3); }
+      if (type === "rifle") { weapon = new at(new Ei(.1, .14, .8, 1, .02), dark); weapon.position.set(0, 1.15, -.4); }
+      if (type === "melee") { weapon = new at(new Ei(.06, .9, .12, 1, .01), new Xt({ color: 0xcccccc, metalness: .8, roughness: .3 })); weapon.position.set(torsoW / 2 + .1, 1.3, -.2); weapon.rotation.z = -.4; }
       if (type === "predator") { for (const s of [-1, 1]) { const claw = new at(new Ei(.08, .7, .1, 1, .02), dark); claw.position.set(s * (torsoW / 2 + .05), 1.0, -.15); claw.rotation.z = s * .3; g.add(claw); } }
-      return { group: g, hitMeshes: hit, type, color: T.color };
+      if (weapon) { weapon.userData.part = "weapon"; g.add(weapon); parts.weapon = weapon; }
+      return { group: g, hitMeshes: hit, type, color: T.color, parts };
     }
     return { types, build };
   })();
@@ -35531,7 +35534,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       RANGE_KIT.floor(kit, 0, -10, 26, 40);
       for (const w of N.walls) RANGE_KIT.wall(kit, w[0], w[1], w[2], w[3], w[4]);
       const sil = RANGE_SILHOUETTE.build("predator"); const pm = sil.group; pm.position.set(N.predator[0], 0, N.predator[1]); pm.scale.setScalar(1.3); group.add(pm);
-      predator = { mesh: pm, speed: 2.2, target: new I(N.predator[0], 0, N.predator[1]), wanderT: 0 };
+      predator = { mesh: pm, sil, speed: 2.2, target: new I(N.predator[0], 0, N.predator[1]), wanderT: 0 };
       item = new at(new Ei(.3, .3, .3, 2, .04), new Xt({ color: 0x3cc86a, emissive: 0x115522, roughness: .3 })); item.position.set(N.item[0], .6, N.item[1]); group.add(item);
       Yt.position.set(N.exit[0], 0, N.exit[1]); Yt.velocity.set(0, 0, 0); Yt.yaw = Math.PI; Yt.pitch = 0; Yt.spawn();
       gt("#huObjective").textContent = "取回证物 → 撤离";
@@ -35563,7 +35566,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
           goal = predator.target;
         }
         const dir = goal.clone().sub(predator.mesh.position); dir.y = 0;
-        if (dir.length() > .3) { dir.normalize(); if (noise <= .35 && Math.sin(predator.phase * .7) > .55) { const perp = new I(-dir.z, 0, dir.x); dir.addScaledVector(perp, .8).normalize(); } predator.mesh.position.addScaledVector(dir, predator.speed * (noise > .35 ? 1.6 : 1) * s); predator.mesh.lookAt(goal.x, predator.mesh.position.y, goal.z); }
+        if (dir.length() > .3) { dir.normalize(); if (noise <= .35 && Math.sin(predator.phase * .7) > .55) { const perp = new I(-dir.z, 0, dir.x); dir.addScaledVector(perp, .8).normalize(); } const np = predator.mesh.position.clone().addScaledVector(dir, predator.speed * (noise > .35 ? 1.6 : 1) * s); if (!RANGE_ANIM.collide([np.x, 0, np.z], .4)) predator.mesh.position.copy(np); predator.mesh.lookAt(goal.x, predator.mesh.position.y, goal.z); RANGE_ANIM.pose(predator.sil, "walk", performance.now() / 1000); }
         const dist = predator.mesh.position.distanceTo(Yt.position);
         gt("#huHeart").textContent = dist < 4 ? "♥♥♥ 危险!" : dist < 8 ? "♥♥ 接近" : "♥ 安全";
         predator.heartT = (predator.heartT || 0) - s; if (dist < 8 && predator.heartT <= 0) { predator.heartT = dist < 4 ? .35 : .75; ln.tone(55, .1, .22, 0, "sine"); ln.tone(50, .08, .14, .12, "sine"); }
@@ -35812,6 +35815,39 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
   RANGE_API.pool = RANGE_POOL;
   RANGE_API.access = RANGE_ACCESS;
   RANGE_API.draw = () => ki();
+
+  /* ═══ RANGE_ANIM 敌人程序化动画 + 碰撞（0.43 / A1）═══ */
+  var RANGE_ANIM = (() => {
+    function pose(sil, state, t) {
+      if (!sil || !sil.parts) return;
+      const p = sil.parts;
+      if (state === "walk") {
+        const sw = Math.sin(t * 9) * .55;
+        if (p.legL) p.legL.rotation.x = sw;
+        if (p.legR) p.legR.rotation.x = -sw;
+        if (p.armL) p.armL.rotation.x = -sw * .5;
+        if (p.armR) p.armR.rotation.x = sw * .5;
+        if (p.torso) p.torso.position.y = 1.0 + Math.abs(Math.sin(t * 9)) * .05;
+      } else if (state === "idle") {
+        if (p.legL) p.legL.rotation.x = 0;
+        if (p.legR) p.legR.rotation.x = 0;
+        if (p.armL) p.armL.rotation.x = Math.sin(t * 2) * .06;
+        if (p.armR) p.armR.rotation.x = -Math.sin(t * 2) * .06;
+        if (p.torso) p.torso.position.y = 1.0 + Math.sin(t * 2) * .03;
+      }
+    }
+    function death(sil, parent, onDone) {
+      if (!sil || !sil.group) { if (onDone) onDone(); return; }
+      const grp = sil.group, born = performance.now(), y0 = grp.position.y;
+      (function a() { const t = (performance.now() - born) / 1e3; grp.rotation.x = Math.min(Math.PI / 2, t * 5); grp.position.y = y0 - Math.min(.4, t * 1.2); if (t > .9) { parent.remove(grp); if (onDone) onDone(); return; } requestAnimationFrame(a); })();
+    }
+    function collide(pos, r) {
+      for (const c of pl.colliders) { if (pos[0] + r > c.min[0] && pos[0] - r < c.max[0] && pos[2] + r > c.min[2] && pos[2] - r < c.max[2] && pos[1] < c.max[1] && pos[1] + 1.8 > c.min[1]) return true; }
+      return false;
+    }
+    return { pose, death, collide };
+  })();
+  RANGE_API.anim = RANGE_ANIM;
 
   fr.update(1 / 120, ke, Yt, ge);
   ki();
