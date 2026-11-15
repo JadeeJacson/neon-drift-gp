@@ -54,7 +54,7 @@ THE SOFTWARE.
 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>RANGE — 0.25 · 战术实验区</title>
+    <title>RANGE — 0.26 · 战术实验区</title>
     <style>
       :root {
         color-scheme: dark;
@@ -805,6 +805,28 @@ THE SOFTWARE.
       .seg button { background: none; border: none; color: #f2e9d8; padding: 10px 14px; font-size: 13px; cursor: pointer; min-height: 44px; font-family: inherit; }
       .seg button.on { background: #ebc375; color: #14251c; font-weight: 700; }
       @media (pointer: coarse) { #settingsOpen { min-height: 44px; } }
+      /* ═══ RANGE 0.26 · STYLE 风格条 + 反应靶 ═══ */
+      #styleHud { position: fixed; right: calc(18px + env(safe-area-inset-right)); top: 50%; transform: translateY(-50%); z-index: 55; pointer-events: none; text-align: right; font-family: inherit; }
+      #styleHud[hidden] { display: none; }
+      #styleRank { font-size: 64px; font-weight: 900; line-height: 1; color: #ebc375; text-shadow: 0 2px 12px rgba(0,0,0,.6); font-style: italic; transition: transform .12s, color .2s; }
+      #styleRank.pop { transform: scale(1.25); }
+      #styleRank.r-S, #styleRank.r-SS, #styleRank.r-SSS { color: #ff5a3c; }
+      #styleCombo { font-size: 18px; font-weight: 700; color: #f2e9d8; opacity: .9; margin-top: 2px; }
+      #styleMeter { width: 120px; height: 5px; background: rgba(255,255,255,.15); border-radius: 3px; margin: 6px 0 0 auto; overflow: hidden; }
+      #styleMeter i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #ebc375, #ff5a3c); transition: width .15s; }
+      #stylePopup { font-size: 13px; font-weight: 700; color: #ebc375; margin-top: 6px; min-height: 18px; opacity: 0; transition: opacity .2s; }
+      #stylePopup.show { opacity: 1; }
+      #styleBreakdown { position: fixed; inset: 0; z-index: 160; background: rgba(6,12,10,.8); display: flex; align-items: center; justify-content: center; }
+      #styleBreakdown[hidden] { display: none; }
+      .sbCard { background: linear-gradient(165deg,#10241c,#0a1812); border: 1px solid rgba(235,195,117,.4); border-radius: 14px; padding: 24px 28px; color: #f2e9d8; width: min(420px,92vw); text-align: center; }
+      .sbCard h2 { margin: 0 0 10px; color: #ebc375; letter-spacing: .1em; font-size: 18px; }
+      #sbRank { font-size: 72px; font-weight: 900; font-style: italic; color: #ff5a3c; line-height: 1; }
+      #sbScore { font-size: 22px; margin: 6px 0 14px; color: #ebc375; }
+      #sbList { text-align: left; font-size: 13px; columns: 2; gap: 18px; margin-bottom: 12px; }
+      #sbList div { display: flex; justify-content: space-between; padding: 2px 0; break-inside: avoid; }
+      #sbCombo { font-size: 13px; opacity: .8; margin-bottom: 14px; }
+      #sbClose { background: #ebc375; color: #14251c; border: none; border-radius: 9px; padding: 10px 24px; font-weight: 700; font-size: 14px; cursor: pointer; }
+      @media (pointer: coarse) { #styleRank { font-size: 44px; } #styleMeter { width: 80px; } #styleHud { top: 30%; } }
 </style>
   </head>
   <body>
@@ -883,7 +905,7 @@ THE SOFTWARE.
         <div class="sub">PRIVATE TRAINING FACILITY / 01</div>
       </header>
       <main class="panel">
-        <div class="eyebrow" id="badge">BUILD 0.25 / 战术实验区</div>
+        <div class="eyebrow" id="badge">BUILD 0.26 / 战术实验区</div>
         <h1 id="menuTitle">第一枪，已就绪。</h1>
         <p class="intro">
           M4A1 / P226 / AK-47 / MP5<br />教程引导、六区 CQB 与幽灵挑战。<br />辨认目标，再扣动扳机。
@@ -912,7 +934,7 @@ THE SOFTWARE.
         <button id="start">进入靶场 →</button>
         <div class="secondary">
           <button id="reset">重置出生点</button
-          ><button id="helpToggle">操作说明</button><button id="settingsOpen">游戏设置</button>
+          ><button id="helpToggle">操作说明</button><button id="settingsOpen">游戏设置</button><button id="reactiveToggle">反应靶场 · 关</button>
         </div>
         <div class="settings">
           <label for="sensitivity"
@@ -983,9 +1005,9 @@ THE SOFTWARE.
 <p>仅状态回放；不伤害、不补弹、不计分。无任意帧接管。自由镜头只沿世界轴平移。</p></section>
     <section id="hud" hidden aria-label="探索界面">
       <div class="topbar">
-        <div><strong>RANGE.</strong><small>0.25 / PHYSICS + STATE</small></div>
+        <div><strong>RANGE.</strong><small>0.26 / PHYSICS + STATE</small></div>
         <div class="topright">
-          <span id="fps">0.25 / OFFLINE</span><br /><span id="position"
+          <span id="fps">0.26 / OFFLINE</span><br /><span id="position"
             >X 0.0 Z 8.0</span
           ><button id="pause">ESC · 暂停</button>
         </div>
@@ -1067,6 +1089,22 @@ THE SOFTWARE.
         </button>
       </div>
     </section>
+    <div id="styleHud" hidden>
+      <div id="styleRank">D</div>
+      <div id="styleCombo"></div>
+      <div id="styleMeter"><i></i></div>
+      <div id="stylePopup"></div>
+    </div>
+    <div id="styleBreakdown" hidden>
+      <div class="sbCard">
+        <h2>风格结算 · STYLE</h2>
+        <div id="sbRank"></div>
+        <div id="sbScore"></div>
+        <div id="sbList"></div>
+        <div id="sbCombo"></div>
+        <button id="sbClose">关闭</button>
+      </div>
+    </div>
     <div id="settingsOverlay" hidden>
       <div id="settingsDesktop" class="settingsCard" hidden>
         <header><h2>游戏设置 · 桌面端</h2><button id="settingsCloseD">✕ 关闭</button></header>
@@ -1134,7 +1172,7 @@ THE SOFTWARE.
     </div>
     <script>
 /* ═══════════════════════════════════════════════════════════════════
-  RANGE 0.25.0「战术实验区」· 红点瞄具版（0.22 基线 → 0.23 移动适配 → 0.24 设置操控 → 0.25 统一细边框红点，见 SECTION B0/B0b/F/G/H）
+  RANGE 0.26.0「战术实验区」· 风格与反应靶（…→ 0.25 红点 → 0.26 STYLE 风格条+反应靶+wing 框架，见 SECTION I）
   来源: JadeeJacson/neon-drift-gp @ main, games/range/index.html
         （2026-10-26 提交「新增四款练手小游戏」，原始构建 1,029,475 字节）
   还原: 内联 JS 经 js-beautify 格式化（不折行/保留换行），并在已验证边界插入分区注释。
@@ -19733,7 +19771,7 @@ void main() {
    * 改动后请跑 test/smoke.js（桌面回归）与 test/mobile.js（移动端验收）。
    * ════════════════════════════════════════════════════════════════════════ */
   var RANGE_CONFIG = {
-    release: "0.25.0",
+    release: "0.26.0",
     render: {
       maxPixelRatio: 1.65,        // 桌面渲染像素比上限
       mobileMaxPixelRatio: 1.3    // 移动端像素比上限（性能优先）
@@ -19744,6 +19782,14 @@ void main() {
       lookScale: 1.0,             // 转向灵敏度倍率（叠加游戏内灵敏度设置）
       tapKeyHoldMs: 120           // 点按键的虚拟按键保持时长
     },
+    style: {
+      enabled: true,
+      comboWindow: 3.0,          // 连击窗口 s
+      ranks: [0, 400, 1000, 2000, 3500, 5500, 8000],  // D C B A S SS SSS
+      weights: { kill: 100, headshot: 150, airshot: 120, moving: 60, longshot: 90, quickkill: 80, switchkill: 70, steel: 40, precision: 60, nocivilian: 30, ricochet: 130, multikill: 110 },
+      civilianPenalty: 200
+    },
+    reactive: { laneZ: -18, resetDelay: 2.5, fragmentBudget: 48 },
     sights: {
       ringRadius: .030,         // 步枪红点环半径 m
       pistolRingRadius: .016,   // 手枪迷你红点环半径 m
@@ -33060,7 +33106,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       Oi = !1, ge.stop(), Oe.suspend();
       return
     }
-    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.25 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
+    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.26 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
   }
   ge.onPause = Sn;
   ge.onLookMode = s => {
@@ -33165,7 +33211,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (let i = 0; i < e; i++) fr.update(t / e, ke, Yt, ge);
       ki()
     }
-    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.25 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
+    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.26 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
   }
 /* ════════════════════════════════════════════════════════════════════════
  * [SECTION E] QA 调试接口 window.__RANGE__（URL 带 ?qa 时启用扩展方法）
@@ -33589,6 +33635,245 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     settingsUI: RANGE_SETTINGS,
     qa: window.__RANGE__
   };
+
+  /* ════════════════════════════════════════════════════════════════════════
+   * [SECTION I] wing 框架 + STYLE 风格条 + 反应式靶标家族（0.26 / M2）
+   * RANGE_WINGS：模式翼注册/进入/退出，包裹 mp(模拟)与 ki(渲染，含后处理)。
+   * STYLE：跨模式风格计分（12 事件加权 + 连击 + 评级 + 结算），独立存档。
+   * REACTIVE：钢板/凝胶/西瓜/玻璃/水果 五类反应靶，命中触发物理+音效。
+   * ════════════════════════════════════════════════════════════════════════ */
+  var RANGE_WINGS = (() => {
+    const wings = {};
+    let active = null;
+    const baseMp = mp, baseKi = ki;
+    const post = { active: false, rt: null, scene: null, camera: null, mat: null, mode: null };
+    mp = function (s) {
+      if (active && active.tick) { active.tick(s); return; }
+      baseMp(s);
+    };
+    ki = function () {
+      if (post.active && post.rt) {
+        hi.setRenderTarget(post.rt);
+        baseKi();
+        hi.setRenderTarget(null);
+        hi.render(post.scene, post.camera);
+        return;
+      }
+      baseKi();
+    };
+    function register(name, w) { wings[name] = w; }
+    function enter(name) { if (active && active.exit) active.exit(); active = wings[name]; if (active && active.enter) active.enter(); }
+    function exit() { if (active && active.exit) active.exit(); active = null; }
+    return { register, enter, exit, wings, post, baseMp, baseKi, get active() { return active; } };
+  })();
+
+  var RANGE_STYLE = (() => {
+    const C = RANGE_CONFIG.style;
+    const rankNames = ["D", "C", "B", "A", "S", "SS", "SSS"];
+    const st = { score: 0, combo: 0, maxCombo: 0, comboT: 0, rank: 0, counts: {}, lastKill: -99, lastSlot: -1, civStreak: 0, popupT: 0, shown: false };
+    const hud = gt("#styleHud"), rankEl = gt("#styleRank"), comboEl = gt("#styleCombo"), meterEl = gt("#styleMeter i"), popupEl = gt("#stylePopup");
+    const labels = { kill: "击倒", headshot: "爆头", airshot: "空中击杀", moving: "移动击杀", longshot: "远距离", quickkill: "速杀", switchkill: "换枪击杀", steel: "钢靶", precision: "精准", nocivilian: "零误击", ricochet: "跳弹杀", multikill: "穿透多杀" };
+    function reset() { st.score = 0; st.combo = 0; st.maxCombo = 0; st.comboT = 0; st.rank = 0; st.counts = {}; st.lastKill = -99; st.lastSlot = -1; st.civStreak = 0; refresh(); }
+    function rankOf(s) { let r = 0; for (let i = 0; i < C.ranks.length; i++) if (s >= C.ranks[i]) r = i; return r; }
+    function add(type, pts) {
+      st.counts[type] = (st.counts[type] || 0) + 1;
+      st.score += pts; st.combo++; st.comboT = C.comboWindow; st.maxCombo = Math.max(st.maxCombo, st.combo);
+      const mult = 1 + Math.min(st.combo, 20) * .05;
+      st.score += Math.round(pts * (mult - 1));
+      popup(labels[type] + " +" + pts);
+      const nr = rankOf(st.score);
+      if (nr > st.rank) { st.rank = nr; rankEl.classList.add("pop"); setTimeout(() => rankEl.classList.remove("pop"), 160); ln.tone(660 + nr * 120, .12, .12, 0, "triangle"); }
+      refresh();
+    }
+    function popup(t) { popupEl.textContent = t; popupEl.classList.add("show"); st.popupT = 1.2; }
+    function refresh() {
+      rankEl.textContent = rankNames[st.rank];
+      rankEl.className = "r-" + rankNames[st.rank];
+      comboEl.textContent = st.combo > 1 ? st.combo + " 连击" : "";
+      const lo = C.ranks[st.rank], hi2 = C.ranks[st.rank + 1] ?? (lo + 2500);
+      meterEl.style.width = Math.min(100, (st.score - lo) / (hi2 - lo) * 100) + "%";
+    }
+    function onHit(h) {
+      if (!C.enabled || !st.shown) return;
+      if (h.civilian) { st.score = Math.max(0, st.score - C.civilianPenalty); st.combo = 0; st.civStreak++; popup("误击平民 −" + C.civilianPenalty); refresh(); return; }
+      st.civStreak = 0;
+      const now = ke.time;
+      if (h.killed) {
+        add("kill", C.weights.kill);
+        if (h.head) add("headshot", C.weights.headshot);
+        if (!Yt.grounded) add("airshot", C.weights.airshot);
+        if (Math.hypot(Yt.velocity.x, Yt.velocity.z) > 1.5) add("moving", C.weights.moving);
+        if (h.distance > 40) add("longshot", C.weights.longshot);
+        if (now - st.lastKill < 1.5 && st.lastKill >= 0) add("quickkill", C.weights.quickkill);
+        if (ke.slot !== st.lastSlot && st.lastSlot >= 0) add("switchkill", C.weights.switchkill);
+        if (h.ricochet) add("ricochet", C.weights.ricochet);
+        if (h.multi) add("multikill", C.weights.multikill);
+        st.lastKill = now; st.lastSlot = ke.slot;
+      } else {
+        if (h.zone === "steel") add("steel", C.weights.steel);
+        if (h.head) add("precision", C.weights.precision);
+      }
+    }
+    // 串联现有 onScoredHit
+    const prevScored = ke.onScoredHit;
+    ke.onScoredHit = h => { prevScored && prevScored(h); onHit(h); };
+    // 连击衰减 + popup 计时（rAF）
+    let last = performance.now();
+    (function loop(now) {
+      requestAnimationFrame(loop);
+      const dt = Math.min(.05, (now - last) / 1e3); last = now;
+      if (st.comboT > 0) { st.comboT -= dt; if (st.comboT <= 0) { st.combo = 0; refresh(); } }
+      if (st.popupT > 0) { st.popupT -= dt; if (st.popupT <= 0) popupEl.classList.remove("show"); }
+    })(last);
+    // 结算：监听 Gt 完成
+    const prevFinished = Gt.onFinished;
+    Gt.onFinished = () => { prevFinished && prevFinished(); if (C.enabled && st.shown) showBreakdown(); };
+    function showBreakdown() {
+      gt("#sbRank").textContent = rankNames[st.rank];
+      gt("#sbScore").textContent = st.score + " 风格分";
+      gt("#sbList").innerHTML = Object.keys(labels).filter(k => st.counts[k]).map(k => "<div><span>" + labels[k] + "</span><b>" + st.counts[k] + "</b></div>").join("") || "<div>无记录</div>";
+      gt("#sbCombo").textContent = "最高连击 " + st.maxCombo;
+      gt("#styleBreakdown").hidden = false;
+      try { const best = JSON.parse(localStorage.getItem("range-style-best") || "0"); if (st.score > best) localStorage.setItem("range-style-best", JSON.stringify(st.score)); } catch {}
+    }
+    gt("#sbClose").onclick = () => gt("#styleBreakdown").hidden = true;
+    function show(v) { st.shown = v; hud.hidden = !v; if (v) reset(); }
+    // 模式切换时重置
+    const prevSelect = Gt.select.bind(Gt);
+    Gt.select = m => { prevSelect(m); if (st.shown) reset(); };
+    return { state: st, reset, show, add, rankNames, showBreakdown, get enabled() { return C.enabled; } };
+  })();
+
+  var RANGE_REACTIVE = (() => {
+    const C = RANGE_CONFIG.reactive;
+    const group = new qt; group.name = "reactiveLane"; group.visible = false; oi.add(group);
+    const items = [];
+    const ray = new Yn;
+    let active = false, fragCount = 0;
+    const matSteel = new Xt({ color: 0xb8c4c0, metalness: .8, roughness: .35 });
+    const matStand = new Xt({ color: 0x3a4038, metalness: .4, roughness: .7 });
+    function clear() { for (const it of items) { group.remove(it.root); } items.length = 0; fragCount = 0; }
+    function steel(x, z) {
+      const root = new qt; root.position.set(x, 0, z);
+      const post = new at(new Se(.04, .04, 1.3, 10), matStand); post.position.y = .65; root.add(post);
+      const pivot = new qt; pivot.position.y = 1.3; root.add(pivot);
+      const plate = new at(new Se(.28, .28, .03, 24), matSteel); plate.rotation.x = Math.PI / 2; plate.position.y = .28; pivot.add(plate);
+      group.add(root);
+      items.push({ kind: "steel", root, pivot, plate, down: false, t: 0, vy: 0 });
+    }
+    function gel(x, z) {
+      const root = new qt; root.position.set(x, 0, z);
+      const block = new at(new Ei(.4, .5, .4, 2, .03), new Xt({ color: 0xd8c9a8, transparent: true, opacity: .82, roughness: .9 })); block.position.y = .85; root.add(block);
+      const stand = new at(new Ei(.5, .6, .5, 2, .02), matStand); stand.position.y = .3; root.add(stand);
+      group.add(root);
+      items.push({ kind: "gel", root, block, wounds: [] });
+    }
+    function melon(x, z) {
+      const root = new qt; root.position.set(x, 0, z);
+      const stand = new at(new Ei(.4, .5, .4, 2, .02), matStand); stand.position.y = .25; root.add(stand);
+      const ball = new at(new Qe(.22, 16, 12), new Xt({ color: 0x3f7d3a, roughness: .6 })); ball.position.y = .72; root.add(ball);
+      group.add(root);
+      items.push({ kind: "melon", root, ball, broken: false });
+    }
+    function glass(x, z) {
+      const root = new qt; root.position.set(x, 0, z);
+      const frame = new at(new Ei(.7, 1.0, .05, 2, .01), matStand); frame.position.y = 1.0; root.add(frame);
+      const pane = new at(new Ei(.6, .9, .012, 1, .002), new Xt({ color: 0xaed4e0, transparent: true, opacity: .35, roughness: .1, metalness: .2 })); pane.position.y = 1.0; root.add(pane);
+      group.add(root);
+      items.push({ kind: "glass", root, pane, broken: false });
+    }
+    function fruit(x, z) {
+      const root = new qt; root.position.set(x, 0, z);
+      const stand = new at(new Ei(.4, .5, .4, 2, .02), matStand); stand.position.y = .25; root.add(stand);
+      const balls = [];
+      for (let i = 0; i < 3; i++) { const b = new at(new Qe(.09, 12, 8), new Xt({ color: [0xe0533a, 0xe8a33c, 0xc0466b][i], roughness: .5 })); b.position.set((i - 1) * .16, .62, 0); root.add(b); balls.push(b); }
+      group.add(root);
+      items.push({ kind: "fruit", root, balls, popped: [false, false, false] });
+    }
+    function spawn() {
+      clear();
+      const z = C.laneZ;
+      steel(-6, z); steel(-3, z - 3);
+      gel(0, z); melon(3, z - 2); glass(6, z); fruit(9, z - 3);
+      group.visible = true;
+    }
+    function fragments(pos, color, n, speed) {
+      for (let i = 0; i < n && fragCount < C.fragmentBudget; i++, fragCount++) {
+        const f = new at(new Ei(.05, .05, .05, 1, .005), new Xt({ color, roughness: .6 }));
+        f.position.copy(pos);
+        const v = new I((Math.random() - .5), Math.random() * .8 + .2, (Math.random() - .5)).multiplyScalar(speed);
+        group.add(f);
+        const born = performance.now();
+        (function anim() {
+          const t = (performance.now() - born) / 1e3;
+          if (t > 1.6 || !group.visible) { group.remove(f); fragCount--; return; }
+          v.y -= 9.8 * .016; f.position.addScaledVector(v, .016); f.rotation.x += .1; f.rotation.y += .13;
+          if (f.position.y < .03) { f.position.y = .03; v.y *= -.3; v.x *= .7; v.z *= .7; }
+          requestAnimationFrame(anim);
+        })();
+      }
+    }
+    function react(it, point) {
+      if (it.kind === "steel") {
+        if (!it.down) { it.down = true; it.t = 0; it.vy = 3.5; ln.tone(1800, .3, .18, 0, "triangle"); ln.tone(2600, .18, .1, .01, "sine"); RANGE_STYLE.add("steel", 40); }
+      } else if (it.kind === "gel") {
+        const w = new at(new Se(.03, .03, .3, 8), new Xt({ color: 0x6b4a2f, roughness: .9 })); w.position.copy(it.root.worldToLocal(point.clone())); w.rotation.x = Math.PI / 2; it.block.add(w); it.wounds.push(w); ln.tone(300, .08, .12, 0, "sine");
+      } else if (it.kind === "melon") {
+        if (!it.broken) { it.broken = true; it.ball.visible = false; fragments(it.ball.getWorldPosition(new I), 0x3f7d3a, 14, 3); fragments(it.ball.getWorldPosition(new I), 0xe0607a, 6, 2.5); ln.tone(180, .12, .16, 0, "sawtooth"); RANGE_STYLE.add("kill", 60); }
+      } else if (it.kind === "glass") {
+        if (!it.broken) { it.broken = true; it.pane.visible = false; fragments(it.pane.getWorldPosition(new I), 0xaed4e0, 18, 2.5); ln.tone(3200, .2, .12, 0, "square"); ln.tone(4200, .12, .08, .02, "square"); RANGE_STYLE.add("precision", 50); }
+      } else if (it.kind === "fruit") {
+        let best = -1, bd = 1e9;
+        it.balls.forEach((b, i) => { if (it.popped[i]) return; const d = b.getWorldPosition(new I).distanceTo(point); if (d < bd) { bd = d; best = i; } });
+        if (best >= 0 && bd < .2) { it.popped[best] = true; it.balls[best].visible = false; fragments(it.balls[best].getWorldPosition(new I), it.balls[best].material.color.getHex(), 8, 2); ln.tone(900 + best * 200, .07, .12, 0, "sine"); RANGE_STYLE.add("precision", 30); }
+      }
+    }
+    // 命中检测：串联 onShot
+    const prevShot = ke.onShot;
+    ke.onShot = s => {
+      prevShot && prevShot(s);
+      if (!active || !group.visible) return;
+      ray.set(He.position, new I(...s.direction).normalize());
+      const meshes = [];
+      for (const it of items) {
+        if (it.kind === "steel" && !it.down) meshes.push(it.plate);
+        else if (it.kind === "gel") meshes.push(it.block);
+        else if (it.kind === "melon" && !it.broken) meshes.push(it.ball);
+        else if (it.kind === "glass" && !it.broken) meshes.push(it.pane);
+        else if (it.kind === "fruit") it.balls.forEach((b, i) => { if (!it.popped[i]) meshes.push(b); });
+      }
+      const hit = ray.intersectObjects(meshes, false)[0];
+      if (hit) { const it = items.find(x => meshes.includes(hit.object) && (x.plate === hit.object || x.block === hit.object || x.ball === hit.object || x.pane === hit.object || (x.balls && x.balls.includes(hit.object)))); if (it) react(it, hit.point); }
+    };
+    // 动画：钢板回弹
+    let last = performance.now();
+    (function loop(now) {
+      requestAnimationFrame(loop);
+      const dt = Math.min(.05, (now - last) / 1e3); last = now;
+      if (!group.visible) return;
+      for (const it of items) {
+        if (it.kind === "steel" && it.down) {
+          it.t += dt;
+          it.pivot.rotation.x = Math.min(Math.PI / 2, it.pivot.rotation.x + it.vy * dt);
+          it.vy -= 6 * dt;
+          if (it.pivot.rotation.x >= Math.PI / 2) { it.pivot.rotation.x = Math.PI / 2; it.vy = 0; }
+          if (it.t > C.resetDelay) { it.down = false; it.pivot.rotation.x = 0; it.vy = 0; }
+        }
+      }
+    })(last);
+    function setActive(v) {
+      active = v;
+      if (v) { spawn(); RANGE_STYLE.show(true); }
+      else { group.visible = false; clear(); RANGE_STYLE.show(false); }
+      const btn = gt("#reactiveToggle"); if (btn) btn.textContent = "反应靶场 · " + (v ? "开" : "关");
+    }
+    gt("#reactiveToggle").onclick = () => setActive(!active);
+    return { get active() { return active; }, setActive, items, spawn, react, group };
+  })();
+
+  RANGE_API.wings = RANGE_WINGS;
+  RANGE_API.style = RANGE_STYLE;
+  RANGE_API.reactive = RANGE_REACTIVE;
 
   fr.update(1 / 120, ke, Yt, ge);
   ki();
