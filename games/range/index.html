@@ -54,7 +54,7 @@ THE SOFTWARE.
 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>RANGE — 0.35 · 战术实验区</title>
+    <title>RANGE — 0.36 · 战术实验区</title>
     <style>
       :root {
         color-scheme: dark;
@@ -959,6 +959,17 @@ THE SOFTWARE.
       #rhSeg { font-size: 12px; opacity: .7; }
       #rhythmResult, #fnProPanel { position: fixed; inset: 0; z-index: 160; background: rgba(6,12,10,.85); display: flex; align-items: center; justify-content: center; }
       #rhythmResult[hidden], #fnProPanel[hidden] { display: none; }
+      /* ═══ RANGE 0.36 · HUNT 恐怖翼 ═══ */
+      #huntHud { position: fixed; left: calc(18px + env(safe-area-inset-left)); top: calc(60px + env(safe-area-inset-top)); z-index: 55; pointer-events: none; color: #c8c4bc; font-family: monospace; text-shadow: 0 1px 6px #000; }
+      #huntHud[hidden] { display: none; }
+      #huObjective { font-size: 14px; font-weight: 700; color: #ff3b30; }
+      #huHeart { font-size: 22px; color: #ff3b30; margin: 4px 0; letter-spacing: 2px; }
+      #huNoise { font-size: 13px; }
+      #huHint { font-size: 11px; opacity: .6; margin-top: 6px; }
+      #huntResult { position: fixed; inset: 0; z-index: 160; background: rgba(0,0,0,.92); display: flex; align-items: center; justify-content: center; }
+      #huntResult[hidden] { display: none; }
+      body.hunt-dark #hud .topbar, body.hunt-dark #hud .bottombar { color: #888; }
+      #huntStatic { position: fixed; inset: 0; z-index: 45; pointer-events: none; opacity: 0; background: repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 3px); mix-blend-mode: screen; }
 </style>
   </head>
   <body>
@@ -1037,7 +1048,7 @@ THE SOFTWARE.
         <div class="sub">PRIVATE TRAINING FACILITY / 01</div>
       </header>
       <main class="panel">
-        <div class="eyebrow" id="badge">BUILD 0.35 / 战术实验区</div>
+        <div class="eyebrow" id="badge">BUILD 0.36 / 战术实验区</div>
         <h1 id="menuTitle">第一枪，已就绪。</h1>
         <p class="intro">
           M4A1 / P226 / AK-47 / MP5<br />教程引导、六区 CQB 与幽灵挑战。<br />辨认目标，再扣动扳机。
@@ -1066,7 +1077,7 @@ THE SOFTWARE.
         <button id="start">进入靶场 →</button>
         <div class="secondary">
           <button id="reset">重置出生点</button
-          ><button id="helpToggle">操作说明</button><button id="settingsOpen">游戏设置</button><button id="reactiveToggle">反应靶场 · 关</button><button id="staticEnter" class="studioEntry">STATIC · 时间只随你流动 →</button><button id="forensicsEnter" class="studioEntry">FORENSICS · 法证瞄准训练 →</button><button id="deckEnter" class="studioEntry">DECK RUN · 卡牌速通 →</button><button id="breachEnter" class="studioEntry">BREACH · 可破坏劫案 →</button><button id="silhouetteEnter" class="studioEntry">敌人剪影画廊 →</button><button id="profileEnter" class="studioEntry">档案 · 进度与挑战 →</button><button id="editorEnter" class="studioEntry">关卡编辑器 · UGC →</button><button id="rhythmEnter" class="studioEntry">RHYTHM · 节奏射击 →</button><button id="fnProEnter" class="studioEntry">FORENSICS Pro · 训练分析 →</button><button id="psxToggle">PSX 复古模式 · 关</button><div class="audioRow" style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px"><label>音乐 <input type="range" id="musicVol" min="0" max="1" step="0.05" style="width:90px"></label><button id="muteToggle">静音 · 关</button></div>
+          ><button id="helpToggle">操作说明</button><button id="settingsOpen">游戏设置</button><button id="reactiveToggle">反应靶场 · 关</button><button id="staticEnter" class="studioEntry">STATIC · 时间只随你流动 →</button><button id="forensicsEnter" class="studioEntry">FORENSICS · 法证瞄准训练 →</button><button id="deckEnter" class="studioEntry">DECK RUN · 卡牌速通 →</button><button id="breachEnter" class="studioEntry">BREACH · 可破坏劫案 →</button><button id="silhouetteEnter" class="studioEntry">敌人剪影画廊 →</button><button id="profileEnter" class="studioEntry">档案 · 进度与挑战 →</button><button id="editorEnter" class="studioEntry">关卡编辑器 · UGC →</button><button id="rhythmEnter" class="studioEntry">RHYTHM · 节奏射击 →</button><button id="fnProEnter" class="studioEntry">FORENSICS Pro · 训练分析 →</button><button id="huntEnter" class="studioEntry">HUNT · 黑暗捕食者 →</button><button id="psxToggle">PSX 复古模式 · 关</button><div class="audioRow" style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px"><label>音乐 <input type="range" id="musicVol" min="0" max="1" step="0.05" style="width:90px"></label><button id="muteToggle">静音 · 关</button></div>
         </div>
         <div class="settings">
           <label for="sensitivity"
@@ -1137,9 +1148,9 @@ THE SOFTWARE.
 <p>仅状态回放；不伤害、不补弹、不计分。无任意帧接管。自由镜头只沿世界轴平移。</p></section>
     <section id="hud" hidden aria-label="探索界面">
       <div class="topbar">
-        <div><strong>RANGE.</strong><small>0.35 / PHYSICS + STATE</small></div>
+        <div><strong>RANGE.</strong><small>0.36 / PHYSICS + STATE</small></div>
         <div class="topright">
-          <span id="fps">0.35 / OFFLINE</span><br /><span id="position"
+          <span id="fps">0.36 / OFFLINE</span><br /><span id="position"
             >X 0.0 Z 8.0</span
           ><button id="pause">ESC · 暂停</button>
         </div>
@@ -1403,6 +1414,13 @@ THE SOFTWARE.
         <button id="fnpClose">关闭</button>
       </div>
     </div>
+    <div id="huntHud" hidden>
+      <div id="huObjective">取回证物 → 撤离</div>
+      <div id="huHeart"></div>
+      <div id="huNoise">噪声 ▁</div>
+      <div id="huHint">慢走静音 · 奔跑引怪 · 手电照路</div>
+    </div>
+    <div id="huntResult" hidden><div class="sbCard brCard"><h2 id="hurTitle">HUNT</h2><div id="hurStats" style="font-size:14px;margin:10px 0"></div><button id="hurRetry">重试</button><button id="hurNext">下一夜</button><button id="hurExit">退出</button></div></div>
     <div id="settingsOverlay" hidden>
       <div id="settingsDesktop" class="settingsCard" hidden>
         <header><h2>游戏设置 · 桌面端</h2><button id="settingsCloseD">✕ 关闭</button></header>
@@ -1442,6 +1460,7 @@ THE SOFTWARE.
       </div>
     </div>
     <div id="staticVignette"></div>
+    <div id="huntStatic"></div>
     <div id="rotateHint" hidden>
       <div class="icon">⟳</div>
       <strong>请横屏游玩</strong>
@@ -1471,7 +1490,7 @@ THE SOFTWARE.
     </div>
     <script>
 /* ═══════════════════════════════════════════════════════════════════
-  RANGE 0.35.0「战术实验区」· 法证产品化与节奏（…→ 0.34 编辑器 → 0.35 FORENSICS Pro+节奏翼，见 SECTION R）
+  RANGE 0.36.0「战术实验区」· 恐怖捕食者与劫案深化（…→ 0.35 法证节奏 → 0.36 HUNT 恐怖翼+BREACH 深化，见 SECTION S）
   来源: JadeeJacson/neon-drift-gp @ main, games/range/index.html
         （2026-10-26 提交「新增四款练手小游戏」，原始构建 1,029,475 字节）
   还原: 内联 JS 经 js-beautify 格式化（不折行/保留换行），并在已验证边界插入分区注释。
@@ -20070,7 +20089,7 @@ void main() {
    * 改动后请跑 test/smoke.js（桌面回归）与 test/mobile.js（移动端验收）。
    * ════════════════════════════════════════════════════════════════════════ */
   var RANGE_CONFIG = {
-    release: "0.35.0",
+    release: "0.36.0",
     render: {
       maxPixelRatio: 1.65,        // 桌面渲染像素比上限
       mobileMaxPixelRatio: 1.3    // 移动端像素比上限（性能优先）
@@ -33405,7 +33424,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       Oi = !1, ge.stop(), Oe.suspend();
       return
     }
-    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.35 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
+    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.36 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
   }
   ge.onPause = Sn;
   ge.onLookMode = s => {
@@ -33510,7 +33529,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (let i = 0; i < e; i++) fr.update(t / e, ke, Yt, ge);
       ki()
     }
-    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.35 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
+    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.36 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
   }
 /* ════════════════════════════════════════════════════════════════════════
  * [SECTION E] QA 调试接口 window.__RANGE__（URL 带 ?qa 时启用扩展方法）
@@ -34803,7 +34822,10 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       { name: "MOTEL", walls: [[-10, -10, 20, 3, Math.PI / 2], [10, -10, 20, 3, Math.PI / 2], [0, -26, 20, 3, 0]], cover: [[-3, -6], [3, -12], [-3, -18]], destruct: [[0, -14, 5, 3, 5, 3], [0, -22, 5, 3, 5, 3]], guards: [[-5, -10], [5, -18], [0, -24]], loot: [[-7, -8], [7, -16], [0, -24]], exit: [0, 6] },
       { name: "VILLA", walls: [[-11, -10, 22, 3, Math.PI / 2], [11, -10, 22, 3, Math.PI / 2], [0, -27, 22, 3, 0]], cover: [[-4, -7], [4, -13], [0, -19], [-6, -23]], destruct: [[0, -15, 6, 3, 6, 3]], guards: [[-6, -11], [6, -19], [0, -25]], loot: [[-8, -9], [8, -17], [0, -25]], exit: [0, 6] },
       { name: "MALL", walls: [[-13, -10, 26, 3, Math.PI / 2], [13, -10, 26, 3, Math.PI / 2], [0, -30, 26, 3, 0]], cover: [[-5, -8], [5, -14], [-5, -20], [5, -26]], destruct: [[0, -18, 7, 3, 7, 3]], guards: [[-7, -12], [7, -22], [0, -28], [-3, -16]], loot: [[-9, -10], [9, -20], [0, -28]], exit: [0, 6] },
-      { name: "TV STATION", walls: [[-12, -10, 24, 3, Math.PI / 2], [12, -10, 24, 3, Math.PI / 2], [0, -29, 24, 3, 0]], cover: [[-4, -9], [4, -15], [0, -21], [-6, -25]], destruct: [[0, -17, 6, 3, 6, 3], [0, -25, 6, 3, 6, 3]], guards: [[-6, -13], [6, -21], [0, -27]], loot: [[-8, -11], [8, -19], [0, -27]], exit: [0, 6] }
+      { name: "TV STATION", walls: [[-12, -10, 24, 3, Math.PI / 2], [12, -10, 24, 3, Math.PI / 2], [0, -29, 24, 3, 0]], cover: [[-4, -9], [4, -15], [0, -21], [-6, -25]], destruct: [[0, -17, 6, 3, 6, 3], [0, -25, 6, 3, 6, 3]], guards: [[-6, -13], [6, -21], [0, -27]], loot: [[-8, -11], [8, -19], [0, -27]], exit: [0, 6] },
+      { name: "DEPOT", walls: [[-13, -10, 26, 3, Math.PI / 2], [13, -10, 26, 3, Math.PI / 2], [0, -30, 26, 3, 0]], cover: [[-5, -8], [5, -14], [-5, -22], [5, -26]], destruct: [[0, -18, 8, 3, 8, 3]], guards: [[-7, -12], [7, -20], [0, -26], [-4, -16]], loot: [[-9, -10], [9, -18], [0, -28]], exit: [0, 6] },
+      { name: "SCHOOL", walls: [[-12, -10, 24, 3, Math.PI / 2], [12, -10, 24, 3, Math.PI / 2], [0, -28, 24, 3, 0]], cover: [[-4, -7], [4, -13], [-4, -19], [4, -25]], destruct: [[0, -16, 6, 3, 6, 3], [0, -24, 6, 3, 6, 3]], guards: [[-6, -11], [6, -19], [0, -25]], loot: [[-8, -9], [8, -17], [0, -25]], exit: [0, 6] },
+      { name: "BLACKSITE", walls: [[-14, -10, 28, 3, Math.PI / 2], [14, -10, 28, 3, Math.PI / 2], [0, -32, 28, 3, 0]], cover: [[-6, -8], [6, -14], [-6, -22], [6, -28], [0, -18]], destruct: [[0, -20, 8, 3, 8, 3]], guards: [[-8, -12], [8, -20], [0, -28], [-4, -16], [4, -24]], loot: [[-10, -10], [10, -20], [0, -30]], exit: [0, 6] }
     ];
     const group = new qt; group.name = "breach"; group.visible = false; oi.add(group);
     const guardMat = new Xt({ color: 0x3a3530, roughness: .7 });
@@ -34914,10 +34936,11 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       if (t > 0) { const p = ray.ray.origin.clone().addScaledVector(ray.ray.direction, t); const m = new at(new Qe(.15, 8, 6), new Xt({ color: 0xff3b30, emissive: 0x550000 })); m.position.set(p.x, .1, p.z); group.add(m); markers.push(m); }
     }
     function finish(success, reason) {
-      const score = lootGot * 500 + (success ? 1000 : 0) + Math.round(alarm * 10);
+      const stealth = guards.filter(g => !g.alive).length === 0;
+      const score = lootGot * 500 + (success ? 1000 : 0) + Math.round(alarm * 10) + (stealth && success ? 800 : 0);
       gt("#brrTitle").textContent = success ? "撤离成功" : "行动失败";
       gt("#brrScore").textContent = score + " 分";
-      gt("#brrStats").textContent = reason + " · 赃物 " + lootGot + "/" + loot.length + " · 剩余警报 " + Math.max(0, alarm).toFixed(1) + "s";
+      gt("#brrStats").textContent = reason + " · 赃物 " + lootGot + "/" + loot.length + " · 剩余警报 " + Math.max(0, alarm).toFixed(1) + "s · " + (stealth ? "潜行奖励 +800" : "强攻路线");
       gt("#breachResult").hidden = false; gt("#breachHud").hidden = true;
       try { const k = "range-breach-best-" + mapIdx; const b = +(localStorage.getItem(k) || 0); if (score > b) localStorage.setItem(k, JSON.stringify(score)); } catch {}
     }
@@ -35355,6 +35378,101 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
 
   RANGE_API.forensicsPro = RANGE_FORENSICS_PRO;
   RANGE_API.rhythm = RANGE_RHYTHM;
+  RANGE_API.draw = () => ki();
+
+  /* ════════════════════════════════════════════════════════════════════════
+   * [SECTION S] HUNT 恐怖捕食者翼（0.36 / N5 · A2）
+   * 黑暗+手电，捕食者学习 AI（记玩家常躲点），声音=死亡（奔跑引怪），
+   * 取物→撤离线性目标，应急红/静电氛围。3 夜。
+   * ════════════════════════════════════════════════════════════════════════ */
+  var RANGE_HUNT = (() => {
+    const nights = [
+      { item: [0, -16], exit: [0, 6], predator: [0, -22], walls: [[-8, -10, 16, 3, 1.57], [8, -10, 16, 3, 1.57]] },
+      { item: [-5, -20], exit: [0, 6], predator: [5, -18], walls: [[-9, -10, 18, 3, 1.57], [9, -10, 18, 3, 1.57], [0, -14, 6, 3, 0]] },
+      { item: [4, -24], exit: [0, 6], predator: [-4, -20], walls: [[-10, -10, 20, 3, 1.57], [10, -10, 20, 3, 1.57], [-3, -16, 5, 3, 0], [4, -20, 5, 3, 0]] }
+    ];
+    const group = new qt; group.name = "hunt"; group.visible = false; oi.add(group);
+    let active = false, night = 0, predator = null, item = null, hasItem = false, flash = null, redLight = null;
+    let savedMats = [], savedLights = [], origBg = null, noise = 0, lastHeard = null, visitGrid = {}, dead = false, extracted = false;
+    const darkMat = new Xt({ color: 0x1a1a1e, roughness: .95 });
+    function applyDark() {
+      savedMats = [];
+      oi.traverse(o => { if (o.isMesh && !isUnder(o, group)) { savedMats.push([o, o.material]); o.material = darkMat; } });
+      origBg = oi.background; if (origBg && origBg.isColor) oi.background = origBg.clone().set(0x020204);
+      savedLights = []; oi.traverse(o => { if (o.isLight && o.parent !== group) { savedLights.push([o, o.intensity]); o.intensity = o.intensity * .08; } });
+      flash = new Si(0xfff0d0, 3, 22); flash.position.set(0, 0, 0); He.add(flash);
+      redLight = new Si(0xff2020, 1.5, 30); redLight.position.set(0, 3, -14); group.add(redLight);
+      document.body.classList.add("hunt-dark");
+    }
+    function isUnder(o, g) { let p = o; while (p) { if (p === g) return true; p = p.parent; } return false; }
+    function restoreDark() {
+      savedMats.forEach(([o, m]) => o.material = m); savedMats = [];
+      savedLights.forEach(([o, i]) => o.intensity = i); savedLights = [];
+      oi.background = origBg; if (flash) He.remove(flash); if (redLight) group.remove(redLight);
+      document.body.classList.remove("hunt-dark"); gt("#huntStatic").style.opacity = "0";
+    }
+    function clearNight() { if (predator) group.remove(predator.mesh); if (item) group.remove(item); group.children.filter(c => c.userData.kit).forEach(c => group.remove(c)); predator = null; item = null; }
+    function loadNight(i) {
+      clearNight(); night = i; hasItem = false; dead = false; extracted = false; noise = 0; lastHeard = null; visitGrid = {};
+      const N = nights[i];
+      const kit = new qt; kit.userData.kit = true; group.add(kit);
+      RANGE_KIT.floor(kit, 0, -10, 26, 40);
+      for (const w of N.walls) RANGE_KIT.wall(kit, w[0], w[1], w[2], w[3], w[4]);
+      const sil = RANGE_SILHOUETTE.build("predator"); const pm = sil.group; pm.position.set(N.predator[0], 0, N.predator[1]); pm.scale.setScalar(1.3); group.add(pm);
+      predator = { mesh: pm, speed: 2.2, target: new I(N.predator[0], 0, N.predator[1]), wanderT: 0 };
+      item = new at(new Ei(.3, .3, .3, 2, .04), new Xt({ color: 0x3cc86a, emissive: 0x115522, roughness: .3 })); item.position.set(N.item[0], .6, N.item[1]); group.add(item);
+      Yt.position.set(N.exit[0], 0, N.exit[1]); Yt.velocity.set(0, 0, 0); Yt.yaw = Math.PI; Yt.pitch = 0; Yt.spawn();
+      gt("#huObjective").textContent = "取回证物 → 撤离";
+    }
+    function tick(s) {
+      if (dead || extracted) { ge.end(); return; }
+      Yt.update(s); ke.update(s);
+      const speed = Math.hypot(Yt.velocity.x, Yt.velocity.z);
+      noise = Math.min(1, speed / 10);
+      gt("#huNoise").textContent = "噪声 " + (noise > .6 ? "▆▆" : noise > .3 ? "▃▃" : "▁▁");
+      // 记录玩家常躲点（学习）
+      const cell = Math.round(Yt.position.x / 3) + "," + Math.round(Yt.position.z / 3);
+      visitGrid[cell] = (visitGrid[cell] || 0) + s;
+      // 捕食者听觉：噪声大则追最近听到点
+      if (noise > .35) lastHeard = Yt.position.clone();
+      if (predator) {
+        let goal;
+        if (lastHeard && noise > .2) goal = lastHeard;
+        else {
+          predator.wanderT -= s;
+          if (predator.wanderT <= 0) {
+            predator.wanderT = 3 + Math.random() * 2;
+            // 偏向玩家高频 cell
+            const cells = Object.keys(visitGrid).sort((a, b) => visitGrid[b] - visitGrid[a]);
+            if (cells.length && Math.random() < .6) { const [cx, cz] = cells[0].split(",").map(Number); predator.target.set(cx * 3, 0, cz * 3); }
+            else predator.target.set((Math.random() - .5) * 14, 0, -8 - Math.random() * 16);
+          }
+          goal = predator.target;
+        }
+        const dir = goal.clone().sub(predator.mesh.position); dir.y = 0;
+        if (dir.length() > .3) { dir.normalize(); predator.mesh.position.addScaledVector(dir, predator.speed * (noise > .35 ? 1.6 : 1) * s); predator.mesh.lookAt(goal.x, predator.mesh.position.y, goal.z); }
+        const dist = predator.mesh.position.distanceTo(Yt.position);
+        gt("#huHeart").textContent = dist < 4 ? "♥♥♥ 危险!" : dist < 8 ? "♥♥ 接近" : "♥ 安全";
+        gt("#huntStatic").style.opacity = dist < 6 ? String((6 - dist) / 6 * .5) : "0";
+        if (dist < 1.3) { dead = true; ln.tone(80, .5, .3, 0, "sawtooth"); gt("#hurTitle").textContent = "被捕获"; gt("#hurStats").textContent = "捕食者抓住了你 · 第 " + (night + 1) + " 夜"; gt("#huntResult").hidden = false; gt("#huntHud").hidden = true; }
+      }
+      // 取物
+      if (!hasItem && item && Yt.position.distanceTo(item.position) < 1.3) { hasItem = true; group.remove(item); gt("#huObjective").textContent = "证物已取得 → 撤离!"; ln.tone(1200, .15, .14, 0, "triangle"); }
+      // 撤离
+      if (hasItem && Yt.position.distanceTo(new I(nights[night].exit[0], 0, nights[night].exit[1])) < 1.8) { extracted = true; gt("#hurTitle").textContent = "撤离成功"; gt("#hurStats").textContent = "第 " + (night + 1) + " 夜生还 · 证物已回收"; gt("#huntResult").hidden = false; gt("#huntHud").hidden = true; ln.tone(880, .2, .14, 0, "triangle"); try { localStorage.setItem("range-hunt-cleared", String(Math.max(night + 1, +(localStorage.getItem("range-hunt-cleared") || 0)))); } catch {} }
+      ge.end();
+    }
+    function enter() { RANGE_WINGS._setActive("hunt"); active = true; group.visible = true; Oi = !0; Dn = !0; gt("#menu").hidden = !0; gt("#hud").hidden = !1; applyDark(); RANGE_STYLE.show(false); loadNight(0); gt("#huntHud").hidden = false; }
+    function exit() { RANGE_WINGS._setActive(null); active = false; group.visible = false; clearNight(); restoreDark(); Oi = !1; gt("#menu").hidden = !1; gt("#hud").hidden = !0; gt("#huntHud").hidden = true; gt("#huntResult").hidden = true; }
+    gt("#huntEnter").onclick = () => RANGE_WINGS.enter("hunt");
+    gt("#hurRetry").onclick = () => { gt("#huntResult").hidden = true; gt("#huntHud").hidden = false; loadNight(night); };
+    gt("#hurNext").onclick = () => { gt("#huntResult").hidden = true; gt("#huntHud").hidden = false; loadNight(night + 1 < nights.length ? night + 1 : 0); };
+    gt("#hurExit").onclick = () => RANGE_WINGS.exit();
+    RANGE_WINGS.register("hunt", { enter, exit, tick });
+    return { get active() { return active; }, nights, enter, exit, loadNight, get predator() { return predator; }, get hasItem() { return hasItem; }, get dead() { return dead; }, get extracted() { return extracted; }, get noise() { return noise; } };
+  })();
+
+  RANGE_API.hunt = RANGE_HUNT;
   RANGE_API.draw = () => ki();
 
   fr.update(1 / 120, ke, Yt, ge);
