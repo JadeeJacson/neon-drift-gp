@@ -54,7 +54,7 @@ THE SOFTWARE.
 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>RANGE — 0.34 · 战术实验区</title>
+    <title>RANGE — 0.35 · 战术实验区</title>
     <style>
       :root {
         color-scheme: dark;
@@ -945,6 +945,20 @@ THE SOFTWARE.
       #edLibrary button { background: #0d1f18; border: 1px solid rgba(235,195,117,.3); color: #f2e9d8; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; margin: 2px; }
       #editorHud { position: fixed; left: 18px; top: 60px; z-index: 55; color: #ebc375; font-size: 14px; pointer-events: none; text-shadow: 0 1px 4px #000; }
       #editorHud[hidden] { display: none; }
+      /* ═══ RANGE 0.35 · 节奏翼 + FORENSICS Pro ═══ */
+      #rhythmHud { position: fixed; left: 50%; top: calc(70px + env(safe-area-inset-top)); transform: translateX(-50%); z-index: 55; text-align: center; pointer-events: none; color: #f2e9d8; }
+      #rhythmHud[hidden] { display: none; }
+      #rhScore { font-size: 30px; font-weight: 900; color: #ebc375; }
+      #rhCombo { font-size: 16px; }
+      #rhJudge { font-size: 22px; font-weight: 800; min-height: 28px; }
+      #rhJudge.perfect { color: #3cc86a; } #rhJudge.good { color: #ebc375; } #rhJudge.miss { color: #ff3b30; }
+      #rhBeat { width: 60px; height: 60px; border: 3px solid rgba(235,195,117,.5); border-radius: 50%; margin: 8px auto; position: relative; }
+      #rhBeat i { position: absolute; inset: 0; border-radius: 50%; background: rgba(235,195,117,.3); transform: scale(0); }
+      #rhBeat.pulse i { animation: rhPulse .3s ease-out; }
+      @keyframes rhPulse { 0% { transform: scale(1); opacity: .8; } 100% { transform: scale(0); opacity: 0; } }
+      #rhSeg { font-size: 12px; opacity: .7; }
+      #rhythmResult, #fnProPanel { position: fixed; inset: 0; z-index: 160; background: rgba(6,12,10,.85); display: flex; align-items: center; justify-content: center; }
+      #rhythmResult[hidden], #fnProPanel[hidden] { display: none; }
 </style>
   </head>
   <body>
@@ -1023,7 +1037,7 @@ THE SOFTWARE.
         <div class="sub">PRIVATE TRAINING FACILITY / 01</div>
       </header>
       <main class="panel">
-        <div class="eyebrow" id="badge">BUILD 0.34 / 战术实验区</div>
+        <div class="eyebrow" id="badge">BUILD 0.35 / 战术实验区</div>
         <h1 id="menuTitle">第一枪，已就绪。</h1>
         <p class="intro">
           M4A1 / P226 / AK-47 / MP5<br />教程引导、六区 CQB 与幽灵挑战。<br />辨认目标，再扣动扳机。
@@ -1052,7 +1066,7 @@ THE SOFTWARE.
         <button id="start">进入靶场 →</button>
         <div class="secondary">
           <button id="reset">重置出生点</button
-          ><button id="helpToggle">操作说明</button><button id="settingsOpen">游戏设置</button><button id="reactiveToggle">反应靶场 · 关</button><button id="staticEnter" class="studioEntry">STATIC · 时间只随你流动 →</button><button id="forensicsEnter" class="studioEntry">FORENSICS · 法证瞄准训练 →</button><button id="deckEnter" class="studioEntry">DECK RUN · 卡牌速通 →</button><button id="breachEnter" class="studioEntry">BREACH · 可破坏劫案 →</button><button id="silhouetteEnter" class="studioEntry">敌人剪影画廊 →</button><button id="profileEnter" class="studioEntry">档案 · 进度与挑战 →</button><button id="editorEnter" class="studioEntry">关卡编辑器 · UGC →</button><button id="psxToggle">PSX 复古模式 · 关</button><div class="audioRow" style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px"><label>音乐 <input type="range" id="musicVol" min="0" max="1" step="0.05" style="width:90px"></label><button id="muteToggle">静音 · 关</button></div>
+          ><button id="helpToggle">操作说明</button><button id="settingsOpen">游戏设置</button><button id="reactiveToggle">反应靶场 · 关</button><button id="staticEnter" class="studioEntry">STATIC · 时间只随你流动 →</button><button id="forensicsEnter" class="studioEntry">FORENSICS · 法证瞄准训练 →</button><button id="deckEnter" class="studioEntry">DECK RUN · 卡牌速通 →</button><button id="breachEnter" class="studioEntry">BREACH · 可破坏劫案 →</button><button id="silhouetteEnter" class="studioEntry">敌人剪影画廊 →</button><button id="profileEnter" class="studioEntry">档案 · 进度与挑战 →</button><button id="editorEnter" class="studioEntry">关卡编辑器 · UGC →</button><button id="rhythmEnter" class="studioEntry">RHYTHM · 节奏射击 →</button><button id="fnProEnter" class="studioEntry">FORENSICS Pro · 训练分析 →</button><button id="psxToggle">PSX 复古模式 · 关</button><div class="audioRow" style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px"><label>音乐 <input type="range" id="musicVol" min="0" max="1" step="0.05" style="width:90px"></label><button id="muteToggle">静音 · 关</button></div>
         </div>
         <div class="settings">
           <label for="sensitivity"
@@ -1123,9 +1137,9 @@ THE SOFTWARE.
 <p>仅状态回放；不伤害、不补弹、不计分。无任意帧接管。自由镜头只沿世界轴平移。</p></section>
     <section id="hud" hidden aria-label="探索界面">
       <div class="topbar">
-        <div><strong>RANGE.</strong><small>0.34 / PHYSICS + STATE</small></div>
+        <div><strong>RANGE.</strong><small>0.35 / PHYSICS + STATE</small></div>
         <div class="topright">
-          <span id="fps">0.34 / OFFLINE</span><br /><span id="position"
+          <span id="fps">0.35 / OFFLINE</span><br /><span id="position"
             >X 0.0 Z 8.0</span
           ><button id="pause">ESC · 暂停</button>
         </div>
@@ -1368,6 +1382,27 @@ THE SOFTWARE.
       </div>
     </div>
     <div id="editorHud" hidden><div id="edHudText">自定义图 · 清靶后到出口</div></div>
+    <div id="rhythmHud" hidden>
+      <div id="rhScore">0</div>
+      <div id="rhCombo"></div>
+      <div id="rhJudge"></div>
+      <div id="rhBeat"><i></i></div>
+      <div id="rhSeg">SEG 1/8</div>
+    </div>
+    <div id="rhythmResult" hidden><div class="sbCard"><h2 id="rhrTitle">演奏结束</h2><div id="rhrScore" style="font-size:28px;font-weight:800;color:#ebc375"></div><div id="rhrStats" style="font-size:13px;margin:10px 0"></div><button id="rhrRetry">再来</button><button id="rhrExit">退出</button></div></div>
+    <div id="fnProPanel" hidden>
+      <div class="sbCard">
+        <h2>FORENSICS Pro · 训练分析</h2>
+        <div id="fnpNorms" style="font-size:12px;margin:8px 0"></div>
+        <div style="border:1px solid rgba(235,195,117,.3);border-radius:8px;padding:10px;margin:10px 0">
+          <b style="font-size:13px">灵敏度匹配器</b>
+          <div style="font-size:12px;margin:6px 0">源游戏 <select id="fnpSrc" style="background:#0d1f18;color:#f2e9d8;border:1px solid rgba(235,195,117,.4);border-radius:4px"><option value="csgo">CS/Valorant</option><option value="apex">Apex/OW</option><option value="fortnite">Fortnite</option></select> 灵敏度 <input id="fnpVal" type="number" value="2" step="0.1" style="width:60px;background:#0d1f18;color:#f2e9d8;border:1px solid rgba(235,195,117,.4);border-radius:4px"></div>
+          <div id="fnpResult" style="font-size:13px;color:#ebc375"></div>
+        </div>
+        <div id="fnpPlan" style="font-size:12px;border:1px solid rgba(235,195,117,.3);border-radius:8px;padding:10px;margin:10px 0"></div>
+        <button id="fnpClose">关闭</button>
+      </div>
+    </div>
     <div id="settingsOverlay" hidden>
       <div id="settingsDesktop" class="settingsCard" hidden>
         <header><h2>游戏设置 · 桌面端</h2><button id="settingsCloseD">✕ 关闭</button></header>
@@ -1436,7 +1471,7 @@ THE SOFTWARE.
     </div>
     <script>
 /* ═══════════════════════════════════════════════════════════════════
-  RANGE 0.34.0「战术实验区」· 关卡编辑器（…→ 0.33 进度竞技 → 0.34 关卡编辑器/UGC，见 SECTION Q）
+  RANGE 0.35.0「战术实验区」· 法证产品化与节奏（…→ 0.34 编辑器 → 0.35 FORENSICS Pro+节奏翼，见 SECTION R）
   来源: JadeeJacson/neon-drift-gp @ main, games/range/index.html
         （2026-10-26 提交「新增四款练手小游戏」，原始构建 1,029,475 字节）
   还原: 内联 JS 经 js-beautify 格式化（不折行/保留换行），并在已验证边界插入分区注释。
@@ -20035,7 +20070,7 @@ void main() {
    * 改动后请跑 test/smoke.js（桌面回归）与 test/mobile.js（移动端验收）。
    * ════════════════════════════════════════════════════════════════════════ */
   var RANGE_CONFIG = {
-    release: "0.34.0",
+    release: "0.35.0",
     render: {
       maxPixelRatio: 1.65,        // 桌面渲染像素比上限
       mobileMaxPixelRatio: 1.3    // 移动端像素比上限（性能优先）
@@ -33370,7 +33405,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       Oi = !1, ge.stop(), Oe.suspend();
       return
     }
-    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.34 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
+    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.35 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
   }
   ge.onPause = Sn;
   ge.onLookMode = s => {
@@ -33475,7 +33510,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (let i = 0; i < e; i++) fr.update(t / e, ke, Yt, ge);
       ki()
     }
-    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.34 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
+    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.35 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
   }
 /* ════════════════════════════════════════════════════════════════════════
  * [SECTION E] QA 调试接口 window.__RANGE__（URL 带 ?qa 时启用扩展方法）
@@ -35222,6 +35257,104 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
   })();
 
   RANGE_API.editor = RANGE_EDITOR;
+  RANGE_API.draw = () => ki();
+
+  /* ════════════════════════════════════════════════════════════════════════
+   * [SECTION R] FORENSICS Pro 产品化 + RHYTHM 节奏翼（0.35 / N4）
+   * Pro：常模百分位/灵敏度匹配器/训练计划/笔迹分析。RHYTHM：程序化节拍，
+   * 踩拍射击倍率，8 段落，Perfect/Good/Miss 评级。
+   * ════════════════════════════════════════════════════════════════════════ */
+  var RANGE_FORENSICS_PRO = (() => {
+    const norms = { gridshot: [300, 600, 1000, 1500, 2200, 3000], tracking: [200, 500, 900, 1400, 2000, 2800], switching: [250, 550, 950, 1450, 2100, 2900], precision: [200, 450, 800, 1200, 1800, 2500], speed: [1500, 2500, 3500, 4500, 5500, 6500], recoil: [300, 500, 700, 850, 950, 1000] };
+    function percentile(drill, score) { const n = norms[drill] || norms.gridshot; let p = 0; for (let i = 0; i < n.length; i++) if (score >= n[i]) p = (i + 1) / n.length * 100; return Math.round(p); }
+    const yawCoeff = { range: 0.000384, csgo: 0.000384, apex: 0.000384, fortnite: 0.000384 };
+    const sensScale = { csgo: 1, apex: 1, fortnite: 0.7 };
+    function matchSens(src, val) { const target = val * (sensScale[src] || 1); return Math.round(target * 100) / 100; }
+    function analyze(rec) {
+      if (!rec || rec.length < 2) return { overflick: 0, underflick: 0, avgReaction: 0 };
+      let over = 0, under = 0, travel = 0;
+      for (let i = 1; i < rec.length; i++) { const dy = Math.abs(rec[i].yaw - rec[i - 1].yaw) + Math.abs(rec[i].pitch - rec[i - 1].pitch); travel += dy; }
+      const avg = travel / rec.length;
+      return { overflick: Math.round(avg * 1000), underflick: Math.round((1 - Math.min(1, avg * 5)) * 100), avgReaction: Math.round(avg * 500), samples: rec.length };
+    }
+    function plan() {
+      const hist = {}; for (const k of Object.keys(norms)) { try { const h = JSON.parse(localStorage.getItem("range-fn-" + k) || "[]"); hist[k] = h.length ? h.reduce((a, b) => a + b, 0) / h.length : 0; } catch { hist[k] = 0; } }
+      const weak = Object.keys(hist).sort((a, b) => percentile(a, hist[a]) - percentile(b, hist[b])).slice(0, 2);
+      return "今日 15 分钟课程：\n1. 热身 gridshot 3 分钟\n2. 弱项强化 " + weak.join(" + ") + " 各 4 分钟\n3. 实战 tracking 4 分钟";
+    }
+    function open() {
+      gt("#fnpNorms").innerHTML = "<b>常模百分位</b>（内置基准）<br>" + Object.keys(norms).map(k => { let best = 0; try { const h = JSON.parse(localStorage.getItem("range-fn-" + k) || "[]"); best = h.length ? Math.max(...h) : 0; } catch {} return k + ": 最佳 " + best + " → P" + percentile(k, best); }).join("<br>");
+      gt("#fnpPlan").innerHTML = "<b>训练计划</b><br>" + plan().replace(/\n/g, "<br>");
+      gt("#fnProPanel").hidden = false;
+      updateMatch();
+    }
+    function updateMatch() { const src = gt("#fnpSrc").value, val = +gt("#fnpVal").value; gt("#fnpResult").textContent = "RANGE 等效灵敏度 ≈ " + matchSens(src, val); }
+    gt("#fnpSrc").onchange = updateMatch; gt("#fnpVal").oninput = updateMatch;
+    gt("#fnProEnter").onclick = open;
+    gt("#fnpClose").onclick = () => gt("#fnProPanel").hidden = true;
+    return { norms, percentile, matchSens, analyze, plan, open };
+  })();
+
+  var RANGE_RHYTHM = (() => {
+    const BPM = 120, BEAT = 60 / BPM, SEGMENTS = 8, BEATS_PER_SEG = 8;
+    const group = new qt; group.name = "rhythm"; group.visible = false; oi.add(group);
+    const tMat = new Xt({ color: 0xebc375, emissive: 0x442200, roughness: .4 });
+    const ray = new Yn;
+    let active = false, targets = [], score = 0, combo = 0, maxCombo = 0, perfect = 0, good = 0, miss = 0;
+    let songTime = 0, beatIdx = 0, seg = 0, nextBeat = 0, audioCtx = null, finished = false;
+    function scheduleBeat(t) {
+      if (!ln.ctx || ln.ctx.state !== "running") return;
+      const ctx = ln.ctx;
+      const o = ctx.createOscillator(), g = ctx.createGain(); o.type = "sine"; o.frequency.value = 80;
+      g.gain.setValueAtTime(.3, t); g.gain.exponentialRampToValueAtTime(1e-4, t + .12); o.connect(g).connect(ln.master); o.start(t); o.stop(t + .13);
+      const h = ctx.createOscillator(), hg = ctx.createGain(); h.type = "square"; h.frequency.value = 6000;
+      hg.gain.setValueAtTime(.05, t); hg.gain.exponentialRampToValueAtTime(1e-4, t + .03); h.connect(hg).connect(ln.master); h.start(t); h.stop(t + .04);
+    }
+    function spawnTarget() {
+      const x = (Math.random() - .5) * 8, y = 1.2 + Math.random() * 1.2, z = -10 - Math.random() * 4;
+      const m = new at(new Qe(.32, 16, 12), tMat); m.position.set(x, y, z); group.add(m);
+      targets.push({ mesh: m, born: songTime * 1000, alive: true, beatTime: nextBeat });
+    }
+    function judge() {
+      const phase = songTime % BEAT;
+      const dist = Math.min(phase, BEAT - phase);
+      if (dist < .07) return "perfect"; if (dist < .15) return "good"; return "miss";
+    }
+    function showJudge(j) { const el = gt("#rhJudge"); el.textContent = j === "perfect" ? "PERFECT" : j === "good" ? "GOOD" : "MISS"; el.className = j; }
+    function tick(s) {
+      Yt.update(s); ke.update(s);
+      songTime += s; const elapsed = songTime; const now = songTime * 1000;
+      // 节拍调度
+      while (nextBeat < elapsed + .2) { scheduleBeat(ln.ctx ? ln.ctx.currentTime + (nextBeat - elapsed) : 0); nextBeat += BEAT; beatIdx++; if (beatIdx % 2 === 0 && seg < SEGMENTS) spawnTarget(); if (beatIdx >= BEATS_PER_SEG) { beatIdx = 0; seg++; gt("#rhSeg").textContent = "SEG " + Math.min(seg + 1, SEGMENTS) + "/" + SEGMENTS; if (seg >= SEGMENTS) { finish(); return; } } gt("#rhBeat").classList.remove("pulse"); void gt("#rhBeat").offsetWidth; gt("#rhBeat").classList.add("pulse"); }
+      // 超时靶判 miss
+      for (const t of targets) { if (t.alive && now - t.born > BEAT * 2 * 1000) { t.alive = false; group.remove(t.mesh); miss++; combo = 0; showJudge("miss"); } }
+      targets = targets.filter(t => t.alive);
+      gt("#rhScore").textContent = score; gt("#rhCombo").textContent = combo > 1 ? combo + " 连击" : "";
+      ge.end();
+    }
+    const prevShot = ke.onShot;
+    ke.onShot = s => {
+      prevShot && prevShot(s);
+      if (!active || finished) return;
+      ray.set(He.position, new I(...s.direction).normalize());
+      const h = ray.intersectObjects(targets.map(t => t.mesh), false)[0];
+      const j = judge(); showJudge(j);
+      if (h) { const t = targets.find(x => x.mesh === h.object); t.alive = false; group.remove(t.mesh); const mult = j === "perfect" ? 3 : j === "good" ? 1.5 : .5; score += Math.round(100 * mult * (1 + combo * .05)); if (j === "miss") { combo = 0; miss++; } else { combo++; maxCombo = Math.max(maxCombo, combo); if (j === "perfect") perfect++; else good++; } ln.tone(j === "perfect" ? 1800 : 1200, .06, .1, 0, "square"); }
+      else { combo = 0; }
+    };
+    function finish() { finished = true; const total = perfect + good + miss; const acc = total ? Math.round((perfect + good * .5) / total * 100) : 0; const grade = acc > 90 ? "SS" : acc > 75 ? "S" : acc > 60 ? "A" : acc > 40 ? "B" : "C"; gt("#rhrTitle").textContent = "演奏结束 · " + grade; gt("#rhrScore").textContent = score + " 分"; gt("#rhrStats").textContent = "Perfect " + perfect + " / Good " + good + " / Miss " + miss + " · 最大连击 " + maxCombo + " · 准确率 " + acc + "%"; gt("#rhythmResult").hidden = false; gt("#rhythmHud").hidden = true; try { const b = +(localStorage.getItem("range-rhythm-best") || 0); if (score > b) localStorage.setItem("range-rhythm-best", String(score)); } catch {} }
+    function start() { targets.forEach(t => group.remove(t.mesh)); targets = []; score = 0; combo = 0; maxCombo = 0; perfect = 0; good = 0; miss = 0; seg = 0; beatIdx = 0; finished = false; songTime = 0; nextBeat = BEAT; Yt.spawn(); gt("#rhSeg").textContent = "SEG 1/" + SEGMENTS; gt("#rhythmResult").hidden = true; gt("#rhythmHud").hidden = false; }
+    function enter() { RANGE_WINGS._setActive("rhythm"); active = true; group.visible = true; Oi = !0; Dn = !0; gt("#menu").hidden = !0; gt("#hud").hidden = !1; RANGE_STYLE.show(false); start(); }
+    function exit() { RANGE_WINGS._setActive(null); active = false; group.visible = false; targets.forEach(t => group.remove(t.mesh)); targets = []; Oi = !1; gt("#menu").hidden = !1; gt("#hud").hidden = !0; gt("#rhythmHud").hidden = true; gt("#rhythmResult").hidden = true; }
+    gt("#rhythmEnter").onclick = () => RANGE_WINGS.enter("rhythm");
+    gt("#rhrRetry").onclick = start;
+    gt("#rhrExit").onclick = () => RANGE_WINGS.exit();
+    RANGE_WINGS.register("rhythm", { enter, exit, tick });
+    return { get active() { return active; }, get score() { return score; }, enter, exit, start, judge, get targets() { return targets; }, BPM, SEGMENTS };
+  })();
+
+  RANGE_API.forensicsPro = RANGE_FORENSICS_PRO;
+  RANGE_API.rhythm = RANGE_RHYTHM;
   RANGE_API.draw = () => ki();
 
   fr.update(1 / 120, ke, Yt, ge);
