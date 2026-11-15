@@ -54,7 +54,7 @@ THE SOFTWARE.
 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>RANGE — 0.31 · 战术实验区</title>
+    <title>RANGE — 0.32 · 战术实验区</title>
     <style>
       :root {
         color-scheme: dark;
@@ -1005,7 +1005,7 @@ THE SOFTWARE.
         <div class="sub">PRIVATE TRAINING FACILITY / 01</div>
       </header>
       <main class="panel">
-        <div class="eyebrow" id="badge">BUILD 0.31 / 战术实验区</div>
+        <div class="eyebrow" id="badge">BUILD 0.32 / 战术实验区</div>
         <h1 id="menuTitle">第一枪，已就绪。</h1>
         <p class="intro">
           M4A1 / P226 / AK-47 / MP5<br />教程引导、六区 CQB 与幽灵挑战。<br />辨认目标，再扣动扳机。
@@ -1034,7 +1034,7 @@ THE SOFTWARE.
         <button id="start">进入靶场 →</button>
         <div class="secondary">
           <button id="reset">重置出生点</button
-          ><button id="helpToggle">操作说明</button><button id="settingsOpen">游戏设置</button><button id="reactiveToggle">反应靶场 · 关</button><button id="staticEnter" class="studioEntry">STATIC · 时间只随你流动 →</button><button id="forensicsEnter" class="studioEntry">FORENSICS · 法证瞄准训练 →</button><button id="deckEnter" class="studioEntry">DECK RUN · 卡牌速通 →</button><button id="breachEnter" class="studioEntry">BREACH · 可破坏劫案 →</button><button id="silhouetteEnter" class="studioEntry">敌人剪影画廊 →</button><button id="psxToggle">PSX 复古模式 · 关</button>
+          ><button id="helpToggle">操作说明</button><button id="settingsOpen">游戏设置</button><button id="reactiveToggle">反应靶场 · 关</button><button id="staticEnter" class="studioEntry">STATIC · 时间只随你流动 →</button><button id="forensicsEnter" class="studioEntry">FORENSICS · 法证瞄准训练 →</button><button id="deckEnter" class="studioEntry">DECK RUN · 卡牌速通 →</button><button id="breachEnter" class="studioEntry">BREACH · 可破坏劫案 →</button><button id="silhouetteEnter" class="studioEntry">敌人剪影画廊 →</button><button id="psxToggle">PSX 复古模式 · 关</button><div class="audioRow" style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px"><label>音乐 <input type="range" id="musicVol" min="0" max="1" step="0.05" style="width:90px"></label><button id="muteToggle">静音 · 关</button></div>
         </div>
         <div class="settings">
           <label for="sensitivity"
@@ -1105,9 +1105,9 @@ THE SOFTWARE.
 <p>仅状态回放；不伤害、不补弹、不计分。无任意帧接管。自由镜头只沿世界轴平移。</p></section>
     <section id="hud" hidden aria-label="探索界面">
       <div class="topbar">
-        <div><strong>RANGE.</strong><small>0.31 / PHYSICS + STATE</small></div>
+        <div><strong>RANGE.</strong><small>0.32 / PHYSICS + STATE</small></div>
         <div class="topright">
-          <span id="fps">0.31 / OFFLINE</span><br /><span id="position"
+          <span id="fps">0.32 / OFFLINE</span><br /><span id="position"
             >X 0.0 Z 8.0</span
           ><button id="pause">ESC · 暂停</button>
         </div>
@@ -1375,7 +1375,7 @@ THE SOFTWARE.
     </div>
     <script>
 /* ═══════════════════════════════════════════════════════════════════
-  RANGE 0.31.0「战术实验区」· 剪影与复古（…→ 0.30 劫案 → 0.31 敌人剪影系统+PSX 复古全局开关，见 SECTION N）
+  RANGE 0.32.0「战术实验区」· 音频与旗舰（…→ 0.31 剪影复古 → 0.32 音频系统+STATIC 旗舰深化，见 SECTION O）
   来源: JadeeJacson/neon-drift-gp @ main, games/range/index.html
         （2026-10-26 提交「新增四款练手小游戏」，原始构建 1,029,475 字节）
   还原: 内联 JS 经 js-beautify 格式化（不折行/保留换行），并在已验证边界插入分区注释。
@@ -19974,7 +19974,7 @@ void main() {
    * 改动后请跑 test/smoke.js（桌面回归）与 test/mobile.js（移动端验收）。
    * ════════════════════════════════════════════════════════════════════════ */
   var RANGE_CONFIG = {
-    release: "0.31.0",
+    release: "0.32.0",
     render: {
       maxPixelRatio: 1.65,        // 桌面渲染像素比上限
       mobileMaxPixelRatio: 1.3    // 移动端像素比上限（性能优先）
@@ -33309,7 +33309,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       Oi = !1, ge.stop(), Oe.suspend();
       return
     }
-    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.31 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
+    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.32 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
   }
   ge.onPause = Sn;
   ge.onLookMode = s => {
@@ -33414,7 +33414,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (let i = 0; i < e; i++) fr.update(t / e, ke, Yt, ge);
       ki()
     }
-    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.31 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
+    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.32 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
   }
 /* ════════════════════════════════════════════════════════════════════════
  * [SECTION E] QA 调试接口 window.__RANGE__（URL 带 ?qa 时启用扩展方法）
@@ -34138,7 +34138,15 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       { spawn: [0, 0, 8], drones: [[-5, 1.8, -9], [5, 1.8, -9], [0, 2.4, -14], [0, 1.2, -4]] },
       { spawn: [0, 0, 8], drones: [[-3, 1.6, -7], [3, 1.6, -7], [-3, 1.6, -13], [3, 1.6, -13]] },
       { spawn: [0, 0, 8], drones: [[0, 1.6, -6], [-4, 2.0, -10], [4, 2.0, -10], [0, 2.6, -15]] },
-      { spawn: [0, 0, 8], drones: [[-2, 1.6, -5], [2, 1.6, -5], [-5, 1.8, -10], [5, 1.8, -10], [0, 2.2, -14], [0, 1.4, -18]] }
+      { spawn: [0, 0, 8], drones: [[-2, 1.6, -5], [2, 1.6, -5], [-5, 1.8, -10], [5, 1.8, -10], [0, 2.2, -14], [0, 1.4, -18]] },
+      { spawn: [0, 0, 8], drones: [[-6, 1.6, -8], [6, 1.6, -8], [0, 1.6, -12], [-3, 2.2, -16], [3, 2.2, -16]] },
+      { spawn: [0, 0, 8], drones: [[0, 1.6, -4], [-4, 1.6, -8], [4, 1.6, -8], [-6, 2.0, -12], [6, 2.0, -12], [0, 2.4, -16]] },
+      { spawn: [0, 0, 8], drones: [[-2, 1.4, -6], [2, 1.4, -6], [-2, 1.4, -10], [2, 1.4, -10], [-2, 1.4, -14], [2, 1.4, -14], [0, 2.6, -18]] },
+      { spawn: [0, 0, 8], drones: [[-7, 1.8, -10], [7, 1.8, -10], [0, 1.6, -6], [0, 2.2, -14], [-4, 2.4, -18], [4, 2.4, -18]] },
+      { spawn: [0, 0, 8], drones: [[-3, 1.6, -5], [3, 1.6, -5], [0, 1.6, -9], [-5, 2.0, -13], [5, 2.0, -13], [0, 2.6, -17], [0, 1.4, -20]] },
+      { spawn: [0, 0, 8], drones: [[-6, 1.6, -7], [6, 1.6, -7], [-6, 1.6, -13], [6, 1.6, -13], [0, 2.2, -10], [0, 2.2, -16], [-3, 2.6, -19], [3, 2.6, -19]] },
+      { spawn: [0, 0, 8], drones: [[0, 1.6, -5], [-4, 1.6, -9], [4, 1.6, -9], [-7, 2.0, -13], [7, 2.0, -13], [0, 2.4, -15], [-3, 2.6, -19], [3, 2.6, -19]] },
+      { spawn: [0, 0, 8], drones: [[0, 2.8, -14], [-6, 1.6, -10], [6, 1.6, -10], [-4, 2.0, -18], [4, 2.0, -18], [0, 1.4, -6], [-2, 2.4, -20], [2, 2.4, -20], [0, 3.2, -22]], boss: true }
     ];
     const group = new qt; group.name = "staticWing"; group.visible = false; oi.add(group);
     const droneMat = new Xt({ color: 0xff2a1a, roughness: .4, metalness: .1, emissive: 0x550000 });
@@ -34153,7 +34161,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
 
     function applyWhite() {
       savedMats = [];
-      oi.traverse(o => { if (o.isMesh && o.parent !== group) { savedMats.push([o, o.material]); o.material = whiteMat; } });
+      oi.traverse(o => { if (o.isMesh) { let p = o, under = false; while (p) { if (p === group) { under = true; break; } p = p.parent; } if (!under) { savedMats.push([o, o.material]); o.material = whiteMat; } } });
       origBg = oi.background;
       if (origBg && origBg.isColor) oi.background = origBg.clone().set(0xf2f2f0);
       origFog = oi.fog; oi.fog = null;
@@ -34179,9 +34187,10 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       const r = rooms[i];
       Yt.position.set(...r.spawn); Yt.velocity.set(0, 0, 0); Yt.yaw = 0; Yt.pitch = 0; Yt.spawn();
       for (const [x, y, z] of r.drones) {
-        const mesh = new at(new Qe(.32, 18, 14), droneMat);
-        mesh.position.set(x, y, z); group.add(mesh);
-        drones.push({ mesh, base: y, cd: 1.5 + Math.random() * 1.5, phase: Math.random() * 6.28, alive: true });
+        const stype = r.boss ? "predator" : ["pistol", "rifle", "melee", "heavy", "predator"][Math.floor(Math.random() * 5)];
+        const sil = RANGE_SILHOUETTE.build(stype);
+        const mesh = sil.group; mesh.position.set(x, y - 1.0, z); mesh.scale.setScalar(r.boss ? 1.4 : .85); group.add(mesh);
+        drones.push({ mesh, base: y - 1.0, cd: 1.5 + Math.random() * 1.5, phase: Math.random() * 6.28, alive: true, silType: stype, hitMeshes: sil.hitMeshes });
       }
       gt("#staticRoom").textContent = "ROOM " + (i + 1) + " / " + rooms.length;
       msg("时间只随你流动 · 移动或转向让时间前进");
@@ -34264,9 +34273,17 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       prevShot && prevShot(s);
       if (!active) return;
       ray.set(He.position, new I(...s.direction).normalize());
-      const alive = drones.filter(d => d.alive).map(d => d.mesh);
-      const hit = ray.intersectObjects(alive, false)[0];
-      if (hit) { const d = drones.find(x => x.mesh === hit.object); if (d) killDrone(d); }
+      const alive = drones.filter(d => d.alive);
+      const meshes = []; alive.forEach(d => meshes.push(...(d.hitMeshes || [d.mesh])));
+      const hit = ray.intersectObjects(meshes, true)[0];
+      if (hit) {
+        const d = alive.find(x => (x.hitMeshes || [x.mesh]).includes(hit.object));
+        if (d) { const close = d.mesh.position.distanceTo(Yt.position) < 3.5; killDrone(d); if (close && d.silType === "melee") { ke.reserve = Math.min(ke.reserve + 30, 999); msg("近战夺枪 · 备弹 +30"); } }
+      } else {
+        const pm = projectiles.map(p => p.mesh);
+        const ph = ray.intersectObjects(pm, false)[0];
+        if (ph) { const p = projectiles.find(x => x.mesh === ph.object); if (p) { p.dead = true; ln.tone(1800, .06, .1, 0, "square"); } }
+      }
     };
     function enter() {
       RANGE_WINGS._setActive("static");
@@ -34924,6 +34941,62 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
 
   RANGE_API.silhouette = RANGE_SILHOUETTE;
   RANGE_API.psx = RANGE_PSX;
+  RANGE_API.draw = () => ki();
+
+  /* ════════════════════════════════════════════════════════════════════════
+   * [SECTION O] RANGE_AUDIO 音频系统（0.32 / N1 · C2）
+   * 程序化音乐（环境层+强度层，随 STYLE 连击/战斗密度）+ 空间声像 SFX +
+   * 逐空间混响预设 + 音乐音量/静音设置（持久化）。增强现有 ln（Vu）。
+   * ════════════════════════════════════════════════════════════════════════ */
+  var RANGE_AUDIO = (() => {
+    let inited = false, musicGain = null, ambient = [], intensityGain = null, intensityOsc = null, sfxPan = null;
+    let musicVol = .5, muted = false, intensity = 0, space = "range";
+    const spaces = { range: .22, static: .12, forensics: .08, deckrun: .18, breach: .4, hunt: .5 };
+    function init() {
+      if (inited || !ln.ctx) return;
+      inited = true;
+      const ctx = ln.ctx;
+      musicGain = ctx.createGain(); musicGain.gain.value = musicVol * .3; musicGain.connect(ln.master);
+      // 环境层：两个失谐锯齿 → 低通
+      const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 320; lp.connect(musicGain);
+      for (const f of [55, 55.7, 110.3]) { const o = ctx.createOscillator(); o.type = "sawtooth"; o.frequency.value = f; const g = ctx.createGain(); g.gain.value = .05; o.connect(g).connect(lp); o.start(); ambient.push(o); }
+      // 强度层：节奏脉冲
+      intensityGain = ctx.createGain(); intensityGain.gain.value = 0; intensityGain.connect(musicGain);
+      intensityOsc = ctx.createOscillator(); intensityOsc.type = "square"; intensityOsc.frequency.value = 110;
+      const ilp = ctx.createBiquadFilter(); ilp.type = "lowpass"; ilp.frequency.value = 600;
+      intensityOsc.connect(ilp).connect(intensityGain); intensityOsc.start();
+      // 空间声像 SFX 总线
+      sfxPan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+      if (sfxPan) sfxPan.connect(ln.master);
+      applySpace();
+    }
+    function applySpace() { if (ln.reverb && ln.reverb.buffer) { /* reverb gain 在 ln 内部，按空间调 master 湿声比例近似 */ } }
+    function setSpace(s) { space = s; if (ln.ctx && ln.reverb) { const wet = spaces[s] ?? .22; try { ln.reverb.gain && (ln.reverb.gain.value = wet); } catch {} } }
+    function setMusicVolume(v) { musicVol = v; if (musicGain) musicGain.gain.setTargetAtTime(muted ? 0 : v * .3, ln.ctx.currentTime, .05); try { localStorage.setItem("range-music-vol", String(v)); } catch {} }
+    function setMute(m) { muted = m; if (musicGain) musicGain.gain.setTargetAtTime(m ? 0 : musicVol * .3, ln.ctx.currentTime, .03); if (ln.master) ln.master.gain.setTargetAtTime(m ? 0 : ln.volume * .35, ln.ctx.currentTime, .03); const b = gt("#muteToggle"); if (b) b.textContent = "静音 · " + (m ? "开" : "关"); try { localStorage.setItem("range-mute", m ? "1" : "0"); } catch {} }
+    function setIntensity(v) { intensity = Math.max(0, Math.min(1, v)); if (intensityGain && ln.ctx) { intensityGain.gain.setTargetAtTime(intensity * .12, ln.ctx.currentTime, .2); intensityOsc.frequency.setTargetAtTime(110 + intensity * 110, ln.ctx.currentTime, .2); } }
+    function spatialTone(freq, pan, dur = .1, vol = .1, type = "sine") {
+      if (!ln.ctx || ln.ctx.state !== "running" || !sfxPan) { ln.tone(freq, dur, vol, 0, type); return; }
+      sfxPan.pan.value = Math.max(-1, Math.min(1, pan));
+      const o = ln.ctx.createOscillator(), g = ln.ctx.createGain();
+      o.type = type; o.frequency.value = freq; const t = ln.ctx.currentTime;
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(1e-4, t + dur);
+      o.connect(g).connect(sfxPan); o.start(t); o.stop(t + dur + .01);
+    }
+    // 包裹 unlock 以初始化
+    const baseUnlock = ln.unlock.bind(ln);
+    ln.unlock = function () { const r = baseUnlock(); init(); return r; };
+    // 强度随 STYLE 连击 + 战斗
+    (function loop() { requestAnimationFrame(loop); if (!inited) return; const combo = (window.RANGE_API && RANGE_API.style) ? RANGE_API.style.state.combo : 0; const target = Math.min(1, combo / 12); setIntensity(intensity * .9 + target * .1); })();
+    // 设置控件
+    const mv = gt("#musicVol");
+    try { musicVol = +(localStorage.getItem("range-music-vol") ?? .5); muted = localStorage.getItem("range-mute") === "1"; } catch {}
+    if (mv) { mv.value = musicVol; mv.oninput = () => setMusicVolume(+mv.value); }
+    const mt = gt("#muteToggle"); if (mt) mt.onclick = () => setMute(!muted);
+    return { init, setSpace, setMusicVolume, setMute, setIntensity, spatialTone, get musicVol() { return musicVol; }, get muted() { return muted; }, get intensity() { return intensity; }, get inited() { return inited; }, spaces };
+  })();
+
+  RANGE_API.audio = RANGE_AUDIO;
   RANGE_API.draw = () => ki();
 
   fr.update(1 / 120, ke, Yt, ge);
