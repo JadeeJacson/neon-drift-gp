@@ -54,7 +54,7 @@ THE SOFTWARE.
 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>RANGE — 0.38 · 战术实验区</title>
+    <title>RANGE — 0.39 · 战术实验区</title>
     <style>
       :root {
         color-scheme: dark;
@@ -1082,7 +1082,7 @@ THE SOFTWARE.
         <div class="sub">PRIVATE TRAINING FACILITY / 01</div>
       </header>
       <main class="panel">
-        <div class="eyebrow" id="badge">BUILD 0.38 / 战术实验区</div>
+        <div class="eyebrow" id="badge">BUILD 0.39 / 战术实验区</div>
         <h1 id="menuTitle">第一枪，已就绪。</h1>
         <p class="intro">
           M4A1 / P226 / AK-47 / MP5<br />教程引导、六区 CQB 与幽灵挑战。<br />辨认目标，再扣动扳机。
@@ -1182,9 +1182,9 @@ THE SOFTWARE.
 <p>仅状态回放；不伤害、不补弹、不计分。无任意帧接管。自由镜头只沿世界轴平移。</p></section>
     <section id="hud" hidden aria-label="探索界面">
       <div class="topbar">
-        <div><strong>RANGE.</strong><small>0.38 / PHYSICS + STATE</small></div>
+        <div><strong>RANGE.</strong><small>0.39 / PHYSICS + STATE</small></div>
         <div class="topright">
-          <span id="fps">0.38 / OFFLINE</span><br /><span id="position"
+          <span id="fps">0.39 / OFFLINE</span><br /><span id="position"
             >X 0.0 Z 8.0</span
           ><button id="pause">ESC · 暂停</button>
         </div>
@@ -1524,7 +1524,7 @@ THE SOFTWARE.
     </div>
     <script>
 /* ═══════════════════════════════════════════════════════════════════
-  RANGE 0.38.0「战术实验区」· 大厅重排（…→ 0.37 补齐真生效 → 0.38 分组导航大厅，见 SECTION U）
+  RANGE 0.39.0「战术实验区」· 招牌翼深化（…→ 0.38 大厅重排 → 0.39 STATIC/HUNT/RHYTHM 深化）
   来源: JadeeJacson/neon-drift-gp @ main, games/range/index.html
         （2026-10-26 提交「新增四款练手小游戏」，原始构建 1,029,475 字节）
   还原: 内联 JS 经 js-beautify 格式化（不折行/保留换行），并在已验证边界插入分区注释。
@@ -20123,7 +20123,7 @@ void main() {
    * 改动后请跑 test/smoke.js（桌面回归）与 test/mobile.js（移动端验收）。
    * ════════════════════════════════════════════════════════════════════════ */
   var RANGE_CONFIG = {
-    release: "0.38.0",
+    release: "0.39.0",
     render: {
       maxPixelRatio: 1.65,        // 桌面渲染像素比上限
       mobileMaxPixelRatio: 1.3    // 移动端像素比上限（性能优先）
@@ -33458,7 +33458,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       Oi = !1, ge.stop(), Oe.suspend();
       return
     }
-    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.38 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
+    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.39 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
   }
   ge.onPause = Sn;
   ge.onLookMode = s => {
@@ -33563,7 +33563,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (let i = 0; i < e; i++) fr.update(t / e, ke, Yt, ge);
       ki()
     }
-    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.38 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
+    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.39 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
   }
 /* ════════════════════════════════════════════════════════════════════════
  * [SECTION E] QA 调试接口 window.__RANGE__（URL 带 ?qa 时启用扩展方法）
@@ -34339,7 +34339,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
         const stype = r.boss ? "predator" : ["pistol", "rifle", "melee", "heavy", "predator"][Math.floor(Math.random() * 5)];
         const sil = RANGE_SILHOUETTE.build(stype);
         const mesh = sil.group; mesh.position.set(x, y - 1.0, z); mesh.scale.setScalar(r.boss ? 1.4 : .85); group.add(mesh);
-        drones.push({ mesh, base: y - 1.0, cd: 1.5 + Math.random() * 1.5, phase: Math.random() * 6.28, alive: true, silType: stype, hitMeshes: sil.hitMeshes });
+        drones.push({ mesh, base: y - 1.0, cd: 1.5 + Math.random() * 1.5, phase: Math.random() * 6.28, alive: true, silType: stype, hitMeshes: sil.hitMeshes, hp: r.boss ? 3 : 1 });
       }
       gt("#staticRoom").textContent = "ROOM " + (i + 1) + " / " + rooms.length;
       msg("时间只随你流动 · 移动或转向让时间前进");
@@ -34409,7 +34409,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       // 弹丸
       for (const p of projectiles) {
         p.life += dt; p.mesh.position.addScaledVector(p.vel, dt);
-        if (p.mesh.position.distanceTo(Yt.position.clone().add(new I(0, 1.2, 0))) < .45) { p.dead = true; playerHit(); }
+        const pd = p.mesh.position.distanceTo(Yt.position.clone().add(new I(0, 1.2, 0))); if (pd < 1.8 && ge.hit("KeyE")) { p.dead = true; ke.reserve = Math.min(ke.reserve + 15, 999); ln.tone(1200, .08, .12, 0, "triangle"); msg("接住弹丸 · 备弹 +15"); } else if (pd < .45) { p.dead = true; playerHit(); }
         if (p.life > 8) p.dead = true;
       }
       projectiles = projectiles.filter(p => { if (p.dead) { group.remove(p.mesh); return false; } return true; });
@@ -34427,7 +34427,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       const hit = ray.intersectObjects(meshes, true)[0];
       if (hit) {
         const d = alive.find(x => (x.hitMeshes || [x.mesh]).includes(hit.object));
-        if (d) { const close = d.mesh.position.distanceTo(Yt.position) < 3.5; killDrone(d); if (close && d.silType === "melee") { ke.reserve = Math.min(ke.reserve + 30, 999); msg("近战夺枪 · 备弹 +30"); } }
+        if (d) { const close = d.mesh.position.distanceTo(Yt.position) < 3.5; if (d.hp > 1) { d.hp--; ln.tone(800, .08, .12, 0, "square"); msg("BOSS 受创 · 剩余 " + d.hp); } else { killDrone(d); if (close && d.silType === "melee") { const slots = [0, 1, 2, 3].filter(x => x !== ke.slot); ke.requestSlot(slots[Math.floor(Math.random() * slots.length)]); ke.reserve = Math.min(ke.reserve + 60, 999); msg("近战夺枪 · 缴获武器!"); } } }
       } else {
         const pm = projectiles.map(p => p.mesh);
         const ph = ray.intersectObjects(pm, false)[0];
@@ -35390,10 +35390,16 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       g.gain.setValueAtTime(.3, t); g.gain.exponentialRampToValueAtTime(1e-4, t + .12); o.connect(g).connect(ln.master); o.start(t); o.stop(t + .13);
       const h = ctx.createOscillator(), hg = ctx.createGain(); h.type = "square"; h.frequency.value = 6000;
       hg.gain.setValueAtTime(.05, t); hg.gain.exponentialRampToValueAtTime(1e-4, t + .03); h.connect(hg).connect(ln.master); h.start(t); h.stop(t + .04);
+      const scale = [0, 3, 5, 7, 10, 12, 15, 12]; const step = Math.floor((t * 2) % 8);
+      const bass = ctx.createOscillator(), bg = ctx.createGain(); bass.type = "triangle"; bass.frequency.value = 55 * Math.pow(2, scale[step] / 12);
+      bg.gain.setValueAtTime(.18, t); bg.gain.exponentialRampToValueAtTime(1e-4, t + .22); bass.connect(bg).connect(ln.master); bass.start(t); bass.stop(t + .24);
+      if (step % 2 === 0) { const lead = ctx.createOscillator(), lg = ctx.createGain(); lead.type = "sawtooth"; lead.frequency.value = 220 * Math.pow(2, scale[(step + 2) % 8] / 12); const lf = ctx.createBiquadFilter(); lf.type = "lowpass"; lf.frequency.value = 1800; lg.gain.setValueAtTime(.07, t); lg.gain.exponentialRampToValueAtTime(1e-4, t + .18); lead.connect(lf).connect(lg).connect(ln.master); lead.start(t); lead.stop(t + .2); }
     }
+    const chart = [[-3, 1.6, -11], [3, 1.6, -11], [0, 2.2, -13], [-4, 1.4, -12], [4, 1.4, -12], [-2, 2.0, -14], [2, 2.0, -14], [0, 1.5, -10]];
+    let chartIdx = 0;
     function spawnTarget() {
-      const x = (Math.random() - .5) * 8, y = 1.2 + Math.random() * 1.2, z = -10 - Math.random() * 4;
-      const m = new at(new Qe(.32, 16, 12), tMat); m.position.set(x, y, z); group.add(m);
+      const c = chart[chartIdx % chart.length]; chartIdx++;
+      const m = new at(new Qe(.32, 16, 12), tMat); m.position.set(c[0], c[1], c[2]); group.add(m);
       targets.push({ mesh: m, born: songTime * 1000, alive: true, beatTime: nextBeat });
     }
     function judge() {
@@ -35425,7 +35431,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     };
     function finish() { finished = true; const total = perfect + good + miss; const acc = total ? Math.round((perfect + good * .5) / total * 100) : 0; const grade = acc > 90 ? "SS" : acc > 75 ? "S" : acc > 60 ? "A" : acc > 40 ? "B" : "C"; gt("#rhrTitle").textContent = "演奏结束 · " + grade; gt("#rhrScore").textContent = score + " 分"; gt("#rhrStats").textContent = "Perfect " + perfect + " / Good " + good + " / Miss " + miss + " · 最大连击 " + maxCombo + " · 准确率 " + acc + "%"; gt("#rhythmResult").hidden = false; gt("#rhythmHud").hidden = true; try { const b = +(localStorage.getItem("range-rhythm-best") || 0); if (score > b) localStorage.setItem("range-rhythm-best", String(score)); } catch {} }
     function start() { targets.forEach(t => group.remove(t.mesh)); targets = []; score = 0; combo = 0; maxCombo = 0; perfect = 0; good = 0; miss = 0; seg = 0; beatIdx = 0; finished = false; songTime = 0; nextBeat = BEAT; Yt.spawn(); gt("#rhSeg").textContent = "SEG 1/" + SEGMENTS; gt("#rhythmResult").hidden = true; gt("#rhythmHud").hidden = false; }
-    function enter() { RANGE_WINGS._setActive("rhythm"); active = true; group.visible = true; Oi = !0; Dn = !0; gt("#menu").hidden = !0; gt("#hud").hidden = !1; RANGE_STYLE.show(false); start(); }
+    function enter() { RANGE_WINGS._setActive("rhythm"); active = true; group.visible = true; Oi = !0; Dn = !0; gt("#menu").hidden = !0; gt("#hud").hidden = !1; RANGE_STYLE.show(false); if (ln.unlock) ln.unlock(); start(); }
     function exit() { RANGE_WINGS._setActive(null); active = false; group.visible = false; targets.forEach(t => group.remove(t.mesh)); targets = []; Oi = !1; gt("#menu").hidden = !1; gt("#hud").hidden = !0; gt("#rhythmHud").hidden = true; gt("#rhythmResult").hidden = true; }
     gt("#rhythmEnter").onclick = () => RANGE_WINGS.enter("rhythm");
     gt("#rhrRetry").onclick = start;
@@ -35458,7 +35464,8 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       oi.traverse(o => { if (o.isMesh && !isUnder(o, group)) { savedMats.push([o, o.material]); o.material = darkMat; } });
       origBg = oi.background; if (origBg && origBg.isColor) oi.background = origBg.clone().set(0x020204);
       savedLights = []; oi.traverse(o => { if (o.isLight && o.parent !== group) { savedLights.push([o, o.intensity]); o.intensity = o.intensity * .08; } });
-      flash = new Si(0xfff0d0, 3, 22); flash.position.set(0, 0, 0); He.add(flash);
+      flash = new Si(0xfff0d0, 6, 26); flash.decay = 1; flash.position.set(0, 0, 0); oi.add(flash);
+      const beam = new at(new Se(1.2, .02, 7, 20, 1, true), new he({ color: 0xffe8b0, transparent: true, opacity: .3, depthWrite: false, side: Be, blending: 2 })); beam.rotation.x = -Math.PI / 2; beam.position.z = -3.5; beam.frustumCulled = false; flash.add(beam);
       redLight = new Si(0xff2020, 1.5, 30); redLight.position.set(0, 3, -14); group.add(redLight);
       document.body.classList.add("hunt-dark");
     }
@@ -35466,7 +35473,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     function restoreDark() {
       savedMats.forEach(([o, m]) => o.material = m); savedMats = [];
       savedLights.forEach(([o, i]) => o.intensity = i); savedLights = [];
-      oi.background = origBg; if (flash) He.remove(flash); if (redLight) group.remove(redLight);
+      oi.background = origBg; if (flash) oi.remove(flash); if (redLight) group.remove(redLight);
       document.body.classList.remove("hunt-dark"); gt("#huntStatic").style.opacity = "0";
     }
     function clearNight() { if (predator) group.remove(predator.mesh); if (item) group.remove(item); group.children.filter(c => c.userData.kit).forEach(c => group.remove(c)); predator = null; item = null; }
@@ -35485,6 +35492,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     function tick(s) {
       if (dead || extracted) { ge.end(); return; }
       Yt.update(s); ke.update(s);
+      if (flash) { flash.position.copy(He.position); flash.quaternion.copy(He.quaternion); }
       const speed = Math.hypot(Yt.velocity.x, Yt.velocity.z);
       noise = Math.min(1, speed / 10);
       gt("#huNoise").textContent = "噪声 " + (noise > .6 ? "▆▆" : noise > .3 ? "▃▃" : "▁▁");
@@ -35508,9 +35516,10 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
           goal = predator.target;
         }
         const dir = goal.clone().sub(predator.mesh.position); dir.y = 0;
-        if (dir.length() > .3) { dir.normalize(); predator.mesh.position.addScaledVector(dir, predator.speed * (noise > .35 ? 1.6 : 1) * s); predator.mesh.lookAt(goal.x, predator.mesh.position.y, goal.z); }
+        if (dir.length() > .3) { dir.normalize(); if (noise <= .35 && Math.sin(predator.phase * .7) > .55) { const perp = new I(-dir.z, 0, dir.x); dir.addScaledVector(perp, .8).normalize(); } predator.mesh.position.addScaledVector(dir, predator.speed * (noise > .35 ? 1.6 : 1) * s); predator.mesh.lookAt(goal.x, predator.mesh.position.y, goal.z); }
         const dist = predator.mesh.position.distanceTo(Yt.position);
         gt("#huHeart").textContent = dist < 4 ? "♥♥♥ 危险!" : dist < 8 ? "♥♥ 接近" : "♥ 安全";
+        predator.heartT = (predator.heartT || 0) - s; if (dist < 8 && predator.heartT <= 0) { predator.heartT = dist < 4 ? .35 : .75; ln.tone(55, .1, .22, 0, "sine"); ln.tone(50, .08, .14, .12, "sine"); }
         gt("#huntStatic").style.opacity = dist < 6 ? String((6 - dist) / 6 * .5) : "0";
         if (dist < 1.3) { dead = true; ln.tone(80, .5, .3, 0, "sawtooth"); gt("#hurTitle").textContent = "被捕获"; gt("#hurStats").textContent = "捕食者抓住了你 · 第 " + (night + 1) + " 夜"; gt("#huntResult").hidden = false; gt("#huntHud").hidden = true; }
       }
