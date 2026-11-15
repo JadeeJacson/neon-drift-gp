@@ -1,0 +1,19 @@
+{
+  "errors": [],
+  "checks": {
+    "kitUI": true,
+    "export": true,
+    "badImportPreserves": true,
+    "oldImport": true,
+    "reloadPersistence": true,
+    "kitPersistence": true,
+    "multiTouch": true,
+    "release": true,
+    "pause": true,
+    "visibleLandscape": true,
+    "noControlOverlap": true,
+    "fallingPickup": true,
+    "finalFrameContract": true
+  },
+  "overlaps": []
+}

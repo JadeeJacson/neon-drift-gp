@@ -47,16 +47,16 @@ THE SOFTWARE.
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
- --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BREACH 0.5 / 对照实验场</title><style>
+ --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BREACH 0.8.2 / 对照实验场</title><style>
 :root{font-family:Inter,"Segoe UI","Microsoft YaHei",sans-serif;color:#f0eee9;background:#10191c;color-scheme:dark}*{box-sizing:border-box}body{margin:0;overflow:hidden}canvas{display:block;position:fixed;inset:0;width:100%;height:100%}button,select{font:inherit;min-height:44px;border:1px solid #75817e;background:#172627e8;color:#fff;padding:10px 16px;cursor:pointer;border-radius:3px}button:hover{background:#345051}button:focus-visible,select:focus-visible{outline:3px solid #f2b76d;outline-offset:3px}.accent{background:#e7ab64;color:#182224;border:0;font-weight:700}.accent:hover{background:#f7c383}.eyebrow{letter-spacing:.22em;color:#e8b978;font-size:12px;font-weight:700}.panel{position:fixed;background:linear-gradient(120deg,#0d1a20f5,#14252deb);backdrop-filter:blur(16px);border:1px solid #82928e55;box-shadow:0 25px 80px #0005}.hidden{display:none!important}#menu{top:50%;left:7%;transform:translateY(-50%);width:470px;padding:28px;max-height:calc(100vh - 190px);overflow-y:auto}h1{font-size:58px;letter-spacing:-.055em;margin:4px 0 0;line-height:1}h2{font-size:22px;margin:10px 0 20px;font-weight:500}p{font-size:15px;line-height:1.8;color:#b9c6c5}.line{height:1px;background:#71817d55;margin:24px 0}.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.stat{flex:1}.stat b{font-family:monospace;font-size:26px;display:block}.stat span{font-size:12px;color:#bcc7c3}#top{position:fixed;top:24px;left:28px;right:28px;display:flex;justify-content:space-between;pointer-events:none;text-shadow:0 2px 8px #000}.brand{font-size:21px;letter-spacing:.16em;font-weight:750}.sub{font-size:12px;color:#e1e7e3;margin-top:6px;letter-spacing:.05em}#telemetry{white-space:pre-line;text-align:right;font:13px/1.7 monospace;color:#e9efe8}#bottom{position:fixed;left:28px;right:28px;bottom:24px;display:flex;justify-content:space-between;align-items:flex-end;pointer-events:none}#weapons{display:flex;gap:8px;pointer-events:auto}#weapons button{background:#112027d9;min-width:100px;text-align:left;border-color:#70827d70;font-size:13px}#weapons button.active{border-color:#ecb16c;color:#f5c280}#weapons small{display:block;color:#c2cfca;margin-top:5px}#hint{font-size:13px;color:#e4ece7;line-height:1.8;text-shadow:0 2px 8px #000}.cross{position:fixed;left:50%;top:50%;width:18px;height:18px;transform:translate(-50%,-50%);pointer-events:none}.cross:before,.cross:after{content:"";position:absolute;background:#f6e9c9;box-shadow:0 1px 3px #000}.cross:before{width:18px;height:1px;top:9px}.cross:after{height:18px;width:1px;left:9px}#notice{position:fixed;top:22%;width:100%;text-align:center;pointer-events:none;font-size:17px;letter-spacing:.08em;color:#ffca88;text-shadow:0 2px 12px #000;transition:opacity .4s}#tools{position:fixed;right:28px;top:105px;padding:16px;width:255px;max-height:calc(100vh - 130px);overflow-y:auto}#tools label{font-size:13px;color:#c6d1cb;display:block;margin:12px 0 6px}#tools button,#tools select{width:100%;margin-bottom:7px;font-size:14px}#tools:not(.hidden) ~ #bottom #hint{display:none}#menu:not(.hidden) ~ #bottom{display:none}.scene-label{display:block;font-size:12px;color:#b9c6c5;margin:20px 0 8px}#sceneMenu{width:100%;font-size:14px}#analysis{left:28px;top:106px;padding:16px;width:274px;font:13px/1.9 monospace;white-space:pre-line;pointer-events:none}#log{font:11px/1.6 monospace;color:#c1d0c9;max-height:96px;overflow:hidden;white-space:pre-wrap}#help{position:fixed;bottom:105px;left:28px;font-size:13px;padding:16px;max-width:370px;line-height:1.9}#flash{position:fixed;inset:0;pointer-events:none;background:#ffb35a;opacity:0}#loading{position:fixed;inset:0;display:grid;place-items:center;background:#102027;z-index:50;font:18px monospace}#mobile{display:none}.warning{font-size:12px;line-height:1.6;color:#c1ceca;margin-bottom:0}#resume{width:100%;margin-top:16px}.badge{font:12px monospace;border:1px solid #7d8e8655;padding:6px 9px;color:#d2dcd6;display:inline-block;margin-bottom:16px}@media(max-width:650px){#menu:not(.hidden) ~ #bottom{display:none}#analysis{left:16px;top:116px;width:240px;font-size:11px}.sub{max-width:175px}#telemetry{max-width:160px;font-size:10px}#menu{width:calc(100% - 32px);left:16px;padding:24px;max-height:calc(100vh - 120px);overflow:auto}h1{font-size:52px}h2{font-size:20px}#top{left:16px;right:16px;top:16px}.brand{font-size:16px}#telemetry{font-size:11px}#bottom{left:16px;right:16px;bottom:16px}#hint{display:none}#weapons button{min-width:80px;font-size:12px;padding:9px}#tools{right:16px;top:80px;width:230px;max-height:70vh;overflow:auto}#help{left:16px;right:16px;bottom:90px}#mobile{display:block;color:#efc285;font-size:13px}}
 
 :root{font-family:Arial,"Microsoft YaHei",sans-serif}button,select,input{font:inherit}input{min-height:44px;width:100%;border:1px solid #75817e;background:#172627;color:#f0eee9;padding:9px 12px;border-radius:3px}button:disabled,select:disabled,input:disabled{opacity:.48;cursor:not-allowed}#tools{width:348px;top:112px;max-height:calc(100vh - 136px);padding:18px;z-index:8}#tools .line{margin:16px 0}#tools p{font-size:14px;line-height:1.65;margin:8px 0}#tools label{font-size:14px}#tools input{font-size:14px}#tools .row{gap:8px}#tools .row>*{flex:1;min-width:0}#tools .row button{width:auto}#tools h3{margin:12px 0;font-size:19px}#tools .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:14px 0 18px;position:sticky;top:-18px;background:#14272d;padding:12px 0 8px;z-index:2}#tools .tabs button{padding:8px 2px;font-size:14px;margin:0}#tools .tabs [aria-selected="true"]{background:#385964;border-color:#8cb9c7;color:#fff}#tools .point-row{display:flex;align-items:center;gap:6px;border-bottom:1px solid #667d8055;font:13px monospace;padding:3px 0}#tools .point-row span{flex:1}#tools .point-row button{width:56px;min-width:56px;padding:6px;font-size:13px;margin:0}#pointList{max-height:180px;overflow:auto}.small{font-size:14px;line-height:1.6;color:#b9cbcd}.file-input{font-size:13px!important;height:auto}#eventList{max-height:280px;overflow:auto}#tools #eventList button{text-align:left;font-size:13px;padding:8px;margin-bottom:5px}#results .result-title{font-size:19px;font-weight:700;color:#edbd83}#results .positive{color:#9bd0b2}#performance{white-space:pre-line}#navigator{position:fixed;left:28px;top:115px;width:248px;padding:12px 14px;background:#14282ee8;border:1px solid #809a9b55;pointer-events:none}#navReadout{font-size:17px;font-weight:700;letter-spacing:.06em}#navGuide{font-size:13px;color:#d3c0a4;line-height:1.7;margin-top:6px}#miniMap{display:block;position:static;width:216px;height:156px;margin-top:10px}#menu:not(.hidden) ~ #navigator{display:none}#menu:has(~#tools:not(.hidden)){visibility:hidden}#tools:not(.hidden) ~ #navigator{width:248px}#bottom{z-index:3}#tools:not(.hidden) ~ #bottom{pointer-events:none}#tools:not(.hidden) ~ #bottom #weapons{display:none}#help{z-index:7}#menu h2{font-size:23px}#menu .intro{max-width:390px}#top{z-index:2}#tools .sticky-close{margin-top:14px;border-color:#a4b4af}.key{font-family:monospace;color:#edbd83}.warning{font-size:14px}.sub{font-size:13px}#menu{z-index:5}#telemetry{max-width:420px}#runStatus{border-left:3px solid #e5b57a;padding:8px 10px;background:#243b4080}.section-note{padding:10px 12px;background:#243b4080}.result-title{margin-top:12px}#tools input[type=file]{padding:8px}
 @media(max-width:700px){#navigator{display:none}#tools{left:16px;right:16px;width:auto;top:76px;max-height:calc(100vh - 100px)}#tools:not(.hidden) ~ #navigator{display:none}#telemetry{display:none}#menu{max-height:calc(100vh - 100px);padding:22px}#menu h1{font-size:48px}#menu h2{font-size:21px}.sub{font-size:12px;max-width:100%}#tools .tabs{top:-18px}#top .brand{font-size:18px}#top .sub{max-width:330px}#menu:not(.hidden) ~ #bottom{display:none}}
 body:has(#analysis:not(.hidden)) #navigator{display:none}
 @media(prefers-reduced-motion:reduce){#notice{transition:none}}
-</style></head><body><div id="loading">BREACH / 建立结构与实验时钟…</div><div id="top"><div><div class="brand">BREACH<span style="color:#dba965"> / </span>LAB</div><div class="sub">结构对照实验场 / 0.5 · <span id="sceneName"></span></div></div><div id="telemetry"></div></div>
+</style></head><body><div id="loading">BREACH / 建立结构与实验时钟…</div><div id="top"><div><div class="brand">BREACH<span style="color:#dba965"> / </span>LAB</div><div class="sub">结构对照实验场 / 0.8.2 · <span id="sceneName"></span></div></div><div id="telemetry"></div></div>
 <div id="menu" class="panel"><div class="eyebrow">FAILURE / STUDY 004</div><h1>BREACH.</h1><h2>同一场实验，不同的倒塌。</h2><p class="intro">钢框架、承重墙、大跨屋架与裙楼主塔。布置测试点，退到观察机位，看清第一处失效与落体冲击。</p><div class="line"></div><div class="row"><div class="stat"><b id="buildingCount"></b><span>实验建筑</span></div><div class="stat"><b id="partCount"></b><span>可破坏部件</span></div><div class="stat"><b id="memberCount"></b><span>传力构件</span></div></div><label class="scene-label" for="sceneMenu">实验场景 / 切换会重建</label><select id="sceneMenu"></select><button id="resume" class="accent">进入实验场 ↗</button><div class="row" style="margin-top:10px"><button id="demomenu">观看支撑失效</button><button id="settings">实验工具 / 方案</button></div><p class="warning">F 入楼 · Tab 工具 · B 准星布点 · V 保存机位<br>WASD 移动 · 1/2/3 武器 · R 重建 · X 诊断<br>游戏化结构近似，非工程认证。方案重试不是录像回放。</p><p id="mobile">手机仅菜单与演示预览；第一人称操作需桌面键鼠。</p></div>
-<div id="tools" class="panel hidden"><div class="eyebrow">EXPERIMENT / 实验工具</div><label for="sceneTool">场景 / 切换重建</label><select id="sceneTool"></select><div class="tabs" role="tablist"><button role="tab" data-tab="navigate" aria-selected="true">导航</button><button role="tab" data-tab="plan" aria-selected="false">方案</button><button role="tab" data-tab="review" aria-selected="false">事件</button><button role="tab" data-tab="settings" aria-selected="false">设置</button></div><section data-pane="navigate" class=""><label for="navBuilding">楼栋 / 楼层</label><select id="navBuilding"></select><label for="navFloor">快捷定位（楼梯仍可连续行走）</label><select id="navFloor"></select><button id="visitFloor">步行定位到所选楼层</button><div class="row"><button id="overview">园区全景</button><button id="camera">步行 / 自由 [F]</button></div><div class="line"></div><h3>观察机位</h3><button id="saveView">保存当前机位 [V] · 最多4个</button><div id="viewList" class="row"></div><button id="toggleMap">显示 / 隐藏楼梯示意图</button><p class="small">黄区是完整建筑的楼梯井示意，不代表受损后的可通行性。厂房服务梯到8m检修平台，不是全屋顶漫步路线。</p><div class="line"></div><label for="testPoint">当前楼栋 · 测试位置</label><select id="testPoint"><option value="base">底部支撑</option><option value="mid">中段支撑</option><option value="top">顶部支撑 / 屋架</option><option value="inside">内部 / 楼盖</option></select><button id="testBlast">立即试爆 · 一发RPG等效</button><p class="small">布置多点方案：先选位置，再切换「方案」加入点。</p></section><section data-pane="plan" class="hidden"><h3>遥控多点实验</h3><p class="small">固定世界坐标与模拟秒；同一时间可同时触发。运行会重建，重新模拟，不是播放录像。</p><button id="examplePlan">载入本场测试示例</button><label for="planTitle">方案名称</label><input id="planTitle" maxlength="60" value="结构对照实验"><div class="row"><div><label for="pointKind">游戏内测试装置</label><select id="pointKind"><option value="charge">局部测试装置</option><option value="rpg">RPG等效</option><option value="grenade">手雷等效</option></select></div><div><label for="pointDelay">触发时刻 / 秒</label><input id="pointDelay" type="number" min="0" max="37" step="0.1" value="1"></div></div><button id="addPresetPoint">加入「导航」中选定位置</button><button id="addAimPoint">加入准星命中位置 [B]</button><p id="pointCount" class="small"></p><div id="pointList"></div><button id="clearPoints">清空测试点</button><div class="row"><div><label for="runSeed">固定种子</label><input id="runSeed" type="number" min="1" max="2147483647" value="8047"></div><div><label for="runDuration">实验时长 / 秒</label><input id="runDuration" type="number" min="8" max="40" value="12"></div></div><p id="runStatus" class="small">待命</p><div class="row"><button id="runPlan" class="accent">重建并运行</button><button id="stopPlan">停止本轮</button></div><div class="line"></div><div class="row"><button id="savePlan">保存到浏览器</button><button id="loadPlan">载入已存方案</button></div><button id="exportPlan">导出方案 JSON</button><label for="importPlan">导入本版方案 · 最多32KiB</label><input class="file-input" id="importPlan" type="file" accept=".json,application/json"><p class="small">仅保存一份本地方案；文件可备份。机位与最近两次结果仅本页保留，关闭前请导出。导入失败不改当前方案。</p></section><section data-pane="review" class="hidden"><h3>结果与关键事件</h3><div id="results"></div><button id="exportResults">导出最近两轮与事件</button><div class="line"></div><h3>当前世界 · 事件索引</h3><p class="small">点击暂停并定位部件的<b>当前位置</b>，蓝色高亮。不会回到事件发生时刻；首个事件优先保留，最多128条索引。</p><div id="eventList"></div></section><section data-pane="settings" class="hidden"><label for="wind">等效侧向风载 → +X</label><select id="wind"><option value="0">0 · 无风载</option><option value="25">25 m/s</option><option value="45">45 m/s</option><option value="65">65 m/s</option></select><label for="quality">画质 / 物理解算预算</label><select id="quality"><option value="standard">高 · 稳定优先</option><option value="ultra">极限 · 更多尘屑与解算</option></select><label for="speed">模拟时间（按模拟秒触发方案）</label><select id="speed"><option value="1">1 ×</option><option value="0.35">0.35 × 慢放</option><option value="0.5">0.5 × 慢放</option></select><label for="sens">鼠标灵敏度</label><select id="sens"><option value="0.5">0.5 × 慢</option><option value="0.75">0.75 ×</option><option value="1" selected>1 × 标准</option><option value="1.5">1.5 ×</option><option value="2">2 × 快</option></select><div class="row"><button id="pause">暂停 / 继续 [P]</button><button id="step">单步 [.]</button></div><button id="debug">传力路径 N·V·M [X]</button><button id="demo">局部支撑演示（重建）</button><button id="reset">重建 [R]</button><button id="mute">声音：开</button><button id="export">导出当前审计快照</button><p id="performance" class="small section-note"></p><p class="small">完整静态楼体低频求解；矩阵仅脏更新；活动大块不删除，小尘屑有界回收。真实硬件、多浏览器与长局仍需验收。</p><div id="log"></div></section><button id="closeTools" class="sticky-close">关闭工具 [Tab]</button></div>
+<div id="tools" class="panel hidden"><div class="eyebrow">EXPERIMENT / 实验工具</div><label for="sceneTool">场景 / 切换重建</label><select id="sceneTool"></select><div class="tabs" role="tablist"><button role="tab" data-tab="navigate" aria-selected="true">导航</button><button role="tab" data-tab="plan" aria-selected="false">方案</button><button role="tab" data-tab="review" aria-selected="false">事件</button><button role="tab" data-tab="settings" aria-selected="false">设置</button></div><section data-pane="navigate" class=""><label for="navBuilding">楼栋 / 楼层</label><select id="navBuilding"></select><label for="navFloor">快捷定位（楼梯仍可连续行走）</label><select id="navFloor"></select><button id="visitFloor">步行定位到所选楼层</button><div class="row"><button id="overview">园区全景</button><button id="camera">步行 / 自由 [F]</button></div><div class="line"></div><h3>观察机位</h3><button id="saveView">保存当前机位 [V] · 最多4个</button><div id="viewList" class="row"></div><button id="toggleMap">显示 / 隐藏楼梯示意图</button><p class="small">黄区是完整建筑的楼梯井示意，不代表受损后的可通行性。厂房服务梯到8m检修平台，不是全屋顶漫步路线。</p><div class="line"></div><label for="testPoint">当前楼栋 · 测试位置</label><select id="testPoint"><option value="base">底部支撑</option><option value="mid">中段支撑</option><option value="top">顶部支撑 / 屋架</option><option value="inside">内部 / 楼盖</option></select><button id="testBlast">立即试爆 · 一发RPG等效</button><button id="raidBtn">模拟空袭（城市街道场景）</button><p class="small">布置多点方案：先选位置，再切换「方案」加入点。</p></section><section data-pane="plan" class="hidden"><h3>遥控多点实验</h3><p class="small">固定世界坐标与模拟秒；同一时间可同时触发。运行会重建，重新模拟，不是播放录像。</p><button id="examplePlan">载入本场测试示例</button><label for="planTitle">方案名称</label><input id="planTitle" maxlength="60" value="结构对照实验"><div class="row"><div><label for="pointKind">游戏内测试装置</label><select id="pointKind"><option value="charge">局部测试装置</option><option value="rpg">RPG等效</option><option value="grenade">手雷等效</option></select></div><div><label for="pointDelay">触发时刻 / 秒</label><input id="pointDelay" type="number" min="0" max="37" step="0.1" value="1"></div></div><button id="addPresetPoint">加入「导航」中选定位置</button><button id="addAimPoint">加入准星命中位置 [B]</button><p id="pointCount" class="small"></p><div id="pointList"></div><button id="clearPoints">清空测试点</button><div class="row"><div><label for="runSeed">固定种子</label><input id="runSeed" type="number" min="1" max="2147483647" value="8047"></div><div><label for="runDuration">实验时长 / 秒</label><input id="runDuration" type="number" min="8" max="40" value="12"></div></div><p id="runStatus" class="small">待命</p><div class="row"><button id="runPlan" class="accent">重建并运行</button><button id="stopPlan">停止本轮</button></div><div class="line"></div><div class="row"><button id="savePlan">保存到浏览器</button><button id="loadPlan">载入已存方案</button></div><button id="exportPlan">导出方案 JSON</button><label for="importPlan">导入本版方案 · 最多32KiB</label><input class="file-input" id="importPlan" type="file" accept=".json,application/json"><p class="small">仅保存一份本地方案；文件可备份。机位与最近两次结果仅本页保留，关闭前请导出。导入失败不改当前方案。</p></section><section data-pane="review" class="hidden"><h3>结果与关键事件</h3><div id="results"></div><button id="exportResults">导出最近两轮与事件</button><div class="line"></div><h3>当前世界 · 事件索引</h3><p class="small">点击暂停并定位部件的<b>当前位置</b>，蓝色高亮。不会回到事件发生时刻；首个事件优先保留，最多128条索引。</p><div id="eventList"></div></section><section data-pane="settings" class="hidden"><label for="wind">等效侧向风载 → +X</label><select id="wind"><option value="0">0 · 无风载</option><option value="25">25 m/s</option><option value="45">45 m/s</option><option value="65">65 m/s</option></select><label for="quality">画质 / 物理解算预算</label><select id="quality"><option value="performance">1 · 流畅 · 高帧率优先</option><option value="balanced">2 · 均衡 · 低配推荐</option><option value="standard" selected>3 · 高 · 默认</option><option value="ultra">4 · 极限 · 硬件宽裕</option><option value="auto">5 · 自动 · 按帧率调档</option></select><label for="speed">模拟时间（按模拟秒触发方案）</label><select id="speed"><option value="1">1 ×</option><option value="0.35">0.35 × 慢放</option><option value="0.5">0.5 × 慢放</option></select><label for="sens">鼠标灵敏度</label><select id="sens"><option value="0.5">0.5 × 慢</option><option value="0.75">0.75 ×</option><option value="1" selected>1 × 标准</option><option value="1.5">1.5 ×</option><option value="2">2 × 快</option></select><div class="line"></div><h3>性能实验 / PERF LAB</h3><p class="small">独立开关、可组合，改动即刻生效。用遥测 fps 与下方 perfBreak 读数对照各方案效果；「一键复位」恢复全部默认。</p><div class="row"><div><label for="plBudget">活跃预算</label><select id="plBudget"><option value="0">关</option><option value="240">240</option><option value="420" selected>420</option><option value="560">560</option></select></div><div><label for="plStagger">单步释放限流</label><select id="plStagger"><option value="0" selected>关</option><option value="8">8 / 步</option><option value="16">16 / 步</option></select></div></div><div class="row"><div><label for="plIters">求解迭代</label><select id="plIters"><option value="4">4</option><option value="6">6</option><option value="7" selected>7</option><option value="9">9</option><option value="12">12</option></select></div><div><label for="plTol">求解容差</label><select id="plTol"><option value="1e-7" selected>1e-7</option><option value="1e-4">1e-4</option><option value="1e-2">1e-2</option></select></div></div><div class="row"><div><label for="plFric">接触摩擦</label><select id="plFric"><option value="0">0</option><option value="0.3">0.3</option><option value="0.64" selected>0.64</option></select></div><div><label for="plPark">停泊延迟 s</label><select id="plPark"><option value="0.5">0.5</option><option value="1">1.0</option><option value="1.6" selected>1.6</option><option value="2.4">2.4</option></select></div></div><div class="row"><div><label for="plThrottle">遥测节流</label><select id="plThrottle"><option value="1" selected>每步</option><option value="3">3 步一更</option><option value="6">6 步一更</option></select></div><div><label for="plDedup">撞击对去重</label><select id="plDedup"><option value="1" selected>开</option><option value="0">关</option></select></div></div><div class="row"><div><label for="plStruct">结构求解节流</label><select id="plStruct"><option value="std" selected>标准</option><option value="fast">每步求解</option><option value="deep">深节流</option></select></div><div><label for="plReset">一键复位</label><button id="plReset">恢复默认</button></div></div><div class="row"><div><label for="plBury">废墟治理</label><select id="plBury"><option value="off" selected>关</option><option value="fix">固定(去碰撞)</option><option value="hide">隐藏(保碰撞)</option><option value="gone">消失</option></select></div><div><label for="plBuryDelay">治理延迟 s</label><select id="plBuryDelay"><option value="3">3</option><option value="6" selected>6</option><option value="10">10</option></select></div></div><p class="small">被压判定：顶面低于本地堆顶 1m 且同格 ≥3 件、停泊满延迟后处理；爆炸解封时自动还原。</p><p id="perfLabReadout" class="small"></p><div class="row"><button id="pause">暂停 / 继续 [P]</button><button id="step">单步 [.]</button></div><button id="debug">传力路径 N·V·M [X]</button><button id="demo">局部支撑演示（重建）</button><button id="reset">重建 [R]</button><button id="mute">声音：开</button><button id="export">导出当前审计快照</button><p id="performance" class="small section-note"></p><p class="small">完整静态楼体低频求解；矩阵仅脏更新；沉降废墟转为静态刚体回收算力，小尘屑有界回收；五档画质可在设置中热切换。真实硬件、多浏览器与长局仍需验收。</p><div id="log"></div></section><button id="closeTools" class="sticky-close">关闭工具 [Tab]</button></div>
 <div id="navigator"><div id="navReadout"></div><div id="navGuide"></div><canvas id="miniMap" width="216" height="156" aria-label="完整建筑楼梯井示意图"></canvas></div><div id="notice" role="status"></div><div id="analysis" class="panel hidden"></div><div id="help" class="panel hidden">WASD 移动 · Shift 疾跑 · C 下蹲 / 滑铲<br>空格 跳跃 · Q/E 侧倾 · 鼠标瞄准<br>左键开火 · 右键瞄准 · 1/2/3 切武器<br>F 步行 / 自由镜头（自由态 Q 降 / E 升）<br>P 暂停 · . 单步 · R 重建 · X 诊断<br>B 准星布点 · V 保存机位 · Tab 实验工具<br>方案：加入点 → 设置时间 → 重建并运行。<br>单侧炸塌承重后，上部结构会向破坏侧整体侧倾。<br>裂纹/色温为损伤与高利用率提示，不是精确应力图。<br>事件定位当前残骸，不是录像回放。<br>无人物伤害、无任意网格切割；废墟攀爬有限。<br>FPS* 为浏览器读数，不是硬件性能验收。</div><div class="cross hidden" id="cross"></div><div id="bottom"><div id="weapons"><button data-slot="rpg" class="active">01 / RPG<small>结构爆破</small></button><button data-slot="grenade">02 / 手雷<small>延时 · 抛掷</small></button><button data-slot="rifle">03 / 步枪<small>点射 · 局部破坏</small></button></div><div id="hint">B / 准星布点　 V / 保存机位<br>Tab / 导航 · 遥控方案 · 事件</div></div><div id="flash"></div><script>
 (() => {
     var gf = 0,
@@ -20753,18 +20753,105 @@ void main() {
                 impulse: 5500
             }
         },
+        collapse: {
+            // 0.7 截面账 / 分段释放 / 落地连锁(口径起步自 destruction-spike,实测标定)
+            segs: {
+                stories: 2,
+                detachH: .3,
+                bandFrac: [.09, .2, .34],
+                bandDepth: [1.2, 2.6, 2.6],
+                predMed: 5,
+                predStrong: 11
+            },
+            monitor: {
+                enabled: !0,
+                ratio: 1,
+                residual: .08,
+                minLever: .3,
+                capacity: 1
+            },
+            standing: {
+                // 实验特性,默认关:开启后整层同折=上部成批转动态,rc 同场景
+                // 物理耗时 ~1.8×(实测),越过 0.7 的 1.1× 门槛;setCollapse 可开
+                enabled: !1,
+                util: 1.05,
+                minCount: 3,
+                minFrac: .3,
+                persist: .35
+            },
+            chain: {
+                speed: 5,
+                massRatio: .35,
+                maxRebreaks: 1
+            },
+            thetaHard: 2
+        },
+        scenarios: {
+            // 0.8 剧本参数化:空袭剧本时序/波次/瞄准全部旋钮(方案可改写)
+            raid: {
+                calmDelay: 6,
+                sirenDelay: 5,
+                regroupDelay: 4,
+                aftermathDelay: 14,
+                calmResume: 2,
+                tailDelay: 1.5,
+                waves: [
+                    [.9, 1.5, 2.1, 2.7, 3.3],
+                    [.8, 1.4, 2, 2.6, 3.2, 3.8],
+                    [.7, 1.3, 1.9, 2.5, 3.1, 3.7, 4.3]
+                ],
+                bombSpeed: 54,
+                jetSpeed: 95,
+                jetY: 58,
+                whistleHeight: 58,
+                centralBias: .7,
+                scatter: 1.6
+            }
+        },
         budgets: {
+            performance: {
+                pixelRatio: .75,
+                bloom: 0,
+                shadowSize: 0,
+                dust: 90,
+                chips: 60,
+                solverIterations: 6,
+                maxSubsteps: 2,
+                parkDelay: .7,
+                activeBudget: 240
+            },
+            balanced: {
+                pixelRatio: 1,
+                bloom: .14,
+                shadowSize: 1024,
+                dust: 180,
+                chips: 120,
+                solverIterations: 7,
+                maxSubsteps: 3,
+                parkDelay: 1,
+                activeBudget: 320
+            },
             standard: {
                 pixelRatio: 1,
+                bloom: .2,
+                shadowSize: 2048,
                 dust: 280,
                 chips: 180,
-                solverIterations: 9
+                solverIterations: 7,
+                maxSubsteps: 4,
+                parkDelay: 1.6,
+                activeBudget: 420
             },
             ultra: {
                 pixelRatio: 1.6,
+                bloom: .32,
+                shadowSize: 2048,
                 dust: 700,
                 chips: 460,
-                solverIterations: 14
+                solverIterations: 11,
+                maxSubsteps: 5,
+                parkDelay: 2.4,
+                activeBudget: 560
             }
         },
         limits: {
@@ -21045,7 +21132,10 @@ void main() {
             }
             diagnostics() {
                 let t = this.nodes.filter(n => n.anchor).reduce((n, i) => n.map((r, o) => r + i.reaction[o] - i.force[o]), [0, 0, 0]),
-                    e = this.nodes.reduce((n, i) => n.map((r, o) => r + i.force[o]), [0, 0, 0]);
+                    e = this.nodes.reduce((n, i) => n.map((r, o) => r + i.force[o]), [0, 0, 0]),
+                    n = 0,
+                    i = 0;
+                for (let r of this.members) !r.failed && !r.released && (r.util > n && (n = r.util), (r.drift || 0) > i && (i = r.drift));
                 return {
                     impactPulses: this.transients.size,
                     receivedImpulse: this.receivedImpulse,
@@ -21054,8 +21144,8 @@ void main() {
                     failed: this.members.filter(n => n.failed).length,
                     released: this.parts.filter(n => n.active).length,
                     groundedNodes: this.nodes.filter(n => n.supported).length,
-                    maxUtil: Math.max(0, ...this.members.filter(n => !n.failed && !n.released).map(n => n.util)),
-                    maxDrift: Math.max(0, ...this.members.filter(n => !n.failed && !n.released).map(n => n.drift || 0)),
+                    maxUtil: n,
+                    maxDrift: i,
                     residual: this.residual,
                     converged: this.converged,
                     iterations: this.iterations,
@@ -21146,6 +21236,31 @@ void main() {
                 name: "\u4E94\u91CD\u5BFA\u5854 \xB7 \u6728\u6784\u4E0E\u5FC3\u67F1",
                 camera: [32, 12, 44],
                 look: [0, 14, 0]
+            },
+            chimney: {
+                name: "砖烟囱 · 细长悬臂定向倒",
+                camera: [40, 18, 50],
+                look: [0, 14, 0]
+            },
+            bridge: {
+                name: "三跨桥梁 · 桥墩与桥面传力",
+                camera: [42, 16, 46],
+                look: [0, 6, 0]
+            },
+            parking: {
+                name: "预制停车楼 · 大跨开敞框架",
+                camera: [38, 15, 44],
+                look: [0, 8, 0]
+            },
+            clocktower: {
+                name: "砖石钟楼 · 高塔窄身",
+                camera: [30, 14, 38],
+                look: [0, 12, 0]
+            },
+            street: {
+                name: "CBD \u5341\u5B57\u8857\u533A \xB7 \u7A7A\u88AD\u758F\u6563",
+                camera: [31, 6, 32],
+                look: [0, 17, 0]
             }
         };
 
@@ -21777,7 +21892,99 @@ void main() {
                 color: "#829b9d"
             })
         }
-        s === "steel" && h(), s === "masonry" && d(), s === "factory" && c(), s === "podium" && u(), s === "materials" && (h(-20, 0), d(15, 2), c({
+        function br(g = 0, m = 0) {
+            // 0.8 三跨桥:双柱桥墩(x=±10.5)+桥台,8 跨预制桥面,桥墩被毁后桥面跨中断塌
+            let f = "bridge";
+            t.buildings.push({
+                id: f,
+                name: "三跨桥梁 · 桥墩与桥面",
+                type: "concrete",
+                floors: 3,
+                height: 7,
+                center: [g, 0, m],
+                grid: 2,
+                H: 3.5,
+                span: 5.25,
+                aspectX: 1,
+                aspectZ: 1,
+                taper: 1,
+                setback: !1,
+                joints: [],
+                access: []
+            });
+            let deck = [];
+            for (let x = -21; x <= 21.001; x += 5.25) {
+                let q = Math.round(x * 100) / 100;
+                deck.push([e(f, [g + q, 7, m - 3], Math.abs(q) > 20.9), e(f, [g + q, 7, m + 3], Math.abs(q) > 20.9)])
+            }
+            for (let j = 0; j < deck.length - 1; j++) {
+                let y = [deck[j][0], deck[j][1], deck[j + 1][0], deck[j + 1][1]],
+                    b = y.map(I => t.nodes[I].p),
+                    P = b[0].map((I, B) => b.reduce((U, F) => U + F[B], 0) / 4),
+                    D = n(f, "slab", "concrete", y, [5.25, .45, 6.2], P, {
+                        level: 2,
+                        mass: 4200,
+                        color: "#a8a596"
+                    });
+                r(D, y[0], y[2], "concrete", .35, .02, .06), r(D, y[1], y[3], "concrete", .35, .02, .06), r(D, y[0], y[1], "concrete", .18, .01, .03), r(D, y[2], y[3], "concrete", .18, .01, .03)
+            }
+            for (let [px, pi] of [
+                    [-10.5, 2],
+                    [10.5, 6]
+                ]) {
+                let base = [e(f, [g + px, 0, m - 3], !0), e(f, [g + px, 0, m + 3], !0)],
+                    mid = [e(f, [g + px, 3.5, m - 3]), e(f, [g + px, 3.5, m + 3])];
+                for (let k = 0; k < 2; k++) i(f, "column", "concrete", base[k], mid[k], 1.2, 1.2, {
+                    level: 0
+                }), i(f, "column", "concrete", mid[k], deck[pi][k], 1.2, 1.2, {
+                    level: 1
+                })
+            }
+            for (let [ax, ai] of [
+                    [-21, 0],
+                    [21, 8]
+                ]) n(f, "wall", "concrete", [deck[ai][0], deck[ai][1]], [2.6, 7, 8.6], [g + ax, 3.5, m], {
+                level: 0,
+                mass: 3e4
+            });
+            return t.buildings[t.buildings.length - 1]
+        }
+        s === "chimney" && a({
+            id: "chimney",
+            name: "砖烟囱 · 细长悬臂",
+            floors: 10,
+            grid: 2,
+            span: 2.6,
+            H: 3.2,
+            core: !1,
+            masonry: !0,
+            skins: !1,
+            taper: .88,
+            color: "#9b6b4f"
+        }), s === "parking" && a({
+            id: "parking",
+            name: "预制停车楼 · 大跨开敞",
+            floors: 5,
+            grid: 4,
+            span: 5.6,
+            H: 3.1,
+            core: !1,
+            skins: !1,
+            aspectX: 1.35,
+            color: "#9aa2a6"
+        }), s === "clocktower" && a({
+            id: "clocktower",
+            name: "砖石钟楼 · 高塔窄身",
+            floors: 6,
+            grid: 2,
+            span: 3.2,
+            H: 4.2,
+            core: !1,
+            masonry: !0,
+            skins: !1,
+            taper: .93,
+            color: "#a8927d"
+        }), s === "bridge" && br(), s === "steel" && h(), s === "masonry" && d(), s === "factory" && c(), s === "podium" && u(), s === "materials" && (h(-20, 0), d(15, 2), c({
             x: -16,
             z: -30
         }), u(19, -26)), s === "district" && (a({
@@ -21854,7 +22061,103 @@ void main() {
             wood: !0,
             taper: .89,
             skins: !1
-        }), t.bonds = [];
+        }), s === "street" && (a({
+            id: "cbd-nw",
+            name: "环球金融塔 · 14层框架",
+            x: -7.5,
+            z: -7.5,
+            floors: 14,
+            grid: 3,
+            span: 4.3,
+            H: 3.8,
+            core: !1,
+            aspectX: 1.25,
+            color: "#7f9aa3"
+        }), a({
+            id: "cbd-ne",
+            name: "退台商务塔 · 9层",
+            x: 7.5,
+            z: -7.5,
+            floors: 9,
+            grid: 3,
+            span: 4.3,
+            H: 4,
+            core: !1,
+            setback: !0,
+            color: "#ad896b"
+        }), a({
+            id: "cbd-sw",
+            name: "钢框架交易所 · 10层",
+            x: -7.5,
+            z: 7.5,
+            floors: 10,
+            grid: 3,
+            span: 4.1,
+            H: 3.9,
+            core: !1,
+            steel: !0,
+            skins: !1,
+            color: "#8a9a90"
+        }), a({
+            id: "cbd-se",
+            name: "框筒总部大楼 · 7层",
+            x: 7.5,
+            z: 7.5,
+            floors: 7,
+            grid: 4,
+            span: 3.9,
+            H: 3.7,
+            core: !0,
+            color: "#a18d73"
+        }), a({
+            id: "cbd-w",
+            name: "西侧板楼 · 6层",
+            x: -36,
+            z: 0,
+            floors: 6,
+            grid: 3,
+            span: 4.3,
+            H: 3.9,
+            core: !1,
+            aspectZ: 1.35,
+            color: "#89967b"
+        }), a({
+            id: "cbd-n",
+            name: "北岸酒店 · 5层",
+            x: 0,
+            z: -36,
+            floors: 5,
+            grid: 3,
+            span: 4.3,
+            H: 4.1,
+            core: !1,
+            aspectX: 1.3,
+            color: "#a3906f"
+        }), a({
+            id: "cbd-s",
+            name: "老城砖楼 · 3层承重墙",
+            x: 0,
+            z: 36,
+            floors: 3,
+            grid: 3,
+            span: 3.9,
+            H: 3.8,
+            core: !1,
+            masonry: !0,
+            skins: !1
+        }), a({
+            id: "cbd-e",
+            name: "东侧商厦 · 5层",
+            x: 36,
+            z: 0,
+            floors: 5,
+            grid: 3,
+            span: 4.2,
+            H: 4,
+            core: !1,
+            aspectZ: 1.3,
+            color: "#789ba0"
+        })), t.bonds = [];
         let p = new Set,
             v = (g, m, f) => {
                 if (g === m || t.parts[g].hidden || t.parts[m].hidden) return;
@@ -21882,7 +22185,7 @@ void main() {
                 for (let _ of m.filter(A => !A.segment && A.type !== "slab")) v(M.id, _.id, g.id)
             }
         }
-        if (t.parts.length > 2400 || t.nodes.length > 1100 || t.members.length > 4800) throw Error("recipe budget");
+        if (t.parts.length > 3200 || t.nodes.length > 1600 || t.members.length > 6400) throw Error("recipe budget");
         return t
     }
     var Qp = {
@@ -21966,9 +22269,9 @@ void main() {
             interval: .1,
             iterations: 140,
             tolerance: .002,
-            maxParts: 2400,
-            maxNodes: 1100,
-            maxMembers: 4800,
+            maxParts: 3200,
+            maxNodes: 1600,
+            maxMembers: 6400,
             failureTime: .85,
             maxDisplacement: 1.8,
             deformationScale: 1
@@ -22082,7 +22385,8 @@ void main() {
                 i = 0;
             for (let r of t) {
                 if (r.hidden || r.active) continue;
-                let o = Math.max(0, ...r.memberRefs.map(d => d.util));
+                let o = 0;
+                for (let d of r.memberRefs) d.util > o && (o = d.util);
                 if (r.model.health > .98 && o < .9 || (this.seen.has(r.id) || (this.seen.add(r.id), this.warnings++, e?.(r, o)), i >= 192)) continue;
                 let a = r.size[0] * .32,
                     l = r.size[1] * .34,
@@ -22112,7 +22416,7 @@ void main() {
             this.annotations = [], this.cracks.geometry.setDrawRange(0, 0)
         }
     };
-    var Rs = "0.5.0",
+    var Rs = "0.6.0",
         td = "breach-plan-v1";
     var Qu = (s, t, e) => typeof s == "number" && Number.isFinite(s) && s >= t && s <= e;
 
@@ -22180,7 +22484,7 @@ void main() {
                 this.cancelled = !0, this.done = !0
             }
         },
-        XM = new Set(["explosion", "member-failed", "part-fractured", "connection-fractured", "supported-impact", "cross-building-impact", "topple-start", "topple-impact"]),
+        XM = new Set(["explosion", "member-failed", "part-fractured", "connection-fractured", "supported-impact", "cross-building-impact", "topple-start", "topple-impact", "section-failed", "segment-released", "segment-shattered"]),
         Lr = class {
             constructor(t = 128) {
                 this.limit = t, this.events = [], this.first = {}, this.total = 0, this.dropped = 0, this.lastByKey = new Map
@@ -22625,6 +22929,9 @@ void main() {
     tn.setSize(innerWidth, innerHeight);
     tn.shadowMap.enabled = !0;
     tn.shadowMap.type = ol;
+    // 阴影按需更新：帧循环里检测到可见变化才重绘阴影图（废墟静置期省一整趟阴影渲染）
+    tn.shadowMap.autoUpdate = !1;
+    tn.shadowMap.needsUpdate = !0;
     tn.toneMapping = gr;
     tn.toneMappingExposure = 1.05;
     tn.info.autoReset = !1;
@@ -22689,6 +22996,9 @@ void main() {
         rd = -10,
         Ii = "standard",
         ai = Nn.budgets.standard,
+        autoTier = "balanced",
+        autoClock = 0,
+        autoGood = 0,
         Zt = [],
         kr = [],
         Qi = [],
@@ -22829,6 +23139,7 @@ void main() {
         me([8 + $c() * 12, n, 9 + $c() * 15], [Math.sin(t) * e, n / 2, Math.cos(t) * e], tS)
     }
     var eh = [],
+        rdAny = !0,
         fe, oe, xe = "materials",
         Ze = 0,
         Xo = 0,
@@ -22837,12 +23148,12 @@ void main() {
         Yn = null,
         nS = ee.broadphase.collisionPairs.bind(ee.broadphase);
     ee.broadphase.collisionPairs = (s, t, e) => {
-        nS(s, t, e);
+        bondPairsDirty && rebuildBondPairs(), nS(s, t, e);
         for (let n = t.length - 1; n >= 0; n--) {
             let i = t[n].part,
                 r = e[n].part;
-            if (!i || !r || i.building !== r.building || i.broken || r.broken) continue;
-            i.nodeIds.some(a => r.nodeIds.includes(a) && i.bondLinks?.some(l => l.node === a && !l.broken) && r.bondLinks?.some(l => l.node === a && !l.broken)) && (t[n] = t[t.length - 1], e[n] = e[e.length - 1], t.pop(), e.pop())
+            if (!i || !r) continue;
+            bondPairs.has(bpKey(i.id, r.id)) && (t[n] = t[t.length - 1], e[n] = e[e.length - 1], t.pop(), e.pop())
         }
     };
     var Br = Pr(8047),
@@ -22989,6 +23300,7 @@ void main() {
             stress: 0
         }));
         for (let s of Zt) s.bondLinks = kr.filter(t => t.a === s || t.b === s), s.memberRefs = oe.members.filter(t => t.part === s.id);
+        bondPairsDirty = !0;
         for (let s = 0; s < 4; s++) oe.solve(0, {
             failure: !1
         });
@@ -23028,7 +23340,7 @@ void main() {
                 } = s.items[e];
                 n.renderDirty && (i.updateMatrix(), am.multiplyMatrices(n.mesh.matrixWorld, i.matrix), s.mesh.setMatrixAt(e, am), s.mesh.setColorAt(e, i.material.color), t = !0)
             }
-            t && (s.mesh.instanceMatrix.needsUpdate = !0, s.mesh.instanceColor.needsUpdate = !0)
+            t && (s.mesh.instanceMatrix.needsUpdate = !0, s.mesh.instanceColor.needsUpdate = !0, rdAny = !0)
         }
         for (let s of Zt) s.renderDirty = !1
     }
@@ -23044,12 +23356,144 @@ void main() {
         })), Yn.frustumCulled = !1, Yn.renderOrder = 5, Me.add(Yn)
     }
 
-    function vm(s, t = "fracture") {
-        s.active || (s.active = !0, oe.releasePart(s.id, t), s.body.type = Wt.DYNAMIC, s.body.mass = s.mass, s.body.updateMassProperties(), s.body.aabbNeedsUpdate = !0, s.body.wakeUp(), s.body.velocity.set(0, 0, 0), s.body.angularVelocity.set(0, 0, 0))
+    var releaseQueue = [],
+        liveDynamic = 0,
+        maxLiveDynamic = 0,
+        releaseBudgetUsed = 0,
+        perfLab = {
+            stagger: 0,
+            throttle: 1,
+            dedup: !0,
+            struct: "std",
+            bury: "off",
+            buryDelay: 6
+        };
+
+    function activatePart(s, t) {
+        s.active = !0, oe.releasePart(s.id, t), s.body.type = Wt.DYNAMIC, s.body.mass = s.mass, s.body.updateMassProperties(), s.body.aabbNeedsUpdate = !0, s.body.wakeUp(), s.body.velocity.set(0, 0, 0), s.body.angularVelocity.set(0, 0, 0), liveDynamic++
     }
 
+    function vm(s, t = "fracture") {
+        if (s.active) return;
+        // 0.7.5 活跃预算(destruction-spike P3 口径):并发动态刚体总量封顶,
+        // 溢出排队(暂留 STATIC=临时脚手架),停泊归还预算后排水
+        let cap = ai.activeBudget || 300;
+        if (liveDynamic >= cap || (perfLab.stagger > 0 && releaseBudgetUsed >= perfLab.stagger)) {
+            releaseQueue.push(s);
+            return
+        }
+        releaseBudgetUsed++, activatePart(s, t), maxLiveDynamic = Math.max(maxLiveDynamic, liveDynamic)
+    }
+
+    function releaseQueueTick() {
+        // 每步重算并发量(兼修正计数漂移),按预算排水
+        let live = 0;
+        for (let s of Zt) s.active && !s.parked && live++;
+        liveDynamic = live;
+        let cap = ai.activeBudget || 300;
+        while (releaseQueue.length && liveDynamic < cap && (perfLab.stagger <= 0 || releaseBudgetUsed < perfLab.stagger)) {
+            let s = releaseQueue.shift();
+            s && !s.active && (releaseBudgetUsed++, activatePart(s, "queued-release"), maxLiveDynamic = Math.max(maxLiveDynamic, liveDynamic))
+        }
+    }
+    // ── 废墟静态化回收 ──────────────────────────────────────────
+    // 沉睡满 parkDelay 秒的动态残骸转为 STATIC：引擎窄相跳过 static×sleeping 对、
+    // 积分与唤醒级联全部停用，新掉落的碎块仍能压在静止废墟上。爆炸会先解封再施加冲量。
+    var parkedCount = 0,
+        bondPairs = new Set,
+        bondPairsDirty = !0,
+        bpKey = (s, t) => s < t ? s * 1e5 + t : t * 1e5 + s;
+
+    function rebuildBondPairs() {
+        bondPairs.clear();
+        for (let s of kr) !s.broken && bondPairs.add(bpKey(s.a.id, s.b.id));
+        bondPairsDirty = !1
+    }
+
+    function parkPart(s) {
+        if (!s.active || s.parked || s.topple) return;
+        s.parked = !0, s.parkedAt = te, parkedCount++;
+        let t = s.body;
+        t.type = Wt.STATIC, t.velocity.setZero(), t.angularVelocity.setZero(), t.sleep(), t.aabbNeedsUpdate = !0;
+        for (let e of s.bondLinks)
+            if (e.constraint && (e.a.parked || e.a.broken) && (e.b.parked || e.b.broken)) {
+                ee.removeConstraint(e.constraint), e.constraint = null
+            }
+    }
+
+    function unparkPart(s) {
+        if (!s.parked) return;
+        s.parked = !1, s.buried = 0, s.gone = !1, s.mesh.visible = !s.hidden, s.body.collisionResponse = !s.hidden, parkedCount--;
+        let t = s.body;
+        t.type = Wt.DYNAMIC, t.mass = s.mass, t.updateMassProperties(), t.aabbNeedsUpdate = !0, t.wakeUp()
+    }
+
+    function rubbleParkTick(s) {
+        if (!(ai.parkDelay > 0)) return;
+        for (let t of Zt) {
+            if (!t.active || t.parked || t.topple) continue;
+            let e = t.body;
+            // 引擎自睡或实测速度低于阈值都视为稳定；稳定持续满 parkDelay 强制入睡并静态化。
+            // 碎片堆内互相接触的刚体常因微小抖动永不触发引擎自睡，必须按速度强制结算；
+            // 引擎已自睡的部件按双倍速率累计（其稳定性已被引擎验证）。
+            let n = e.velocity.lengthSquared() + .25 * e.angularVelocity.lengthSquared() < .2,
+                r = e.sleepState === Wt.SLEEPING;
+            n || r ? (t.parkT = (t.parkT || 0) + s * (r ? 2 : 1), t.parkT >= ai.parkDelay && (r || e.sleep(), parkPart(t), t.parkT = 0)) : t.parkT = 0
+        }
+    }
+    // ── 废墟治理(0.8.2)──────────────────────────────────────────
+    // 被压件(顶面低于本地堆顶 1m 且同格≥3 件)停泊满 buryDelay 后按策略
+    // 固定/隐藏/消失——对象数随时间收敛,长局与连环爆破受益(destruction-spike P4 口径)
+    var buryGrid = new Map,
+        buryLast = 0,
+        buryPuffAt = 0;
+
+    function buryTick() {
+        let mode = perfLab.bury;
+        if (!mode || mode === "off" || te - buryLast < .9) return;
+        buryLast = te, buryGrid.clear();
+        for (let s of Zt) {
+            if (!s.parked || s.gone) continue;
+            let key = Math.floor(s.pos[0] / 2.5) * 1e4 + Math.floor(s.pos[2] / 2.5),
+                list = buryGrid.get(key);
+            list || (list = [], buryGrid.set(key, list)), list.push(s)
+        }
+        for (let s of Zt) {
+            if (!s.parked || s.gone) continue;
+            let top = s.pos[1] + s.size[1] * .5,
+                cx = Math.floor(s.pos[0] / 2.5),
+                cz = Math.floor(s.pos[2] / 2.5),
+                covered = !1;
+            // 严格覆盖:同格/邻格内存在"正上方盖住"的停泊件(底 ≥ 顶+0.3 且水平足迹相交)
+            outer: for (let dx = -1; dx <= 1; dx++)
+                for (let dz = -1; dz <= 1; dz++) {
+                    let list = buryGrid.get((cx + dx) * 1e4 + (cz + dz));
+                    if (!list) continue;
+                    for (let q of list) {
+                        if (q === s || q.pos[1] - q.size[1] * .5 < top + .3) continue;
+                        if (Math.abs(q.pos[0] - s.pos[0]) > (q.size[0] + s.size[0]) * .5 + .2) continue;
+                        if (Math.abs(q.pos[2] - s.pos[2]) > (q.size[2] + s.size[2]) * .5 + .2) continue;
+                        covered = !0;
+                        break outer
+                    }
+                }
+            if (!covered) {
+                s.buried = 0;
+                continue
+            }
+            if (!s.buried) {
+                s.buried = te;
+                continue
+            }
+            if (te - s.buried < (perfLab.buryDelay || 6)) continue;
+            s.gone = !0;
+            if (mode !== "hide") s.body.collisionResponse = !1;
+            if (mode !== "fix") s.mesh.visible = !1;
+            mode === "gone" && te - buryPuffAt > .3 && (buryPuffAt = te, Ni(s.body.position, 3, 1, !1))
+        }
+    }
     function xm(s) {
-        for (let t of kr)(t.a === s || t.b === s) && (t.broken = !0, t.constraint && (ee.removeConstraint(t.constraint), t.constraint = null))
+        for (let t of kr)(t.a === s || t.b === s) && (t.broken = !0, bondPairsDirty = !0, t.constraint && (ee.removeConstraint(t.constraint), t.constraint = null))
     }
 
     function Vr(s, t, e = "blast") {
@@ -23064,10 +23508,10 @@ void main() {
         for (let t of kr)
             if (!t.broken) {
                 if (t.a.broken || t.b.broken) {
-                    t.broken = !0, t.constraint && ee.removeConstraint(t.constraint), t.constraint = null;
+                    t.broken = !0, bondPairsDirty = !0, t.constraint && (ee.removeConstraint(t.constraint), t.constraint = null);
                     continue
                 }
-                if (!t.constraint && (t.a.active || t.b.active)) {
+                if (!t.constraint && (t.a.active || t.b.active) && !(t.a.parked && t.b.parked)) {
                     let e = t.strength * 3;
                     if (t.kind === "mortise") {
                         let n = fe.nodes[t.node],
@@ -23093,7 +23537,7 @@ void main() {
                     for (let i of t.constraint.equations) e = Math.max(e, Math.abs(i.multiplier));
                     let n = t.strength * Math.max(.08, Math.min(t.a.model.health, t.b.model.health)) ** 1.5;
                     if (t.stress = e > n ? t.stress + s : Math.max(0, t.stress - s), t.stress > .045) {
-                        ee.removeConstraint(t.constraint), t.constraint = null, t.broken = !0, Ke.emit("connection-fractured", te, {
+                        ee.removeConstraint(t.constraint), t.constraint = null, t.broken = !0, bondPairsDirty = !0, Ke.emit("connection-fractured", te, {
                             a: t.a.id,
                             b: t.b.id,
                             force: e,
@@ -23122,11 +23566,12 @@ void main() {
         },
         windForceVec = new S(0, 0, 0),
         topoQuat = new Vn,
-        topoRel = new O;
+        topoRel = new O,
+        topoClock = 0;
 
     function topoReset() {
-        topo.runs.length = 0, topo.watch.clear();
-        for (let s of Zt) s.topple = !1, s.toppleP0 = null, s.toppleQ0 = null
+        topo.runs.length = 0, topo.watch.clear(), secWatch.clear(), segStats.released = 0, segStats.shattered = 0, topo.seq = 0, topo.starts = 0, topo.hands = 0;
+        for (let s of Zt) s.topple = !1, s.toppleP0 = null, s.toppleQ0 = null, s.segRef = null
     }
 
     function topoDetect(s) {
@@ -23215,6 +23660,21 @@ void main() {
         p *= 1.3;
         let axisVec = new S(e.uz, 0, -e.ux);
         axisVec.normalize();
+        // 0.7 按层分段(L0 段):逐段触地释放(destruction-spike 复合体口径)
+        let segMap = new Map;
+        for (let q of n) {
+            let w = Math.floor((q.level ?? 0) / Nn.collapse.segs.stories);
+            segMap.has(w) || segMap.set(w, []), segMap.get(w).push(q)
+        }
+        let segments = [...segMap.entries()].sort((q, w) => q[0] - w[0]).map(([q, w]) => ({
+            band: q,
+            parts: w,
+            released: !1,
+            minY: 1e9,
+            lo: Math.min(...w.map(b => b.level ?? 0))
+        }));
+        for (let g of segments)
+            for (let q of g.parts) q.segRef = g;
         let m = {
             id: ++topo.seq,
             building: t.id,
@@ -23226,11 +23686,15 @@ void main() {
             dirZ: e.uz,
             theta: .015,
             omega: .03,
+            alpha: 0,
             I: p,
             W: i * 9.81,
             thetaMax: Math.min(.6, Math.atan2(v, Math.max(1, g)) * .92),
             t: 0,
-            creak: 0
+            creak: 0,
+            segments,
+            monT: 0,
+            monRatios: []
         };
         topo.runs.push(m), topo.starts++, Ke.emit("topple-start", te, {
             building: t.id,
@@ -23250,23 +23714,35 @@ void main() {
                 n = (e.x - t.P.x) * t.dirX + (e.z - t.P.z) * t.dirZ,
                 i = t.W * n / t.I,
                 r = Math.min(6, Math.max(-2, i));
-            t.omega = Math.min(3.2, Math.max(-1, t.omega + r * s)), t.theta += t.omega * s;
-            let o = t.omega * s;
-            topoQuat.setFromAxisAngle(t.axis, o);
+            t.omega = Math.min(3.2, Math.max(-1, t.omega + r * s)), t.theta += t.omega * s, t.alpha = r;
+            // 0.7 修复:放置用累计角(topoQuat=R(θ) 于函数头)。此前用增量角 R(Δθ)
+            // 放置,每步回到静止位附近,倾倒的可见旋转从不累积;速度场保留给
+            // 接触/冲击采样,kinematic 积分恰好推进一步。
             for (let a of t.cluster) {
                 if (!a.topple) continue;
                 topoRel.copy(a.toppleP0).sub(t.P).applyQuaternion(topoQuat);
                 let l = t.P.x + topoRel.x,
                     h = t.P.y + topoRel.y,
                     d = t.P.z + topoRel.z;
-                a.body.position.set(l, h, d), a.body.quaternion.copy(topoQuat), a.body.quaternion.mult(a.toppleQ0, a.body.quaternion), a.body.velocity.set(t.omega * (t.axis.z * (h - t.P.y) - t.axis.y * (d - t.P.z)), t.omega * (t.axis.x * (d - t.P.z) - t.axis.z * (l - t.P.x)), t.omega * (t.axis.y * (l - t.P.x) - t.axis.x * (h - t.P.y))), a.body.angularVelocity.set(t.axis.x * t.omega, t.axis.y * t.omega, t.axis.z * t.omega), a.body.aabbNeedsUpdate = !0, a.renderDirty = !0
+                a.body.position.set(l, h, d), a.body.quaternion.copy(topoQuat), a.body.quaternion.mult(a.toppleQ0, a.body.quaternion), a.body.velocity.set(t.omega * (t.axis.y * (d - t.P.z) - t.axis.z * (h - t.P.y)), t.omega * (t.axis.z * (l - t.P.x) - t.axis.x * (d - t.P.z)), t.omega * (t.axis.x * (h - t.P.y) - t.axis.y * (l - t.P.x))), a.body.angularVelocity.set(t.axis.x * t.omega, t.axis.y * t.omega, t.axis.z * t.omega), a.body.aabbNeedsUpdate = !0, a.renderDirty = !0;
+                if (a.segRef && !a.segRef.released) {
+                    let q = a.body.quaternion,
+                        sx = a.size[0] * .5,
+                        sy = a.size[1] * .5,
+                        sz = a.size[2] * .5,
+                        ry0 = 2 * (q.x * q.y + q.z * q.w),
+                        ry1 = 1 - 2 * (q.x * q.x + q.z * q.z),
+                        ry2 = 2 * (q.y * q.z - q.x * q.w);
+                    a.segRef.minY = Math.min(a.segRef.minY, h - (Math.abs(ry0) * sx + Math.abs(ry1) * sy + Math.abs(ry2) * sz))
+                }
             }
             if (t.creak > .45 && (t.creak = 0, !Ji && Tn.ctx?.state === "running" && t.P.distanceTo(bt.position) < 160)) {
                 Tn.tone(48 + _e() * 45, .4, .1, 0, "sawtooth"), Tn.tone(95 + _e() * 60, .25, .05, .02, "triangle");
                 let a = t.P.clone().addScaledVector(new O(t.dirX, 0, t.dirZ), 2 + _e() * 3);
                 a.y += 1, Ni(a, 6, 1.5, !1)
             }
-            (t.theta >= t.thetaMax || t.t > 7 || t.omega < -.05 && t.t > 2) && topoHandover(t)
+            topoSegmentTick(t), topoMonitorTick(t, s);
+            (t.segments.every(g => g.released) || t.theta >= Nn.collapse.thetaHard || t.t > 25 || t.omega < -.05 && t.t > 3) && topoHandover(t)
             } catch (err) {
                 topo.lastErr = String(err && err.message || err);
                 throw err
@@ -23287,10 +23763,280 @@ void main() {
                 parts: e,
                 theta: +t.theta.toFixed(2),
                 omega: +t.omega.toFixed(2)
-            }), Dr = Math.min(1.4, Dr + .7 / (1 + bt.position.distanceTo(n) * .015)), Ni(n, Math.round(ai.dust * .18), 4, !1), hh(n, Math.round(ai.chips * .25), 5), e > 0) {
-            let i = Math.min(1.2, .3 + t.omega * .5);
+            }), e > 0) {
+            // 0.7:主要撞击效果已随段释放分摊,移交只按剩余件数补尾
+            let frac = Math.max(.3, e / t.cluster.length);
+            Dr = Math.min(1.4, Dr + .7 * frac / (1 + bt.position.distanceTo(n) * .015)), Ni(n, Math.round(ai.dust * .18 * frac), 4, !1), hh(n, Math.round(ai.chips * .25 * frac), 5);
+            let i = Math.min(1.2, .3 + t.omega * .5) * frac;
             Sd(i, n), gS(n), wS(n, 3)
         }
+    }
+    // ── 截面账与分段释放(0.7)─────────────────────────────────────
+    // destruction-spike 决策层移植:倾倒相达朗贝尔截面弯矩监视(空中折断)、
+    // 复合体按层分段逐段触地释放、碎裂带冲击分档、站立相层截面聚合。
+    var secWatch = new Map,
+        segStats = {
+            released: 0,
+            shattered: 0,
+            snaps: 0,
+            tickMs: 0
+        };
+
+    function halfYOf(q, size) {
+        // 旋转后 AABB 的 y 向半高(四元数行展开,免分配)
+        let ry0 = 2 * (q.x * q.y + q.z * q.w),
+            ry1 = 1 - 2 * (q.x * q.x + q.z * q.z),
+            ry2 = 2 * (q.y * q.z - q.x * q.w);
+        return Math.abs(ry0) * size[0] * .5 + Math.abs(ry1) * size[1] * .5 + Math.abs(ry2) * size[2] * .5
+    }
+
+    function topoRecomputeRun(t) {
+        // 段释放后按剩余附着件重算摆参数(质量脱落)
+        let e = 0,
+            n = 0,
+            i = 0,
+            r = 0,
+            o = 0;
+        for (let a of t.cluster) {
+            if (!a.topple) continue;
+            let l = a.toppleP0.x - t.P.x,
+                h = a.toppleP0.y - t.P.y,
+                d = a.toppleP0.z - t.P.z;
+            e += a.mass, n += a.toppleP0.x * a.mass, i += a.toppleP0.y * a.mass, r += a.toppleP0.z * a.mass, o += a.mass * (l * l + h * h + d * d)
+        }
+        e > 0 && (t.W = e * 9.81, t.com0.set(n / e, i / e, r / e), t.I = o * 1.3)
+    }
+
+    function segDetach(t, g) {
+        g.released = !0, segStats.released++;
+        // 预测冲击强度:段内最大向下速度(运动学速度场,非接触采样)
+        let v = 0,
+            cx = 0,
+            cy = 0,
+            cz = 0;
+        for (let a of g.parts) v = Math.max(v, Math.max(0, -a.body.velocity.y)), cx += a.body.position.x, cy += a.body.position.y, cz += a.body.position.z;
+        cx /= g.parts.length, cy /= g.parts.length, cz /= g.parts.length;
+        let tier = v >= Nn.collapse.segs.predStrong ? 2 : v >= Nn.collapse.segs.predMed ? 1 : 0;
+        for (let a of g.parts) a.topple && (a.topple = !1, a.body.type = Wt.DYNAMIC, a.body.mass = a.mass, a.body.updateMassProperties(), a.body.wakeUp());
+        for (let i of kr) i.a.topple !== i.b.topple && (i.broken = !0, bondPairsDirty = !0, i.constraint && (ee.removeConstraint(i.constraint), i.constraint = null));
+        // 碎裂带:深度带内墙/板件额外冲量+损伤(spike band 口径,柱是骨架不入带)
+        let depth = Nn.collapse.segs.bandDepth[tier],
+            frac = Nn.collapse.segs.bandFrac[tier],
+            want = Math.round(frac * g.parts.length),
+            cand = [];
+        for (let a of g.parts) {
+            if (a.model.failed || !["wall", "slab", "panel", "roof"].includes(a.type)) continue;
+            cand.push({
+                a,
+                d: a.body.position.y - halfYOf(a.body.quaternion, a.size) - g.minY,
+                s: Math.max(0, -a.body.velocity.y)
+            })
+        }
+        cand.sort((p, q) => Math.abs(p.d - q.d) > .05 ? p.d - q.d : q.s - p.s);
+        let band = [];
+        for (let q of cand) {
+            if (band.length >= want || q.d > depth) break;
+            band.push(q)
+        }
+        for (let {
+                a: q
+            }
+            of band) {
+            q.body.applyImpulse(new S((Br() - .5) * q.mass * v * .12, -q.mass * v * (.1 + .06 * tier), (Br() - .5) * q.mass * v * .12), new S((Br() - .5) * .3, .1, (Br() - .5) * .3)), q.shockUntil = te + .65, Vr(q, Math.min(q.maxHp * 1.1, v * v * q.mass / 9e3), "segment-impact")
+        }
+        band.length && (segStats.shattered++, Ke.emit("segment-shattered", te, {
+            building: t.building,
+            band: g.band,
+            count: band.length,
+            tier,
+            speed: +v.toFixed(2)
+        })), Ke.emit("segment-released", te, {
+            building: t.building,
+            band: g.band,
+            parts: g.parts.length,
+            minH: +g.minY.toFixed(2),
+            speed: +v.toFixed(2),
+            tier
+        });
+        topoRecomputeRun(t), Ni(new S(cx, cy, cz), Math.round(ai.dust * (.05 + .03 * tier)), 3, !1), Sd(Math.min(1, .2 + v * .05), new S(cx, cy, cz))
+    }
+
+    function topoSegmentTick(t) {
+        for (let g of t.segments) {
+            if (g.released || g.minY > Nn.collapse.segs.detachH) continue;
+            segDetach(t, g)
+        }
+    }
+
+    function topoMonitorTick(t, s) {
+        // 倾倒相截面账:层界截面达朗贝尔弯矩需求 vs 杆件 min(T,C)·(a_T+a_C) 容量。
+        // 需求为重力项与惯性项近抵消,α 与摆 ODE 同源(t.alpha),0.1s 一评。
+        t.monT += s;
+        if (t.monT < .1) return;
+        t.monT = 0;
+        let P = Nn.collapse.monitor;
+        if (!P.enabled) return;
+        t.monRatios.length = 0;
+        let levels = [...new Set(t.cluster.filter(a => a.topple).map(a => a.level ?? 0))].sort((p, q) => p - q);
+        t.monDbg = {
+            levels,
+            attached: t.cluster.filter(a => a.topple).length,
+            evals: ((t.monDbg && t.monDbg.evals) || 0) + 1,
+            theta: t.theta,
+            cuts: []
+        };
+        for (let c of levels) {
+            let S0 = 0,
+                S1 = 0,
+                S2 = 0,
+                s0 = 1e9;
+            for (let a of t.cluster) {
+                if (!a.topple || (a.level ?? 0) <= c) continue;
+                let si = a.toppleP0.y - t.P.y;
+                S0 += a.mass, S1 += a.mass * si, S2 += a.mass * si * si, s0 = Math.min(s0, si)
+            }
+            if (!S0) continue;
+            let sj = s0,
+                Mj = Math.abs(9.81 * Math.sin(t.theta) * (S1 - sj * S0) - t.alpha * (S2 - sj * S1)),
+                T = 0,
+                C = 0,
+                aT = 0,
+                aC = 0,
+                cap0 = 0;
+            for (let m of oe.members) {
+                // 注意:倾倒集群的杆件已被 releasePart 标记 released,但截面
+                // 承载能力仍由其材料/截面提供——released 不跳过,只看 failed。
+                if (!topo.types.has(m.type)) continue;
+                let q = oe.parts[m.part];
+                if (!q || (q.level ?? 0) !== c) continue;
+                let lever = (q.pos[0] - t.P.x) * t.dirX + (q.pos[2] - t.P.z) * t.dirZ;
+                if (Math.abs(lever) < P.minLever) continue;
+                let mat = cd.materials[m.material] || cd.materials.concrete,
+                    tens = mat.tension * m.area,
+                    comp = mat.compression * m.area;
+                cap0 += Math.min(tens, comp) * Math.abs(lever) * 2;
+                if (m.failed) continue;
+                lever > 0 ? (T += tens, aT += tens * lever) : (C += comp, aC += comp * Math.abs(lever))
+            }
+            if (!cap0) {
+                t.monDbg.cuts.push({
+                    cut: c,
+                    cap0: 0,
+                    S0: Math.round(S0)
+                });
+                continue
+            }
+            // 拉/压侧指派:铰线在集群边线时全落在一侧会退化为 residual,
+            // 改按截面质心分侧(spike 口径:倒向投影分拉压)
+            if (!(T > 0 && C > 0)) {
+                let mid = 0,
+                    cnt = 0;
+                for (let m of oe.members) {
+                    if (!topo.types.has(m.type)) continue;
+                    let q = oe.parts[m.part];
+                    if (!q || (q.level ?? 0) !== c || m.failed) continue;
+                    mid += (q.pos[0] - t.P.x) * t.dirX + (q.pos[2] - t.P.z) * t.dirZ, cnt++
+                }
+                if (cnt) {
+                    mid /= cnt, T = 0, C = 0, aT = 0, aC = 0;
+                    for (let m of oe.members) {
+                        if (!topo.types.has(m.type)) continue;
+                        let q = oe.parts[m.part];
+                        if (!q || (q.level ?? 0) !== c || m.failed) continue;
+                        let lever = (q.pos[0] - t.P.x) * t.dirX + (q.pos[2] - t.P.z) * t.dirZ;
+                        if (Math.abs(lever - mid) < P.minLever) continue;
+                        let mat = cd.materials[m.material] || cd.materials.concrete,
+                            tens = mat.tension * m.area,
+                            comp = mat.compression * m.area;
+                        lever > mid ? (T += tens, aT += tens * (lever - mid)) : (C += comp, aC += comp * (mid - lever))
+                    }
+                }
+            }
+            let cap = T > 0 && C > 0 ? Math.min(T, C) * (aT / T + aC / C) : cap0 * P.residual;
+            cap *= P.capacity;
+            let ratio = cap > 0 ? Mj / cap : 1e9;
+            t.monDbg.cuts.push({
+                cut: c,
+                cap0: Math.round(cap0),
+                S0: Math.round(S0),
+                Mj: Math.round(Mj)
+            });
+            t.monRatios.push({
+                cut: c,
+                ratio: +ratio.toFixed(3),
+                demand: Math.round(Mj),
+                cap: Math.round(cap)
+            });
+            if (ratio >= P.ratio) {
+                // 空中折断:释放截面以上全部段
+                let n = 0;
+                for (let g of t.segments) !g.released && g.lo > c && (segDetach(t, g), n++);
+                Ke.emit("section-failed", te, {
+                    building: t.building,
+                    level: c,
+                    phase: "topple",
+                    ratio: +ratio.toFixed(2),
+                    segments: n
+                });
+                return
+            }
+        }
+        t.monDbg.after = t.monRatios.map(x => x.demand)
+    }
+
+    function sectionStandingTick(s) {
+        // 站立相层截面聚合:同层承重杆件群体超载持续 -> 整层折断(层间坍塌)。
+        let P = Nn.collapse.standing;
+        if (!P.enabled) return;
+        let t0 = performance.now(),
+            acc = new Map;
+        for (let w of oe.members) {
+            if (w.failed || w.released || !topo.types.has(w.type)) continue;
+            let q = oe.parts[w.part];
+            if (!q || q.active || q.failed) continue;
+            // 键缓存到杆件上,避免每次 tick 拼字符串(0.6 broadphase GC 风暴同款教训)
+            w.stKey === void 0 && (w.stKey = q.building + "|" + q.level);
+            let rec = acc.get(w.stKey);
+            rec || (rec = {
+                building: q.building,
+                level: q.level,
+                total: 0,
+                over: 0,
+                max: 0
+            }, acc.set(w.stKey, rec)), rec.total++, rec.max = Math.max(rec.max, w.util), w.util >= P.util && rec.over++
+        }
+        for (let [key, rec] of acc) {
+            let w = secWatch.get(key);
+            w || (w = {
+                timer: 0,
+                cool: 0
+            }, secWatch.set(key, w));
+            if (w.cool > 0) {
+                w.cool -= s;
+                continue
+            }
+            rec.over >= Math.max(P.minCount, Math.ceil(rec.total * P.minFrac)) ? w.timer += s : w.timer = 0;
+            if (w.timer < P.persist) continue;
+            w.timer = 0, w.cool = 8, segStats.snaps++;
+            let n = 0;
+            for (let m of oe.members) {
+                if (m.failed || m.released || !topo.types.has(m.type)) continue;
+                let q = oe.parts[m.part];
+                if (!q || q.building !== rec.building || q.level !== rec.level || q.active) continue;
+                oe.fail(m, "section-overload"), n++
+            }
+            n && Ke.emit("section-failed", te, {
+                building: rec.building,
+                level: rec.level,
+                phase: "standing",
+                members: n,
+                overloaded: rec.over,
+                util: +rec.max.toFixed(2)
+            })
+        }
+        if (secWatch.size > 400)
+            for (let [key, w] of secWatch) !acc.has(key) && w.timer <= 0 && w.cool <= 0 && secWatch.delete(key);
+        segStats.tickMs += performance.now() - t0
     }
     var Fr = new Map,
         lh = 0,
@@ -23307,7 +24053,7 @@ void main() {
                 c = Math.max(0, -l.dot(n.ni)),
                 h = Math.max(0, n.multiplier * s);
             if (h < 8 || c < .7) continue;
-            let d = [n.bi.id, n.bj.id].sort((p, v) => p - v).join(":"),
+            let d = n.bi.id < n.bj.id ? n.bi.id * 1e7 + n.bj.id : n.bj.id * 1e7 + n.bi.id,
                 u = e.get(d);
             u ? (u.J += h, u.speed = Math.max(u.speed, c)) : e.set(d, {
                 a: i,
@@ -23320,7 +24066,7 @@ void main() {
             })
         }
         for (let [n, i] of e) {
-            if (te - (Fr.get(n) ?? -10) < .16) continue;
+            if (perfLab.dedup && te - (Fr.get(n) ?? -10) < .16) continue;
             Fr.set(n, te);
             let r = i.bodyA.mass,
                 o = i.bodyB.mass,
@@ -23341,7 +24087,10 @@ void main() {
                         energy: l
                     }));
                     let p = c.materialName === "steel" ? 9e3 : c.materialName === "timber" || c.materialName === "masonry" ? 1600 : 4500;
-                    Vr(c, Math.min(c.maxHp * 1.8, l / p), h && h.building !== c.building ? "cross-building-impact" : "impact")
+                    if (c.parked) {
+                        // 0.7 落地连锁:大质量落块撞击停泊碎块 -> 解封 + 限次再碎
+                        (c.rebreaks || 0) < Nn.collapse.chain.maxRebreaks && i.speed >= Nn.collapse.chain.speed && h && h.mass >= Nn.collapse.chain.massRatio * c.mass && (unparkPart(c), c.rebreaks = (c.rebreaks || 0) + 1, Vr(c, Math.min(c.maxHp * 1.2, l / p), "restrike"))
+                    } else Vr(c, Math.min(c.maxHp * 1.8, l / p), h && h.building !== c.building ? "cross-building-impact" : "impact")
                 }
                 if (od++, i.a && i.b && i.a.building !== i.b.building && (ah++, Ke.emit("cross-building-impact", te, {
                         from: i.a.building,
@@ -23362,7 +24111,9 @@ void main() {
 
     function cS(s) {
         Xo += s;
-        let e = Ds || oe.transients.size > 0 || Ze > 0 || Zt.some(n => n.active && n.body.sleepState !== 2) ? .1 : .2;
+        // 求解节流：结构脏（受击/释放）或有瞬态冲击时 0.1s 全速；否则 0.3s 待机。
+        // 已 awake 但未触结构的废墟不再触发全速求解。
+        let e = perfLab.struct === "fast" ? .033 : perfLab.struct === "deep" ? Ds || oe.transients.size > 0 ? .3 : .5 : Ds || oe.transients.size > 0 ? .1 : .3;
         if (Xo + 1e-9 >= e) {
             let n = oe.solve(Math.min(.25, Xo));
             rh++, Ds = !0, Xo = 0;
@@ -23373,7 +24124,8 @@ void main() {
                     r.model.failed && (r.broken = !0, xm(r), r.hp = 0), vm(r, i.cause), i.type === "member-failed" && (Ni(r.body.position, 4, 1.4), hh(r.body.position, 3, 3))
                 }
         }
-        if (aS(s), topoDetect(s), Ze > 0) {
+        rubbleParkTick(s), sectionStandingTick(s), buryTick();
+        if (aS(s), topoClock += s, topoClock >= .1 && (topoDetect(topoClock), topoClock = 0), Ze > 0) {
             let n = .6125 * Ze * Ze;
             for (let i of Zt) i.active && !i.topple && i.body.sleepState !== Wt.SLEEPING && (windForceVec.set(n * i.windArea, 0, 0), i.body.applyForce(windForceVec))
         }
@@ -23412,7 +24164,7 @@ void main() {
             if (!(s.renderDirty || s.topple || s.active && s.body.sleepState !== 2 || s.shockUntil > te || s.id === sh || li)) continue;
             let t = s.mesh.position.distanceToSquared(s.body.position) > 1e-12 || 1 - Math.abs(s.mesh.quaternion.dot(s.body.quaternion)) > 1e-10,
                 e = s.material.color.getHex();
-            if (s.mesh.position.copy(s.body.position), s.mesh.quaternion.copy(s.body.quaternion), li) {
+            if (s.mesh.position.copy(s.body.position), s.mesh.quaternion.copy(s.body.quaternion), rdAny = !0, li) {
                 let n = s.memberRefs,
                     i = Math.max(0, ...n.map(r => r.util));
                 s.material.color.set(s.active ? "#df9659" : i > 1 ? "#ff4c37" : i > .65 ? "#e7bc57" : "#6cb5ac")
@@ -23437,6 +24189,14 @@ void main() {
         }
     }
 
+    function debugToggle() {
+        li = !li;
+        // 0.8.1 修复:停泊/休眠部件不在 eaVisual 每帧跳过名单里,
+        // 切换后不强制 renderDirty 会永久残留调试配色
+        for (let s of Zt) s.renderDirty = !0;
+        ea()
+    }
+
     function ea() {
         eaSim(), eaVisual()
     }
@@ -23447,7 +24207,7 @@ void main() {
     }
 
     function ch(s) {
-        qe[s] && (zs("\u573A\u666F\u5207\u6362"), xe = s, Ze = 0, Tn.setWind(0), it("wind").value = "0", Gr(), bt.position.set(...qe[xe].camera), bt.lookAt(...qe[xe].look))
+        qe[s] && (zs("\u573A\u666F\u5207\u6362"), xe = s, Ze = 0, Tn.setWind(0), it("wind").value = "0", Gr(), applyDressing(), bt.position.set(...qe[xe].camera), bt.lookAt(...qe[xe].look), xe === "street" && ne("\u7A7A\u88AD\u6F14\u7EC3\u573A / \u6309 F \u4E0A\u8857\u6B65\u884C\uFF0C\u8B66\u62A5\u54CD\u8D77\u540E\u8FDC\u79BB\u697C\u623F"))
     }
 
     function Gr() {
@@ -23460,12 +24220,12 @@ void main() {
             for (let t of s.mesh.children) t.material !== s.material && t.material !== ts.glass && t.material !== ts.steel && t.material.dispose()
         }
         for (let s = Qi.length - 1; s >= 0; s--) Jc(s);
-        for (let s of Ur) Me.remove(s.mesh), s.mesh.geometry !== ta && s.mesh.geometry.dispose(), s.mesh.material.dispose();
-        Ur = [];
-        for (let s of Or) Me.remove(s.light), s.light.dispose();
-        Or.length = 0, Zt = [], kr = [], Ke.clear(), hm.reset(), _e.setState(21021), Br.setState(8047), te = 0, Xo = 0, rd = -10, Is = 0, Yo = 0, gd = 0, od = 0, ah = 0, lh = 0, xd = 0, Fr.clear(), eS = -10, Qo = 0, $e = null;
+        for (let s of Ur) s.life = 0, s.mesh.visible = !1;
+        for (let s of Or) s.life = 0, s.light.intensity = 0;
+        parkedCount = 0, topoClock = 0, Zt = [], kr = [], Ke.clear(), hm.reset(), _e.setState(21021), Br.setState(8047), te = 0, Xo = 0, rd = -10, Is = 0, Yo = 0, gd = 0, od = 0, ah = 0, lh = 0, xd = 0, Fr.clear(), eS = -10, Qo = 0, $e = null, releaseQueue.length = 0, liveDynamic = 0, maxLiveDynamic = 0, buryLast = 0, buryPuffAt = 0;
         for (let s of Zo) s.life = 0;
         for (let s of Ko) s.life = 0;
+        pedReset(), raidReset();
         ee.time = 0, ee.stepnumber = 0, topoReset(), EdDirty = !0, mm(), je.reset([0, 0, 20]), De || bt.position.set(...je.snapshot().eye), ea(), Md(0), ne("\u5DF2\u91CD\u5EFA / \u8FDE\u901A\u6027\u4E0E\u627F\u8F7D\u77E9\u9635\u6062\u590D")
     }
 
@@ -23497,10 +24257,10 @@ void main() {
         let s = Zt.filter(n => n.active),
             t = s.filter(n => n.body.sleepState === Wt.SLEEPING).length,
             e = oe.diagnostics();
-        if (it("telemetry").textContent = `${Ie||en?"PAUSED":md+"\xD7"} \xB7 ${Ii==="ultra"?"ULTRA":"HIGH"} \xB7 ${ad.toFixed(0)} fps*
-${s.length-t} awake / ${s.length} dynamic \xB7 ${ah} cross impacts
+        if (it("telemetry").textContent = `${Ie||en?"PAUSED":md+"\xD7"} \xB7 ${Ii==="ultra"?"ULTRA":Ii==="auto"?"AUTO\xB7"+autoTierNames[autoTier].toUpperCase():Ii==="balanced"?"BALANCED":Ii==="performance"?"FAST":"HIGH"} \xB7 ${ad.toFixed(0)} fps*
+${s.length-t} awake / ${s.length} dynamic \xB7 ${parkedCount} parked \xB7 ${ah} cross impacts
 ${e.failed} failed members \xB7 ${lh} supported hits${topo.runs.length?`
-TOPPLE \xB7 ${topo.runs.length}\u5904\u8FDB\u884C\u4E2D \xB7 ${(topo.runs.reduce((n,i)=>n+i.theta,0)/topo.runs.length*57.3).toFixed(0)}\u00B0 \xB7 ${topo.runs.reduce((n,i)=>n+i.cluster.filter(r=>r.topple).length,0)}\u4EF6`:""}
+TOPPLE \xB7 ${topo.runs.length}\u5904\u8FDB\u884C\u4E2D \xB7 ${(topo.runs.reduce((n,i)=>n+i.theta,0)/topo.runs.length*57.3).toFixed(0)}\u00B0 \xB7 ${topo.runs.reduce((n,i)=>n+i.cluster.filter(r=>r.topple).length,0)}\u4EF6 \xB7 段${segStats.released}释/${segStats.shattered}碎`:""}
 ${De?"FREE CAM":"WALK \xB7 "+(je.support?.building||"GROUND")+" / "+Math.max(0,Math.floor((je.foot[1]+.04)/(fe.buildings.find(n=>n.id===je.support?.building)?.H||4)))+"F"} \xB7 residual ${e.residual.toExponential(1)}`, it("log").textContent = Ke.events.slice(-3).map(n => `${n.time.toFixed(1)}s ${n.type}`).join(`
 `), it("analysis").classList.toggle("hidden", !li || en || mn || !it("help").classList.contains("hidden")), li) {
             let n = new O;
@@ -23544,6 +24304,8 @@ ${e.converged?"\u6536\u655B / \u6E38\u620F\u5316\u8FD1\u4F3C":"\u672A\u5145\u520
             bodies: ee.bodies.length,
             active: Zt.filter(s => s.active).length,
             sleeping: Zt.filter(s => s.active && s.body.sleepState === 2).length,
+            parked: parkedCount,
+            tier: Ii === "auto" ? "auto:" + autoTier : Ii,
             constraints: ee.constraints.length,
             blasts: gd,
             crossImpacts: ah,
@@ -23641,56 +24403,68 @@ ${e.converged?"\u6536\u655B / \u6E38\u620F\u5316\u8FD1\u4F3C":"\u672A\u5145\u520
     }
 
     function Md(s) {
-        for (let t = Or.length - 1; t >= 0; t--) {
-            let e = Or[t];
-            e.life -= s, e.light.intensity = Math.max(0, e.life / .22) * 45, e.life <= 0 && (Me.remove(e.light), e.light.dispose(), Or.splice(t, 1))
-        }
+        for (let t of Or) t.life -= s, t.light.intensity = Math.max(0, t.life / t.max) * 45;
+        let dustDraw = !1;
         for (let t = 0; t < Wr; t++) {
             let e = Zo[t],
                 n = t * 3;
-            e.life > 0 ? (e.life -= s, Ns[n] += e.v.x * s, Ns[n + 1] += e.v.y * s, Ns[n + 2] += e.v.z * s, e.v.multiplyScalar(Math.exp(-s * .65)), e.v.y += s * (e.kind ? 0 : .3), e.kind || (_d[t] += s * .5), ih[t] = Math.max(0, Math.min(1, (e.max - e.life) * 3)) * Math.max(0, e.life / e.max) * (e.kind ? .9 : .18)) : ih[t] = 0
+            e.life > 0 ? (dustDraw = !0, e.life -= s, Ns[n] += e.v.x * s, Ns[n + 1] += e.v.y * s, Ns[n + 2] += e.v.z * s, e.v.multiplyScalar(Math.exp(-s * .65)), e.v.y += s * (e.kind ? 0 : .3), e.kind || (_d[t] += s * .5), ih[t] = Math.max(0, Math.min(1, (e.max - e.life) * 3)) * Math.max(0, e.life / e.max) * (e.kind ? .9 : .18)) : ih[t] !== 0 && (ih[t] = 0, dustDraw = !0)
         }
-        for (let t of ["position", "color", "size", "alpha"]) qr.attributes[t].needsUpdate = !0;
+        dustDraw && (qr.attributes.position.needsUpdate = qr.attributes.color.needsUpdate = qr.attributes.size.needsUpdate = qr.attributes.alpha.needsUpdate = !0);
+        let chipsDraw = !1;
         for (let t = 0; t < bd; t++) {
             let e = Ko[t];
-            e.life > 0 ? (e.life -= s, e.v.y -= 9.81 * s, e.p.addScaledVector(e.v, s), e.p.y < e.s && (e.p.y = e.s, e.v.y = Math.abs(e.v.y) * .2, e.v.x *= .75, e.v.z *= .75), e.r.x += s * 2, e.r.z += s, Nr.position.copy(e.p), Nr.rotation.copy(e.r), Nr.scale.set(e.s * 1.5, e.s, e.s * .6)) : Nr.scale.setScalar(0), Nr.updateMatrix(), jo.setMatrixAt(t, Nr.matrix)
+            if (e.life > 0) {
+                chipsDraw = !0, e.was = !0, e.life -= s, e.v.y -= 9.81 * s, e.p.addScaledVector(e.v, s), e.p.y < e.s && (e.p.y = e.s, e.v.y = Math.abs(e.v.y) * .2, e.v.x *= .75, e.v.z *= .75), e.r.x += s * 2, e.r.z += s, Nr.position.copy(e.p), Nr.rotation.copy(e.r), Nr.scale.set(e.s * 1.5, e.s, e.s * .6), Nr.updateMatrix(), jo.setMatrixAt(t, Nr.matrix)
+            } else e.was && (e.was = !1, chipsDraw = !0, Nr.scale.setScalar(0), Nr.updateMatrix(), jo.setMatrixAt(t, Nr.matrix))
         }
-        jo.instanceMatrix.needsUpdate = !0;
-        for (let t = Ur.length - 1; t >= 0; t--) {
-            let e = Ur[t];
-            if (e.life -= s, e.life <= 0) {
-                Me.remove(e.mesh), e.mesh.geometry !== ta && e.mesh.geometry.dispose(), e.mesh.material.dispose(), Ur.splice(t, 1);
+        chipsDraw && (jo.instanceMatrix.needsUpdate = !0);
+        for (let t of Ur) {
+            if (t.life -= s, t.life <= 0) {
+                t.mesh.visible = !1;
                 continue
             }
-            let n = 1 - e.life / e.max;
-            e.mesh.scale.setScalar(e.radius * (.2 + n)), e.mesh.material.opacity = (1 - n) * .55
+            let e = 1 - t.life / t.max;
+            t.mesh.scale.setScalar(t.radius * (.2 + e)), t.mesh.material.opacity = (1 - e) * .55
         }
+    }
+
+    // 灯光/火球池：灯光常驻场景（强度 0 待机），避免每次爆炸增删 PointLight 触发全场景材质重编译
+    var Or = [],
+        fireMats = ["#fff2b0", "#ff9c2c", "#e9581b"].map(s => new Qn({
+            color: s,
+            transparent: !0,
+            opacity: .8,
+            depthWrite: !1,
+            blending: vs
+        })),
+        fireSlot = 0;
+    for (let s = 0; s < 3; s++) {
+        let t = new mr("#ffb36b", 0, 22, 1.4);
+        t.position.set(0, -60, 0), Me.add(t), Or.push({
+            light: t,
+            life: 0,
+            max: .22
+        })
+    }
+    for (let s = 0; s < 9; s++) {
+        let t = new ve(ta, fireMats[s % 3]);
+        t.visible = !1, Me.add(t), Ur.push({
+            mesh: t,
+            life: 0,
+            max: .24,
+            radius: 1
+        })
     }
 
     function mS(s, t) {
         for (let n = 0; n < 3; n++) {
-            let i = new Qn({
-                    color: n === 0 ? "#fff2b0" : n === 1 ? "#ff9c2c" : "#e9581b",
-                    transparent: !0,
-                    opacity: .8,
-                    depthWrite: !1,
-                    blending: vs
-                }),
-                r = new ve(ta, i);
-            r.position.set(s.x + (_e() - .5) * 1.2, s.y + .4 + n * .5, s.z + (_e() - .5) * 1.2), Me.add(r), Ur.push({
-                mesh: r,
-                life: .24 + n * .12,
-                max: .24 + n * .12,
-                radius: t * (.23 + n * .1)
-            })
+            let i = Ur[fireSlot++ % Ur.length];
+            i.mesh.visible = !0, i.mesh.material = fireMats[n], i.mesh.position.set(s.x + (_e() - .5) * 1.2, s.y + .4 + n * .5, s.z + (_e() - .5) * 1.2), i.life = i.max = .24 + n * .12, i.radius = t * (.23 + n * .1)
         }
-        let e = new mr("#ffb36b", 45, 22, 1.4);
-        e.position.copy(s), Me.add(e), Or.push({
-            light: e,
-            life: .22
-        })
+        let e = Or[fireSlot++ % Or.length];
+        e.light.position.copy(s), e.life = e.max
     }
-    var Or = [];
 
     function Sd(s, t) {
         if (te - rd < .08 || (rd = te, Ji || !Tn.ctx || Tn.ctx.state !== "running")) return;
@@ -23771,6 +24545,7 @@ ${e.converged?"\u6536\u655B / \u6E38\u620F\u5316\u8FD1\u4F3C":"\u672A\u5145\u520
             }
             of i)
             if (r.active) {
+                unparkPart(r), r.parkT = 0;
                 let a = r.body.position.vsub(new S(s.x, s.y - .2, s.z));
                 a.length() < .1 && a.set(Br() - .5, .6, Br() - .5), a.normalize(), a.scale(e.impulse * Math.max(0, 1 - o / e.radius), a), r.body.applyImpulse(a, new S((Br() - .5) * .5, .1, (Br() - .5) * .5)), r.body.wakeUp()
             } Ni(s, Math.round(ai.dust * .08), 3, !0), Ni(s, Math.round(ai.dust * .1), 3.5, !1), hh(s, 13, Math.round(ai.chips * .3)), mS(s, e.radius), gS(s), Dr = Math.min(1.4, Dr + 1.1 / (1 + bt.position.distanceTo(s) * .04)), it("flash").style.opacity = String(.12 / (1 + bt.position.distanceTo(s) * .02)), ne(t === "charge" ? "\u73AF\u5207\u836F\u5305 / \u5C40\u90E8\u622A\u9762\u7834\u574F" : t === "rpg" ? "\u7206\u7834 / \u652F\u6491\u6B63\u5728\u91CD\u65B0\u5206\u914D\u8F7D\u8377" : "\u624B\u96F7\u8D77\u7206 / \u5C40\u90E8\u51B2\u51FB")
@@ -23915,9 +24690,19 @@ ${e.converged?"\u6536\u655B / \u6E38\u620F\u5316\u8FD1\u4F3C":"\u672A\u5145\u520
     }
 
     function dh() {
-        be && Bs && Ii !== Bs.quality && zs("\u753B\u8D28\u6761\u4EF6\u6539\u53D8"), ai = Nn.budgets[Ii], tn.setPixelRatio(Math.min(devicePixelRatio * (Ii === "ultra" ? 1.35 : 1), ai.pixelRatio)), tn.setSize(innerWidth, innerHeight), zr.setPixelRatio(tn.getPixelRatio()), zr.setSize(innerWidth, innerHeight), ee.solver.iterations = ai.solverIterations, cm.strength = Ii === "ultra" ? .32 : .2;
-        for (let s = ai.dust; s < Zo.length; s++) Zo[s].life = 0;
-        for (let s = ai.chips; s < Ko.length; s++) Ko[s].life = 0
+        be && Bs && Ii !== Bs.quality && zs("\u753B\u8D28\u6761\u4EF6\u6539\u53D8");
+        let s = Ii === "auto" ? Nn.budgets[autoTier] : Nn.budgets[Ii];
+        ai = s, tn.setPixelRatio(Math.min(devicePixelRatio * (Ii === "ultra" ? 1.35 : 1), ai.pixelRatio)), tn.setSize(innerWidth, innerHeight), zr.setPixelRatio(tn.getPixelRatio()), zr.setSize(innerWidth, innerHeight), ee.solver.iterations = ai.solverIterations, cm.enabled = ai.bloom > 0, cm.strength = ai.bloom || 0, rdAny = !0;
+        let e = ai.shadowSize | 0;
+        if ((tn.shadowMap.enabled ? Us.shadow.mapSize.x : 0) !== e) {
+            tn.shadowMap.enabled = e > 0, e > 0 && (Us.shadow.mapSize.set(e, e), Us.shadow.map && (Us.shadow.map.dispose(), Us.shadow.map = null), Us.shadow.needsUpdate = !0);
+            for (let n of Object.values(ts)) n.needsUpdate = !0;
+            for (let n of Zt) n.material.needsUpdate = !0;
+            for (let n of eh) n.mesh.material.needsUpdate = !0;
+            jo.material.needsUpdate = !0
+        }
+        for (let n = ai.dust; n < Zo.length; n++) Zo[n].life = 0;
+        for (let n = ai.chips; n < Ko.length; n++) Ko[n].life = 0
     }
     var je = new qf,
         $n = 0,
@@ -24036,18 +24821,55 @@ ${e.converged?"\u6536\u655B / \u6E38\u620F\u5316\u8FD1\u4F3C":"\u672A\u5145\u520
                 ["Digit2", "grenade"],
                 ["Digit3", "rifle"]
             ]) Qt.hit(i) && Td(r);
-        Qt.hit("KeyF") && (De = !De, je.leanTarget = 0, De || fh($n, 0), ne(De ? "\u81EA\u7531\u955C\u5934 / Q \u964D E \u5347" : "\u697C\u5185\u6B65\u884C / Shift \u75BE\u8DD1 \xB7 C \u4E0B\u8E72 \xB7 \u7A7A\u683C \u8DF3 \xB7 Q/E \u4FA7\u503E")), Qt.hit("KeyP") && (Ie = !Ie), Qt.hit("Period") && Ie && ph(1 / 60), Qt.hit("KeyR") && Gr(), Qt.hit("KeyX") && (li = !li), Qt.hit("Tab") && (Qt.keys.delete("Tab"), Xr()), Qt.hit("KeyH") && it("help").classList.toggle("hidden");
+        Qt.hit("KeyF") && (De = !De, je.leanTarget = 0, De || fh($n, 0), ne(De ? "\u81EA\u7531\u955C\u5934 / Q \u964D E \u5347" : "\u697C\u5185\u6B65\u884C / Shift \u75BE\u8DD1 \xB7 C \u4E0B\u8E72 \xB7 \u7A7A\u683C \u8DF3 \xB7 Q/E \u4FA7\u503E")), Qt.hit("KeyP") && (Ie = !Ie), Qt.hit("Period") && Ie && ph(1 / 60), Qt.hit("KeyR") && Gr(), Qt.hit("KeyX") && debugToggle(), Qt.hit("Tab") && (Qt.keys.delete("Tab"), Xr()), Qt.hit("KeyH") && it("help").classList.toggle("hidden");
         let n = Qt.buttonDown(2) ? 43 : 61 + (!De && je.sprinting ? 5 : 0);
         bt.fov = $i.lerp(bt.fov, n, Math.min(1, s * 12)), bt.updateProjectionMatrix()
     }
 
+    // 速度快照池：按 body.id 复用 Vec3，替代每子步全量 clone（废墟期 GC 主要来源之一）
+    var velPool = new Map;
+
+    function velocitySnapshot() {
+        velPool.size > 1200 && velPool.clear();
+        for (let s of ee.bodies)
+            if (s.type === Wt.DYNAMIC) {
+                let t = velPool.get(s.id);
+                t || (t = new S, velPool.set(s.id, t)), t.copy(s.velocity)
+            }
+        return velPool
+    }
+
+    var perfBreak = {
+        struct: 0,
+        phys: 0,
+        impact: 0,
+        sync: 0,
+        ui: 0,
+        steps: 0
+    };
+
+    function updatePerfLabReadout() {
+        let r = it("perfLabReadout");
+        if (!r) return;
+        let n = Math.max(1, perfBreak.steps);
+        r.textContent = `PERF LAB · phys ${(perfBreak.phys / n).toFixed(2)} struct ${(perfBreak.struct / n).toFixed(2)} impact ${(perfBreak.impact / n).toFixed(2)} sync ${(perfBreak.sync / n).toFixed(2)} ms/步 · 动态 ${liveDynamic} 停泊 ${parkedCount} 队列 ${releaseQueue.length}`
+    }
+
     function ph(s, vu = !0) {
         let t = performance.now();
+        releaseBudgetUsed = 0;
         te += s, Lm(), hm.step(s, {
             scale: 1
-        }), Yo = Math.max(0, Yo - s), cS(s), topoStep(s);
-        let e = new Map(ee.bodies.filter(n => n.mass > 0).map(n => [n.id, n.velocity.clone()]));
-        ee.step(s), lS(s, e), yS(s), Md(s), TS(), uS(), eaSim(), vu && eaVisual(), RS(), th = performance.now() - t, $o = Math.max($o, th)
+        }), Yo = Math.max(0, Yo - s), cS(s), topoStep(s), releaseQueueTick();
+        let t1 = performance.now(),
+            e = velocitySnapshot();
+        ee.step(s);
+        let t2 = performance.now();
+        lS(s, e);
+        let t3 = performance.now();
+        yS(s), Md(s), TS(), uS(), pedTick(s), raidTick(s), eaSim(), vu && eaVisual();
+        let t4 = performance.now();
+        (perfLab.throttle <= 1 || perfBreak.steps % perfLab.throttle === 0) && RS(), perfBreak.steps % 30 === 0 && updatePerfLabReadout(), th = performance.now() - t, $o = Math.max($o, th), perfBreak.struct += t1 - t, perfBreak.phys += t2 - t1, perfBreak.impact += t3 - t2, perfBreak.sync += t4 - t3, perfBreak.ui += performance.now() - t4, perfBreak.steps++
     }
     Qt.onPause = () => {
         !en && !mn && !$e && (Ie = !0, uh(!0))
@@ -24082,15 +24904,22 @@ ${e.converged?"\u6536\u655B / \u6E38\u620F\u5316\u8FD1\u4F3C":"\u672A\u5145\u520
     it("camera").onclick = () => {
         De = !De, De || fh($n, 0), ne(De ? "\u81EA\u7531\u955C\u5934\u5DF2\u542F\u7528" : "\u697C\u5185\u6B65\u884C\u6A21\u5F0F\u5DF2\u542F\u7528")
     };
-    it("debug").onclick = () => {
-        li = !li, ea()
-    };
+    it("debug").onclick = debugToggle;
     it("reset").onclick = Gr;
     it("quality").onchange = s => {
         Ii = s.target.value, dh()
     };
     it("speed").onchange = s => md = Number(s.target.value);
     it("sens").onchange = s => sensMult = Number(s.target.value);
+    // 0.8.1 性能实验面板:独立开关组合 A/B,改动即刻生效
+    function applyPerfLabFromUI() {
+        let v = s => it(s).value;
+        ai.activeBudget = Number(v("plBudget")) || 1e9, perfLab.stagger = Number(v("plStagger")), ee.solver.iterations = Number(v("plIters")), ee.solver.tolerance = Number(v("plTol")), ee.defaultContactMaterial.friction = Number(v("plFric")), ai.parkDelay = Number(v("plPark")), perfLab.throttle = Number(v("plThrottle")), perfLab.dedup = v("plDedup") === "1", perfLab.struct = v("plStruct"), perfLab.bury = v("plBury"), perfLab.buryDelay = Number(v("plBuryDelay")), updatePerfLabReadout()
+    }
+    for (let id of ["plBudget", "plStagger", "plIters", "plTol", "plFric", "plPark", "plThrottle", "plDedup", "plStruct", "plBury", "plBuryDelay"]) it(id).onchange = applyPerfLabFromUI;
+    it("plReset").onclick = () => {
+        it("plBudget").value = "420", it("plStagger").value = "0", it("plIters").value = "7", it("plTol").value = "1e-7", it("plFric").value = "0.64", it("plPark").value = "1.6", it("plThrottle").value = "1", it("plDedup").value = "1", it("plStruct").value = "std", it("plBury").value = "off", it("plBuryDelay").value = "6", applyPerfLabFromUI()
+    };
     it("mute").onclick = () => {
         Ji = !Ji, Tn.setVolume(Ji ? 0 : .45), it("mute").textContent = `\u58F0\u97F3\uFF1A${Ji?"\u5173":"\u5F00"}`
     };
@@ -24110,7 +24939,7 @@ ${e.converged?"\u6536\u655B / \u6E38\u620F\u5316\u8FD1\u4F3C":"\u672A\u5145\u520
                 type: "application/json"
             })),
             e = document.createElement("a");
-        e.href = t, e.download = "BREACH-0.5-audit.json", e.click(), setTimeout(() => URL.revokeObjectURL(t), 1e3)
+        e.href = t, e.download = "BREACH-0.6-audit.json", e.click(), setTimeout(() => URL.revokeObjectURL(t), 1e3)
     };
     document.querySelectorAll("[data-slot]").forEach(s => s.onclick = () => Td(s.dataset.slot));
     window.addEventListener("keydown", s => {
@@ -24129,17 +24958,32 @@ ${e.converged?"\u6536\u655B / \u6E38\u620F\u5316\u8FD1\u4F3C":"\u672A\u5145\u520
         s.preventDefault(), Ie = !0, it("loading").textContent = "\u663E\u5361\u4E0A\u4E0B\u6587\u5DF2\u4E22\u5931\u3002\u8BF7\u91CD\u65B0\u6253\u5F00\u6587\u4EF6\uFF0C\u5207\u6362\u9AD8\u753B\u8D28\u3002", it("loading").classList.remove("hidden")
     });
 
+    var autoTierNames = {
+        performance: "\u6D41\u7545",
+        balanced: "\u5747\u8861",
+        standard: "\u9AD8"
+    };
+
     function Am(s) {
         let t = Math.min(.15, (s - om) / 1e3);
         if (om = s, ad = $i.lerp(ad, 1 / Math.max(.001, t), .06), bS(t), !Ie && !en) {
             Is += t * md;
             let n = 0;
-            for (; Is >= 1 / 60 && n < Nn.limits.maxSubsteps;) ph(1 / 60, !1), Is -= 1 / 60, n++;
+            for (; Is >= 1 / 60 && n < (ai.maxSubsteps || Nn.limits.maxSubsteps);) ph(1 / 60, !1), Is -= 1 / 60, n++;
             n > 0 && eaVisual(), Is > 1 / 60 && (Qo += Is, Is = 0)
+        }
+        if (Ii === "auto" && !be) {
+            autoClock += t;
+            if (autoClock > 2.5) {
+                autoClock = 0;
+                let n = ["performance", "balanced", "standard"],
+                    i = n.indexOf(autoTier);
+                ad < 40 && i > 0 ? (autoTier = n[i - 1], autoGood = 0, dh(), ne("\u81EA\u52A8\u753B\u8D28 \u2192 " + autoTierNames[autoTier] + " / \u5E27\u7387\u81EA\u9002\u5E94")) : ad > 56 ? (++autoGood, autoGood >= 3 && i < n.length - 1 && (autoTier = n[i + 1], autoGood = 0, dh(), ne("\u81EA\u52A8\u753B\u8D28 \u2192 " + autoTierNames[autoTier] + " / \u5E27\u7387\u4F59\u88D4\u5145\u8DB3"))) : autoGood = 0
+            }
         }
         Qt.end(), nd += t, nd > .2 && (ym(), PS(), nd = 0), s > um && (it("notice").style.opacity = "0"), it("flash").style.opacity = String(Number(it("flash").style.opacity || 0) * Math.exp(-t * 9)), Zc *= Math.exp(-t * 13), Ae.position.z = -.78 + Zc, Ae.rotation.x = Zc * .6, Ae.visible = !en && !$e && !mn && !be, wd.visible = !De, Dr *= Math.exp(-t * 7);
         let e = bt.position.clone();
-        Dr > .001 && !Ie && (bt.position.x += (Math.random() - .5) * Dr * .12, bt.position.y += (Math.random() - .5) * Dr * .1), tn.info.reset(), zr.render(), bt.position.copy(e), requestAnimationFrame(Am)
+        Dr > .001 && !Ie && (bt.position.x += (Math.random() - .5) * Dr * .12, bt.position.y += (Math.random() - .5) * Dr * .1), tn.shadowMap.needsUpdate = tn.shadowMap.enabled && (rdAny || Qi.length > 0 || topo.runs.length > 0 || !De && !en && !mn), tn.info.reset(), zr.render(), bt.position.copy(e), rdAny = !1, requestAnimationFrame(Am)
     }
     it("navBuilding").onchange = s => {
         $n = Number(s.target.value), Tm()
@@ -24150,6 +24994,7 @@ ${e.converged?"\u6536\u655B / \u6E38\u620F\u5316\u8FD1\u4F3C":"\u672A\u5145\u520
         en && uh(!1), fh(s, t), mn && Xr()
     };
     it("testBlast").onclick = () => Em(it("testPoint").value);
+    it("raidBtn").onclick = raidStart;
     for (let s of ["sceneMenu", "sceneTool"])
         for (let [t, e] of Object.entries(qe)) {
             let n = document.createElement("option");
@@ -24318,7 +25163,7 @@ ${e.converged?"\u6536\u655B / \u6E38\u620F\u5316\u8FD1\u4F3C":"\u672A\u5145\u520
     }
 
     function Id(s) {
-        for (let t of ["sceneTool", "sceneMenu", "wind", "quality", "testBlast", "demo", "demomenu", "pointKind", "pointDelay", "runSeed", "runDuration", "addPresetPoint", "addAimPoint", "clearPoints", "importPlan", "loadPlan", "savePlan", "exportPlan", "examplePlan"]) it(t).disabled = s
+        for (let t of ["sceneTool", "sceneMenu", "wind", "quality", "testBlast", "raidBtn", "demo", "demomenu", "pointKind", "pointDelay", "runSeed", "runDuration", "addPresetPoint", "addAimPoint", "clearPoints", "importPlan", "loadPlan", "savePlan", "exportPlan", "examplePlan"]) it(t).disabled = s
     }
 
     function zs(s = "\u624B\u52A8\u505C\u6B62") {
@@ -24464,7 +25309,7 @@ ${e.converged?"\u6536\u655B / \u6E38\u620F\u5316\u8FD1\u4F3C":"\u672A\u5145\u520
     function PS() {
         let s = fe.buildings[$n],
             t = !De && je.support?.building === s.id ? Math.max(0, Math.round(je.foot[1] / s.H)) : Ps;
-        it("navReadout").textContent = `${s.id.toUpperCase()} / ${String(t).padStart(2,"0")}F${De?" \xB7 \u81EA\u7531":" \xB7 \u6B65\u884C"}`, it("navGuide").textContent = be ? `\u8FD0\u884C ${te.toFixed(1)} / ${be.plan.duration}s \xB7 ${be.cursor}/${be.queue.length} \u70B9\u5DF2\u89E6\u53D1` : "F \u5165\u697C \xB7 \u5165\u53E3\u5DE6\u4FA7\u697C\u68AF \u2191 \xB7 \u5C42\u7AEF\u5E73\u53F0 \u2192", it("performance").textContent = `\u6700\u8FD1\u7269\u7406\u6B65 ${th.toFixed(1)}ms / \u5CF0\u503C ${$o.toFixed(1)}ms \xB7 \u6C42\u89E3 ${rh}\u6B21 \xB7 ${ee.bodies.length}\u521A\u4F53
+        it("navReadout").textContent = `${s.id.toUpperCase()} / ${String(t).padStart(2,"0")}F${De?" \xB7 \u81EA\u7531":" \xB7 \u6B65\u884C"}`, it("navGuide").textContent = be ? `\u8FD0\u884C ${te.toFixed(1)} / ${be.plan.duration}s \xB7 ${be.cursor}/${be.queue.length} \u70B9\u5DF2\u89E6\u53D1` : "F \u5165\u697C \xB7 \u5165\u53E3\u5DE6\u4FA7\u697C\u68AF \u2191 \xB7 \u5C42\u7AEF\u5E73\u53F0 \u2192", it("performance").textContent = `\u6700\u8FD1\u7269\u7406\u6B65 ${th.toFixed(1)}ms / \u5CF0\u503C ${$o.toFixed(1)}ms \xB7 \u6C42\u89E3 ${rh}\u6B21 \xB7 ${ee.bodies.length}\u521A\u4F53 \xB7 ${parkedCount}\u9759\u6001
 \u56FA\u5B9A1/60s\uFF1B\u4E22\u5F03\u79EF\u538B ${Qo.toFixed(2)}s\u3002\u8BFB\u6570\u4E0D\u662F\u786C\u4EF6\u9A8C\u6536\u3002`, it("runStatus").textContent = be ? `\u8FD0\u884C\u4E2D ${te.toFixed(1)} / ${be.plan.duration}s` : "\u5F85\u547D \xB7 \u8FD0\u884C\u5C06\u91CD\u5EFA\u5E76\u91CD\u65B0\u6A21\u62DF", Qc && IS(), Cm === "review" && Math.floor(te) !== ud && (ud = Math.floor(te), fd()), LS()
     }
     var lm = -1;
@@ -24490,7 +25335,7 @@ ${e.converged?"\u6536\u655B / \u6E38\u620F\u5316\u8FD1\u4F3C":"\u672A\u5145\u520
     };
     it("exportPlan").onclick = () => {
         try {
-            de = qo(Ad(), qe, Ir), Pm(de, "BREACH-0.5-plan.json")
+            de = qo(Ad(), qe, Ir), Pm(de, "BREACH-0.6-plan.json")
         } catch (s) {
             ne(s.message)
         }
@@ -24517,7 +25362,7 @@ ${e.converged?"\u6536\u655B / \u6E38\u620F\u5316\u8FD1\u4F3C":"\u672A\u5145\u520
         events: gn.events,
         first: gn.first,
         note: "Audit only, not replay."
-    }, "BREACH-0.5-results.json");
+    }, "BREACH-0.6-results.json");
     window.addEventListener("keydown", s => {
         s.repeat || /INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName) || (s.code === "KeyB" && !en && mh(!0), s.code === "KeyV" && !en && Pd(), s.code === "Enter" && !en && !mn && de.points.length && Rd())
     });
@@ -24540,6 +25385,263 @@ ${e.converged?"\u6536\u655B / \u6E38\u620F\u5316\u8FD1\u4F3C":"\u672A\u5145\u520
     it("settings").onclick = () => {
         mn || Xr(), gh("plan")
     };
+    // ── 街道布景 / 行人 / 空袭剧本（street 场景专用）──────────────
+    var dress = new zn;
+    Me.add(dress);
+    var PED_N = 14,
+        pedShown = !1,
+        peds = [],
+        pedBodyMesh = new dr(new fs(.17, .22, 1.12, 7), new Te({
+            color: "#8d8377",
+            roughness: .9
+        }), PED_N),
+        pedHeadMesh = new dr(new Gi(.13, 8, 6), new Te({
+            color: "#c9a184",
+            roughness: .85
+        }), PED_N);
+    pedBodyMesh.frustumCulled = pedHeadMesh.frustumCulled = !1, pedBodyMesh.castShadow = pedHeadMesh.castShadow = !1, Me.add(pedBodyMesh), Me.add(pedHeadMesh);
+    {
+        let s = Pr(777),
+            t = ["#5d6b74", "#7a5c46", "#465a68", "#6d6d5a", "#74504e", "#536053", "#5f5a6e", "#6b5a3f"];
+        for (let e = 0; e < PED_N; e++) {
+            let n = e % 4;
+            peds.push({
+                x: n === 0 ? -15.6 : n === 1 ? 15.6 : -50 + 100 * s(),
+                z: n === 2 ? -15.6 : n === 3 ? 15.6 : -50 + 100 * s(),
+                dir: n === 0 ? 0 : n === 1 ? Math.PI : n === 2 ? Math.PI / 2 : -Math.PI / 2,
+                speed: 1.2 + s() * .6,
+                phase: s() * 6.28,
+                flee: 0,
+                fx: 0,
+                fz: 0,
+                tx: 0,
+                tz: 0,
+                needWp: !0
+            });
+            let r = new Lt(t[e % t.length]);
+            pedBodyMesh.setColorAt(e, r)
+        }
+        pedBodyMesh.instanceColor.needsUpdate = !0
+    }
+
+    function pickPedWaypoint(s) {
+        // 人行道环线（±15.6）：优先沿当前所在边行走，站在路口附近时随机换边过街
+        let t = Math.abs(s.x) > 19 && Math.abs(s.z) > 19 && _e() < .5,
+            e = Math.abs(Math.abs(s.x) - 15.6) < Math.abs(Math.abs(s.z) - 15.6);
+        t || e ? (s.tx = (s.x < 0 ? -15.6 : 15.6) + (_e() - .5) * .9, s.tz = $i.clamp(s.z + (_e() - .5) * 48, -58, 58)) : (s.tx = $i.clamp(s.x + (_e() - .5) * 48, -58, 58), s.tz = (s.z < 0 ? -15.6 : 15.6) + (_e() - .5) * .9)
+    }
+
+    function pedReset() {
+        for (let s = 0; s < PED_N; s++) {
+            let t = peds[s],
+                e = s % 4;
+            t.x = e === 0 ? -15.6 : e === 1 ? 15.6 : -50 + 100 * _e(), t.z = e === 2 ? -15.6 : e === 3 ? 15.6 : -50 + 100 * _e(), t.flee = 0, t.needWp = !0, t.tx = t.x, t.tz = t.z
+        }
+        pedShown = !1
+    }
+
+    function pedTick(s) {
+        if (!dress.visible) {
+            if (pedShown) {
+                for (let t = 0; t < PED_N; t++) Nr.scale.setScalar(0), Nr.updateMatrix(), pedBodyMesh.setMatrixAt(t, Nr.matrix), pedHeadMesh.setMatrixAt(t, Nr.matrix);
+                pedBodyMesh.instanceMatrix.needsUpdate = pedHeadMesh.instanceMatrix.needsUpdate = !0, pedShown = !1
+            }
+            return
+        }
+        pedShown = !0;
+        for (let t = raidBlasts.length - 1; t >= 0; t--) te - raidBlasts[t].t > .6 && raidBlasts.splice(t, 1);
+        for (let t = 0; t < PED_N; t++) {
+            let e = peds[t],
+                i, n, r = e.flee > 0 ? 5.3 : e.speed;
+            e.flee > 0 ? (e.flee -= s, e.flee <= 0 && (e.needWp = !0), i = e.x - e.fx, n = e.z - e.fz) : (e.needWp && (e.needWp = !1, pickPedWaypoint(e)), i = e.tx - e.x, n = e.tz - e.z, Math.hypot(i, n) < 1.5 && pickPedWaypoint(e));
+            let o = Math.hypot(i, n);
+            o > .01 && (i /= o, n /= o, e.dir = Math.atan2(i, n), e.x = $i.clamp(e.x + i * r * s, -80, 80), e.z = $i.clamp(e.z + n * r * s, -80, 80));
+            let a = Math.sin(e.phase += s * (e.flee > 0 ? 5.4 : 3.2));
+            Nr.position.set(e.x, .82 + Math.abs(a) * .035, e.z), Nr.rotation.set(0, e.dir, a * .04), Nr.scale.setScalar(1), Nr.updateMatrix(), pedBodyMesh.setMatrixAt(t, Nr.matrix), Nr.position.set(e.x, 1.75 + Math.abs(a) * .035, e.z), Nr.rotation.set(0, e.dir, 0), Nr.updateMatrix(), pedHeadMesh.setMatrixAt(t, Nr.matrix)
+        }
+        pedBodyMesh.instanceMatrix.needsUpdate = pedHeadMesh.instanceMatrix.needsUpdate = !0
+    }
+
+    function applyDressing() {
+        for (; dress.children.length;) dress.remove(dress.children[0]);
+        let s = xe === "street";
+        if (dress.visible = s, pedBodyMesh.visible = pedHeadMesh.visible = s, jet.visible = !1, pedShown = !1, !s) return;
+        let t = new Te({
+                color: "#4a5052",
+                roughness: .96
+            }),
+            e = new Te({
+                color: "#757b74",
+                roughness: .95
+            }),
+            n = new Te({
+                color: "#8b8577",
+                roughness: .94
+            });
+        // 中央街区广场与花坛
+        me([14, .06, 14], [0, .035, 0], n, dress);
+        for (let r of [-5, 5]) me([2.2, .55, 2.2], [r, .31, 0], n, dress), me([2.2, .55, 2.2], [0, .31, r], n, dress);
+        // 十字路网：N-S 双路 x=±23、E-W 双路 z=±23 → 四个路口
+        for (let r of [-23, 23]) me([12, .05, 130], [r, .045, 0], t, dress), me([130, .05, 12], [0, .045, r], t, dress);
+        for (let r of [-15.6, 15.6]) me([3, .16, 35], [r, .08, 0], e, dress), me([35, .16, 3], [0, .08, r], e, dress);
+        for (let r of [-30.6, 30.6]) me([3, .16, 130], [r, .08, 0], e, dress), me([130, .16, 3], [0, .08, r], e, dress);
+        // 中央虚线（单 InstancedMesh，跳过路口区域）
+        let r = [];
+        for (let o of [-23, 23])
+            for (let a = -62; a <= 62; a += 10)(Math.abs(a - 23) > 7 && Math.abs(a + 23) > 7) && (r.push([o, a, 0]), r.push([a, o, 1]));
+        let o = new dr(new ps(.3, 2.6), ts.gold, r.length);
+        o.frustumCulled = !1;
+        for (let a = 0; a < r.length; a++) {
+            let l = r[a];
+            Nr.position.set(l[0], .085, l[1]), Nr.rotation.set(-Math.PI / 2, 0, l[2] ? Math.PI / 2 : 0), Nr.scale.setScalar(1), Nr.updateMatrix(), o.setMatrixAt(a, Nr.matrix)
+        }
+        dress.add(o);
+        // 街区四角路灯
+        for (let a of [-15.8, 15.8])
+            for (let l of [-15.8, 15.8]) me([.16, 5.4, .16], [a, 2.7, l], ts.steel, dress), me([1.7, .12, .3], [a + (a < 0 ? .95 : -.95), 5.35, l], ts.gold, dress)
+    }
+    var raid = {
+            phase: "off",
+            clock: 0,
+            wave: 0,
+            dropped: 0,
+            bombs: []
+        },
+        raidBlasts = [],
+        jet = new zn,
+        bombMeshes = [];
+    {
+        let s = new ve(new fs(.55, .9, 6.4, 8), new Te({
+            color: "#33393d",
+            roughness: .55,
+            metalness: .5
+        }));
+        s.rotation.x = Math.PI / 2, jet.add(s);
+        for (let t of [-1, 1]) {
+            let e = new ve(new ps(3.6, 1), new Te({
+                color: "#33393d",
+                roughness: .6,
+                metalness: .4
+            }));
+            e.rotation.z = t * .12, e.position.set(t * 1.9, 0, .3), jet.add(e)
+        }
+        jet.visible = !1, Me.add(jet);
+        let t = new Te({
+            color: "#3a4147",
+            roughness: .6,
+            metalness: .4
+        });
+        for (let e = 0; e < 6; e++) {
+            let n = new ve(new fs(.13, .19, .62, 6), t);
+            n.visible = !1, Me.add(n), bombMeshes.push(n)
+        }
+    }
+
+    function raidReset() {
+        raid.phase = xe === "street" ? "calm" : "off", raid.clock = 0, raid.wave = 0, raid.dropped = 0;
+        for (let s of raid.bombs) s.mesh.visible = !1;
+        raid.bombs.length = 0, jet.visible = !1, raidBlasts.length = 0
+    }
+
+    function raidStart() {
+        if (xe !== "street") {
+            ne("\u7A7A\u88AD\u5267\u672C\u4EC5\u5728\u300C\u57CE\u5E02\u8857\u9053\u300D\u573A\u666F\u63D0\u4F9B");
+            return
+        }
+        raid.phase = "siren", raid.clock = 0, raid.wave = Math.max(0, raid.wave), raid.dropped = 0, ne("\u7A7A\u88AD\u6F14\u7EC3\u624B\u52A8\u542F\u52A8")
+    }
+
+    function sirenSound(s = 5.5) {
+        if (Ji || !Tn.ctx || Tn.ctx.state !== "running") return;
+        let t = Tn.ctx,
+            e = t.createOscillator(),
+            n = t.createGain(),
+            i = t.currentTime;
+        e.type = "triangle", e.connect(n).connect(Tn.master), n.gain.setValueAtTime(.001, i), n.gain.exponentialRampToValueAtTime(.15, i + .8), n.gain.setValueAtTime(.15, i + s - 1.2), n.gain.exponentialRampToValueAtTime(.001, i + s);
+        for (let r = 0; r < Math.ceil(s / 1.4); r++) e.frequency.setValueAtTime(620, i + r * 1.4), e.frequency.linearRampToValueAtTime(430, i + r * 1.4 + 1.1);
+        e.start(i), e.stop(i + s + .1)
+    }
+
+    function jetNoise() {
+        if (Ji || !Tn.ctx || Tn.ctx.state !== "running") return;
+        let t = Tn.ctx,
+            e = t.createBufferSource(),
+            n = t.createBuffer(1, t.sampleRate * 3.2, t.sampleRate),
+            i = n.getChannelData(0);
+        for (let r = 0; r < i.length; r++) i[r] = Math.random() * 2 - 1;
+        e.buffer = n;
+        let o = t.createBiquadFilter();
+        o.type = "lowpass", o.frequency.setValueAtTime(1600, t.currentTime), o.frequency.linearRampToValueAtTime(420, t.currentTime + 3);
+        let a = t.createGain();
+        a.gain.setValueAtTime(.001, t.currentTime), a.gain.linearRampToValueAtTime(.2, t.currentTime + .6), a.gain.linearRampToValueAtTime(.001, t.currentTime + 3), e.connect(o).connect(a).connect(Tn.master), e.start(), e.stop(t.currentTime + 3.1);
+        let l = t.createOscillator(),
+            c = t.createGain();
+        l.type = "sawtooth", l.frequency.setValueAtTime(92, t.currentTime), l.frequency.linearRampToValueAtTime(64, t.currentTime + 3), c.gain.setValueAtTime(.05, t.currentTime), c.gain.linearRampToValueAtTime(.001, t.currentTime + 3), l.connect(c).connect(Tn.master), l.start(), l.stop(t.currentTime + 3.1)
+    }
+
+    function whistleSound() {
+        if (Ji || !Tn.ctx || Tn.ctx.state !== "running") return;
+        let t = Tn.ctx,
+            e = t.createOscillator(),
+            n = t.createGain(),
+            i = t.currentTime;
+        e.type = "sine", e.frequency.setValueAtTime(1900, i), e.frequency.exponentialRampToValueAtTime(320, i + 1.05), n.gain.setValueAtTime(.001, i), n.gain.exponentialRampToValueAtTime(.08, i + .25), n.gain.exponentialRampToValueAtTime(.001, i + 1.1), e.connect(n).connect(Tn.master), e.start(i), e.stop(i + 1.15)
+    }
+
+    function pickRaidTarget() {
+        let s = Zt.filter(t => !t.hidden && !t.active && t.level <= 1 && ["column", "wall", "core", "leg"].includes(t.type));
+        if (s.length) {
+            let t = s.filter(e => Math.abs(e.body.position.x) < 20 && Math.abs(e.body.position.z) < 20);
+            t.length && Br() < Nn.scenarios.raid.centralBias && (s = t);
+            let e = s[Math.floor(Br() * s.length)];
+            return new O(e.body.position.x + (Br() - .5) * Nn.scenarios.raid.scatter, e.body.position.y + .8, e.body.position.z + (Br() - .5) * Nn.scenarios.raid.scatter)
+        }
+        return new O((Br() - .5) * 10, 1.2, (Br() - .5) * 70)
+    }
+
+    function raidBlast(s) {
+        raidBlasts.push({
+            x: s.x,
+            z: s.z,
+            t: te
+        }), raidBlasts.length > 8 && raidBlasts.shift(), Dr = Math.min(1.4, Dr + .5 / (1 + bt.position.distanceTo(s) * .03));
+        for (let t of peds) Math.hypot(t.x - s.x, t.z - s.z) < 45 && (t.flee = Math.max(t.flee, 3.5 + _e() * 2.5), t.fx = s.x, t.fz = s.z)
+    }
+
+    function raidTick(s) {
+        if (raid.phase === "off") return;
+        if (be) return;
+        let R = Nn.scenarios.raid;
+        if (raid.phase === "calm") {
+            raid.clock += s, raid.clock > R.calmDelay && (raid.phase = "siren", raid.clock = 0, sirenSound(5.5), ne("空袭警报 / 远处有轰炸机接近，居民沿街疏散"));
+            return
+        }
+        raid.clock += s;
+        let t = R.waves[Math.min(R.waves.length - 1, Math.max(0, raid.wave - 1))] || R.waves[0];
+        if (raid.phase === "siren") raid.clock > R.sirenDelay && (raid.phase = "approach", raid.clock = 0, raid.wave++, raid.dropped = 0, jet.visible = !0, jet.position.set(0, R.jetY, -150), jetNoise());
+        else if (raid.phase === "approach") {
+            jet.visible && (jet.position.z += R.jetSpeed * s, jet.position.y = R.jetY + Math.sin(te * .9) * 2, jet.rotation.z = Math.sin(te * 1.7) * .05, jet.position.z > 160 && (jet.visible = !1));
+            for (; raid.dropped < t.length && raid.clock >= t[raid.dropped]; raid.dropped++) {
+                let e = pickRaidTarget(),
+                    n = bombMeshes.find(i => !i.visible) || bombMeshes[0];
+                n.visible = !0, n.position.copy(e), raid.bombs.push({
+                    p: e,
+                    y: e.y,
+                    ground: Math.max(.4, e.y - .8),
+                    mesh: n,
+                    trail: 0,
+                    whistled: !1
+                }), whistleSound()
+            }
+            raid.dropped >= t.length && raid.bombs.length === 0 && raid.clock > t[t.length - 1] + R.tailDelay && (raid.wave >= R.waves.length ? (raid.phase = "aftermath", raid.clock = 0, ne("本轮空袭结束 / 可检视废墟与倒塌楼房，按 R 重建街区")) : (raid.phase = "regroup", raid.clock = 0))
+        } else if (raid.phase === "regroup") raid.clock > R.regroupDelay && (raid.phase = "approach", raid.clock = 0, raid.wave++, raid.dropped = 0, jet.visible = !0, jet.position.set(0, R.jetY, -150), jetNoise());
+        else if (raid.phase === "aftermath") raid.clock > R.aftermathDelay && (raid.phase = "calm", raid.clock = R.calmResume, raid.wave = 0);
+        for (let e = raid.bombs.length - 1; e >= 0; e--) {
+            let n = raid.bombs[e];
+            n.y -= R.bombSpeed * s, n.mesh.position.y = n.y, n.trail -= s, n.trail <= 0 && (Ni(n.p, 2, .5, !1), n.trail = .07), n.y <= n.ground ? (n.mesh.visible = !1, raid.bombs.splice(e, 1), Hr(n.p, "rpg"), raidBlast(n.p)) : !n.whistled && n.y - n.ground < R.whistleHeight && (n.whistled = !0)
+        }
+    }
+
     me([90, .025, 4], [0, .025, 20], new Te({
         color: "#454e4b",
         roughness: 1
@@ -24551,12 +25653,15 @@ ${e.converged?"\u6536\u655B / \u6E38\u620F\u5316\u8FD1\u4F3C":"\u672A\u5145\u520
     wm();
     Td("rpg");
     dh();
+    applyDressing();
     ea();
     Md(0);
     ym();
     it("loading").classList.add("hidden");
     requestAnimationFrame(Am);
     Jo && (window.BREACH = {
+        world: () => ee,
+        solverModel: () => oe,
         enterBuilding: fh,
         walk: (s, t, e = 1 / 60, n = {}) => Sm(s, t, e, n),
         walker: () => je.snapshot(),
@@ -24593,7 +25698,7 @@ ${e.converged?"\u6536\u655B / \u6E38\u620F\u5316\u8FD1\u4F3C":"\u672A\u5145\u520
         }),
         dropPart: (s, t, e, n, i = 0, r = 0, o = 0) => {
             let a = Zt[s];
-            Vr(a, a.maxHp, "test-drop"), a.body.position.set(t, e, n), a.body.velocity.set(i, r, o)
+            unparkPart(a), Vr(a, a.maxHp, "test-drop"), a.body.position.set(t, e, n), a.body.velocity.set(i, r, o)
         },
         topple: () => ({
             runs: topo.runs.map(r => ({
@@ -24601,6 +25706,8 @@ ${e.converged?"\u6536\u655B / \u6E38\u620F\u5316\u8FD1\u4F3C":"\u672A\u5145\u520
                 theta: +r.theta.toFixed(3),
                 omega: +r.omega.toFixed(3),
                 parts: r.cluster.filter(i => i.topple).length,
+                segs: r.segments.length,
+                segsReleased: r.segments.filter(g => g.released).length,
                 raw: {
                     axis: [r.axis.x, r.axis.y, r.axis.z],
                     dir: [r.dirX, r.dirZ],
@@ -24620,6 +25727,88 @@ ${e.converged?"\u6536\u655B / \u6E38\u620F\u5316\u8FD1\u4F3C":"\u672A\u5145\u520
             hands: topo.hands,
             lastErr: topo.lastErr
         }),
+        sections: () => ({
+            standing: [...secWatch.entries()].map(([k, w]) => ({
+                key: k,
+                timer: +w.timer.toFixed(2),
+                cool: +w.cool.toFixed(2)
+            })),
+            runs: topo.runs.map(r => ({
+                building: r.building,
+                theta: +r.theta.toFixed(2),
+                ratios: r.monRatios.map(x => ({ ...x })),
+                len: r.monRatios.length,
+                dbg: r.monDbg || null
+            }))
+        }),
+        segments: () => topo.runs.map(r => ({
+            building: r.building,
+            theta: +r.theta.toFixed(3),
+            alpha: +r.alpha.toFixed(3),
+            segs: r.segments.map(g => ({
+                band: g.band,
+                parts: g.parts.length,
+                released: g.released,
+                minY: +g.minY.toFixed(2)
+            }))
+        })),
+        segStats: () => ({
+            released: segStats.released,
+            shattered: segStats.shattered,
+            snaps: segStats.snaps,
+            tickMs: Math.round(segStats.tickMs)
+        }),
+        perfBreak: () => {
+            let n = Math.max(1, perfBreak.steps);
+            return {
+                perStepMs: {
+                    struct: +(perfBreak.struct / n).toFixed(3),
+                    phys: +(perfBreak.phys / n).toFixed(3),
+                    impact: +(perfBreak.impact / n).toFixed(3),
+                    sync: +(perfBreak.sync / n).toFixed(3),
+                    ui: +(perfBreak.ui / n).toFixed(3)
+                },
+                steps: perfBreak.steps,
+                liveDynamic,
+                maxLiveDynamic,
+                queueLen: releaseQueue.length
+            }
+        },
+        perfReset: () => (perfBreak.struct = perfBreak.phys = perfBreak.impact = perfBreak.sync = perfBreak.ui = 0, perfBreak.steps = 0),
+        collapse: () => structuredClone(Nn.collapse),
+        setPark: v => (ai.parkDelay = v, ai.parkDelay),
+        setBudgetCap: v => (ai.activeBudget = v, ai.activeBudget),
+        perfLab: () => ({
+            stagger: perfLab.stagger,
+            throttle: perfLab.throttle,
+            dedup: perfLab.dedup,
+            struct: perfLab.struct,
+            budget: ai.activeBudget,
+            park: ai.parkDelay,
+            iters: ee.solver.iterations,
+            tol: ee.solver.tolerance,
+            friction: ee.defaultContactMaterial.friction,
+            bury: perfLab.bury,
+            buryDelay: perfLab.buryDelay
+        }),
+        bury: () => ({
+            gone: Zt.filter(x => x.gone).length,
+            visible: Zt.filter(x => x.mesh.visible).length,
+            parked: parkedCount
+        }),
+        setPerfLab: (sel, val) => (it(sel).value = String(val), applyPerfLabFromUI(), it(sel).value),
+        partColor: s => ({
+            color: Zt[s].material.color.getHex(),
+            base: Zt[s].baseColor.getHex(),
+            active: Zt[s].active
+        }),
+        debugToggle,
+        setCollapse: s => {
+            let merge = (d, p) => {
+                for (let k in p) p[k] && typeof p[k] === "object" && !Array.isArray(p[k]) ? (d[k] || (d[k] = {}), merge(d[k], p[k])) : d[k] = p[k]
+            };
+            return merge(Nn.collapse, s), structuredClone(Nn.collapse)
+        },
         render: () => (zr.render(), {
             drawCalls: tn.info.render.calls,
             fps: Math.round(ad)
@@ -24651,7 +25840,22 @@ ${e.converged?"\u6536\u655B / \u6E38\u620F\u5316\u8FD1\u4F3C":"\u672A\u5145\u520
         resources: () => ({
             geometries: tn.info.memory.geometries,
             textures: tn.info.memory.textures
-        })
+        }),
+        raid: () => ({
+            phase: raid.phase,
+            wave: raid.wave,
+            clock: +raid.clock.toFixed(2),
+            bombs: raid.bombs.length,
+            blasts: raidBlasts.length
+        }),
+        raidStart,
+        peds: () => ({
+            n: PED_N,
+            shown: pedShown,
+            fleeing: peds.filter(s => s.flee > 0).length
+        }),
+        parked: () => parkedCount,
+        autoTier: () => Ii === "auto" ? autoTier : null
     });
 })();
 </script></body></html>

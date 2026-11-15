@@ -1,0 +1,30 @@
+{
+  "errors": [],
+  "tests": {
+    "version": true,
+    "hordeWave": true,
+    "hordeNewbieQuiet": true,
+    "hordeBite": true,
+    "hordeQuietOff": true,
+    "lobberMark": true,
+    "lobberShot": true,
+    "lobberBoom": true,
+    "screamerConvert": true,
+    "nestPlaced": true,
+    "nestRamClear": true,
+    "nestBlastClear": true,
+    "bossBuilt": true,
+    "bossDefeat": true,
+    "bossGuards": true,
+    "endlessStart": true,
+    "endlessStream": true,
+    "endlessCull": true,
+    "endlessRecord": true,
+    "lenRestored": true,
+    "chainSwap": true,
+    "chainStep1": true,
+    "chainNoDouble": true,
+    "chainStep2": true,
+    "bossStat": true
+  }
+}

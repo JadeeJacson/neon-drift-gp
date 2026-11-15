@@ -1,0 +1,9 @@
+const{chromium}=require('playwright'),fs=require('fs'),path=require('path');const root=path.resolve(__dirname,'..');
+(async()=>{const b=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/local/bin/chromium',headless:true,args:['--no-sandbox']}),p=await b.newPage({viewport:{width:1440,height:900}});await p.addInitScript(()=>{requestAnimationFrame=f=>1});await p.goto('file://'+root+'/index.html');const shot=async n=>p.screenshot({path:path.join(root,'previews',n+'.png')});
+ await p.click('#openField');await p.evaluate(()=>{$('fieldbook').scrollTop=$('fieldbook').scrollHeight});await shot('field-prep-bottom');await p.click('#fieldArchiveTab');await p.evaluate(()=>{$('fieldbook').scrollTop=$('fieldbook').scrollHeight});await shot('field-archive-bottom');await p.click('#closeField');
+ await p.evaluate(()=>{save.selected=0;startRun();car.x=3900;car.y=ground(car.x)-65;car.hp=car.maxHp*.2;control.brake=true;run.elapsed=7;field.radio=null;camera.x=car.x;camera.y=car.y;updateHUD();ctx.setTransform(DPR,0,0,DPR,0,0);renderRun(0)});await shot('vehicle-wear');
+ await p.evaluate(()=>{const z=zombies.find(z=>z.variant==='volatile');z.x=car.x+240;z.y=ground(z.x);car.hp=car.maxHp;car.vx=300;run.elapsed=8;hitZombie(z);camera.x=car.x;camera.y=car.y;updateHUD();ctx.setTransform(DPR,0,0,DPR,0,0);renderRun(0)});await shot('volatile-warning');
+ await p.evaluate(()=>{garage();screen('help')});await shot('help-desktop');
+ await p.setViewportSize({width:390,height:844});await p.waitForTimeout(50);await shot('help-portrait');
+ await p.setViewportSize({width:844,height:390});await p.waitForTimeout(50);await shot('help-landscape');await p.evaluate(()=>{const m=$('help').querySelector('.modal');m.scrollTop=m.scrollHeight});await shot('help-landscape-bottom');
+ await b.close();})();

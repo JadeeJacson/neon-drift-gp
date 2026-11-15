@@ -1,0 +1,11 @@
+{
+  "name": "dustrun-expedition",
+  "version": "2.3.0",
+  "private": true,
+  "scripts": {
+    "test": "node tests/qa.cjs && node tests/v23.cjs && node tests/mobile-and-save.cjs && node tests/audio.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}

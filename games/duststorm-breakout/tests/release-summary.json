@@ -1,0 +1,29 @@
+{
+  "version": "2.2.0",
+  "date": "2026-10-24",
+  "assertionsPassed": 51,
+  "assertionsFailed": 0,
+  "uncaughtPageErrors": 0,
+  "viewports": [
+    [
+      1440,
+      900
+    ],
+    [
+      390,
+      844
+    ],
+    [
+      844,
+      390
+    ]
+  ],
+  "realTouchEvents": true,
+  "singleFileSha256": "b90f7ced184f2a77ef6be161023dbb5c3525419c99840c0e383e1108b5f003b9",
+  "limitations": [
+    "未完整人工通关六区",
+    "非全设备实机测试",
+    "导航回归隔离战斗伤害",
+    "天气仅改变表现，不修改摩擦"
+  ]
+}

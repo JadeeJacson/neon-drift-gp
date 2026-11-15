@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "money": 900,
+  "up": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "unlocked": 0,
+  "selected": 0,
+  "best": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "kills": 0,
+  "runs": 0,
+  "wins": 0,
+  "settings": {
+    "sound": false,
+    "gore": true,
+    "shake": false,
+    "quality": true,
+    "weather": true,
+    "horde": true
+  },
+  "vehicle": 0,
+  "ownedVehicles": [
+    0
+  ],
+  "armor": 0,
+  "ownedArmor": [
+    0
+  ],
+  "booster": 0,
+  "ownedBoosters": [
+    0
+  ],
+  "manualLevel": 1,
+  "autoLevel": 0,
+  "autoEnabled": true,
+  "fieldKit": "breach",
+  "fieldStats": {
+    "rescues": 0,
+    "supplies": 0,
+    "specialKills": 0,
+    "structures": 0,
+    "speedGates": 0,
+    "contracts": 0,
+    "maxAir": 0,
+    "cash": 0,
+    "bosses": 0,
+    "nests": 0,
+    "lobbers": 0,
+    "screamers": 0,
+    "endlessDist": 0,
+    "endlessKills": 0
+  },
+  "fieldBadges": [],
+  "endlessBest": {
+    "dist": 0,
+    "kills": 0
+  }
+}

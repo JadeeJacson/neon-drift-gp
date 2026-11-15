@@ -1,0 +1,10 @@
+{
+  "errors": [],
+  "checks": {
+    "graphCreated": true,
+    "rainFilter": true,
+    "pauseMuted": true,
+    "weatherMuted": true,
+    "soundMuted": true
+  }
+}

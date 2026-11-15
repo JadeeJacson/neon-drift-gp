@@ -1,0 +1,134 @@
+{
+  "errors": [],
+  "tests": {
+    "version": true,
+    "allMaps": true,
+    "scoutFuel": true,
+    "fuelPickup": true,
+    "singlePickup": true,
+    "rescueDone": true,
+    "singleRescue": true,
+    "fastNoRescue": true,
+    "speedGate": true,
+    "singleGate": true,
+    "armorFirstHit": true,
+    "armorCooldown": true,
+    "armorSecondHit": true,
+    "armorHighSpeed": true,
+    "armorMissile": true,
+    "volatileFuse": true,
+    "volatileExplosion": true,
+    "breachDamage": true,
+    "breachMissile": true,
+    "stuntCapacity": true,
+    "stuntLanding": true,
+    "contractComplete": true,
+    "singleContract": true,
+    "payout": true,
+    "badges": true,
+    "singlePayout": true,
+    "singleBadge": true,
+    "structureSlow": true,
+    "structureRam": true,
+    "platformTravel": true,
+    "localCollapse": true,
+    "driving": true,
+    "weatherToggle": true
+  },
+  "maps": [
+    {
+      "stage": 0,
+      "structures": 240,
+      "pickups": 15,
+      "rescues": 3,
+      "gates": 3,
+      "weather": "浮尘",
+      "specials": 90
+    },
+    {
+      "stage": 1,
+      "structures": 372,
+      "pickups": 25,
+      "rescues": 4,
+      "gates": 5,
+      "weather": "冷雨",
+      "specials": 236
+    },
+    {
+      "stage": 2,
+      "structures": 729,
+      "pickups": 36,
+      "rescues": 6,
+      "gates": 7,
+      "weather": "余烬",
+      "specials": 434
+    },
+    {
+      "stage": 3,
+      "structures": 504,
+      "pickups": 24,
+      "rescues": 4,
+      "gates": 5,
+      "weather": "海雾",
+      "specials": 382
+    },
+    {
+      "stage": 4,
+      "structures": 765,
+      "pickups": 30,
+      "rescues": 5,
+      "gates": 6,
+      "weather": "高空风沙",
+      "specials": 487
+    },
+    {
+      "stage": 5,
+      "structures": 729,
+      "pickups": 36,
+      "rescues": 6,
+      "gates": 7,
+      "weather": "熔炉灰烬",
+      "specials": 713
+    }
+  ],
+  "driving": [
+    {
+      "stage": 0,
+      "x": 10675,
+      "speed": 634,
+      "finite": true
+    },
+    {
+      "stage": 2,
+      "x": 11064,
+      "speed": 607,
+      "finite": true
+    },
+    {
+      "stage": 4,
+      "x": 11795,
+      "speed": 554,
+      "finite": true
+    },
+    {
+      "stage": 5,
+      "x": 12624,
+      "speed": 722,
+      "finite": true
+    }
+  ],
+  "responsive": [
+    {
+      "page": "prep",
+      "w": 390,
+      "overflow": false,
+      "body": false
+    },
+    {
+      "page": "prep",
+      "w": 844,
+      "overflow": false,
+      "body": false
+    }
+  ]
+}
