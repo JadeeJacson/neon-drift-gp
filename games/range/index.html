@@ -54,7 +54,7 @@ THE SOFTWARE.
 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>RANGE — 0.43 · 战术实验区</title>
+    <title>RANGE — 0.44 · 战术实验区</title>
     <style>
       :root {
         color-scheme: dark;
@@ -1103,7 +1103,7 @@ THE SOFTWARE.
         <div class="sub">PRIVATE TRAINING FACILITY / 01</div>
       </header>
       <main class="panel">
-        <div class="eyebrow" id="badge">BUILD 0.43 / 战术实验区</div>
+        <div class="eyebrow" id="badge">BUILD 0.44 / 战术实验区</div>
         <h1 id="menuTitle">第一枪，已就绪。</h1>
         <p class="intro">
           M4A1 / P226 / AK-47 / MP5<br />教程引导、六区 CQB 与幽灵挑战。<br />辨认目标，再扣动扳机。
@@ -1203,9 +1203,9 @@ THE SOFTWARE.
 <p>仅状态回放；不伤害、不补弹、不计分。无任意帧接管。自由镜头只沿世界轴平移。</p></section>
     <section id="hud" hidden aria-label="探索界面">
       <div class="topbar">
-        <div><strong>RANGE.</strong><small>0.43 / PHYSICS + STATE</small></div>
+        <div><strong>RANGE.</strong><small>0.44 / PHYSICS + STATE</small></div>
         <div class="topright">
-          <span id="fps">0.43 / OFFLINE</span><br /><span id="position"
+          <span id="fps">0.44 / OFFLINE</span><br /><span id="position"
             >X 0.0 Z 8.0</span
           ><button id="pause">ESC · 暂停</button>
         </div>
@@ -1567,7 +1567,7 @@ THE SOFTWARE.
     </div>
     <script>
 /* ═══════════════════════════════════════════════════════════════════
-  RANGE 0.43.0「战术实验区」· 敌人动画（…→ 0.42 修复二 → 0.43 敌人程序化动画/碰撞/死亡效果）
+  RANGE 0.44.0「战术实验区」· 贴图质感（…→ 0.43 敌人动画 → 0.44 程序化法线/粗糙度贴图/光照）
   来源: JadeeJacson/neon-drift-gp @ main, games/range/index.html
         （2026-10-26 提交「新增四款练手小游戏」，原始构建 1,029,475 字节）
   还原: 内联 JS 经 js-beautify 格式化（不折行/保留换行），并在已验证边界插入分区注释。
@@ -20166,7 +20166,7 @@ void main() {
    * 改动后请跑 test/smoke.js（桌面回归）与 test/mobile.js（移动端验收）。
    * ════════════════════════════════════════════════════════════════════════ */
   var RANGE_CONFIG = {
-    release: "0.43.0",
+    release: "0.44.0",
     render: {
       maxPixelRatio: 1.65,        // 桌面渲染像素比上限
       mobileMaxPixelRatio: 1.3    // 移动端像素比上限（性能优先）
@@ -33305,7 +33305,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     ly = new Du,
     gp = ay.fromScene(ly, .04);
   oi.environment = gp.texture;
-  oi.environmentIntensity = .2;
+  oi.environmentIntensity = .38;
   ly.dispose();
   ay.dispose();
   oi.add(new gn(14085631, 9271636, 2), new La(14083035, .45));
@@ -33501,7 +33501,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       Oi = !1, ge.stop(), Oe.suspend();
       return
     }
-    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.43 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
+    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.44 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
   }
   ge.onPause = Sn;
   ge.onLookMode = s => {
@@ -33606,7 +33606,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (let i = 0; i < e; i++) fr.update(t / e, ke, Yt, ge);
       ki()
     }
-    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.43 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
+    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.44 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
   }
 /* ════════════════════════════════════════════════════════════════════════
  * [SECTION E] QA 调试接口 window.__RANGE__（URL 带 ?qa 时启用扩展方法）
@@ -34850,9 +34850,30 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
         ctx.strokeStyle = "rgba(0,0,0,0.15)"; for (let i = 0; i < 6; i++) { ctx.beginPath(); ctx.moveTo(Math.random() * w, 0); ctx.lineTo(Math.random() * w, h); ctx.stroke(); }
       }, 128, 128);
     }
+    function surfaceMaps(size, strength) {
+      size = size || 128; strength = strength || 1.6;
+      const h = new Float32Array(size * size);
+      for (let i = 0; i < h.length; i++) h[i] = Math.random();
+      const sm = new Float32Array(size * size);
+      for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) { let s = 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) s += h[((y + dy + size) % size) * size + ((x + dx + size) % size)]; sm[y * size + x] = s / 9; }
+      const cv = document.createElement("canvas"); cv.width = cv.height = size; const ctx = cv.getContext("2d"); const img = ctx.createImageData(size, size);
+      const rcv = document.createElement("canvas"); rcv.width = rcv.height = size; const rctx = rcv.getContext("2d"); const rimg = rctx.createImageData(size, size);
+      for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+        const i = y * size + x;
+        const l = sm[y * size + ((x - 1 + size) % size)], r = sm[y * size + ((x + 1) % size)];
+        const u = sm[((y - 1 + size) % size) * size + x], d = sm[((y + 1) % size) * size + x];
+        let nx = (l - r) * strength, ny = (u - d) * strength, nz = 1; const len = Math.sqrt(nx * nx + ny * ny + nz * nz);
+        img.data[i * 4] = (nx / len * .5 + .5) * 255; img.data[i * 4 + 1] = (ny / len * .5 + .5) * 255; img.data[i * 4 + 2] = (nz / len * .5 + .5) * 255; img.data[i * 4 + 3] = 255;
+        const rv = 175 + sm[i] * 80; rimg.data[i * 4] = rv; rimg.data[i * 4 + 1] = rv; rimg.data[i * 4 + 2] = rv; rimg.data[i * 4 + 3] = 255;
+      }
+      ctx.putImageData(img, 0, 0); rctx.putImageData(rimg, 0, 0);
+      const nt = new Ve(cv); nt.wrapS = nt.wrapT = 1000; const rt = new Ve(rcv); rt.wrapS = rt.wrapT = 1000;
+      return { normalMap: nt, roughnessMap: rt };
+    }
+    const smaps = surfaceMaps(128, 1.7);
     const tex = concreteTex("#8a8580");
-    const wallMat = new Xt({ map: tex, roughness: .92, metalness: 0 });
-    const floorMat = new Xt({ color: 0x5a5550, roughness: .95 });
+    const wallMat = new Xt({ map: tex, roughness: .92, metalness: 0, normalMap: smaps.normalMap, normalScale: new Mt(.65, .65), roughnessMap: smaps.roughnessMap });
+    const floorMat = new Xt({ map: concreteTex("#5a5550"), roughness: .95, normalMap: smaps.normalMap, normalScale: new Mt(.4, .4), roughnessMap: smaps.roughnessMap });
     function floor(g, x, z, w, d) { const m = new at(new Ei(w, .2, d, 1, .02), floorMat); m.position.set(x, -.1, z); m.receiveShadow = true; g.add(m); return m; }
     const wallColliders = [];
     function regCol(x, z, hx, hz, h) { const col = { min: [x - hx, 0, z - hz], max: [x + hx, h, z + hz] }; pl.colliders.push(col); wallColliders.push(col); }
@@ -34864,7 +34885,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (const w of layout.walls) wall(g, w[0], w[1], w[2], w[3] || 3, w[4] || 0);
       for (const c of layout.cover) cover(g, c[0], c[1], c[2] || 1.2, c[3] || 1.2);
     }
-    return { wallMat, floorMat, floor, wall, cover, assemble, concreteTex, clearColliders };
+    return { wallMat, floorMat, floor, wall, cover, assemble, concreteTex, clearColliders, surfaceMaps, smaps };
   })();
 
   var RANGE_DESTRUCT = (() => {
@@ -35084,8 +35105,8 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     };
     function build(type) {
       const T = types[type] || types.rifle;
-      const mat = new Xt({ color: T.color, roughness: .65, metalness: .1 });
-      const dark = new Xt({ color: 0x1a1a1a, roughness: .6 });
+      const mat = new Xt({ color: T.color, roughness: .65, metalness: .1, normalMap: RANGE_KIT.smaps.normalMap, normalScale: new Mt(.35, .35) });
+      const dark = new Xt({ color: 0x1a1a1a, roughness: .6, normalMap: RANGE_KIT.smaps.normalMap, normalScale: new Mt(.3, .3) });
       const g = new qt; g.name = "sil-" + type;
       const hit = []; const parts = {};
       let torsoW = .5, torsoH = 1.2, headR = .22, shoulderW = 0;
