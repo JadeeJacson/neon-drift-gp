@@ -1,8 +1,9 @@
-# RANGE 0.27.0
+# RANGE 0.28.0
 
 单文件 Three.js 网页靶场。本文件为可读开发构建（RANGE-0.24.0.html），可直接维护。
 
 ## 版本
+- 0.28.0（M4）：FORENSICS 法证瞄准训练器（gridshot/tracking/switching/precision/speed/recoil 6 科目 + 准星热力图回放 + 百分位/进度/每日挑战/报告导出）+ 1-bit 抖动风格 + 通用后处理管线（RT+shader，M7 复用）。
 - 0.27.0（M3）：STATIC 时间模式（SUPERHOT 式时间随输入流动、无人机敌人慢速弹丸可躲避、8 puzzle 房、奖牌与本地最佳）+ 结晶白风格（白世界/红敌/黑枪）。
 - 0.26.0（M2）：STYLE 风格条计分（12 事件加权+连击+D→SSS 评级+结算面板，独立存档）+ 反应式靶标家族（钢板倒下/凝胶伤道/西瓜碎裂/玻璃碎裂/水果）+ 通用 wing 框架（RANGE_WINGS）。
 - 0.25.0：统一细边框红点瞄准镜（M4A1/P226/AK-47/MP5 全部改为细环+crisp 红点，光轴不变），瞄具参数入 RANGE_CONFIG.sights，RANGE_API.sights() 暴露元数据。

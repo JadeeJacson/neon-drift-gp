@@ -54,7 +54,7 @@ THE SOFTWARE.
 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>RANGE — 0.27 · 战术实验区</title>
+    <title>RANGE — 0.28 · 战术实验区</title>
     <style>
       :root {
         color-scheme: dark;
@@ -846,6 +846,30 @@ THE SOFTWARE.
       #staticVignette { position: fixed; inset: 0; z-index: 40; pointer-events: none; box-shadow: inset 0 0 180px rgba(0,0,0,.25); opacity: 0; transition: opacity .3s; }
       body.static-white #hud .topbar, body.static-white #hud .bottombar { color: #1a1a1a; }
       @media (pointer: coarse) { #staticTime { width: 110px; } }
+      /* ═══ RANGE 0.28 · FORENSICS 法证翼 + 1-bit ═══ */
+      #forensicsHud { position: fixed; left: calc(18px + env(safe-area-inset-left)); top: calc(60px + env(safe-area-inset-top)); z-index: 55; pointer-events: none; color: #111; font-family: monospace; }
+      #forensicsHud[hidden] { display: none; }
+      #fnDrill { font-size: 14px; font-weight: 800; letter-spacing: .2em; }
+      #fnTimer { font-size: 32px; font-weight: 800; }
+      #fnScore { font-size: 20px; }
+      #fnHint { font-size: 12px; opacity: .7; margin-top: 4px; }
+      #forensicsMenu, #forensicsResult { position: fixed; inset: 0; z-index: 160; background: rgba(20,20,20,.85); display: flex; align-items: center; justify-content: center; }
+      #forensicsMenu[hidden], #forensicsResult[hidden] { display: none; }
+      .fnCard { background: #f2f2f0; color: #111; border: 1px solid #111; border-radius: 0; width: min(460px, 94vw); max-height: 92dvh; overflow: auto; font-family: monospace; }
+      .fnCard h2 { color: #111; font-size: 16px; letter-spacing: .1em; border-bottom: 2px solid #111; padding-bottom: 8px; }
+      #fnDrillList { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+      #fnDrillList button { background: #fff; border: 1.5px solid #111; color: #111; padding: 12px 8px; font-family: monospace; font-size: 13px; cursor: pointer; text-align: left; }
+      #fnDrillList button:hover { background: #111; color: #fff; }
+      #fnDrillList button small { display: block; opacity: .6; font-size: 10px; margin-top: 3px; }
+      #fnDaily { font-size: 12px; margin: 8px 0; opacity: .8; }
+      .fnCard button { background: #111; color: #fff; border: none; padding: 9px 16px; font-family: monospace; cursor: pointer; margin: 4px 4px 0 0; }
+      #fnHeatmap { width: 100%; border: 1px solid #111; background: #fff; margin: 10px 0; image-rendering: pixelated; }
+      #fnReplayCtl { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+      #fnScrub { flex: 1; }
+      #fnrScore { font-size: 28px; font-weight: 800; margin: 6px 0; }
+      #fnrPercentile { font-size: 13px; margin-bottom: 6px; }
+      #fnrStats { font-size: 12px; margin: 8px 0; line-height: 1.6; }
+      body.fn-1bit #hud .topbar, body.fn-1bit #hud .bottombar { color: #111; }
 </style>
   </head>
   <body>
@@ -924,7 +948,7 @@ THE SOFTWARE.
         <div class="sub">PRIVATE TRAINING FACILITY / 01</div>
       </header>
       <main class="panel">
-        <div class="eyebrow" id="badge">BUILD 0.27 / 战术实验区</div>
+        <div class="eyebrow" id="badge">BUILD 0.28 / 战术实验区</div>
         <h1 id="menuTitle">第一枪，已就绪。</h1>
         <p class="intro">
           M4A1 / P226 / AK-47 / MP5<br />教程引导、六区 CQB 与幽灵挑战。<br />辨认目标，再扣动扳机。
@@ -953,7 +977,7 @@ THE SOFTWARE.
         <button id="start">进入靶场 →</button>
         <div class="secondary">
           <button id="reset">重置出生点</button
-          ><button id="helpToggle">操作说明</button><button id="settingsOpen">游戏设置</button><button id="reactiveToggle">反应靶场 · 关</button><button id="staticEnter" class="studioEntry">STATIC · 时间只随你流动 →</button>
+          ><button id="helpToggle">操作说明</button><button id="settingsOpen">游戏设置</button><button id="reactiveToggle">反应靶场 · 关</button><button id="staticEnter" class="studioEntry">STATIC · 时间只随你流动 →</button><button id="forensicsEnter" class="studioEntry">FORENSICS · 法证瞄准训练 →</button>
         </div>
         <div class="settings">
           <label for="sensitivity"
@@ -1024,9 +1048,9 @@ THE SOFTWARE.
 <p>仅状态回放；不伤害、不补弹、不计分。无任意帧接管。自由镜头只沿世界轴平移。</p></section>
     <section id="hud" hidden aria-label="探索界面">
       <div class="topbar">
-        <div><strong>RANGE.</strong><small>0.27 / PHYSICS + STATE</small></div>
+        <div><strong>RANGE.</strong><small>0.28 / PHYSICS + STATE</small></div>
         <div class="topright">
-          <span id="fps">0.27 / OFFLINE</span><br /><span id="position"
+          <span id="fps">0.28 / OFFLINE</span><br /><span id="position"
             >X 0.0 Z 8.0</span
           ><button id="pause">ESC · 暂停</button>
         </div>
@@ -1140,6 +1164,33 @@ THE SOFTWARE.
         <button id="srExit">退出</button>
       </div>
     </div>
+    <div id="forensicsHud" hidden>
+      <div id="fnDrill">GRIDSHOT</div>
+      <div id="fnTimer">30.0</div>
+      <div id="fnScore">0</div>
+      <div id="fnHint"></div>
+    </div>
+    <div id="forensicsMenu" hidden>
+      <div class="sbCard fnCard">
+        <h2>FORENSICS · 法证瞄准训练</h2>
+        <div id="fnDrillList"></div>
+        <div id="fnDaily"></div>
+        <button id="fnBack">返回</button>
+      </div>
+    </div>
+    <div id="forensicsResult" hidden>
+      <div class="sbCard fnCard">
+        <h2 id="fnrTitle">科目结算</h2>
+        <div id="fnrScore"></div>
+        <div id="fnrPercentile"></div>
+        <canvas id="fnHeatmap" width="320" height="200"></canvas>
+        <div id="fnReplayCtl"><input type="range" id="fnScrub" min="0" max="100" value="100"><span id="fnScrubT"></span></div>
+        <div id="fnrStats"></div>
+        <button id="fnExport">导出报告 JSON</button>
+        <button id="fnRetry">再来</button>
+        <button id="fnMenu">科目菜单</button>
+      </div>
+    </div>
     <div id="settingsOverlay" hidden>
       <div id="settingsDesktop" class="settingsCard" hidden>
         <header><h2>游戏设置 · 桌面端</h2><button id="settingsCloseD">✕ 关闭</button></header>
@@ -1208,7 +1259,7 @@ THE SOFTWARE.
     </div>
     <script>
 /* ═══════════════════════════════════════════════════════════════════
-  RANGE 0.27.0「战术实验区」· STATIC 时间翼（…→ 0.26 风格反应靶 → 0.27 STATIC 时间模式+结晶白，见 SECTION J）
+  RANGE 0.28.0「战术实验区」· FORENSICS 法证翼（…→ 0.27 STATIC → 0.28 法证训练器+1-bit+后处理管线，见 SECTION K）
   来源: JadeeJacson/neon-drift-gp @ main, games/range/index.html
         （2026-10-26 提交「新增四款练手小游戏」，原始构建 1,029,475 字节）
   还原: 内联 JS 经 js-beautify 格式化（不折行/保留换行），并在已验证边界插入分区注释。
@@ -19807,7 +19858,7 @@ void main() {
    * 改动后请跑 test/smoke.js（桌面回归）与 test/mobile.js（移动端验收）。
    * ════════════════════════════════════════════════════════════════════════ */
   var RANGE_CONFIG = {
-    release: "0.27.0",
+    release: "0.28.0",
     render: {
       maxPixelRatio: 1.65,        // 桌面渲染像素比上限
       mobileMaxPixelRatio: 1.3    // 移动端像素比上限（性能优先）
@@ -33142,7 +33193,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       Oi = !1, ge.stop(), Oe.suspend();
       return
     }
-    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.27 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
+    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.28 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
   }
   ge.onPause = Sn;
   ge.onLookMode = s => {
@@ -33247,7 +33298,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (let i = 0; i < e; i++) fr.update(t / e, ke, Yt, ge);
       ki()
     }
-    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.27 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
+    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.28 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
   }
 /* ════════════════════════════════════════════════════════════════════════
  * [SECTION E] QA 调试接口 window.__RANGE__（URL 带 ?qa 时启用扩展方法）
@@ -33689,10 +33740,12 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     };
     ki = function () {
       if (post.active && post.rt) {
-        hi.setRenderTarget(post.rt);
+        post.inPost = false;
         baseKi();
         hi.setRenderTarget(null);
+        post.inPost = true;
         hi.render(post.scene, post.camera);
+        post.inPost = false;
         return;
       }
       baseKi();
@@ -33701,6 +33754,47 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     function enter(name) { if (active && active.exit) active.exit(); active = wings[name]; if (active && active.enter) active.enter(); }
     function exit() { if (active && active.exit) active.exit(); active = null; }
     function _setActive(name) { active = name ? wings[name] : null; }
+    post.init = function () {
+      if (post.rt) return;
+      post.rt = new oc(innerWidth, innerHeight);
+      post.scene = new Wi;
+      post.camera = new Na(-1, 1, 1, -1, 0, 1);
+      post.mat = new Hi({
+        uniforms: { tDiffuse: { value: post.rt.texture }, resolution: { value: new Mt(innerWidth, innerHeight) }, mode: { value: 0 }, pixelSize: { value: 3.0 } },
+        vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }",
+        fragmentShader: [
+          "uniform sampler2D tDiffuse; uniform vec2 resolution; uniform float mode; uniform float pixelSize; varying vec2 vUv;",
+          "float bayer(vec2 p){ vec2 q = floor(mod(p, 4.0)); float a = mod(q.x + q.y * 4.0, 4.0); float b = mod(floor(q.x / 2.0) + floor(q.y / 2.0) * 2.0, 4.0); return (a * 4.0 + b) / 16.0; }",
+          "void main(){",
+          "  if (mode > 1.5) {",
+          "    vec2 uv = floor(vUv * resolution / pixelSize) * pixelSize / resolution;",
+          "    vec3 c = texture2D(tDiffuse, uv).rgb; c = floor(c * 6.0 + 0.5) / 6.0;",
+          "    float scan = 0.88 + 0.12 * sin(vUv.y * resolution.y * 3.14159);",
+          "    gl_FragColor = vec4(c * scan, 1.0); return;",
+          "  }",
+          "  vec3 c = texture2D(tDiffuse, vUv).rgb; float l = dot(c, vec3(0.299, 0.587, 0.114));",
+          "  if (mode > 0.5) { float d = bayer(gl_FragCoord.xy); float bw = step(d - 0.5, l - 0.5 + 0.5); bw = l > d ? 1.0 : 0.0; gl_FragColor = vec4(vec3(bw), 1.0); return; }",
+          "  gl_FragColor = vec4(c, 1.0);",
+          "}"
+        ].join("\n")
+      });
+      post.quad = new at(new We(2, 2), post.mat);
+      post.scene.add(post.quad);
+      post.inPost = false;
+      const baseRender = hi.render.bind(hi);
+      hi.render = function (scene, cam) {
+        if (post.active && !post.inPost) { hi.setRenderTarget(post.rt); baseRender(scene, cam); return; }
+        baseRender(scene, cam);
+      };
+    };
+    post.setMode = function (m) {
+      post.init();
+      post.mode = m; post.active = !!m;
+      post.mat.uniforms.mode.value = m === "1bit" ? 1 : m === "psx" ? 2 : 0;
+      if (m === "psx") { post.rt.setSize(320, 240); post.rt.texture.magFilter = 1003; post.rt.texture.minFilter = 1003; post.mat.uniforms.resolution.value.set(320, 240); }
+      else { post.rt.setSize(innerWidth, innerHeight); post.rt.texture.magFilter = 1006; post.rt.texture.minFilter = 1006; post.mat.uniforms.resolution.value.set(innerWidth, innerHeight); }
+    };
+    addEventListener("resize", () => { if (post.active && post.mode !== "psx") { post.rt.setSize(innerWidth, innerHeight); post.mat.uniforms.resolution.value.set(innerWidth, innerHeight); } });
     return { register, enter, exit, wings, post, baseMp, baseKi, _setActive, get active() { return active; } };
   })();
 
@@ -34077,6 +34171,186 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
   })();
 
   RANGE_API.static = RANGE_STATIC;
+
+  /* ════════════════════════════════════════════════════════════════════════
+   * [SECTION K] FORENSICS 法证瞄准训练器 + 1-bit 风格（0.28 / M4）
+   * 6 科目（gridshot/tracking/switching/precision/speed/recoil）+ 法证回放
+   * （准星热力图 + 命中标记 + 时间轴 scrub）+ 百分位/进度/每日挑战/报告导出。
+   * ════════════════════════════════════════════════════════════════════════ */
+  var RANGE_FORENSICS = (() => {
+    const drills = {
+      gridshot: { name: "GRIDSHOT", desc: "3×3 网格速射 30s", dur: 30 },
+      tracking: { name: "TRACKING", desc: "追踪移动靶 20s", dur: 20 },
+      switching: { name: "SWITCHING", desc: "切换激活靶 30s", dur: 30 },
+      precision: { name: "PRECISION", desc: "小靶精准 30s", dur: 30 },
+      speed: { name: "SPEED", desc: "反应速度 10 轮", dur: 999 },
+      recoil: { name: "RECOIL", desc: "压枪散布 30 发", dur: 999 }
+    };
+    const group = new qt; group.name = "forensics"; group.visible = false; oi.add(group);
+    const tMat = new Xt({ color: 0x222222, roughness: .6 });
+    const tMatActive = new Xt({ color: 0xff2a1a, roughness: .5, emissive: 0x440000 });
+    const ray = new Yn;
+    let active = false, cur = null, targets = [], timer = 0, score = 0, shots = 0, hits = 0;
+    let rec = [], hitRec = [], round = 0, speedStart = 0, recoilPts = [], trackTime = 0, switchActive = 0;
+    let savedMats = [], origBg = null;
+
+    function applyBit() {
+      savedMats = [];
+      oi.traverse(o => { if (o.isMesh && o.parent !== group) { savedMats.push([o, o.material]); o.material = new Xt({ color: 0xdddddd, roughness: .9 }); } });
+      origBg = oi.background; if (origBg && origBg.isColor) oi.background = origBg.clone().set(0xeeeeee);
+      document.body.classList.add("fn-1bit");
+      RANGE_WINGS.post.setMode("1bit");
+    }
+    function restoreBit() {
+      savedMats.forEach(([o, m]) => o.material = m); savedMats = [];
+      oi.background = origBg; document.body.classList.remove("fn-1bit");
+      RANGE_WINGS.post.setMode(null);
+    }
+    function clearTargets() { for (const t of targets) group.remove(t.mesh); targets = []; }
+    function mkTarget(x, y, z, r, active) {
+      const mesh = new at(new Qe(r, 16, 12), active ? tMatActive : tMat);
+      mesh.position.set(x, y, z); group.add(mesh);
+      const t = { mesh, r, active, base: [x, y, z], phase: Math.random() * 6.28 };
+      targets.push(t); return t;
+    }
+    function setup(drill) {
+      clearTargets(); score = 0; shots = 0; hits = 0; rec = []; hitRec = []; round = 0; recoilPts = []; trackTime = 0;
+      cur = drill; timer = drills[drill].dur;
+      Yt.position.set(0, 0, 8); Yt.velocity.set(0, 0, 0); Yt.yaw = 0; Yt.pitch = 0; Yt.spawn();
+      if (drill === "gridshot") { for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) mkTarget(i * 1.5, 1.6 + j * 1.2, -12, .22, true); }
+      else if (drill === "tracking") { mkTarget(0, 1.6, -12, .3, true); }
+      else if (drill === "switching") { mkTarget(-2, 1.6, -12, .28, true); mkTarget(2, 1.6, -12, .28, false); switchActive = 0; }
+      else if (drill === "precision") { for (let i = 0; i < 5; i++) mkTarget((i - 2) * 1.2, 1.6 + (i % 2) * .8, -14, .1, true); }
+      else if (drill === "speed") { round = 0; speedStart = -1; }
+      else if (drill === "recoil") { mkTarget(0, 1.6, -20, 2.5, true); }
+      gt("#fnDrill").textContent = drills[drill].name;
+      gt("#fnHint").textContent = drills[drill].desc;
+      refreshHud();
+    }
+    function refreshHud() {
+      gt("#fnTimer").textContent = cur === "speed" ? ("轮 " + (round + 1) + "/10") : cur === "recoil" ? (shots + "/30") : timer.toFixed(1);
+      gt("#fnScore").textContent = "得分 " + score;
+    }
+    function randPos() { return [(Math.random() - .5) * 6, 1.2 + Math.random() * 1.4, -12 - Math.random() * 4]; }
+    function tick(s) {
+      Yt.update(s); ke.update(s);
+      rec.push({ t: performance.now(), yaw: Yt.yaw, pitch: Yt.pitch });
+      if (cur === "tracking") {
+        const t = targets[0]; t.phase += s; t.mesh.position.x = Math.sin(t.phase * 1.2) * 3; t.mesh.position.y = 1.6 + Math.sin(t.phase * 2) * .5;
+        ray.set(He.position, new I(0, 0, -1).applyQuaternion(He.quaternion));
+        if (ray.intersectObject(t.mesh, false).length) { trackTime += s; score = Math.round(trackTime * 100); }
+      } else if (cur === "speed") {
+        if (speedStart < 0) { speedStart = performance.now() + 800 + Math.random() * 1500; }
+        else if (performance.now() >= speedStart && targets.length === 0) { const p = randPos(); mkTarget(p[0], p[1], p[2], .25, true); speedStart = performance.now(); }
+      } else if (cur !== "recoil") {
+        timer -= s;
+        if (timer <= 0) { finish(); return; }
+      }
+      if (cur === "recoil" && shots >= 30) { finish(); return; }
+      if (cur === "speed" && round >= 10) { finish(); return; }
+      refreshHud();
+      ge.end();
+    }
+    const prevShot = ke.onShot;
+    ke.onShot = s => {
+      prevShot && prevShot(s);
+      if (!active) return;
+      shots++;
+      ray.set(He.position, new I(...s.direction).normalize());
+      const meshes = targets.filter(t => t.active).map(t => t.mesh);
+      const hit = ray.intersectObjects(meshes, false)[0];
+      if (cur === "recoil") { if (hit) recoilPts.push(hit.point.toArray()); return; }
+      if (hit) {
+        hits++;
+        const t = targets.find(x => x.mesh === hit.object);
+        hitRec.push({ t: performance.now(), point: hit.point.toArray() });
+        ln.tone(1200, .05, .1, 0, "square");
+        if (cur === "gridshot") { score += 100; const p = randPos(); t.mesh.position.set(p[0], p[1], p[2]); }
+        else if (cur === "precision") { score += 150; const p = randPos(); t.mesh.position.set(p[0], p[1], p[2]); }
+        else if (cur === "switching") { score += 120; t.active = false; t.mesh.material = tMat; switchActive = 1 - switchActive; targets[switchActive].active = true; targets[switchActive].mesh.material = tMatActive; }
+        else if (cur === "speed") { const rt = (performance.now() - speedStart); score += Math.max(10, Math.round(600 - rt)); round++; group.remove(t.mesh); targets = targets.filter(x => x !== t); speedStart = -1; }
+      }
+      refreshHud();
+    };
+    function finish() {
+      if (cur === "recoil") {
+        if (recoilPts.length) { const cx = recoilPts.reduce((a, p) => a + p[0], 0) / recoilPts.length, cy = recoilPts.reduce((a, p) => a + p[1], 0) / recoilPts.length; const sd = Math.sqrt(recoilPts.reduce((a, p) => a + (p[0] - cx) ** 2 + (p[1] - cy) ** 2, 0) / recoilPts.length); score = Math.max(0, Math.round(1000 - sd * 800)); }
+      }
+      const acc = shots ? Math.round(hits / shots * 100) : 0;
+      // 百分位（本地历史）
+      let hist = []; try { hist = JSON.parse(localStorage.getItem("range-fn-" + cur) || "[]"); } catch {}
+      const better = hist.filter(h => h < score).length;
+      const pct = hist.length ? Math.round(better / hist.length * 100) : 50;
+      hist.push(score); hist = hist.slice(-50); try { localStorage.setItem("range-fn-" + cur, JSON.stringify(hist)); } catch {}
+      gt("#fnrTitle").textContent = drills[cur].name + " 结算";
+      gt("#fnrScore").textContent = score + " 分";
+      gt("#fnrPercentile").textContent = "本地百分位 " + pct + "% · 样本 " + hist.length;
+      gt("#fnrStats").textContent = "命中 " + hits + " / 射击 " + shots + " · 命中率 " + acc + "%" + (cur === "tracking" ? " · 追踪 " + trackTime.toFixed(1) + "s" : "") + (cur === "recoil" ? " · 散布半径 " + (recoilPts.length ? "见热力图" : "—") : "");
+      drawHeatmap(1);
+      gt("#fnScrub").value = 100; gt("#fnScrubT").textContent = "100%";
+      gt("#forensicsResult").hidden = false;
+      gt("#forensicsHud").hidden = true;
+    }
+    function drawHeatmap(frac) {
+      const cv = gt("#fnHeatmap"), ctx = cv.getContext("2d");
+      ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cv.width, cv.height);
+      const n = Math.floor(rec.length * frac);
+      // 准星轨迹热力（yaw/pitch → 屏幕）
+      for (let i = 0; i < n; i++) {
+        const r = rec[i];
+        const x = cv.width / 2 - r.yaw * 120, y = cv.height / 2 - r.pitch * 120;
+        ctx.fillStyle = "rgba(255,42,26,0.06)"; ctx.beginPath(); ctx.arc(x, y, 6, 0, 6.28); ctx.fill();
+      }
+      // 命中标记
+      for (const h of hitRec) {
+        if (h.t > (rec[0] ? rec[0].t : 0) + (rec.length ? (rec[rec.length - 1].t - rec[0].t) * frac : 0)) continue;
+        const x = cv.width / 2 + h.point[0] * 12, y = cv.height / 2 - (h.point[1] - 1.6) * 12;
+        ctx.fillStyle = "#111"; ctx.fillRect(x - 2, y - 2, 4, 4);
+      }
+      ctx.strokeStyle = "#111"; ctx.strokeRect(0, 0, cv.width, cv.height);
+    }
+    gt("#fnScrub").oninput = e => { const f = +e.target.value / 100; drawHeatmap(f); gt("#fnScrubT").textContent = e.target.value + "%"; };
+    function openMenu() {
+      gt("#forensicsMenu").hidden = false;
+      gt("#fnDrillList").innerHTML = Object.keys(drills).map(k => "<button data-drill='" + k + "'>" + drills[k].name + "<small>" + drills[k].desc + "</small></button>").join("");
+      gt("#fnDrillList").querySelectorAll("button").forEach(b => b.onclick = () => startDrill(b.dataset.drill));
+      const day = new Date().toISOString().slice(0, 10);
+      const seed = [...day].reduce((a, c) => a + c.charCodeAt(0), 0);
+      const daily = Object.keys(drills)[seed % 6];
+      gt("#fnDaily").innerHTML = "每日挑战 " + day + "：<button id='fnDailyBtn'>" + drills[daily].name + "</button>";
+      gt("#fnDailyBtn").onclick = () => startDrill(daily);
+    }
+    function startDrill(k) {
+      gt("#forensicsMenu").hidden = true; gt("#forensicsResult").hidden = true; gt("#forensicsHud").hidden = false;
+      setup(k);
+    }
+    function enter() {
+      RANGE_WINGS._setActive("forensics");
+      active = true; group.visible = true;
+      Oi = !0; Dn = !0; gt("#menu").hidden = !0; gt("#hud").hidden = !1;
+      applyBit(); RANGE_STYLE.show(false); openMenu();
+    }
+    function exit() {
+      RANGE_WINGS._setActive(null);
+      active = false; group.visible = false; clearTargets(); restoreBit();
+      gt("#forensicsHud").hidden = true; gt("#forensicsMenu").hidden = true; gt("#forensicsResult").hidden = true;
+      Oi = !1; gt("#menu").hidden = !1; gt("#hud").hidden = !0;
+    }
+    gt("#forensicsEnter").onclick = () => RANGE_WINGS.enter("forensics");
+    gt("#fnBack").onclick = () => RANGE_WINGS.exit();
+    gt("#fnRetry").onclick = () => startDrill(cur);
+    gt("#fnMenu").onclick = () => { gt("#forensicsResult").hidden = true; openMenu(); };
+    gt("#fnExport").onclick = () => {
+      const report = { drill: cur, score, hits, shots, accuracy: shots ? hits / shots : 0, recordedAt: new Date().toISOString(), aimSamples: rec.length, hitSamples: hitRec.length };
+      const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "RANGE-forensics-" + cur + ".json"; a.click();
+    };
+    RANGE_WINGS.register("forensics", { enter, exit, tick });
+    return { get active() { return active; }, get drill() { return cur; }, get score() { return score; }, drills, enter, exit, startDrill, setup, finish, get targets() { return targets; }, get rec() { return rec; } };
+  })();
+
+  RANGE_API.forensics = RANGE_FORENSICS;
+  RANGE_API.draw = () => ki(); // 读取最新 ki 绑定（含后处理包裹），供测试截图
 
   fr.update(1 / 120, ke, Yt, ge);
   ki();
