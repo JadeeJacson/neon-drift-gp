@@ -54,7 +54,7 @@ THE SOFTWARE.
 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>RANGE — 0.28 · 战术实验区</title>
+    <title>RANGE — 0.29 · 战术实验区</title>
     <style>
       :root {
         color-scheme: dark;
@@ -870,6 +870,35 @@ THE SOFTWARE.
       #fnrPercentile { font-size: 13px; margin-bottom: 6px; }
       #fnrStats { font-size: 12px; margin: 8px 0; line-height: 1.6; }
       body.fn-1bit #hud .topbar, body.fn-1bit #hud .bottombar { color: #111; }
+      /* ═══ RANGE 0.29 · DECK RUN 卡牌翼 + 赛璐璐 ═══ */
+      #deckHud { position: fixed; left: calc(18px + env(safe-area-inset-left)); top: calc(60px + env(safe-area-inset-top)); z-index: 55; pointer-events: none; color: #2a2418; font-family: inherit; }
+      #deckHud[hidden] { display: none; }
+      #dkLevel { font-size: 14px; font-weight: 800; letter-spacing: .2em; }
+      #dkTimer { font-size: 32px; font-weight: 900; color: #c8963c; }
+      #dkTargets { font-size: 14px; }
+      #dkMedal { font-size: 13px; margin-top: 4px; }
+      #deckHand { position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 56; display: flex; gap: 10px; }
+      #deckHand[hidden] { display: none; }
+      .dkCardBtn { width: 76px; height: 100px; border-radius: 10px; border: 2px solid #c8963c; background: linear-gradient(160deg, #fff8ec, #f0e2c8); color: #2a2418; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; font-family: inherit; box-shadow: 0 4px 14px rgba(0,0,0,.3); transition: transform .1s; }
+      .dkCardBtn:hover { transform: translateY(-6px); }
+      .dkCardBtn b { font-size: 13px; }
+      .dkCardBtn small { font-size: 9px; opacity: .7; text-align: center; padding: 0 4px; }
+      .dkCardBtn.move { border-color: #3c7dc8; background: linear-gradient(160deg, #ecf4ff, #c8dcf0); }
+      .dkCardBtn.used { opacity: .3; pointer-events: none; }
+      #deckMenu, #deckResult { position: fixed; inset: 0; z-index: 160; background: rgba(40,34,24,.85); display: flex; align-items: center; justify-content: center; }
+      #deckMenu[hidden], #deckResult[hidden] { display: none; }
+      .dkCard { background: #fff8ec; color: #2a2418; border: 2px solid #c8963c; border-radius: 12px; width: min(480px, 94vw); max-height: 92dvh; overflow: auto; }
+      .dkCard h2 { color: #c8963c; }
+      .dkSub { font-size: 12px; opacity: .8; margin: 6px 0 12px; }
+      #dkLevelList { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 12px 0; }
+      #dkLevelList button { aspect-ratio: 1; border: 2px solid #c8963c; background: #fff; border-radius: 8px; font-weight: 800; font-size: 16px; cursor: pointer; color: #2a2418; position: relative; }
+      #dkLevelList button.locked { opacity: .35; pointer-events: none; }
+      #dkLevelList button small { display: block; font-size: 9px; color: #c8963c; }
+      .dkCard button { background: #c8963c; color: #fff; border: none; border-radius: 8px; padding: 9px 16px; font-weight: 700; cursor: pointer; margin: 4px 4px 0 0; }
+      #dkrMedal { font-size: 40px; margin: 8px 0; }
+      #dkrTime { font-size: 24px; font-weight: 800; }
+      #dkrBest { font-size: 13px; margin: 6px 0 14px; opacity: .8; }
+      @media (pointer: coarse) { .dkCardBtn { width: 64px; height: 88px; } #dkLevelList { grid-template-columns: repeat(5, 1fr); } }
 </style>
   </head>
   <body>
@@ -948,7 +977,7 @@ THE SOFTWARE.
         <div class="sub">PRIVATE TRAINING FACILITY / 01</div>
       </header>
       <main class="panel">
-        <div class="eyebrow" id="badge">BUILD 0.28 / 战术实验区</div>
+        <div class="eyebrow" id="badge">BUILD 0.29 / 战术实验区</div>
         <h1 id="menuTitle">第一枪，已就绪。</h1>
         <p class="intro">
           M4A1 / P226 / AK-47 / MP5<br />教程引导、六区 CQB 与幽灵挑战。<br />辨认目标，再扣动扳机。
@@ -977,7 +1006,7 @@ THE SOFTWARE.
         <button id="start">进入靶场 →</button>
         <div class="secondary">
           <button id="reset">重置出生点</button
-          ><button id="helpToggle">操作说明</button><button id="settingsOpen">游戏设置</button><button id="reactiveToggle">反应靶场 · 关</button><button id="staticEnter" class="studioEntry">STATIC · 时间只随你流动 →</button><button id="forensicsEnter" class="studioEntry">FORENSICS · 法证瞄准训练 →</button>
+          ><button id="helpToggle">操作说明</button><button id="settingsOpen">游戏设置</button><button id="reactiveToggle">反应靶场 · 关</button><button id="staticEnter" class="studioEntry">STATIC · 时间只随你流动 →</button><button id="forensicsEnter" class="studioEntry">FORENSICS · 法证瞄准训练 →</button><button id="deckEnter" class="studioEntry">DECK RUN · 卡牌速通 →</button>
         </div>
         <div class="settings">
           <label for="sensitivity"
@@ -1048,9 +1077,9 @@ THE SOFTWARE.
 <p>仅状态回放；不伤害、不补弹、不计分。无任意帧接管。自由镜头只沿世界轴平移。</p></section>
     <section id="hud" hidden aria-label="探索界面">
       <div class="topbar">
-        <div><strong>RANGE.</strong><small>0.28 / PHYSICS + STATE</small></div>
+        <div><strong>RANGE.</strong><small>0.29 / PHYSICS + STATE</small></div>
         <div class="topright">
-          <span id="fps">0.28 / OFFLINE</span><br /><span id="position"
+          <span id="fps">0.29 / OFFLINE</span><br /><span id="position"
             >X 0.0 Z 8.0</span
           ><button id="pause">ESC · 暂停</button>
         </div>
@@ -1191,6 +1220,32 @@ THE SOFTWARE.
         <button id="fnMenu">科目菜单</button>
       </div>
     </div>
+    <div id="deckHud" hidden>
+      <div id="dkLevel">LEVEL 1</div>
+      <div id="dkTimer">0.0</div>
+      <div id="dkTargets">靶 0/3</div>
+      <div id="dkMedal"></div>
+    </div>
+    <div id="deckHand" hidden></div>
+    <div id="deckMenu" hidden>
+      <div class="sbCard dkCard">
+        <h2>DECK RUN · 卡牌速通</h2>
+        <p class="dkSub">射击清靶 → 抵达出口。弃牌换位移，速通夺牌。</p>
+        <div id="dkLevelList"></div>
+        <button id="dkBack">返回</button>
+      </div>
+    </div>
+    <div id="deckResult" hidden>
+      <div class="sbCard dkCard">
+        <h2 id="dkrTitle">LEVEL 完成</h2>
+        <div id="dkrMedal"></div>
+        <div id="dkrTime"></div>
+        <div id="dkrBest"></div>
+        <button id="dkrNext">下一关</button>
+        <button id="dkrRetry">重跑</button>
+        <button id="dkrMenu">关卡菜单</button>
+      </div>
+    </div>
     <div id="settingsOverlay" hidden>
       <div id="settingsDesktop" class="settingsCard" hidden>
         <header><h2>游戏设置 · 桌面端</h2><button id="settingsCloseD">✕ 关闭</button></header>
@@ -1259,7 +1314,7 @@ THE SOFTWARE.
     </div>
     <script>
 /* ═══════════════════════════════════════════════════════════════════
-  RANGE 0.28.0「战术实验区」· FORENSICS 法证翼（…→ 0.27 STATIC → 0.28 法证训练器+1-bit+后处理管线，见 SECTION K）
+  RANGE 0.29.0「战术实验区」· DECK RUN 卡牌翼（…→ 0.28 法证 → 0.29 卡牌速通+赛璐璐，见 SECTION L）
   来源: JadeeJacson/neon-drift-gp @ main, games/range/index.html
         （2026-10-26 提交「新增四款练手小游戏」，原始构建 1,029,475 字节）
   还原: 内联 JS 经 js-beautify 格式化（不折行/保留换行），并在已验证边界插入分区注释。
@@ -19858,7 +19913,7 @@ void main() {
    * 改动后请跑 test/smoke.js（桌面回归）与 test/mobile.js（移动端验收）。
    * ════════════════════════════════════════════════════════════════════════ */
   var RANGE_CONFIG = {
-    release: "0.28.0",
+    release: "0.29.0",
     render: {
       maxPixelRatio: 1.65,        // 桌面渲染像素比上限
       mobileMaxPixelRatio: 1.3    // 移动端像素比上限（性能优先）
@@ -33193,7 +33248,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       Oi = !1, ge.stop(), Oe.suspend();
       return
     }
-    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.28 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
+    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.29 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
   }
   ge.onPause = Sn;
   ge.onLookMode = s => {
@@ -33298,7 +33353,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (let i = 0; i < e; i++) fr.update(t / e, ke, Yt, ge);
       ki()
     }
-    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.28 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
+    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.29 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
   }
 /* ════════════════════════════════════════════════════════════════════════
  * [SECTION E] QA 调试接口 window.__RANGE__（URL 带 ?qa 时启用扩展方法）
@@ -33774,6 +33829,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
           "  }",
           "  vec3 c = texture2D(tDiffuse, vUv).rgb; float l = dot(c, vec3(0.299, 0.587, 0.114));",
           "  if (mode > 0.5) { float d = bayer(gl_FragCoord.xy); float bw = step(d - 0.5, l - 0.5 + 0.5); bw = l > d ? 1.0 : 0.0; gl_FragColor = vec4(vec3(bw), 1.0); return; }",
+          "  if (mode > 2.5) { vec3 cc = floor(c * 4.0 + 0.5) / 4.0; float g = dot(cc, vec3(0.299,0.587,0.114)); cc = mix(vec3(g), cc, 1.35); cc = cc * vec3(1.06, 1.0, 0.9); gl_FragColor = vec4(cc, 1.0); return; }",
           "  gl_FragColor = vec4(c, 1.0);",
           "}"
         ].join("\n")
@@ -33790,7 +33846,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     post.setMode = function (m) {
       post.init();
       post.mode = m; post.active = !!m;
-      post.mat.uniforms.mode.value = m === "1bit" ? 1 : m === "psx" ? 2 : 0;
+      post.mat.uniforms.mode.value = m === "1bit" ? 1 : m === "psx" ? 2 : m === "cel" ? 3 : 0;
       if (m === "psx") { post.rt.setSize(320, 240); post.rt.texture.magFilter = 1003; post.rt.texture.minFilter = 1003; post.mat.uniforms.resolution.value.set(320, 240); }
       else { post.rt.setSize(innerWidth, innerHeight); post.rt.texture.magFilter = 1006; post.rt.texture.minFilter = 1006; post.mat.uniforms.resolution.value.set(innerWidth, innerHeight); }
     };
@@ -34351,6 +34407,163 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
 
   RANGE_API.forensics = RANGE_FORENSICS;
   RANGE_API.draw = () => ki(); // 读取最新 ki 绑定（含后处理包裹），供测试截图
+
+  /* ════════════════════════════════════════════════════════════════════════
+   * [SECTION L] DECK RUN 卡牌速通 + 赛璐璐风格（0.29 / M5）
+   * 10 关速通战役：射击清靶→抵达出口；卡牌手牌（武器卡切枪/位移卡弃牌换能力）；
+   * 位移能力（冲刺/二段跳/滑铲/时停）；奖牌（铜银金钻）+ 幽灵 + 本地榜 + 关卡解锁。
+   * ════════════════════════════════════════════════════════════════════════ */
+  var RANGE_DECKRUN = (() => {
+    const levels = [];
+    for (let i = 0; i < 10; i++) {
+      const n = 3 + Math.floor(i / 3);
+      const targets = [];
+      for (let t = 0; t < n; t++) targets.push([(t - (n - 1) / 2) * 2.2, 1.6, -10 - i * 1.5 - (t % 2) * 3]);
+      levels.push({ spawn: [0, 0, 8], targets, exit: [0, 0, -16 - i * 2], medals: [40 - i * 1.5, 30 - i * 1.2, 22 - i, 16 - i * .8], obstacles: i > 2 ? [[0, -6 - i, 2, 1]] : [] });
+    }
+    const cards = [
+      { id: "m4", name: "M4A1", type: "weapon", slot: 0, desc: "步枪" },
+      { id: "p226", name: "P226", type: "weapon", slot: 1, desc: "手枪" },
+      { id: "ak", name: "AK-47", type: "weapon", slot: 2, desc: "步枪" },
+      { id: "mp5", name: "MP5", type: "weapon", slot: 3, desc: "冲锋枪" },
+      { id: "dash", name: "冲刺", type: "move", desc: "弃牌·前冲" },
+      { id: "double", name: "二段跳", type: "move", desc: "弃牌·空中跳" },
+      { id: "slide", name: "滑铲", type: "move", desc: "弃牌·滑铲" },
+      { id: "timestop", name: "时停", type: "move", desc: "弃牌·冻结0.5s" }
+    ];
+    const group = new qt; group.name = "deckrun"; group.visible = false; oi.add(group);
+    const tMat = new Xt({ color: 0xc8963c, roughness: .5, emissive: 0x332200 });
+    const exitMat = new Xt({ color: 0x3c7dc8, emissive: 0x113355, roughness: .4 });
+    const obsMat = new Xt({ color: 0x8a7a5a, roughness: .8 });
+    const ray = new Yn;
+    let active = false, lvl = 0, timer = 0, targets = [], exitMesh = null, hand = [], used = [];
+    let airJump = false, timeStop = 0, ghostRec = [], ghostPlay = null, ghostMesh = null, finished = false;
+    let savedMats = [], origBg = null;
+
+    function applyCel() {
+      savedMats = [];
+      oi.traverse(o => { if (o.isMesh && o.parent !== group) { savedMats.push([o, o.material]); } });
+      origBg = oi.background; if (origBg && origBg.isColor) oi.background = origBg.clone().set(0xf0e8d8);
+      RANGE_WINGS.post.setMode("cel");
+    }
+    function restoreCel() { savedMats.forEach(([o, m]) => o.material = m); savedMats = []; oi.background = origBg; RANGE_WINGS.post.setMode(null); }
+    function clearLevel() { for (const t of targets) group.remove(t.mesh); targets = []; if (exitMesh) group.remove(exitMesh); group.children.filter(c => c.userData.obs).forEach(c => group.remove(c)); if (ghostMesh) { group.remove(ghostMesh); ghostMesh = null; } }
+    function loadLevel(i) {
+      clearLevel(); lvl = i; timer = 0; finished = false; airJump = false; timeStop = 0; ghostRec = []; used = [];
+      const L = levels[i];
+      Yt.position.set(...L.spawn); Yt.velocity.set(0, 0, 0); Yt.yaw = 0; Yt.pitch = 0; Yt.spawn();
+      for (const [x, y, z] of L.targets) { const m = new at(new Qe(.3, 16, 12), tMat); m.position.set(x, y, z); group.add(m); targets.push({ mesh: m, alive: true }); }
+      exitMesh = new at(new Ei(1.6, 2.2, .2, 2, .05), exitMat); exitMesh.position.set(L.exit[0], 1.1, L.exit[2]); group.add(exitMesh);
+      for (const [x, z, w, h] of L.obstacles) { const o = new at(new Ei(w, h, 1, 2, .05), obsMat); o.position.set(x, h / 2, z); o.userData.obs = true; group.add(o); }
+      // 手牌：随机关 3 张（含至少 1 位移）
+      hand = [];
+      const moves = cards.filter(c => c.type === "move");
+      hand.push(moves[Math.floor(Math.random() * moves.length)]);
+      const pool = cards.filter(c => !hand.includes(c));
+      while (hand.length < 3) { const c = pool[Math.floor(Math.random() * pool.length)]; if (!hand.includes(c)) hand.push(c); }
+      // 幽灵
+      try { const g = JSON.parse(localStorage.getItem("range-deck-ghost-" + i) || "null"); ghostPlay = g; } catch { ghostPlay = null; }
+      if (ghostPlay) { ghostMesh = new at(new Qe(.25, 12, 8), new Xt({ color: 0x88aaff, transparent: true, opacity: .4 })); group.add(ghostMesh); }
+      gt("#dkLevel").textContent = "LEVEL " + (i + 1);
+      renderHand(); refreshHud();
+    }
+    function renderHand() {
+      const h = gt("#deckHand"); h.innerHTML = "";
+      hand.forEach((c, idx) => {
+        const b = document.createElement("button");
+        b.className = "dkCardBtn " + (c.type === "move" ? "move" : "") + (used.includes(idx) ? " used" : "");
+        b.innerHTML = "<b>" + c.name + "</b><small>" + c.desc + "</small>";
+        b.onclick = () => playCard(idx);
+        h.appendChild(b);
+      });
+    }
+    function playCard(idx) {
+      if (used.includes(idx) || finished) return;
+      const c = hand[idx];
+      if (c.type === "weapon") { ke.requestSlot(c.slot); ln.click(); }
+      else {
+        used.push(idx);
+        if (c.id === "dash") { const dir = new I(0, 0, -1).applyQuaternion(Yt.quaternion ?? new I()); Yt.velocity.add(new I(-Math.sin(Yt.yaw), 0, -Math.cos(Yt.yaw)).multiplyScalar(14)); ln.tone(400, .1, .12, 0, "sawtooth"); }
+        else if (c.id === "double") { airJump = true; Yt.velocity.y = 7; Yt.grounded = false; ln.tone(700, .1, .12, 0, "triangle"); }
+        else if (c.id === "slide") { Yt.slideTime = .6; Yt.velocity.add(new I(-Math.sin(Yt.yaw), 0, -Math.cos(Yt.yaw)).multiplyScalar(8)); ln.tone(300, .12, .1, 0, "sine"); }
+        else if (c.id === "timestop") { timeStop = .5; ln.tone(1200, .2, .12, 0, "sine"); }
+        renderHand();
+      }
+    }
+    function refreshHud() {
+      gt("#dkTimer").textContent = timer.toFixed(1);
+      const killed = targets.filter(t => !t.alive).length;
+      gt("#dkTargets").textContent = "靶 " + killed + "/" + targets.length;
+      const L = levels[lvl]; const m = timer <= L.medals[3] ? "钻石" : timer <= L.medals[2] ? "金" : timer <= L.medals[1] ? "银" : timer <= L.medals[0] ? "铜" : "—";
+      gt("#dkMedal").textContent = "当前牌级 " + m;
+    }
+    function tick(s) {
+      const dt = timeStop > 0 ? s * .05 : s;
+      if (timeStop > 0) timeStop -= s;
+      if (!finished) timer += s;
+      Yt.update(dt); ke.update(dt);
+      if (airJump && Yt.grounded) airJump = false;
+      ghostRec.push({ t: timer, p: Yt.position.toArray() });
+      if (ghostPlay && ghostMesh) { const f = ghostPlay.frames.find(f => f.t >= timer) || ghostPlay.frames[ghostPlay.frames.length - 1]; if (f) ghostMesh.position.set(...f.p); }
+      // 抵达出口（需清靶）
+      if (!finished && targets.every(t => !t.alive) && Yt.position.distanceTo(new I(...levels[lvl].exit)) < 1.8) finish();
+      refreshHud();
+      ge.end();
+    }
+    const prevShot = ke.onShot;
+    ke.onShot = s => {
+      prevShot && prevShot(s);
+      if (!active || finished) return;
+      ray.set(He.position, new I(...s.direction).normalize());
+      const alive = targets.filter(t => t.alive).map(t => t.mesh);
+      const hit = ray.intersectObjects(alive, false)[0];
+      if (hit) { const t = targets.find(x => x.mesh === hit.object); t.alive = false; group.remove(t.mesh); ln.tone(1400, .08, .12, 0, "square"); refreshHud(); }
+    };
+    function finish() {
+      finished = true;
+      const L = levels[lvl];
+      const medal = timer <= L.medals[3] ? "♦ 钻石" : timer <= L.medals[2] ? "★ 金" : timer <= L.medals[1] ? "☆ 银" : "● 铜";
+      let best = null; try { best = JSON.parse(localStorage.getItem("range-deck-best-" + lvl) || "null"); } catch {}
+      const improved = !best || timer < best;
+      if (improved) { try { localStorage.setItem("range-deck-best-" + lvl, JSON.stringify(timer)); localStorage.setItem("range-deck-ghost-" + lvl, JSON.stringify({ frames: ghostRec.filter((_, i) => i % 3 === 0) })); localStorage.setItem("range-deck-cleared", JSON.stringify(Math.max(lvl + 1, +(localStorage.getItem("range-deck-cleared") || 0)))); } catch {} }
+      gt("#dkrTitle").textContent = "LEVEL " + (lvl + 1) + " 完成";
+      gt("#dkrMedal").textContent = medal;
+      gt("#dkrTime").textContent = timer.toFixed(2) + "s";
+      gt("#dkrBest").textContent = (improved ? "新最佳！" : "最佳 " + (best ? best.toFixed(2) + "s" : "—"));
+      gt("#deckResult").hidden = false; gt("#deckHand").hidden = true;
+      ln.tone(880, .2, .14, 0, "triangle"); ln.tone(1320, .25, .12, .1, "triangle");
+    }
+    function unlocked() { try { return +(localStorage.getItem("range-deck-cleared") || 0); } catch { return 0; } }
+    function openMenu() {
+      gt("#deckMenu").hidden = false;
+      const u = unlocked();
+      gt("#dkLevelList").innerHTML = levels.map((L, i) => { let best = null; try { best = JSON.parse(localStorage.getItem("range-deck-best-" + i) || "null"); } catch {} return "<button data-lvl='" + i + "' class='" + (i <= u ? "" : "locked") + "'>" + (i + 1) + (best ? "<small>" + best.toFixed(1) + "s</small>" : "") + "</button>"; }).join("");
+      gt("#dkLevelList").querySelectorAll("button").forEach(b => b.onclick = () => startLevel(+b.dataset.lvl));
+    }
+    function startLevel(i) { gt("#deckMenu").hidden = true; gt("#deckResult").hidden = true; gt("#deckHud").hidden = false; gt("#deckHand").hidden = false; loadLevel(i); }
+    function enter() {
+      RANGE_WINGS._setActive("deckrun");
+      active = true; group.visible = true;
+      Oi = !0; Dn = !0; gt("#menu").hidden = !0; gt("#hud").hidden = !1;
+      applyCel(); RANGE_STYLE.show(false); openMenu();
+    }
+    function exit() {
+      RANGE_WINGS._setActive(null);
+      active = false; group.visible = false; clearLevel(); restoreCel();
+      gt("#deckHud").hidden = true; gt("#deckHand").hidden = true; gt("#deckMenu").hidden = true; gt("#deckResult").hidden = true;
+      Oi = !1; gt("#menu").hidden = !1; gt("#hud").hidden = !0;
+    }
+    gt("#deckEnter").onclick = () => RANGE_WINGS.enter("deckrun");
+    gt("#dkBack").onclick = () => RANGE_WINGS.exit();
+    gt("#dkrNext").onclick = () => startLevel(lvl + 1 < levels.length ? lvl + 1 : 0);
+    gt("#dkrRetry").onclick = () => startLevel(lvl);
+    gt("#dkrMenu").onclick = () => { gt("#deckResult").hidden = true; openMenu(); };
+    RANGE_WINGS.register("deckrun", { enter, exit, tick });
+    return { get active() { return active; }, get level() { return lvl; }, get timer() { return timer; }, levels, cards, enter, exit, startLevel, loadLevel, playCard, finish, get targets() { return targets; }, get hand() { return hand; } };
+  })();
+
+  RANGE_API.deckrun = RANGE_DECKRUN;
+  RANGE_API.draw = () => ki();
 
   fr.update(1 / 120, ke, Yt, ge);
   ki();
