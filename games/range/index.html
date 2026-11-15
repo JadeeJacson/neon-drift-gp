@@ -54,7 +54,7 @@ THE SOFTWARE.
 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>RANGE — 0.33 · 战术实验区</title>
+    <title>RANGE — 0.34 · 战术实验区</title>
     <style>
       :root {
         color-scheme: dark;
@@ -933,6 +933,18 @@ THE SOFTWARE.
       #pfDaily b { color: #ebc375; }
       .pfBar { height: 6px; background: rgba(255,255,255,.15); border-radius: 3px; overflow: hidden; margin: 4px 0; }
       .pfBar i { display: block; height: 100%; background: linear-gradient(90deg,#ebc375,#ff5a3c); }
+      /* ═══ RANGE 0.34 · 关卡编辑器 ═══ */
+      #editorPanel { position: fixed; inset: 0; z-index: 160; background: rgba(6,12,10,.9); display: flex; align-items: center; justify-content: center; }
+      #editorPanel[hidden] { display: none; }
+      .edCard { width: min(560px, 96vw); max-height: 94dvh; overflow: auto; }
+      #edPalette { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
+      #edPalette button { background: #0d1f18; border: 1px solid rgba(235,195,117,.4); color: #f2e9d8; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+      #edPalette button.on { background: #ebc375; color: #14251c; font-weight: 700; }
+      #edCanvas { width: 100%; max-width: 300px; background: #0a1812; border: 1px solid rgba(235,195,117,.4); border-radius: 6px; cursor: crosshair; display: block; margin: 0 auto; image-rendering: pixelated; }
+      #edControls { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; align-items: center; }
+      #edLibrary button { background: #0d1f18; border: 1px solid rgba(235,195,117,.3); color: #f2e9d8; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; margin: 2px; }
+      #editorHud { position: fixed; left: 18px; top: 60px; z-index: 55; color: #ebc375; font-size: 14px; pointer-events: none; text-shadow: 0 1px 4px #000; }
+      #editorHud[hidden] { display: none; }
 </style>
   </head>
   <body>
@@ -1011,7 +1023,7 @@ THE SOFTWARE.
         <div class="sub">PRIVATE TRAINING FACILITY / 01</div>
       </header>
       <main class="panel">
-        <div class="eyebrow" id="badge">BUILD 0.33 / 战术实验区</div>
+        <div class="eyebrow" id="badge">BUILD 0.34 / 战术实验区</div>
         <h1 id="menuTitle">第一枪，已就绪。</h1>
         <p class="intro">
           M4A1 / P226 / AK-47 / MP5<br />教程引导、六区 CQB 与幽灵挑战。<br />辨认目标，再扣动扳机。
@@ -1040,7 +1052,7 @@ THE SOFTWARE.
         <button id="start">进入靶场 →</button>
         <div class="secondary">
           <button id="reset">重置出生点</button
-          ><button id="helpToggle">操作说明</button><button id="settingsOpen">游戏设置</button><button id="reactiveToggle">反应靶场 · 关</button><button id="staticEnter" class="studioEntry">STATIC · 时间只随你流动 →</button><button id="forensicsEnter" class="studioEntry">FORENSICS · 法证瞄准训练 →</button><button id="deckEnter" class="studioEntry">DECK RUN · 卡牌速通 →</button><button id="breachEnter" class="studioEntry">BREACH · 可破坏劫案 →</button><button id="silhouetteEnter" class="studioEntry">敌人剪影画廊 →</button><button id="profileEnter" class="studioEntry">档案 · 进度与挑战 →</button><button id="psxToggle">PSX 复古模式 · 关</button><div class="audioRow" style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px"><label>音乐 <input type="range" id="musicVol" min="0" max="1" step="0.05" style="width:90px"></label><button id="muteToggle">静音 · 关</button></div>
+          ><button id="helpToggle">操作说明</button><button id="settingsOpen">游戏设置</button><button id="reactiveToggle">反应靶场 · 关</button><button id="staticEnter" class="studioEntry">STATIC · 时间只随你流动 →</button><button id="forensicsEnter" class="studioEntry">FORENSICS · 法证瞄准训练 →</button><button id="deckEnter" class="studioEntry">DECK RUN · 卡牌速通 →</button><button id="breachEnter" class="studioEntry">BREACH · 可破坏劫案 →</button><button id="silhouetteEnter" class="studioEntry">敌人剪影画廊 →</button><button id="profileEnter" class="studioEntry">档案 · 进度与挑战 →</button><button id="editorEnter" class="studioEntry">关卡编辑器 · UGC →</button><button id="psxToggle">PSX 复古模式 · 关</button><div class="audioRow" style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px"><label>音乐 <input type="range" id="musicVol" min="0" max="1" step="0.05" style="width:90px"></label><button id="muteToggle">静音 · 关</button></div>
         </div>
         <div class="settings">
           <label for="sensitivity"
@@ -1111,9 +1123,9 @@ THE SOFTWARE.
 <p>仅状态回放；不伤害、不补弹、不计分。无任意帧接管。自由镜头只沿世界轴平移。</p></section>
     <section id="hud" hidden aria-label="探索界面">
       <div class="topbar">
-        <div><strong>RANGE.</strong><small>0.33 / PHYSICS + STATE</small></div>
+        <div><strong>RANGE.</strong><small>0.34 / PHYSICS + STATE</small></div>
         <div class="topright">
-          <span id="fps">0.33 / OFFLINE</span><br /><span id="position"
+          <span id="fps">0.34 / OFFLINE</span><br /><span id="position"
             >X 0.0 Z 8.0</span
           ><button id="pause">ESC · 暂停</button>
         </div>
@@ -1337,6 +1349,25 @@ THE SOFTWARE.
         <button id="ghClose">关闭</button>
       </div>
     </div>
+    <div id="editorPanel" hidden>
+      <div class="sbCard edCard">
+        <h2>关卡编辑器 · UGC</h2>
+        <div id="edPalette">
+          <button data-tool="wall" class="on">墙</button><button data-tool="cover">掩体</button><button data-tool="target">靶</button><button data-tool="spawn">出生点</button><button data-tool="exit">出口</button><button data-tool="erase">擦除</button>
+        </div>
+        <canvas id="edCanvas" width="300" height="400"></canvas>
+        <div id="edControls">
+          <input id="edName" placeholder="地图名" style="font-size:12px;padding:4px;background:#0d1f18;color:#f2e9d8;border:1px solid rgba(235,195,117,.4);border-radius:4px">
+          <button id="edSave">保存</button><button id="edClear">清空</button><button id="edPlay">试玩</button>
+        </div>
+        <div id="edLibrary" style="font-size:12px;margin:8px 0"></div>
+        <textarea id="edCode" rows="2" style="width:100%;font-size:10px;font-family:monospace;background:#0d1f18;color:#f2e9d8;border:1px solid rgba(235,195,117,.4);border-radius:4px;padding:6px" placeholder="分享码"></textarea>
+        <button id="edExport">导出码</button><button id="edImport">导入码</button>
+        <button id="edClose">关闭</button>
+        <div id="edStatus" style="font-size:11px;margin-top:6px"></div>
+      </div>
+    </div>
+    <div id="editorHud" hidden><div id="edHudText">自定义图 · 清靶后到出口</div></div>
     <div id="settingsOverlay" hidden>
       <div id="settingsDesktop" class="settingsCard" hidden>
         <header><h2>游戏设置 · 桌面端</h2><button id="settingsCloseD">✕ 关闭</button></header>
@@ -1405,7 +1436,7 @@ THE SOFTWARE.
     </div>
     <script>
 /* ═══════════════════════════════════════════════════════════════════
-  RANGE 0.33.0「战术实验区」· 进度与竞技（…→ 0.32 音频旗舰 → 0.33 统一进度+异步竞技幽灵，见 SECTION P）
+  RANGE 0.34.0「战术实验区」· 关卡编辑器（…→ 0.33 进度竞技 → 0.34 关卡编辑器/UGC，见 SECTION Q）
   来源: JadeeJacson/neon-drift-gp @ main, games/range/index.html
         （2026-10-26 提交「新增四款练手小游戏」，原始构建 1,029,475 字节）
   还原: 内联 JS 经 js-beautify 格式化（不折行/保留换行），并在已验证边界插入分区注释。
@@ -20004,7 +20035,7 @@ void main() {
    * 改动后请跑 test/smoke.js（桌面回归）与 test/mobile.js（移动端验收）。
    * ════════════════════════════════════════════════════════════════════════ */
   var RANGE_CONFIG = {
-    release: "0.33.0",
+    release: "0.34.0",
     render: {
       maxPixelRatio: 1.65,        // 桌面渲染像素比上限
       mobileMaxPixelRatio: 1.3    // 移动端像素比上限（性能优先）
@@ -33339,7 +33370,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       Oi = !1, ge.stop(), Oe.suspend();
       return
     }
-    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.33 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
+    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.34 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
   }
   ge.onPause = Sn;
   ge.onLookMode = s => {
@@ -33444,7 +33475,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (let i = 0; i < e; i++) fr.update(t / e, ke, Yt, ge);
       ki()
     }
-    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.33 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
+    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.34 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
   }
 /* ════════════════════════════════════════════════════════════════════════
  * [SECTION E] QA 调试接口 window.__RANGE__（URL 带 ?qa 时启用扩展方法）
@@ -35111,6 +35142,86 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
 
   RANGE_API.profile = RANGE_PROFILE;
   RANGE_API.ghost = RANGE_GHOST;
+  RANGE_API.draw = () => ki();
+
+  /* ════════════════════════════════════════════════════════════════════════
+   * [SECTION Q] RANGE_EDITOR 关卡编辑器 / UGC（0.34 / N3 · C1）
+   * 顶视网格编辑（墙/掩体/靶/出生点/出口），RANGE_KIT 装配，保存/分享码/本地库，
+   * 试玩翼（清靶→出口）。Modding 见随附文档。
+   * ════════════════════════════════════════════════════════════════════════ */
+  var RANGE_EDITOR = (() => {
+    const GW = 15, GH = 20, CELL = 20;
+    let tool = "wall", data = null, playing = false;
+    const group = new qt; group.name = "editorMap"; group.visible = false; oi.add(group);
+    const tMat = new Xt({ color: 0xebc375, roughness: .5, emissive: 0x332200 });
+    const ray = new Yn;
+    let targets = [], exitPos = null;
+    function blank() { return { walls: [], cover: [], targets: [], spawn: [7, 18], exit: [7, 1] }; }
+    data = blank();
+    const cv = gt("#edCanvas"), ctx = cv.getContext("2d");
+    function draw() {
+      ctx.fillStyle = "#0a1812"; ctx.fillRect(0, 0, cv.width, cv.height);
+      ctx.strokeStyle = "rgba(235,195,117,.08)";
+      for (let x = 0; x <= GW; x++) { ctx.beginPath(); ctx.moveTo(x * CELL, 0); ctx.lineTo(x * CELL, GH * CELL); ctx.stroke(); }
+      for (let y = 0; y <= GH; y++) { ctx.beginPath(); ctx.moveTo(0, y * CELL); ctx.lineTo(GW * CELL, y * CELL); ctx.stroke(); }
+      ctx.fillStyle = "#8a8580"; for (const [x, y] of data.walls) ctx.fillRect(x * CELL + 1, y * CELL + 1, CELL - 2, CELL - 2);
+      ctx.fillStyle = "#5a5550"; for (const [x, y] of data.cover) ctx.fillRect(x * CELL + 4, y * CELL + 4, CELL - 8, CELL - 8);
+      ctx.fillStyle = "#ebc375"; for (const [x, y] of data.targets) { ctx.beginPath(); ctx.arc(x * CELL + CELL / 2, y * CELL + CELL / 2, 5, 0, 6.28); ctx.fill(); }
+      ctx.fillStyle = "#3c7dc8"; ctx.fillRect(data.spawn[0] * CELL + 3, data.spawn[1] * CELL + 3, CELL - 6, CELL - 6);
+      ctx.fillStyle = "#3cc86a"; ctx.fillRect(data.exit[0] * CELL + 3, data.exit[1] * CELL + 3, CELL - 6, CELL - 6);
+    }
+    cv.addEventListener("click", e => {
+      const r = cv.getBoundingClientRect();
+      const x = Math.floor((e.clientX - r.left) / r.width * GW), y = Math.floor((e.clientY - r.top) / r.height * GH);
+      if (x < 0 || y < 0 || x >= GW || y >= GH) return;
+      const rm = arr => { const i = arr.findIndex(p => p[0] === x && p[1] === y); if (i >= 0) arr.splice(i, 1); };
+      if (tool === "erase") { rm(data.walls); rm(data.cover); rm(data.targets); }
+      else if (tool === "spawn") data.spawn = [x, y];
+      else if (tool === "exit") data.exit = [x, y];
+      else { rm(data.walls); rm(data.cover); rm(data.targets); data[tool === "wall" ? "walls" : tool === "cover" ? "cover" : "targets"].push([x, y]); }
+      draw();
+    });
+    gt("#edPalette").querySelectorAll("button").forEach(b => b.onclick = () => { tool = b.dataset.tool; gt("#edPalette").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); });
+    gt("#edClear").onclick = () => { data = blank(); draw(); };
+    // 本地库
+    function lib() { try { return JSON.parse(localStorage.getItem("range-editor-lib") || "[]"); } catch { return []; } }
+    function renderLib() { gt("#edLibrary").innerHTML = "本地库：" + (lib().map((m, i) => "<button data-i='" + i + "'>" + m.name + "</button>").join("") || "（空）"); gt("#edLibrary").querySelectorAll("button").forEach(b => b.onclick = () => { data = JSON.parse(JSON.stringify(lib()[+b.dataset.i].data)); draw(); gt("#edStatus").textContent = "已加载 " + lib()[+b.dataset.i].name; }); }
+    gt("#edSave").onclick = () => { const name = gt("#edName").value.trim() || "地图" + (lib().length + 1); const l = lib(); l.push({ name, data: JSON.parse(JSON.stringify(data)) }); localStorage.setItem("range-editor-lib", JSON.stringify(l.slice(-20))); renderLib(); gt("#edStatus").textContent = "已保存 " + name; };
+    gt("#edExport").onclick = () => { gt("#edCode").value = RANGE_GHOST.exportCode("editormap", data); gt("#edStatus").textContent = "已导出分享码"; };
+    gt("#edImport").onclick = () => { try { const p = RANGE_GHOST.importCode(gt("#edCode").value); if (p.wing !== "editormap") throw Error("非地图码"); data = p.data; draw(); gt("#edStatus").textContent = "已导入地图"; } catch (e) { gt("#edStatus").textContent = "导入失败：" + e.message; } };
+    // 试玩
+    function buildPlay() {
+      targets.forEach(t => group.remove(t.mesh)); targets = [];
+      group.children.filter(c => c.userData.kit).forEach(c => group.remove(c));
+      const kit = new qt; kit.userData.kit = true; group.add(kit);
+      RANGE_KIT.floor(kit, (GW / 2 - .5) * 2 - 14, (GH / 2 - .5) * -2 + 10, GW * 2 + 4, GH * 2 + 4);
+      const toWorld = (x, y) => [(x - GW / 2 + .5) * 2, (GH / 2 - .5 - y) * -2 + 2];
+      for (const [x, y] of data.walls) { const [wx, wz] = toWorld(x, y); RANGE_KIT.wall(kit, wx, wz, 2, 3, 0); }
+      for (const [x, y] of data.cover) { const [wx, wz] = toWorld(x, y); RANGE_KIT.cover(kit, wx, wz, 1.2, 1.2); }
+      for (const [x, y] of data.targets) { const [wx, wz] = toWorld(x, y); const m = new at(new Qe(.3, 14, 10), tMat); m.position.set(wx, 1.6, wz); group.add(m); targets.push({ mesh: m, alive: true }); }
+      const [sx, sz] = toWorld(...data.spawn); const [ex, ez] = toWorld(...data.exit);
+      exitPos = new I(ex, 0, ez);
+      Yt.position.set(sx, 0, sz); Yt.velocity.set(0, 0, 0); Yt.yaw = 0; Yt.pitch = 0; Yt.spawn();
+    }
+    function tick(s) {
+      Yt.update(s); ke.update(s);
+      if (targets.every(t => !t.alive) && exitPos && Yt.position.distanceTo(exitPos) < 1.8) { gt("#edHudText").textContent = "完成！返回编辑器"; }
+      ge.end();
+    }
+    const prevShot = ke.onShot;
+    ke.onShot = s => { prevShot && prevShot(s); if (!playing) return; ray.set(He.position, new I(...s.direction).normalize()); const alive = targets.filter(t => t.alive).map(t => t.mesh); const h = ray.intersectObjects(alive, false)[0]; if (h) { const t = targets.find(x => x.mesh === h.object); t.alive = false; group.remove(t.mesh); ln.tone(1400, .08, .12, 0, "square"); gt("#edHudText").textContent = "靶 " + targets.filter(t => !t.alive).length + "/" + targets.length + " · 清靶后到出口"; } };
+    function play() { playing = true; RANGE_WINGS._setActive("editor"); group.visible = true; Oi = !0; Dn = !0; gt("#menu").hidden = !0; gt("#hud").hidden = !1; gt("#editorPanel").hidden = !0; gt("#editorHud").hidden = !1; buildPlay(); gt("#edHudText").textContent = "靶 0/" + targets.length + " · 清靶后到出口"; }
+    function stop() { playing = false; RANGE_WINGS._setActive(null); group.visible = false; Oi = !1; gt("#menu").hidden = !1; gt("#hud").hidden = !0; gt("#editorHud").hidden = !0; gt("#editorPanel").hidden = !1; }
+    gt("#edPlay").onclick = play;
+    gt("#editorEnter").onclick = () => { gt("#editorPanel").hidden = false; draw(); renderLib(); };
+    gt("#edClose").onclick = () => { if (playing) stop(); gt("#editorPanel").hidden = true; };
+    addEventListener("keydown", e => { if (playing && e.code === "Escape") stop(); });
+    RANGE_WINGS.register("editor", { enter: play, exit: stop, tick });
+    draw();
+    return { get data() { return data; }, set data(v) { data = v; draw(); }, blank, play, stop, draw, get targets() { return targets; }, get playing() { return playing; }, lib };
+  })();
+
+  RANGE_API.editor = RANGE_EDITOR;
   RANGE_API.draw = () => ki();
 
   fr.update(1 / 120, ke, Yt, ge);
