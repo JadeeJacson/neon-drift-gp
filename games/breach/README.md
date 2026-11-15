@@ -270,7 +270,8 @@
 ## 文件结构
 
 ```
-BREACH/
+breach/
+├── index.html          门户入口(与 BREACH-0.8.2.html 相同)
 ├── BREACH-0.8.2.html   完整离线单文件(含 Three.js 0.180 + cannon-es 0.20, MIT)
 ├── BREACH-0.8.1.html   0.8.1 存档
 ├── BREACH-0.8.0.html   0.8 场景包存档
@@ -286,12 +287,13 @@ BREACH/
 ```
 
 改代码流程：编辑 `src/game.js` → `node --check src/game.js` → `python build.py`。
-直接改 `src/` 不会自动更新单文件。QA 回归脚本：`../../_scratch/breach-qa06*.cjs`
-（NODE_PATH 指向逐星项目的 node_modules 跑本机 Playwright Chromium）。
+直接改 `src/` 不会自动更新单文件。QA 回归脚本：`qa/breach-qa*.cjs`
+（NODE_PATH 指向 `../zhuxing/node_modules` 跑本机 Playwright Chromium；
+脚本内按旧绝对路径写的 URL 需改指本目录的构建）。
 
 ## QA 接口
 
-`BREACH-0.5.0.html?qa` 启用 `window.BREACH` 测试 API(与 0.4 兼容并扩展)：
+`index.html?qa`（或任一版本存档）启用 `window.BREACH` 测试 API(与 0.4 兼容并扩展)：
 
 | API | 说明 |
 |---|---|

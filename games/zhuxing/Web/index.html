@@ -1,0 +1,1554 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>逐星 · 小小宇宙沙盒</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #f0f3e9;
+        --muted: #abbab5;
+        --line: #b9d7ce35;
+        --panel: #102127e8;
+        --accent: #c8e6a2;
+        --amber: #efbe72;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #06121c;
+        color: var(--ink);
+        font-family: Inter, "Noto Sans SC", system-ui, sans-serif;
+      }
+      button {
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+        border: 1px solid var(--line);
+        background: #16303a;
+        border-radius: 6px;
+        min-height: 44px;
+        padding: 10px 16px;
+      }
+      button:hover {
+        background: #26434c;
+      }
+      button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 4px;
+      }
+      canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        outline: none;
+      }
+      .hud {
+        position: absolute;
+        pointer-events: none;
+        inset: 0;
+        display: none;
+      }
+      .top {
+        position: absolute;
+        left: 32px;
+        right: 32px;
+        top: 28px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .emblem {
+        width: 36px;
+        height: 36px;
+        border: 1px solid #d8e7cb99;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        position: relative;
+      }
+      .emblem:after {
+        content: "";
+        position: absolute;
+        width: 47px;
+        height: 13px;
+        border: 1px solid #d8e7cb99;
+        transform: rotate(-35deg);
+        border-radius: 50%;
+      }
+      .emblem span {
+        font-size: 20px;
+      }
+      .brand strong {
+        font-weight: 500;
+        letter-spacing: 6px;
+        font-size: 22px;
+      }
+      .micro {
+        font-size: 11px;
+        letter-spacing: 2px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      .top-right {
+        text-align: right;
+        font-size: 12px;
+        color: #d5e5df;
+        line-height: 1.8;
+        letter-spacing: 1px;
+      }
+      .dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 100%;
+        background: var(--accent);
+        margin-right: 7px;
+      }
+      .crosshair {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 5px;
+        height: 5px;
+        border: 1px solid #effff1ac;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+      }
+      .crosshair:before,
+      .crosshair:after {
+        content: "";
+        position: absolute;
+        background: #effff14d;
+      }
+      .crosshair:before {
+        width: 1px;
+        height: 9px;
+        top: -13px;
+        left: 1px;
+      }
+      .crosshair:after {
+        height: 1px;
+        width: 9px;
+        left: -13px;
+        top: 1px;
+      }
+      .bottom {
+        position: absolute;
+        bottom: 30px;
+        left: 32px;
+        right: 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 24px;
+      }
+      .telemetry {
+        padding: 17px 20px;
+        background: linear-gradient(100deg, #0c2029df, #0c202980);
+        border-left: 2px solid var(--accent);
+        min-width: 305px;
+      }
+      .eyebrow {
+        font-size: 11px;
+        letter-spacing: 2px;
+        color: var(--accent);
+        text-transform: uppercase;
+      }
+      .place {
+        font-size: 22px;
+        letter-spacing: 2px;
+        margin: 7px 0 13px;
+      }
+      .meters {
+        display: flex;
+        gap: 28px;
+      }
+      .meter span {
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+        letter-spacing: 1px;
+      }
+      .meter b {
+        font-size: 24px;
+        font-weight: 400;
+        font-variant-numeric: tabular-nums;
+        line-height: 1.5;
+      }
+      .meter small {
+        font-size: 11px;
+        color: var(--muted);
+        margin-left: 4px;
+      }
+      .actions {
+        pointer-events: auto;
+        display: flex;
+        gap: 8px;
+      }
+      .actions button {
+        font-size: 12px;
+        background: #0e242cbf;
+        backdrop-filter: blur(12px);
+        padding: 8px 12px;
+      }
+      .interaction {
+        position: absolute;
+        bottom: 203px;
+        text-align: center;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 14px;
+        background: #0c2029c9;
+        padding: 10px 16px;
+        border: 1px solid var(--line);
+        border-radius: 5px;
+        white-space: nowrap;
+        display: none;
+      }
+      kbd {
+        display: inline-grid;
+        min-width: 23px;
+        min-height: 23px;
+        place-items: center;
+        padding: 1px 5px;
+        border: 1px solid #b5c9c252;
+        border-bottom-width: 2px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-family: inherit;
+        color: #edf3e7;
+        background: #24383c99;
+        margin-right: 5px;
+      }
+      .hintline {
+        background: #06141de0;
+        padding: 5px 8px;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 11px;
+        color: #cbd7ce;
+        letter-spacing: 0.5px;
+      }
+      .toast {
+        position: absolute;
+        left: 50%;
+        top: 100px;
+        transform: translateX(-50%);
+        padding: 12px 20px;
+        border: 1px solid var(--line);
+        background: #0e252eeb;
+        font-size: 13px;
+        max-width: 90%;
+        text-align: center;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .target {
+        position: absolute;
+        transform: translate(-50%, -6px);
+        text-align: center;
+        color: #e3c98f;
+        font-size: 12px;
+        white-space: nowrap;
+        text-shadow: 0 1px 5px #000;
+      }
+      .target .diamond {
+        width: 13px;
+        height: 13px;
+        border: 1px solid #e3c98f;
+        transform: rotate(45deg);
+        margin: 0 auto 10px;
+      }
+      .target span {
+        display: block;
+        font-size: 10px;
+        color: #dddbc9b3;
+        margin-top: 4px;
+      }
+      .cockpit {
+        display: none;
+        pointer-events: none;
+        position: absolute;
+        inset: 0;
+        box-shadow: inset 0 -65px 75px -55px #050d11;
+      }
+      .cockpit:before,
+      .cockpit:after {
+        content: "";
+        position: absolute;
+        bottom: -12%;
+        height: 58%;
+        width: 16px;
+        background: #18323a;
+        border: 2px solid #344e52;
+        box-shadow: 0 0 0 3px #07151d;
+        transform-origin: bottom;
+      }
+      .cockpit:before {
+        left: 8%;
+        transform: rotate(-20deg);
+      }
+      .cockpit:after {
+        right: 8%;
+        transform: rotate(20deg);
+      }
+      .cockpitlabel {
+        position: absolute;
+        top: 84px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        letter-spacing: 3px;
+        color: #c7d9cd9c;
+      }
+      .overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 5;
+        background: #05131bbf;
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+      .hidden {
+        display: none !important;
+      }
+      .intro {
+        background: linear-gradient(
+          90deg,
+          #06151ce8 0%,
+          #06151cc7 36%,
+          #06151c12 78%
+        );
+        backdrop-filter: none;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 48px 7%;
+      }
+      .intro-body {
+        width: 480px;
+        max-width: 100%;
+      }
+      .pretitle {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        font-size: 11px;
+        letter-spacing: 3px;
+        color: var(--accent);
+        margin-bottom: 27px;
+      }
+      .pretitle i {
+        width: 32px;
+        height: 1px;
+        background: var(--accent);
+      }
+      h1 {
+        font-weight: 400;
+        font-size: clamp(52px, 7vw, 82px);
+        letter-spacing: 14px;
+        margin: 0 0 14px;
+        line-height: 1.15;
+      }
+      .subtitle {
+        font-size: 13px;
+        letter-spacing: 6px;
+        color: #b0c6c1;
+        margin-bottom: 28px;
+      }
+      .intro-copy {
+        color: #d1ded5;
+        font-size: 15px;
+        line-height: 1.9;
+        margin: 0 0 30px;
+        max-width: 350px;
+      }
+      .start {
+        background: var(--accent);
+        border: 0;
+        color: #192e26;
+        font-size: 15px;
+        padding: 15px 28px;
+        min-width: 182px;
+        letter-spacing: 2px;
+      }
+      .start:hover {
+        background: #d8efbd;
+      }
+      .intro-meta {
+        display: flex;
+        gap: 24px;
+        color: #9ab3ac;
+        font-size: 11px;
+        margin: 21px 0 0;
+      }
+      .intro-footer {
+        position: absolute;
+        bottom: 28px;
+        left: 7%;
+        right: 7%;
+        display: flex;
+        justify-content: space-between;
+        color: #a8bcb1;
+        font-size: 10px;
+        letter-spacing: 2px;
+      }
+      .panel {
+        max-width: 720px;
+        width: 100%;
+        max-height: 88vh;
+        overflow: auto;
+        padding: 28px 32px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+      }
+      .panel h2 {
+        font-size: 25px;
+        font-weight: 400;
+        letter-spacing: 2px;
+        margin: 9px 0;
+      }
+      .panel p {
+        font-size: 14px;
+        color: #b9cdc3;
+        line-height: 1.8;
+      }
+      .panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+      }
+      .close {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 4px;
+      }
+      .controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin: 24px 0;
+      }
+      .controls h3 {
+        font-size: 13px;
+        color: var(--accent);
+        font-weight: 400;
+        letter-spacing: 2px;
+      }
+      .control {
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        border-bottom: 1px solid #accbb318;
+        padding: 9px 0;
+        color: #c8d8cd;
+      }
+      .control span {
+        white-space: nowrap;
+      }
+      .note {
+        font-size: 12px !important;
+        padding: 13px 15px;
+        border-left: 2px solid var(--amber);
+        background: #e7ad3910;
+        color: #d3c9af !important;
+      }
+      .planet-list {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin: 24px 0;
+      }
+      .planet-card {
+        text-align: left;
+        padding: 18px 16px;
+        border: 1px solid var(--line);
+        background: #17323a80;
+        min-height: 180px;
+      }
+      .planet-card.active {
+        border-color: var(--accent);
+        background: #91b78713;
+      }
+      .planet-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        margin: 4px 0 19px;
+        box-shadow: inset -10px -6px 0 #0004;
+      }
+      .planet-card b {
+        font-size: 17px;
+        font-weight: 400;
+        display: block;
+        margin-bottom: 7px;
+      }
+      .planet-card small {
+        display: block;
+        color: #b5c8bc;
+        font-size: 11px;
+        line-height: 1.8;
+      }
+      .status-badge {
+        position: absolute;
+        top: 86px;
+        left: 32px;
+        padding: 7px 10px;
+        border: 1px solid #c8e6a233;
+        color: #c8e6a2;
+        font-size: 10px;
+        letter-spacing: 1px;
+        background: #132b2480;
+      }
+      .mobile-warning {
+        display: none;
+        color: #efca8e;
+        font-size: 12px;
+        margin-top: 20px;
+        line-height: 1.7;
+      }
+      .load-error {
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        background: #0c1d26;
+        padding: 10vh 10vw;
+        color: #e8efdf;
+        display: none;
+        line-height: 1.9;
+      }
+      .load-error h2 {
+        font-size: 26px;
+      }
+      @media (max-width: 640px) {
+        .intro {
+          padding: 32px 24px;
+        }
+        .intro-footer {
+          left: 24px;
+          right: 24px;
+          font-size: 9px;
+          letter-spacing: 0;
+        }
+        .intro-meta {
+          gap: 12px;
+        }
+        .intro-copy {
+          font-size: 14px;
+        }
+        .intro-body {
+          margin-top: -30px;
+        }
+        .mobile-warning {
+          display: block;
+        }
+        .top {
+          left: 16px;
+          right: 16px;
+          top: 16px;
+        }
+        .bottom {
+          left: 16px;
+          right: 16px;
+          bottom: 36px;
+          gap: 8px;
+        }
+        .telemetry {
+          min-width: 0;
+          padding: 12px;
+        }
+        .meters {
+          gap: 14px;
+        }
+        .meter b {
+          font-size: 20px;
+        }
+        .place {
+          font-size: 17px;
+        }
+        .actions {
+          flex-direction: column;
+        }
+        .actions button {
+          min-height: 40px;
+          padding: 5px 9px;
+        }
+        .panel {
+          padding: 20px;
+        }
+        .controls {
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+        .planet-list {
+          grid-template-columns: 1fr;
+        }
+        .planet-card {
+          min-height: 95px;
+          padding: 12px;
+          display: grid;
+          grid-template-columns: 60px 1fr;
+        }
+        .planet-icon {
+          grid-row: span 2;
+          margin: 4px 0;
+        }
+        .planet-card b {
+          margin: 4px 0;
+        }
+        .status-badge {
+          left: 16px;
+          top: 70px;
+        }
+        .hintline {
+          font-size: 9px;
+        }
+        .interaction {
+          bottom: 195px;
+          font-size: 12px;
+        }
+        .subtitle {
+          letter-spacing: 3px;
+        }
+      }
+      @media (max-height: 650px) and (min-width: 641px) {
+        .intro-copy {
+          margin-bottom: 20px;
+        }
+        .pretitle {
+          margin-bottom: 18px;
+        }
+        .subtitle {
+          margin-bottom: 18px;
+        }
+        .intro-footer {
+          bottom: 15px;
+        }
+        .intro-meta {
+          margin-top: 14px;
+        }
+      }
+
+      .nav-panel {
+        position: absolute;
+        right: 32px;
+        top: 280px;
+        width: 206px;
+        background: #0b2028d9;
+        border: 1px solid var(--line);
+        padding: 14px 16px;
+        font-size: 13px;
+        line-height: 1.9;
+        backdrop-filter: blur(8px);
+      }
+      #navTitle {
+        font-size: 18px;
+        letter-spacing: 1px;
+        margin: 5px 0;
+      }
+      #navLines {
+        color: #bed0c9;
+        font-variant-numeric: tabular-nums;
+      }
+      .record-count {
+        position: absolute;
+        left: 32px;
+        top: 126px;
+        font-size: 12px;
+        color: #d2ddca;
+        letter-spacing: 1px;
+      }
+      .quiet {
+        margin-left: 12px;
+        background: #15313a99;
+        font-size: 13px;
+      }
+      .site-list {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        margin: 12px 0 20px;
+      }
+      .site-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: left;
+        font-size: 14px;
+        background: #132c34;
+        padding: 12px 16px;
+      }
+      .site-row small {
+        font-size: 12px;
+        color: #b8cec0;
+      }
+      .site-row.selected {
+        border-color: var(--accent);
+      }
+      .settings-grid {
+        display: grid;
+        gap: 18px;
+        margin: 24px 0;
+      }
+      .setting-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+        font-size: 14px;
+      }
+      .setting-line label {
+        min-width: 130px;
+        color: #cbdcd1;
+      }
+      .setting-line input[type="range"] {
+        width: 200px;
+        max-width: 42vw;
+        accent-color: var(--accent);
+      }
+      .setting-line select {
+        min-height: 44px;
+        background: #17333c;
+        color: #e9efdf;
+        border: 1px solid var(--line);
+        padding: 8px;
+      }
+      .setting-line output {
+        display: inline-block;
+        min-width: 45px;
+        text-align: right;
+        color: var(--accent);
+      }
+      .storage-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin: 16px 0;
+      }
+      .storage-status {
+        font-size: 13px;
+        color: #c3d6c8;
+        line-height: 1.8;
+      }
+      .journal-entry {
+        border: 1px solid var(--line);
+        border-left: 2px solid var(--accent);
+        padding: 14px 16px;
+        margin: 12px 0;
+        background: #173137;
+      }
+      .journal-entry h3 {
+        font-size: 17px;
+        font-weight: 400;
+        margin: 0 0 6px;
+      }
+      .journal-entry p {
+        margin: 0;
+        font-size: 14px;
+      }
+      .journal-entry small {
+        font-size: 12px;
+        color: #b4c9bd;
+      }
+      .journal-entry.unseen {
+        opacity: 1;
+        border-left-color: #607778;
+      }
+      .panel h2 {
+        line-height: 1.4;
+      }
+      .map-note {
+        margin-top: 16px;
+      }
+      .actions {
+        flex-wrap: wrap;
+        max-width: 390px;
+        justify-content: flex-end;
+      }
+      .actions button {
+        min-height: 44px;
+      }
+      .micro,
+      .eyebrow {
+        font-size: 12px;
+      }
+      .controls .control,
+      .panel p,
+      .site-row,
+      .setting-line {
+        font-size: 14px;
+      }
+      .note {
+        font-size: 13px !important;
+      }
+      .planet-card small {
+        font-size: 12px;
+      }
+      .hintline {
+        font-size: 12px;
+      }
+      .meter span {
+        font-size: 12px;
+      }
+      .toast {
+        max-width: 560px;
+      }
+      input[type="file"] {
+        display: none;
+      }
+      @media (max-width: 900px) {
+        .nav-panel {
+          top: 250px;
+          width: 180px;
+          right: 20px;
+          font-size: 12px;
+        }
+        .bottom {
+          gap: 12px;
+        }
+        .actions {
+          max-width: 230px;
+        }
+        .telemetry {
+          min-width: 280px;
+        }
+      }
+      @media (max-width: 640px) {
+        .nav-panel {
+          right: 16px;
+          top: 190px;
+          width: 156px;
+          padding: 10px;
+        }
+        .record-count {
+          left: 16px;
+          top: 110px;
+        }
+        .actions {
+          max-width: 130px;
+          flex-direction: row;
+        }
+        .telemetry {
+          min-width: 0;
+        }
+        .settings-grid {
+          gap: 16px;
+        }
+        .setting-line {
+          gap: 8px;
+        }
+        .setting-line label {
+          min-width: 100px;
+        }
+        .quiet {
+          margin-left: 0;
+          margin-top: 10px;
+        }
+        .intro-meta {
+          gap: 10px;
+        }
+        .hintline {
+          font-size: 9px;
+        }
+      }
+      .hud:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 180px;
+        background: linear-gradient(#05131cce, transparent);
+      }
+      .record-count {
+        background: #0c242cbf;
+        padding: 4px 8px;
+        border-radius: 4px;
+      }
+      .intro-buttons {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .intro-buttons .quiet {
+        margin: 0 !important;
+      }
+      .journal-entry.unseen p {
+        color: #b1c5bd;
+      }
+      #help .panel {
+        max-width: 800px;
+      }
+      #help .controls {
+        margin: 12px 0;
+      }
+      #help .control {padding:7px 0;}
+      #help .panel p {
+        margin: 10px 0;
+      }
+      #map .panel {
+        max-width: 1030px;
+      }
+      #systemMap {
+        position: static;
+        display: block;
+        width: 100%;
+        height: 245px;
+        border: 1px solid #a8c7bd35;
+        border-radius: 8px;
+        background: #06131c;
+      }
+      .chart-caption {
+        font-size: 12px;
+        color: #b6c7bf;
+        margin: 8px 0 18px;
+      }
+      .system-columns {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 24px;
+      }
+      #planetList {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin: 0;
+        max-height: 355px;
+        overflow-y: auto;
+        padding: 2px 6px 6px 2px;
+      }
+      #planetList button {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 44px;
+        padding: 7px 10px;
+        text-align: left;
+        font-size: 14px;
+        background: transparent;
+      }
+      #planetList button.active {
+        border-color: var(--accent);
+        background: #c8e6a210;
+      }
+      #planetList button.moon {
+        margin-left: 22px;
+        font-size: 13px;
+        color: #c5d6ce;
+      }
+      #planetList .mini-orb {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      #planetList small {
+        margin-left: auto;
+        font-size: 11px;
+        color: #b5c7be;
+      }
+      #bodyDetail {
+        padding: 16px 18px;
+        margin-bottom: 20px;
+        border: 1px solid var(--line);
+        background: #1a343b80;
+        border-radius: 8px;
+      }
+      #bodyDetail h3 {
+        font-size: 23px;
+        font-weight: 400;
+        margin: 6px 0 12px;
+      }
+      #bodyDetail p {
+        margin: 8px 0;
+      }
+      #bodyDetail .body-meta {
+        color: #c8e6a2;
+        font-size: 13px;
+        line-height: 1.9;
+      }
+      #map .panel > p {
+        margin: 10px 0 16px;
+      }
+      .system-columns .site-row {
+        margin: 8px 0;
+      }
+      .env-status {
+        position: absolute;
+        left: 32px;
+        top: 157px;
+        background: #0a2028d9;
+        border-left: 2px solid #c8e6a2;
+        padding: 7px 10px;
+        color: #d0e4d7;
+        font-size: 12px;
+        max-width: 340px;
+      }
+      .instrument-info {
+        color: #c8e6a2 !important;
+      }
+      .journal-body-head {
+        margin: 24px 0 12px;
+        font-weight: 400;
+        font-size: 18px;
+        color: #d6e3c8;
+      }
+      @media (max-width: 640px) {
+        .system-columns {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+        #systemMap {
+          height: 195px;
+        }
+        #planetList {
+          max-height: 300px;
+        }
+        #planetList {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+        }
+        #planetList button.moon {
+          margin-left: 0;
+          font-size: 12px;
+        }
+        #planetList small {
+          display: none;
+        }
+        #map .panel {
+          padding: 20px;
+        }
+        #bodyDetail {
+          margin-top: 0;
+        }
+        .env-status {
+          left: 16px;
+          top: 150px;
+          max-width: 220px;
+        }
+        .intro-meta {
+          flex-wrap: wrap;
+          gap: 10px;
+          font-size: 10px;
+        }
+        .intro-copy {
+          max-width: 300px;
+        }
+        .intro-footer {
+          font-size: 9px;
+        }
+      }
+    #orbitInfo{position:absolute;left:32px;top:200px;max-width:350px;padding:8px 10px;background:#0b2029dd;border-left:2px solid #b8d9e9;font-size:12px;line-height:1.8;color:#c8dcd7}@media(max-width:640px){#orbitInfo{left:16px;top:190px;max-width:220px}}
+
+      #riftStatus {position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:9;display:none;min-width:310px;max-width:440px;padding:14px 22px;background:rgba(5,15,24,.91);border:1px solid #557487;border-left:3px solid #e7b67d;color:#e4edf0;pointer-events:none;text-align:center;backdrop-filter:blur(10px)}
+      #riftStatus.active{display:block} #riftStatus span{display:block;font:11px/1.5 monospace;letter-spacing:2px;color:#e7b67d} #riftStatus strong{display:block;font-size:18px;margin:5px 0} #riftStatus small{display:block;font-size:13px;color:#c0d2dc;line-height:1.7} #riftStatus .probe-telemetry{border-top:1px solid #344653;margin-top:8px;padding-top:7px;color:#a5e5d7}
+      body:has(.overlay:not(.hidden)) #riftStatus {display:none}
+      #riftTransit{position:fixed;inset:0;z-index:8;pointer-events:none;opacity:0;background:radial-gradient(ellipse,transparent 6%,rgba(136,216,255,.3) 30%,#d6f6ff 95%);will-change:opacity}
+      .rift-map{margin:0 0 20px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.rift-map>.eyebrow,.rift-map>p{grid-column:1/-1;margin:0} .rift-map p{font-size:13px;color:#bfced4;line-height:1.7} .rift-row{font-size:14px;width:100%;min-height:60px;display:flex;align-items:center;gap:12px;text-align:left;margin:8px 0;padding:12px;background:#14232d!important;border:1px solid #425460!important;border-radius:6px!important;color:#e6eceb!important} .rift-row.selected{border-color:#e8bd88!important} .rift-row span:nth-child(2){flex:1} .rift-row small{display:block;color:#b6c9d0;font-size:12px;margin-top:4px} .rift-icon{font-size:26px;color:#efb678;text-shadow:0 0 12px #dc7d4b} .rift-icon.white{color:#d4f0ff;text-shadow:0 0 14px #67c4ff} .rift-log{padding:18px;background:#14232d;border:1px solid #405562;margin-bottom:24px;border-radius:8px} .rift-log p{font-size:14px;line-height:1.8;color:#c8d8dc} .rift-log small{font-size:12px;color:#b5c6ce}
+      button:focus-visible,input:focus-visible{outline:2px solid #a5dcff;outline-offset:3px}
+      @media(max-width:600px){#riftStatus{min-width:0;width:calc(100% - 48px);bottom:105px}.rift-row{min-height:64px}.rift-map{grid-template-columns:1fr 1fr}}
+      #quantumStatus{position:fixed;left:50%;bottom:172px;transform:translateX(-50%);z-index:9;display:none;min-width:300px;max-width:430px;padding:13px 20px;background:rgba(6,18,26,.91);border:1px solid #4d7d76;border-left:3px solid #8fe3cf;color:#dff5ee;pointer-events:none;text-align:center;backdrop-filter:blur(10px)}
+      #quantumStatus.active{display:block} #quantumStatus span{display:block;font:11px/1.5 monospace;letter-spacing:2px;color:#8fe3cf} #quantumStatus strong{display:block;font-size:17px;margin:5px 0} #quantumStatus small{display:block;font-size:13px;color:#b7d9d0;line-height:1.7}
+      body:has(.overlay:not(.hidden)) #quantumStatus{display:none}
+      #quantumFlash{position:fixed;inset:0;z-index:8;pointer-events:none;opacity:0;background:radial-gradient(ellipse,transparent 10%,rgba(143,227,207,.26) 45%,rgba(216,255,245,.9) 100%);will-change:opacity}
+      @media(max-width:640px){#quantumStatus{min-width:0;width:calc(100% - 40px);bottom:168px}}
+      body.photo-mode .hud,body.photo-mode .cockpit,body.photo-mode #riftStatus,body.photo-mode #quantumStatus,body.photo-mode #wildsMarkers,body.photo-mode #wildsHint,body.photo-mode #wildsConsole{display:none !important}
+      #photoHint{position:fixed;left:24px;bottom:20px;z-index:12;color:#cfe0d8;font-size:12px;letter-spacing:2px;background:#0a1720cc;padding:8px 14px;border:1px solid #4d7d76;border-radius:4px}
+      #photoHint.hidden{display:none !important}
+      #touchUi{display:none;position:fixed;inset:0;z-index:7;pointer-events:none}
+
+      #wildsMarkers {
+        position: fixed;
+        inset: 0;
+        z-index: 3;
+        pointer-events: none;
+        overflow: hidden;
+      }
+      .wmark {
+        position: absolute;
+        transform: translate(-50%, -100%);
+        text-align: center;
+        font-size: 12px;
+        color: #e8f0ea;
+        white-space: nowrap;
+        text-shadow: 0 1px 6px #000, 0 0 3px #000;
+        letter-spacing: 1px;
+      }
+      .wmark .chev {
+        font-size: 11px;
+        color: #b7c9d4;
+        margin-bottom: 2px;
+      }
+      .wmark b {
+        display: block;
+        font-weight: 400;
+        font-size: 13px;
+      }
+      .wmark span {
+        display: block;
+        font-size: 11px;
+        color: #c3d2da;
+        margin-top: 2px;
+      }
+      .wmark.rift b {
+        color: #f0c48e;
+      }
+      #wildsHint {
+        position: fixed;
+        top: 96px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 3;
+        display: none;
+        font-size: 13px;
+        color: #f3c98d;
+        letter-spacing: 1px;
+        text-shadow: 0 1px 6px #000;
+        pointer-events: none;
+        white-space: nowrap;
+      }
+      #wildsConsole {
+        position: fixed;
+        left: 50%;
+        bottom: 152px;
+        transform: translateX(-50%);
+        z-index: 3;
+        display: none;
+        text-align: center;
+        font-size: 12px;
+        color: #cfe0da;
+        letter-spacing: 1px;
+        text-shadow: 0 1px 6px #000;
+        pointer-events: none;
+        white-space: nowrap;
+      }
+      #wildsConsole b {
+        font-size: 20px;
+        font-weight: 400;
+        color: #f2f6ec;
+        margin: 0 5px;
+        font-variant-numeric: tabular-nums;
+      }
+      #target .varrow {
+        position: absolute;
+        left: 50%;
+        top: -44px;
+        width: 2px;
+        height: 15px;
+        margin-left: -1px;
+        background: linear-gradient(#ffffff00, #ffffffd0);
+        border-radius: 2px;
+        transform-origin: 50% 52px;
+        pointer-events: none;
+      }
+      @media (max-width: 640px) {
+        #wildsHint {
+          top: 84px;
+          font-size: 11px;
+        }
+        #wildsConsole {
+          bottom: 190px;
+          font-size: 11px;
+        }
+        #wildsConsole b {
+          font-size: 16px;
+        }
+      }
+
+      body.touch #touchUi{display:block}
+      #touchStick{position:absolute;left:22px;bottom:170px;width:118px;height:118px;border-radius:50%;border:1px solid #9fc7bd55;background:#0c202955;pointer-events:auto;touch-action:none;backdrop-filter:blur(4px)}
+      #touchKnob{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:#c8e6a244;border:1px solid #c8e6a288;pointer-events:none}
+      .touch-btns{position:absolute;right:16px;bottom:170px;display:grid;grid-template-columns:repeat(2,60px);gap:8px}
+      .touch-btns button{pointer-events:auto;touch-action:none;background:#0e242cbf;border:1px solid #b9d7ce45;color:#dfe9df;border-radius:50%;min-height:0;padding:0;width:60px;height:60px;font-size:17px;backdrop-filter:blur(6px)}
+      .touch-mini{position:absolute;right:14px;top:120px;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:200px}
+      .touch-mini button{pointer-events:auto;touch-action:none;min-height:0;padding:4px 8px;width:52px;height:36px;font-size:12px;background:#0e242cbf;border:1px solid #b9d7ce45;color:#d5e5df;border-radius:8px;backdrop-filter:blur(6px)}
+      @media(max-width:640px){#touchStick{bottom:212px;width:104px;height:104px}.touch-btns{bottom:212px;grid-template-columns:repeat(2,54px)}.touch-btns button{width:54px;height:54px}.touch-mini{top:104px}}
+    </style>
+  </head>
+  <body>
+    <canvas
+      id="game"
+      tabindex="0"
+      aria-label="三维星球探索游戏，使用键盘和鼠标操作"
+    ></canvas>
+    <div class="cockpit" id="cockpit">
+      <div class="cockpitlabel">EXPLORER 01 / 手动飞行</div>
+    </div>
+    <div class="hud" id="hud">
+      <div class="top">
+        <div class="brand">
+          <div class="emblem"><span>·</span></div>
+          <div>
+            <strong>逐星</strong>
+            <div class="micro">SMALL WORLDS · SANDBOX</div>
+          </div>
+        </div>
+        <div class="top-right">
+          <div><i class="dot"></i><span id="mode">地表探索</span></div>
+          <div id="clock">00:00</div>
+        </div>
+      </div>
+      <div class="status-badge" id="flightBadge">引力在线 · 无生存消耗</div>
+      <div id="envStatus" class="env-status hidden"></div>
+      <div id="orbitInfo"></div><div class="crosshair"></div>
+      <div id="navPanel" class="nav-panel">
+        <div class="eyebrow">NAV / 动态星系</div>
+        <div id="navTitle">浮砾</div>
+        <div id="navLines"></div>
+      </div>
+      <div id="recordCount" class="record-count">发现 0 / 9</div>
+      <div class="target" id="target">
+        <div class="diamond"></div>
+        <b id="targetName">浮砾</b><span id="targetDistance"></span>
+      </div>
+      <div class="interaction" id="interaction"></div>
+      <div class="toast" id="toast" role="status"></div>
+      <div class="bottom">
+        <div class="telemetry">
+          <div class="eyebrow" id="region">SURFACE / 01</div>
+          <div class="place" id="place">苔原 · 出发地</div>
+          <div class="meters">
+            <div class="meter">
+              <span>地表高度</span><b id="alt">0.0</b><small>m</small>
+            </div>
+            <div class="meter">
+              <span>相对速度</span><b id="speed">0.0</b><small>m/s</small>
+            </div>
+            <div class="meter">
+              <span>引力强度</span><b id="grav">8.0</b><small>m/s²</small>
+            </div>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="mapBtn">星图 M</button><button id="helpBtn">操作 H</button
+          ><button id="journalBtn">日志 J</button
+          ><button id="settingsBtn">设置 O</button
+          ><button id="fullBtn" aria-label="全屏">全屏 ↗</button>
+        </div>
+      </div>
+      <div class="hintline" id="hintline">
+        WASD 移动 · 空格 跳跃 · E 登船 · M 星图 · H 操作 · Esc 释放鼠标
+      </div>
+    </div>
+    <div class="overlay intro" id="intro">
+      <div class="intro-body">
+        <div class="pretitle"><i></i>可玩的宇宙 · 灯塔纪元 0.9</div>
+        <h1>逐星</h1>
+        <div class="subtitle">小小星球，无边好奇。</div>
+        <p class="intro-copy">
+          从脚下的草地，到头顶的陌生世界。<br />坐进飞船，点燃推进器。<br />沿着光的弯曲，驶入黑洞。<br />从陌生的白洞，重新认出这片星空。
+        </p>
+        <div class="intro-buttons">
+          <button class="start" id="startBtn">开始探索　↗</button
+          ><button id="campStart" class="quiet hidden">从营地出发</button>
+        </div>
+        <div class="intro-meta">
+          <span>01 恒星 · 05 行星 · 06 卫星</span><span>连续空间</span
+          ><span>引力与惯性</span>
+        </div>
+        <p class="mobile-warning">
+          触屏已可玩：左侧摇杆移动，右侧按钮动作，滑动画面转向。键鼠仍能提供最完整的飞行体验。
+        </p>
+      </div>
+      <div class="intro-footer">
+        <span>原创探索沙盒 / 非官方作品</span
+        ><span>WEB SANDBOX　→　GODOT</span>
+      </div>
+    </div>
+    <div class="overlay hidden" id="help">
+      <section
+        class="panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="helpTitle"
+      >
+        <div class="panel-head">
+          <div>
+            <div class="eyebrow">FIELD MANUAL</div>
+            <h2 id="helpTitle">宇航员手册</h2>
+          </div>
+          <button class="close" data-close aria-label="关闭操作手册">×</button>
+        </div>
+        <p>
+          靠近黄色飞船，按 E 登船。按住空格起飞，离地后 WASD 推进。鼠标转向；驾驶时 V 切换第一 / 第三人称。
+        </p>
+        <p>
+          设备：<kbd>G</kbd>操作附近仪器（9 处） · 共 47 处可发现地标。<br /><kbd
+            >L</kbd
+          >头灯　<kbd>B</kbd>寻找飞船　<kbd>J</kbd>发现日志　<kbd>O</kbd>设置　<kbd>K</kbd>手动保存。每
+          15 秒自动本地保存；设置内可导出 / 导入存档。
+        </p>
+        <p><kbd>N</kbd> 导航最近黑洞　<kbd>P</kbd> 发射探针。黑洞自动吸入，白洞单向抛出。M 星图查看两条航路；J 查看穿越记录。设置可减少跃迁动态效果。</p>
+        <p><kbd>U</kbd> 导航观星者航标。量子物体被你注视时保持确定；视线移开时，它们会在锚点间跃迁。趁航标被观测时飞入环心，会被抛向另一处锚点——方向洗牌，速度大小保留。</p>
+        <p><kbd>C</kbd> 照片模式（隐藏界面）　<kbd>X</kbd> 照片模式内保存画面 PNG。J 日志新增「航行志 · 里程碑」：8 项全部可选，没有失败与错过。</p>
+        <p><kbd>Y</kbd> 3D 驾驶舱框架：第一人称驾驶时放下仪表台与舷窗立柱，屏幕实时显示速度与高度。靠近目标且接近速度较快时，屏幕上方会出现「按住 F 匹配速度」的提示。设置内可随时关闭。</p>
+        <div class="controls">
+          <div>
+            <h3>地面 / 太空行走</h3>
+            <div class="control">
+              行走 / 小幅空中调整<span><kbd>W A S D</kbd></span>
+            </div>
+            <div class="control">
+              跳跃 / 宇航服向上喷气<span><kbd>Space</kbd></span>
+            </div>
+            <div class="control">
+              冲刺<span><kbd>Shift</kbd></span>
+            </div>
+            <div class="control">
+              登船 / 出舱<span><kbd>E</kbd></span>
+            </div>
+          </div>
+          <div>
+            <h3>飞船 / 六向推进</h3>
+            <div class="control">
+              前后 / 左右推进<span><kbd>W S</kbd><kbd>A D</kbd></span>
+            </div>
+            <div class="control">
+              向上 / 向下推进<span><kbd>Space</kbd><kbd>Ctrl</kbd></span>
+            </div>
+            <div class="control">
+              滚转 / 视角切换<span><kbd>Q Z</kbd><kbd>V</kbd></span>
+            </div>
+            <div class="control">
+              按住辅助减速<span><kbd>F</kbd></span>
+            </div>
+          </div>
+        </div>
+        <p class="note">
+          松开推进键不会自动刹车。F
+          只以有限推力消减相对附近参考系的速度（近地匹配地表、深空匹配最近天体公转），不是自动驾驶。近地低速时有轻微扶正；高速撞击会反弹和损失速度，本版没有损毁或死亡。
+        </p>
+        <p>
+          公共操作：<kbd>I</kbd>轨道轨迹　<kbd>T</kbd>切换目标　<kbd>M</kbd>星图　<kbd>H</kbd>手册　<kbd>R</kbd>确认返回出发地。Esc
+          释放鼠标并暂停；点击画面继续。无法锁定鼠标时，可按住鼠标左键拖动视角。
+        </p>
+        <p class="note">
+          原型边界：5 颗行星、6
+          颗卫星按开普勒轨道公转，地表随天体自转，建筑和停泊飞船一起运动。离地继承当地速度。恒星有引力与热边界。热流、横风、滑冰为游戏化效果；星环随母星平移，保持倾角。采用分层双体轨道，不是相互扰动的 N 体模拟。没有地下挖掘、任务、氧气与燃料消耗。星图仅选目标，不传送。存档保存在当前浏览器；更换文件名、浏览器或清理数据后可能需要手动导入。
+        </p>
+        <button id="resumeBtn">返回探索 →</button>
+      </section>
+    </div>
+    <div class="overlay hidden" id="map">
+      <section
+        class="panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="mapTitle"
+      >
+        <div class="panel-head">
+          <div>
+            <div class="eyebrow">XIHELIOS / 曦心星系</div>
+            <h2 id="mapTitle">下一站，由你决定。</h2>
+          </div>
+          <button class="close" data-close aria-label="关闭星图">×</button>
+        </div>
+        <p>
+          选择导航标记，抬头寻找菱形信标。11
+          颗固态天体可直接飞抵、降落和绕行。曦心不可降落。
+        </p>
+        <div class="system-layout">
+          <div class="system-chart">
+            <canvas
+              id="systemMap"
+              width="900"
+              height="430"
+              aria-label="动态轨道位置示意；完整层级与导航按钮在下方"
+            ></canvas>
+            <div class="chart-caption">
+              位置投影 / 实时位置 · 点击圆点选择目标
+            </div>
+          </div>
+          <div class="system-columns">
+            <nav id="planetList" aria-label="天体层级"></nav>
+            <div>
+              <div id="bodyDetail"></div>
+              <div class="eyebrow">SURVEY SIGNALS / 地表导航</div>
+              <div id="siteList" class="site-list"></div>
+            </div>
+          </div>
+        </div>
+        <p class="note">
+          第一次飞行：空格起飞 → 船头朝向信标 → W 加速 → 提前松开 W → 按住 F
+          减速。F 不是悬停；近地仍需向上推进抵消重力。
+        </p>
+        <button id="mapResume">继续探索 →</button>
+      </section>
+    </div>
+    <div class="overlay hidden" id="pause">
+      <section
+        class="panel"
+        style="max-width: 420px"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pauseTitle"
+      >
+        <div class="eyebrow">FLIGHT HOLD</div>
+        <h2 id="pauseTitle">先停一下，宇宙会等你。</h2>
+        <p>
+          模拟已暂停。继续后鼠标用于环视；若浏览器不允许锁定，可按住左键拖动。
+        </p>
+        <button class="start" id="continueBtn">继续探索 →</button
+        ><button id="pauseHelp" style="margin-left: 8px">查看操作</button>
+      </section>
+    </div>
+    <div class="overlay hidden" id="reset">
+      <section
+        class="panel"
+        style="max-width: 430px"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="resetTitle"
+      >
+        <div class="eyebrow">SANDBOX RESET</div>
+        <h2 id="resetTitle">返回出发地？</h2>
+        <p>人物和飞船将返回苔原营地，速度归零。不会改变星球或操作设置。</p>
+        <button id="confirmReset">确认返回</button
+        ><button data-close style="margin-left: 8px">取消</button>
+      </section>
+    </div>
+
+    <div class="overlay hidden" id="settings">
+      <section
+        class="panel"
+        style="max-width: 620px"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="settingsTitle"
+      >
+        <div class="panel-head">
+          <div>
+            <div class="eyebrow">FLIGHT DECK / 设置与存档</div>
+            <h2 id="settingsTitle">把宇宙调到舒服的尺度。</h2>
+          </div>
+          <button class="close" data-close aria-label="关闭设置">×</button>
+        </div>
+        <div class="settings-grid">
+          <div class="setting-line">
+            <label for="fovInput">视野角度 FOV</label
+            ><span
+              ><input
+                id="fovInput"
+                type="range"
+                min="60"
+                max="95"
+                step="1" /><output id="fovOutput"></output
+            ></span>
+          </div>
+          <div class="setting-line">
+            <label for="sensInput">鼠标灵敏度</label
+            ><span
+              ><input
+                id="sensInput"
+                type="range"
+                min="0.35"
+                max="2"
+                step="0.05" /><output id="sensOutput"></output
+            ></span>
+          </div>
+          <div class="setting-line">
+            <label for="volumeInput">音效音量</label
+            ><span
+              ><input
+                id="volumeInput"
+                type="range"
+                min="0"
+                max="0.7"
+                step="0.01" /><output id="volumeOutput"></output
+            ></span>
+          </div>
+          <div class="setting-line">
+            <label for="qualityInput">渲染清晰度</label
+            ><select id="qualityInput">
+              <option value="0.85">流畅</option>
+              <option value="1.25">均衡</option>
+              <option value="1.7">清晰</option>
+            </select>
+          </div>
+          <div class="setting-line">
+            <label for="alignInput">低速接地扶正</label
+            ><input id="alignInput" type="checkbox" />
+          </div>
+        </div>
+        <div class="eyebrow">LOCAL FLIGHT RECORD</div>
+        <p class="storage-status" id="storageStatus">尚未保存</p>
+        <div class="storage-actions">
+          <button id="saveBtn">保存当前位置</button
+          ><button id="exportBtn">导出存档</button
+          ><button id="importBtn">导入存档</button
+          ><input id="importFile" type="file" accept=".json,application/json" />
+        </div>
+        <p class="note">
+          存档只保存在本机浏览器，不上传。自动保存每 15
+          秒执行，暂停时也会保存。文件预览或隐私模式可能限制持久化；导出 JSON
+          是更可靠的备份。
+        </p>
+        <button data-close>继续探索 →</button>
+      </section>
+    </div>
+    <div class="overlay hidden" id="journal">
+      <section
+        class="panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="journalTitle"
+      >
+        <div class="panel-head">
+          <div>
+            <div class="eyebrow">FIELD NOTES / 发现日志</div>
+            <h2 id="journalTitle">留下坐标，不留下脚印。</h2>
+          </div>
+          <button class="close" data-close aria-label="关闭发现日志">×</button>
+        </div>
+        <p id="journalSummary"></p>
+        <div id="journalList"></div>
+        <button data-close>继续探索 →</button>
+      </section>
+    </div>
+    <div class="load-error" id="error">
+      <h2>三维引擎没有成功启动</h2>
+      <p id="errorText">请使用支持 WebGL 的桌面浏览器打开。</p>
+    </div>
+    <script src="three.min.js"></script>
+    <script src="system.js"></script>
+    <script src="game.js"></script>
+    <script src="expansion.js"></script>
+    <script src="orbits.js"></script>
+    <script src="singularities.js"></script>
+    <script src="cosmos.js"></script>
+    <script src="lore.js"></script>
+    <script src="quantum.js"></script>
+    <script src="goals.js"></script>
+    <script src="touch.js"></script>
+    <script src="wilds.js"></script>
+<script>
+      launch();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,19 @@
+; 逐星 Godot 核心工程。Godot 4.4.1 验证。
+config_version=5
+[application]
+config/name="逐星 · Godot Core 0.3"
+run/main_scene="res://main.tscn"
+config/features=PackedStringArray("4.4", "GL Compatibility")
+[display]
+window/size/viewport_width=1280
+window/size/viewport_height=800
+window/stretch/mode="canvas_items"
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/default_filters/use_nearest_mipmap_filter=false
+[physics]
+common/physics_ticks_per_second=120
+3d/default_gravity=0.0
+[environment]
+defaults/default_clear_color=Color(0.02,0.04,0.07,1)

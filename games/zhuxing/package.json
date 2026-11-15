@@ -1,0 +1,12 @@
+{
+  "name": "zhuxing-orbital-sandbox",
+  "version": "0.9.0",
+  "private": true,
+  "scripts": {
+    "test": "node Tests/qa.cjs && node Tests/flight.cjs && node Tests/extra.cjs && node Tests/offline.cjs && node Tests/migration.cjs && node Tests/rifts.cjs && node Tests/quantum.cjs && node Tests/lore.cjs && node Tests/goals.cjs && node Tests/touch.cjs",
+    "test:visual": "node Tests/visual-smoke.cjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.1"
+  }
+}

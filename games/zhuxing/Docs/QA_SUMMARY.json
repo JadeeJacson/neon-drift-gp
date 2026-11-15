@@ -1,0 +1,64 @@
+{
+  "version": "0.9",
+  "totalChecks": 108,
+  "allPassed": true,
+  "environment": "Windows Chromium (Playwright) / SwiftShader, 1440x900 desktop, 390x844 touch",
+  "suites": [
+    {
+      "suite": "core",
+      "checks": 23,
+      "passed": 23
+    },
+    {
+      "suite": "flight",
+      "checks": 5,
+      "passed": 5
+    },
+    {
+      "suite": "extra",
+      "checks": 5,
+      "passed": 5
+    },
+    {
+      "suite": "offline",
+      "checks": 10,
+      "passed": 10
+    },
+    {
+      "suite": "migration",
+      "checks": 2,
+      "passed": 2
+    },
+    {
+      "suite": "rifts",
+      "checks": 18,
+      "passed": 18
+    },
+    {
+      "suite": "quantum",
+      "checks": 13,
+      "passed": 13
+    },
+    {
+      "suite": "lore",
+      "checks": 6,
+      "passed": 6
+    },
+    {
+      "suite": "goals",
+      "checks": 11,
+      "passed": 11
+    },
+    {
+      "suite": "touch",
+      "checks": 11,
+      "passed": 11
+    },
+    {
+      "suite": "visual-smoke",
+      "checks": 4,
+      "passed": 4
+    }
+  ],
+  "generatedAt": "2026-10-28"
+}

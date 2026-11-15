@@ -51,7 +51,7 @@
 - 本机测试命令（chromium-1243 绝对路径 + NODE_PATH 借逐星项目的 Playwright 1.64.1）：
   ```sh
   CHROMIUM_PATH="C:\Users\Lenovo\AppData\Local\ms-playwright\chromium-1243\chrome-win64\chrome.exe" \
-  NODE_PATH="F:\Dev\Projects\game-lab\练手小游戏\逐星-0.7折叠航路\node_modules" node tests/qa.cjs
+  NODE_PATH="F:\Dev\Projects\game-lab\neon-drift-gp-web\games\zhuxing\node_modules" node tests/qa.cjs
   ```
 
 ### 1.4 设计短板清单（按严重度）
