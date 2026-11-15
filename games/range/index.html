@@ -54,7 +54,7 @@ THE SOFTWARE.
 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>RANGE — 0.30 · 战术实验区</title>
+    <title>RANGE — 0.31 · 战术实验区</title>
     <style>
       :root {
         color-scheme: dark;
@@ -920,6 +920,13 @@ THE SOFTWARE.
       .brCard button { background: #ff3b30; color: #fff; border: none; padding: 9px 16px; font-family: monospace; cursor: pointer; margin: 4px 4px 0 0; }
       #brrScore { font-size: 28px; font-weight: 800; color: #ff3b30; margin: 8px 0; }
       #brrStats { font-size: 12px; margin: 8px 0 14px; line-height: 1.6; }
+      /* ═══ RANGE 0.31 · 剪影画廊 + PSX ═══ */
+      #silGallery { position: fixed; inset: 0; z-index: 160; background: rgba(10,12,10,.9); display: flex; align-items: center; justify-content: center; }
+      #silGallery[hidden] { display: none; }
+      #silList .silItem { text-align: center; color: #f2e9d8; font-size: 12px; }
+      #silList .silItem canvas { background: #1a1d1a; border: 1px solid rgba(235,195,117,.3); border-radius: 8px; }
+      #silList .silItem b { display: block; margin-top: 4px; }
+      #psxToggle { font-family: inherit; }
 </style>
   </head>
   <body>
@@ -998,7 +1005,7 @@ THE SOFTWARE.
         <div class="sub">PRIVATE TRAINING FACILITY / 01</div>
       </header>
       <main class="panel">
-        <div class="eyebrow" id="badge">BUILD 0.30 / 战术实验区</div>
+        <div class="eyebrow" id="badge">BUILD 0.31 / 战术实验区</div>
         <h1 id="menuTitle">第一枪，已就绪。</h1>
         <p class="intro">
           M4A1 / P226 / AK-47 / MP5<br />教程引导、六区 CQB 与幽灵挑战。<br />辨认目标，再扣动扳机。
@@ -1027,7 +1034,7 @@ THE SOFTWARE.
         <button id="start">进入靶场 →</button>
         <div class="secondary">
           <button id="reset">重置出生点</button
-          ><button id="helpToggle">操作说明</button><button id="settingsOpen">游戏设置</button><button id="reactiveToggle">反应靶场 · 关</button><button id="staticEnter" class="studioEntry">STATIC · 时间只随你流动 →</button><button id="forensicsEnter" class="studioEntry">FORENSICS · 法证瞄准训练 →</button><button id="deckEnter" class="studioEntry">DECK RUN · 卡牌速通 →</button><button id="breachEnter" class="studioEntry">BREACH · 可破坏劫案 →</button>
+          ><button id="helpToggle">操作说明</button><button id="settingsOpen">游戏设置</button><button id="reactiveToggle">反应靶场 · 关</button><button id="staticEnter" class="studioEntry">STATIC · 时间只随你流动 →</button><button id="forensicsEnter" class="studioEntry">FORENSICS · 法证瞄准训练 →</button><button id="deckEnter" class="studioEntry">DECK RUN · 卡牌速通 →</button><button id="breachEnter" class="studioEntry">BREACH · 可破坏劫案 →</button><button id="silhouetteEnter" class="studioEntry">敌人剪影画廊 →</button><button id="psxToggle">PSX 复古模式 · 关</button>
         </div>
         <div class="settings">
           <label for="sensitivity"
@@ -1098,9 +1105,9 @@ THE SOFTWARE.
 <p>仅状态回放；不伤害、不补弹、不计分。无任意帧接管。自由镜头只沿世界轴平移。</p></section>
     <section id="hud" hidden aria-label="探索界面">
       <div class="topbar">
-        <div><strong>RANGE.</strong><small>0.30 / PHYSICS + STATE</small></div>
+        <div><strong>RANGE.</strong><small>0.31 / PHYSICS + STATE</small></div>
         <div class="topright">
-          <span id="fps">0.30 / OFFLINE</span><br /><span id="position"
+          <span id="fps">0.31 / OFFLINE</span><br /><span id="position"
             >X 0.0 Z 8.0</span
           ><button id="pause">ESC · 暂停</button>
         </div>
@@ -1292,6 +1299,14 @@ THE SOFTWARE.
         <button id="brrMenu">地图菜单</button>
       </div>
     </div>
+    <div id="silGallery" hidden>
+      <div class="sbCard">
+        <h2>敌人剪影系统 · D5</h2>
+        <p style="font-size:12px;opacity:.8;margin:6px 0 12px">5 种可读剪影 + 威胁色（TF2 原则）。已接入 BREACH 守卫。</p>
+        <div id="silList" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center"></div>
+        <button id="silBack">返回</button>
+      </div>
+    </div>
     <div id="settingsOverlay" hidden>
       <div id="settingsDesktop" class="settingsCard" hidden>
         <header><h2>游戏设置 · 桌面端</h2><button id="settingsCloseD">✕ 关闭</button></header>
@@ -1360,7 +1375,7 @@ THE SOFTWARE.
     </div>
     <script>
 /* ═══════════════════════════════════════════════════════════════════
-  RANGE 0.30.0「战术实验区」· BREACH 劫案翼（…→ 0.29 卡牌 → 0.30 劫案+粗野主义+模块/破坏套件，见 SECTION M）
+  RANGE 0.31.0「战术实验区」· 剪影与复古（…→ 0.30 劫案 → 0.31 敌人剪影系统+PSX 复古全局开关，见 SECTION N）
   来源: JadeeJacson/neon-drift-gp @ main, games/range/index.html
         （2026-10-26 提交「新增四款练手小游戏」，原始构建 1,029,475 字节）
   还原: 内联 JS 经 js-beautify 格式化（不折行/保留换行），并在已验证边界插入分区注释。
@@ -19959,7 +19974,7 @@ void main() {
    * 改动后请跑 test/smoke.js（桌面回归）与 test/mobile.js（移动端验收）。
    * ════════════════════════════════════════════════════════════════════════ */
   var RANGE_CONFIG = {
-    release: "0.30.0",
+    release: "0.31.0",
     render: {
       maxPixelRatio: 1.65,        // 桌面渲染像素比上限
       mobileMaxPixelRatio: 1.3    // 移动端像素比上限（性能优先）
@@ -33294,7 +33309,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       Oi = !1, ge.stop(), Oe.suspend();
       return
     }
-    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.30 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
+    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.31 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
   }
   ge.onPause = Sn;
   ge.onLookMode = s => {
@@ -33399,7 +33414,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (let i = 0; i < e; i++) fr.update(t / e, ke, Yt, ge);
       ki()
     }
-    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.30 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
+    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.31 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
   }
 /* ════════════════════════════════════════════════════════════════════════
  * [SECTION E] QA 调试接口 window.__RANGE__（URL 带 ?qa 时启用扩展方法）
@@ -33890,6 +33905,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       };
     };
     post.setMode = function (m) {
+      post.wingMode = m; if (post.psxGlobal) m = "psx";
       post.init();
       post.mode = m; post.active = !!m;
       post.mat.uniforms.mode.value = m === "1bit" ? 1 : m === "psx" ? 2 : m === "cel" ? 3 : 0;
@@ -34706,11 +34722,11 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       RANGE_KIT.assemble(kit, M);
       for (const [x, z, w, h, c, r] of M.destruct) destructWalls.push(...RANGE_DESTRUCT.wall(group, x, z, w, h, c, r));
       for (const [x, z] of M.guards) {
-        const body = new qt; body.position.set(x, 0, z);
-        const torso = new at(new Ei(.5, 1.2, .35, 2, .05), guardMat); torso.position.y = 1.0; body.add(torso);
-        const head = new at(new Qe(.22, 12, 10), guardMat); head.position.y = 1.8; body.add(head);
+        const silType = ["pistol", "rifle", "melee", "heavy"][Math.floor(Math.random() * 4)];
+        const sil = RANGE_SILHOUETTE.build(silType);
+        const body = sil.group; body.position.set(x, 0, z);
         group.add(body);
-        guards.push({ mesh: body, base: [x, z], cd: 2 + Math.random() * 2, alive: true, phase: Math.random() * 6.28, hitMeshes: [torso, head] });
+        guards.push({ mesh: body, base: [x, z], cd: 2 + Math.random() * 2, alive: true, phase: Math.random() * 6.28, hitMeshes: sil.hitMeshes, silType });
       }
       for (const [x, z] of M.loot) { const m = new at(new Ei(.35, .35, .35, 2, .04), lootMat); m.position.set(x, .6, z); group.add(m); loot.push({ mesh: m, got: false }); }
       Yt.position.set(M.exit[0], 0, M.exit[1]); Yt.velocity.set(0, 0, 0); Yt.yaw = Math.PI; Yt.pitch = 0; Yt.spawn();
@@ -34822,6 +34838,92 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
   RANGE_API.kit = RANGE_KIT;
   RANGE_API.destruct = RANGE_DESTRUCT;
   RANGE_API.breach = RANGE_BREACH;
+  RANGE_API.draw = () => ki();
+
+  /* ════════════════════════════════════════════════════════════════════════
+   * [SECTION N] 敌人剪影系统 D5 + PSX 复古全局开关 S5（0.31 / M7）
+   * RANGE_SILHOUETTE：5 种敌人独特剪影+威胁色（手枪/步枪/近战/重装/捕食者），
+   * 已接入 BREACH 守卫。PSX：全局复古开关（低分辨率+扫描线+色阶，逻辑不变）。
+   * ════════════════════════════════════════════════════════════════════════ */
+  var RANGE_SILHOUETTE = (() => {
+    const types = {
+      pistol: { name: "手枪兵", color: 0xe08a3c, threat: "低" },
+      rifle: { name: "步枪兵", color: 0xd0453c, threat: "中" },
+      melee: { name: "近战兵", color: 0x9a4cc8, threat: "高" },
+      heavy: { name: "重装兵", color: 0x8a2020, threat: "极高" },
+      predator: { name: "捕食者", color: 0x2a3a2a, threat: "致命" }
+    };
+    function build(type) {
+      const T = types[type] || types.rifle;
+      const mat = new Xt({ color: T.color, roughness: .65, metalness: .1 });
+      const dark = new Xt({ color: 0x1a1a1a, roughness: .6 });
+      const g = new qt; g.name = "sil-" + type;
+      const hit = [];
+      let torsoW = .5, torsoH = 1.2, headR = .22, shoulderW = 0;
+      if (type === "melee") { torsoW = .62; torsoH = 1.15; }
+      if (type === "heavy") { torsoW = .8; torsoH = 1.3; shoulderW = .95; headR = .26; }
+      if (type === "predator") { torsoW = .38; torsoH = 1.5; headR = .18; }
+      const torso = new at(new Ei(torsoW, torsoH, .35, 2, .05), mat); torso.position.y = 1.0; g.add(torso); hit.push(torso);
+      const head = new at(type === "predator" ? new Ei(.2, .42, .24, 2, .04) : new Qe(headR, 12, 10), type === "heavy" ? dark : mat);
+      head.position.y = 1.0 + torsoH / 2 + headR; g.add(head); hit.push(head);
+      // 腿
+      for (const s of [-1, 1]) { const leg = new at(new Ei(.16, .8, .2, 1, .03), dark); leg.position.set(s * torsoW * .3, .4, 0); g.add(leg); }
+      // 肩/武器特征
+      if (shoulderW) { const sh = new at(new Ei(shoulderW, .25, .4, 2, .05), dark); sh.position.y = 1.0 + torsoH / 2 - .1; g.add(sh); }
+      if (type === "pistol") { const arm = new at(new Ei(.12, .12, .5, 1, .02), dark); arm.position.set(torsoW / 2, 1.2, -.3); g.add(arm); }
+      if (type === "rifle") { const rifle = new at(new Ei(.1, .14, .8, 1, .02), dark); rifle.position.set(0, 1.15, -.4); g.add(rifle); }
+      if (type === "melee") { const blade = new at(new Ei(.06, .9, .12, 1, .01), new Xt({ color: 0xcccccc, metalness: .8, roughness: .3 })); blade.position.set(torsoW / 2 + .1, 1.3, -.2); blade.rotation.z = -.4; g.add(blade); }
+      if (type === "predator") { for (const s of [-1, 1]) { const claw = new at(new Ei(.08, .7, .1, 1, .02), dark); claw.position.set(s * (torsoW / 2 + .05), 1.0, -.15); claw.rotation.z = s * .3; g.add(claw); } }
+      return { group: g, hitMeshes: hit, type, color: T.color };
+    }
+    return { types, build };
+  })();
+
+  // PSX 全局开关
+  var RANGE_PSX = (() => {
+    let on = false;
+    function set(v) {
+      on = v;
+      RANGE_WINGS.post.psxGlobal = v;
+      RANGE_WINGS.post.setMode(RANGE_WINGS.post.wingMode || null);
+      const b = gt("#psxToggle"); if (b) b.textContent = "PSX 复古模式 · " + (v ? "开" : "关");
+      try { localStorage.setItem("range-psx", v ? "1" : "0"); } catch {}
+    }
+    gt("#psxToggle").onclick = () => set(!on);
+    try { if (localStorage.getItem("range-psx") === "1") set(true); } catch {}
+    return { get on() { return on; }, set };
+  })();
+
+  // 剪影画廊（2D 预览缩略图）
+  (function () {
+    const gallery = gt("#silGallery");
+    gt("#silhouetteEnter").onclick = () => {
+      gallery.hidden = false;
+      const list = gt("#silList"); list.innerHTML = "";
+      for (const k of Object.keys(RANGE_SILHOUETTE.types)) {
+        const T = RANGE_SILHOUETTE.types[k];
+        const item = document.createElement("div"); item.className = "silItem";
+        const cv = document.createElement("canvas"); cv.width = 90; cv.height = 130;
+        const ctx = cv.getContext("2d");
+        const c = "#" + T.color.toString(16).padStart(6, "0");
+        ctx.fillStyle = c;
+        const w = k === "heavy" ? 40 : k === "predator" ? 20 : k === "melee" ? 32 : 26;
+        ctx.fillRect(45 - w / 2, 40, w, 50); // torso
+        ctx.beginPath(); ctx.arc(45, 32, k === "predator" ? 9 : 12, 0, 6.28); ctx.fill(); // head
+        ctx.fillStyle = "#1a1a1a"; ctx.fillRect(45 - w / 2 + 2, 90, 8, 30); ctx.fillRect(45 + w / 2 - 10, 90, 8, 30); // legs
+        if (k === "rifle") ctx.fillRect(30, 55, 35, 6);
+        if (k === "melee") { ctx.fillStyle = "#ccc"; ctx.fillRect(45 + w / 2, 35, 5, 40); }
+        item.appendChild(cv);
+        const b = document.createElement("b"); b.textContent = T.name; item.appendChild(b);
+        const s = document.createElement("span"); s.textContent = "威胁 " + T.threat; s.style.opacity = ".7"; item.appendChild(s);
+        list.appendChild(item);
+      }
+    };
+    gt("#silBack").onclick = () => gallery.hidden = true;
+  })();
+
+  RANGE_API.silhouette = RANGE_SILHOUETTE;
+  RANGE_API.psx = RANGE_PSX;
   RANGE_API.draw = () => ki();
 
   fr.update(1 / 120, ke, Yt, ge);
