@@ -54,7 +54,7 @@ THE SOFTWARE.
 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>RANGE — 0.37 · 战术实验区</title>
+    <title>RANGE — 0.38 · 战术实验区</title>
     <style>
       :root {
         color-scheme: dark;
@@ -970,6 +970,40 @@ THE SOFTWARE.
       #huntResult[hidden] { display: none; }
       body.hunt-dark #hud .topbar, body.hunt-dark #hud .bottombar { color: #888; }
       #huntStatic { position: fixed; inset: 0; z-index: 45; pointer-events: none; opacity: 0; background: repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 3px); mix-blend-mode: screen; }
+      /* ═══ RANGE 0.38 · 分组导航大厅 ═══ */
+      #lobby { position: fixed; inset: 0; z-index: 120; background: radial-gradient(ellipse at 50% -10%, rgba(235,195,117,.1), transparent 55%), linear-gradient(170deg, #0c1f18, #081410 70%); overflow-y: auto; padding: calc(20px + env(safe-area-inset-top)) 20px calc(30px + env(safe-area-inset-bottom)); scrollbar-width: thin; scrollbar-color: rgba(235,195,117,.5) rgba(255,255,255,.05); }
+      #lobby[hidden] { display: none; }
+      #lobby::-webkit-scrollbar { width: 9px; } #lobby::-webkit-scrollbar-track { background: rgba(255,255,255,.04); } #lobby::-webkit-scrollbar-thumb { background: rgba(235,195,117,.45); border-radius: 5px; } #lobby::-webkit-scrollbar-thumb:hover { background: rgba(235,195,117,.7); }
+      .lbWrap { max-width: 860px; margin: 0 auto; }
+      .lbHead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+      .lbBrand { font-size: 30px; font-weight: 900; letter-spacing: .04em; color: #f2e9d8; }
+      .lbBrand span { color: #ebc375; }
+      .lbTag { font-size: 10px; letter-spacing: .3em; color: #7fc9a8; }
+      .lbProfile { display: flex; align-items: center; gap: 16px; background: linear-gradient(120deg, rgba(235,195,117,.12), rgba(235,195,117,.03)); border: 1px solid rgba(235,195,117,.3); border-radius: 14px; padding: 14px 18px; margin-bottom: 18px; }
+      .lbLv { width: 56px; height: 56px; border-radius: 12px; background: linear-gradient(150deg, #ebc375, #c8963c); color: #14251c; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; flex-shrink: 0; }
+      .lbLv b { font-size: 22px; line-height: 1; } .lbLv small { font-size: 8px; letter-spacing: .1em; }
+      .lbPInfo { flex: 1; min-width: 0; }
+      .lbTitle { font-size: 15px; font-weight: 700; color: #ebc375; }
+      .lbXPBar { height: 7px; background: rgba(255,255,255,.12); border-radius: 4px; overflow: hidden; margin: 6px 0; }
+      .lbXPBar i { display: block; height: 100%; background: linear-gradient(90deg, #7fc9a8, #ebc375); border-radius: 4px; }
+      .lbDaily { font-size: 11px; color: #c8d4cc; opacity: .85; }
+      .lbGroup { margin-bottom: 18px; }
+      .lbGroup h3 { font-size: 12px; letter-spacing: .25em; color: #7fc9a8; margin: 0 0 10px; display: flex; align-items: center; gap: 10px; }
+      .lbGroup h3::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(127,201,168,.4), transparent); }
+      .lbGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+      .lbCard { background: linear-gradient(150deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); border: 1px solid rgba(235,195,117,.2); border-radius: 12px; padding: 14px; cursor: pointer; text-align: left; color: #f2e9d8; font-family: inherit; transition: transform .12s, border-color .12s, background .12s; position: relative; overflow: hidden; }
+      .lbCard:hover { transform: translateY(-3px); border-color: rgba(235,195,117,.6); background: linear-gradient(150deg, rgba(235,195,117,.12), rgba(235,195,117,.03)); }
+      .lbCard .ico { font-size: 20px; display: block; margin-bottom: 6px; }
+      .lbCard b { font-size: 14px; display: block; }
+      .lbCard small { font-size: 10px; opacity: .6; display: block; margin-top: 3px; line-height: 1.4; }
+      .lbCard.primary { background: linear-gradient(150deg, #ebc375, #c8963c); color: #14251c; border-color: #ebc375; }
+      .lbCard.primary small { opacity: .75; }
+      .lbModes { display: flex; gap: 8px; margin-bottom: 12px; }
+      .lbMode { flex: 1; background: rgba(255,255,255,.05); border: 1px solid rgba(235,195,117,.25); color: #f2e9d8; border-radius: 9px; padding: 9px; cursor: pointer; font-family: inherit; font-size: 13px; }
+      .lbMode.on { background: rgba(235,195,117,.2); border-color: #ebc375; font-weight: 700; }
+      .lbFoot { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+      .lbFoot button { background: rgba(255,255,255,.05); border: 1px solid rgba(235,195,117,.2); color: #c8d4cc; border-radius: 8px; padding: 7px 12px; cursor: pointer; font-family: inherit; font-size: 12px; }
+      @media (max-width: 640px) { .lbGrid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); } .lbBrand { font-size: 24px; } .lbProfile { flex-wrap: wrap; } }
 </style>
   </head>
   <body>
@@ -1048,7 +1082,7 @@ THE SOFTWARE.
         <div class="sub">PRIVATE TRAINING FACILITY / 01</div>
       </header>
       <main class="panel">
-        <div class="eyebrow" id="badge">BUILD 0.37 / 战术实验区</div>
+        <div class="eyebrow" id="badge">BUILD 0.38 / 战术实验区</div>
         <h1 id="menuTitle">第一枪，已就绪。</h1>
         <p class="intro">
           M4A1 / P226 / AK-47 / MP5<br />教程引导、六区 CQB 与幽灵挑战。<br />辨认目标，再扣动扳机。
@@ -1148,9 +1182,9 @@ THE SOFTWARE.
 <p>仅状态回放；不伤害、不补弹、不计分。无任意帧接管。自由镜头只沿世界轴平移。</p></section>
     <section id="hud" hidden aria-label="探索界面">
       <div class="topbar">
-        <div><strong>RANGE.</strong><small>0.37 / PHYSICS + STATE</small></div>
+        <div><strong>RANGE.</strong><small>0.38 / PHYSICS + STATE</small></div>
         <div class="topright">
-          <span id="fps">0.37 / OFFLINE</span><br /><span id="position"
+          <span id="fps">0.38 / OFFLINE</span><br /><span id="position"
             >X 0.0 Z 8.0</span
           ><button id="pause">ESC · 暂停</button>
         </div>
@@ -1490,7 +1524,7 @@ THE SOFTWARE.
     </div>
     <script>
 /* ═══════════════════════════════════════════════════════════════════
-  RANGE 0.37.0「战术实验区」· 补齐与真生效（…→ 0.36 恐怖劫案 → 0.37 A 组半落地项补齐，见 SECTION T）
+  RANGE 0.38.0「战术实验区」· 大厅重排（…→ 0.37 补齐真生效 → 0.38 分组导航大厅，见 SECTION U）
   来源: JadeeJacson/neon-drift-gp @ main, games/range/index.html
         （2026-10-26 提交「新增四款练手小游戏」，原始构建 1,029,475 字节）
   还原: 内联 JS 经 js-beautify 格式化（不折行/保留换行），并在已验证边界插入分区注释。
@@ -20089,7 +20123,7 @@ void main() {
    * 改动后请跑 test/smoke.js（桌面回归）与 test/mobile.js（移动端验收）。
    * ════════════════════════════════════════════════════════════════════════ */
   var RANGE_CONFIG = {
-    release: "0.37.0",
+    release: "0.38.0",
     render: {
       maxPixelRatio: 1.65,        // 桌面渲染像素比上限
       mobileMaxPixelRatio: 1.3    // 移动端像素比上限（性能优先）
@@ -33424,7 +33458,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       Oi = !1, ge.stop(), Oe.suspend();
       return
     }
-    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.37 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
+    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.38 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
   }
   ge.onPause = Sn;
   ge.onLookMode = s => {
@@ -33529,7 +33563,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (let i = 0; i < e; i++) fr.update(t / e, ke, Yt, ge);
       ki()
     }
-    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.37 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
+    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.38 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
   }
 /* ════════════════════════════════════════════════════════════════════════
  * [SECTION E] QA 调试接口 window.__RANGE__（URL 带 ?qa 时启用扩展方法）
@@ -35560,6 +35594,74 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     return { skins, set, apply, unlocked, get current() { return cur; } };
   })();
   RANGE_API.skins = RANGE_SKINS;
+  RANGE_API.draw = () => ki();
+
+  /* ════════════════════════════════════════════════════════════════════════
+   * [SECTION U] RANGE_LOBBY 分组导航大厅（0.38 / P2 · C1）
+   * 档案条置顶 + 训练/实验/行动/创作分组卡片，复用现有按钮绑定。
+   * ════════════════════════════════════════════════════════════════════════ */
+  var RANGE_LOBBY = (() => {
+    if (new URLSearchParams(location.search).has("nolobby")) return { sync() {}, build() {}, get visible() { return false; } };
+    const lobby = document.createElement("div"); lobby.id = "lobby"; lobby.hidden = true;
+    document.body.appendChild(lobby);
+    const groups = [
+      { title: "训练 · TRAIN", cards: [
+        { ico: "◎", name: "进入靶场", desc: "自由练习 / 教程 / CQB", primary: true, act: "start" },
+        { ico: "▦", name: "FORENSICS", desc: "法证瞄准训练 8 科目", id: "forensicsEnter" },
+        { ico: "◔", name: "训练分析", desc: "常模 / 计划 / 灵敏度", id: "fnProEnter" }
+      ]},
+      { title: "实验 · LAB", cards: [
+        { ico: "◷", name: "STATIC", desc: "时间只随你流动", id: "staticEnter" },
+        { ico: "♫", name: "RHYTHM", desc: "踩拍节奏射击", id: "rhythmEnter" },
+        { ico: "◈", name: "战术实验区", desc: "敌人 AI / ECHO / TIME", id: "studioEnter" },
+        { ico: "◉", name: "动力实验场", desc: "连锁 / 幽灵沙盒", id: "dynamicsEnter" },
+        { ico: "◐", name: "断电行动", desc: "BLACKOUT 90 秒", id: "blackoutEnter" }
+      ]},
+      { title: "行动 · OPS", cards: [
+        { ico: "◢", name: "BREACH", desc: "可破坏劫案 8 图", id: "breachEnter" },
+        { ico: "◣", name: "HUNT", desc: "黑暗捕食者", id: "huntEnter" },
+        { ico: "◧", name: "DECK RUN", desc: "卡牌速通", id: "deckEnter" }
+      ]},
+      { title: "创作 · CREATE", cards: [
+        { ico: "▣", name: "关卡编辑器", desc: "UGC 自建地图", id: "editorEnter" },
+        { ico: "◭", name: "剪影画廊", desc: "敌人设计", id: "silhouetteEnter" }
+      ]}
+    ];
+    function build() {
+      const P = window.RANGE_API.profile;
+      const lv = P ? P.level : 1, title = P ? P.titleOf(lv) : "新兵", xp = P ? P.state.xp : 0;
+      const lo = Math.pow(lv - 1, 2) * 80, hi = Math.pow(lv, 2) * 80;
+      const daily = P && P.state.daily ? P.state.daily : null;
+      let h = '<div class="lbWrap"><div class="lbHead"><div><div class="lbBrand">RANGE<span>.</span></div><div class="lbTag">TACTICAL EXPERIMENT FACILITY</div></div></div>';
+      h += '<div class="lbProfile"><div class="lbLv"><b>' + lv + '</b><small>LEVEL</small></div><div class="lbPInfo"><div class="lbTitle">' + title + ' · ' + xp + ' XP</div><div class="lbXPBar"><i style="width:' + Math.min(100, (xp - lo) / (hi - lo) * 100) + '%"></i></div><div class="lbDaily">' + (daily ? '每日挑战：击倒 ' + daily.goal + ' 靶 · 进度 ' + Math.min(daily.progress, daily.goal) + '/' + daily.goal + (daily.done ? ' ✓' : '') : '') + '</div></div></div>';
+      h += '<div class="lbModes"><button class="lbMode" data-m="free">自由练习</button><button class="lbMode" data-m="tutorial">新手教程</button><button class="lbMode" data-m="cqb">CQB 计时</button></div>';
+      for (const g of groups) {
+        h += '<div class="lbGroup"><h3>' + g.title + '</h3><div class="lbGrid">';
+        for (const c of g.cards) h += '<button class="lbCard' + (c.primary ? ' primary' : '') + '" data-act="' + (c.act || '') + '" data-id="' + (c.id || '') + '"><span class="ico">' + c.ico + '</span><b>' + c.name + '</b><small>' + c.desc + '</small></button>';
+        h += '</div></div>';
+      }
+      h += '<div class="lbFoot"><button data-id="profileEnter">档案</button><button data-id="settingsOpen">设置</button><button data-id="reactiveToggle">反应靶</button><button data-id="psxToggle">PSX</button><button data-id="helpToggle">操作说明</button></div>';
+      h += '</div>';
+      lobby.innerHTML = h;
+      // 模式选择
+      lobby.querySelectorAll(".lbMode").forEach(b => b.onclick = () => { const orig = gt('[data-mode="' + b.dataset.m + '"]'); if (orig) orig.click(); lobby.querySelectorAll(".lbMode").forEach(x => x.classList.toggle("on", x === b)); });
+      const curMode = Gt.mode; lobby.querySelectorAll(".lbMode").forEach(x => x.classList.toggle("on", x.dataset.m === curMode));
+      // 卡片
+      lobby.querySelectorAll(".lbCard").forEach(b => b.onclick = () => { if (b.dataset.act === "start") { gt("#start").click(); } else if (b.dataset.id) { const t = gt("#" + b.dataset.id); if (t) t.click(); } });
+      lobby.querySelectorAll(".lbFoot button").forEach(b => b.onclick = () => { const t = gt("#" + b.dataset.id); if (t) t.click(); });
+    }
+    function sync() {
+      const menuVisible = !gt("#menu").hidden;
+      if (menuVisible) { build(); lobby.hidden = false; }
+      else lobby.hidden = true;
+    }
+    const obs = new MutationObserver(sync);
+    obs.observe(gt("#menu"), { attributes: true, attributeFilter: ["hidden"] });
+    sync();
+    return { sync, build, get visible() { return !lobby.hidden; } };
+  })();
+
+  RANGE_API.lobby = RANGE_LOBBY;
   RANGE_API.draw = () => ki();
 
   fr.update(1 / 120, ke, Yt, ge);
