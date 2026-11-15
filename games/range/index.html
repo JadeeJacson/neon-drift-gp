@@ -54,7 +54,7 @@ THE SOFTWARE.
 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>RANGE — 0.40 · 战术实验区</title>
+    <title>RANGE — 0.41 · 战术实验区</title>
     <style>
       :root {
         color-scheme: dark;
@@ -1100,7 +1100,7 @@ THE SOFTWARE.
         <div class="sub">PRIVATE TRAINING FACILITY / 01</div>
       </header>
       <main class="panel">
-        <div class="eyebrow" id="badge">BUILD 0.40 / 战术实验区</div>
+        <div class="eyebrow" id="badge">BUILD 0.41 / 战术实验区</div>
         <h1 id="menuTitle">第一枪，已就绪。</h1>
         <p class="intro">
           M4A1 / P226 / AK-47 / MP5<br />教程引导、六区 CQB 与幽灵挑战。<br />辨认目标，再扣动扳机。
@@ -1200,9 +1200,9 @@ THE SOFTWARE.
 <p>仅状态回放；不伤害、不补弹、不计分。无任意帧接管。自由镜头只沿世界轴平移。</p></section>
     <section id="hud" hidden aria-label="探索界面">
       <div class="topbar">
-        <div><strong>RANGE.</strong><small>0.40 / PHYSICS + STATE</small></div>
+        <div><strong>RANGE.</strong><small>0.41 / PHYSICS + STATE</small></div>
         <div class="topright">
-          <span id="fps">0.40 / OFFLINE</span><br /><span id="position"
+          <span id="fps">0.41 / OFFLINE</span><br /><span id="position"
             >X 0.0 Z 8.0</span
           ><button id="pause">ESC · 暂停</button>
         </div>
@@ -1444,7 +1444,7 @@ THE SOFTWARE.
         <div id="edStatus" style="font-size:11px;margin-top:6px"></div>
       </div>
     </div>
-    <div id="editorHud" hidden><div id="edHudText">自定义图 · 清靶后到出口</div></div>
+    <div id="editorHud" hidden><div id="edHudText">自定义图 · 清靶后到出口</div><button id="edExit" style="position:fixed;right:calc(16px + env(safe-area-inset-right));top:calc(16px + env(safe-area-inset-top));z-index:57;background:#ebc375;color:#14251c;border:none;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer">退出试玩</button></div>
     <div id="rhythmHud" hidden>
       <div id="rhScore">0</div>
       <div id="rhCombo"></div>
@@ -1563,7 +1563,7 @@ THE SOFTWARE.
     </div>
     <script>
 /* ═══════════════════════════════════════════════════════════════════
-  RANGE 0.40.0「战术实验区」· 工程体验（…→ 0.39 招牌翼深化 → 0.40 无障碍/对象池/设置整合/移动端 HUD）
+  RANGE 0.41.0「战术实验区」· 修复一（…→ 0.40 工程体验 → 0.41 审查 P0/P1 功能修复）
   来源: JadeeJacson/neon-drift-gp @ main, games/range/index.html
         （2026-10-26 提交「新增四款练手小游戏」，原始构建 1,029,475 字节）
   还原: 内联 JS 经 js-beautify 格式化（不折行/保留换行），并在已验证边界插入分区注释。
@@ -20162,7 +20162,7 @@ void main() {
    * 改动后请跑 test/smoke.js（桌面回归）与 test/mobile.js（移动端验收）。
    * ════════════════════════════════════════════════════════════════════════ */
   var RANGE_CONFIG = {
-    release: "0.40.0",
+    release: "0.41.0",
     render: {
       maxPixelRatio: 1.65,        // 桌面渲染像素比上限
       mobileMaxPixelRatio: 1.3    // 移动端像素比上限（性能优先）
@@ -33497,7 +33497,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       Oi = !1, ge.stop(), Oe.suspend();
       return
     }
-    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.40 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
+    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.41 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
   }
   ge.onPause = Sn;
   ge.onLookMode = s => {
@@ -33602,7 +33602,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (let i = 0; i < e; i++) fr.update(t / e, ke, Yt, ge);
       ki()
     }
-    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.40 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
+    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.41 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
   }
 /* ════════════════════════════════════════════════════════════════════════
  * [SECTION E] QA 调试接口 window.__RANGE__（URL 带 ?qa 时启用扩展方法）
@@ -34056,7 +34056,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     };
     function register(name, w) { wings[name] = w; }
     function enter(name) { if (active && active.exit) active.exit(); active = wings[name]; if (active && active.enter) active.enter(); }
-    function exit() { if (active && active.exit) active.exit(); active = null; }
+    function exit() { if (active && active.exit) active.exit(); active = null; if (window.RANGE_API && RANGE_API.reactive && RANGE_API.style) RANGE_API.style.show(RANGE_API.reactive.active); }
     function _setActive(name) { active = name ? wings[name] : null; }
     post.init = function () {
       if (post.rt) return;
@@ -34404,7 +34404,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
         const born = performance.now();
         (function a() { const t = (performance.now() - born) / 1e3; if (t > 1.2 || !active) { group.remove(f); return; } v.y -= 9.8 * .016; f.position.addScaledVector(v, .016); f.rotation.x += .1; requestAnimationFrame(a); })();
       }
-      ln.tone(1400, .15, .14, 0, "square"); ln.tone(2200, .1, .08, .02, "sine");
+      ln.tone(1400, .15, .14, 0, "square"); ln.tone(2200, .1, .08, .02, "sine"); if (window.RANGE_API.profile) RANGE_API.profile.reportKill(1);
       refreshHud();
       if (drones.every(d => !d.alive)) roomClear();
     }
@@ -34515,7 +34515,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     const tMat = new Xt({ color: 0x222222, roughness: .6 });
     const tMatActive = new Xt({ color: 0xff2a1a, roughness: .5, emissive: 0x440000 });
     const ray = new Yn;
-    let active = false, cur = null, targets = [], timer = 0, score = 0, shots = 0, hits = 0;
+    let active = false, cur = null, targets = [], timer = 0, score = 0, shots = 0, hits = 0, running = false;
     let rec = [], hitRec = [], round = 0, speedStart = 0, recoilPts = [], trackTime = 0, switchActive = 0;
     let savedMats = [], origBg = null;
 
@@ -34559,6 +34559,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     function randPos() { return [(Math.random() - .5) * 6, 1.2 + Math.random() * 1.4, -12 - Math.random() * 4]; }
     function tick(s) {
       Yt.update(s); ke.update(s);
+      if (!running) { ge.end(); return; }
       rec.push({ t: performance.now(), yaw: Yt.yaw, pitch: Yt.pitch });
       if (cur === "tracking") {
         const t = targets[0]; t.phase += s; t.mesh.position.x = Math.sin(t.phase * 1.2) * 3; t.mesh.position.y = 1.6 + Math.sin(t.phase * 2) * .5;
@@ -34589,7 +34590,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
         hits++;
         const t = targets.find(x => x.mesh === hit.object);
         hitRec.push({ t: performance.now(), point: hit.point.toArray() });
-        ln.tone(1200, .05, .1, 0, "square");
+        ln.tone(1200, .05, .1, 0, "square"); if (window.RANGE_API.profile) RANGE_API.profile.reportKill(1);
         if (cur === "gridshot" || cur === "flick") { score += cur === "flick" ? 130 : 100; const p = randPos(); t.mesh.position.set(p[0], p[1], p[2]); }
         else if (cur === "precision") { score += 150; const p = randPos(); t.mesh.position.set(p[0], p[1], p[2]); }
         else if (cur === "switching" || cur === "switchspeed") { score += cur === "switchspeed" ? 150 : 120; t.active = false; t.mesh.material = tMat; switchActive = 1 - switchActive; targets[switchActive].active = true; targets[switchActive].mesh.material = tMatActive; }
@@ -34598,6 +34599,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       refreshHud();
     };
     function finish() {
+      running = false;
       if (cur === "recoil") {
         if (recoilPts.length) { const cx = recoilPts.reduce((a, p) => a + p[0], 0) / recoilPts.length, cy = recoilPts.reduce((a, p) => a + p[1], 0) / recoilPts.length; const sd = Math.sqrt(recoilPts.reduce((a, p) => a + (p[0] - cx) ** 2 + (p[1] - cy) ** 2, 0) / recoilPts.length); score = Math.max(0, Math.round(1000 - sd * 800)); }
       }
@@ -34636,6 +34638,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     }
     gt("#fnScrub").oninput = e => { const f = +e.target.value / 100; drawHeatmap(f); gt("#fnScrubT").textContent = e.target.value + "%"; };
     function openMenu() {
+      running = false;
       gt("#forensicsMenu").hidden = false;
       gt("#fnDrillList").innerHTML = Object.keys(drills).map(k => "<button data-drill='" + k + "'>" + drills[k].name + "<small>" + drills[k].desc + "</small></button>").join("");
       gt("#fnDrillList").querySelectorAll("button").forEach(b => b.onclick = () => startDrill(b.dataset.drill));
@@ -34646,6 +34649,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       gt("#fnDailyBtn").onclick = () => startDrill(daily);
     }
     function startDrill(k) {
+      running = true;
       gt("#forensicsMenu").hidden = true; gt("#forensicsResult").hidden = true; gt("#forensicsHud").hidden = false;
       setup(k);
     }
@@ -34731,7 +34735,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       const pool = cards.filter(c => !hand.includes(c));
       while (hand.length < 3) { const c = pool[Math.floor(Math.random() * pool.length)]; if (!hand.includes(c)) hand.push(c); }
       // 幽灵
-      try { let g = null; const imp = JSON.parse(localStorage.getItem("range-imported-ghost") || "null"); if (imp && imp.wing === "deckrun" && imp.data) g = imp.data; else g = JSON.parse(localStorage.getItem("range-deck-ghost-" + i) || "null"); ghostPlay = g; } catch { ghostPlay = null; }
+      try { let g = null; const imp = JSON.parse(localStorage.getItem("range-imported-ghost-" + i) || "null"); if (imp && imp.wing === "deckrun" && imp.data) g = imp.data; else g = JSON.parse(localStorage.getItem("range-deck-ghost-" + i) || "null"); ghostPlay = g; } catch { ghostPlay = null; }
       if (ghostPlay) { ghostMesh = new at(new Qe(.25, 12, 8), new Xt({ color: 0x88aaff, transparent: true, opacity: .4 })); group.add(ghostMesh); }
       gt("#dkLevel").textContent = "LEVEL " + (i + 1);
       renderHand(); refreshHud();
@@ -34786,7 +34790,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       ray.set(He.position, new I(...s.direction).normalize());
       const alive = targets.filter(t => t.alive).map(t => t.mesh);
       const hit = ray.intersectObjects(alive, false)[0];
-      if (hit) { const t = targets.find(x => x.mesh === hit.object); t.alive = false; group.remove(t.mesh); ln.tone(1400, .08, .12, 0, "square"); refreshHud(); }
+      if (hit) { const t = targets.find(x => x.mesh === hit.object); t.alive = false; group.remove(t.mesh); ln.tone(1400, .08, .12, 0, "square"); if (window.RANGE_API.profile) RANGE_API.profile.reportKill(1); refreshHud(); }
     };
     function finish() {
       finished = true;
@@ -35010,7 +35014,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       if (phase === "exec") {
         const gm = []; guards.filter(g => g.alive).forEach(g => gm.push(...g.hitMeshes));
         const gh = ray.intersectObjects(gm, false)[0];
-        if (gh) { const g = guards.find(x => x.hitMeshes.includes(gh.object)); if (g) { g.alive = false; group.remove(g.mesh); ln.tone(1400, .1, .12, 0, "square"); } }
+        if (gh) { const g = guards.find(x => x.hitMeshes.includes(gh.object)); if (g) { g.alive = false; group.remove(g.mesh); ln.tone(1400, .1, .12, 0, "square"); if (window.RANGE_API.profile) RANGE_API.profile.reportKill(1); } }
       }
     };
     // 规划标记（点击地面）
@@ -35054,8 +35058,9 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     gt("#brBack").onclick = () => RANGE_WINGS.exit();
     gt("#brrRetry").onclick = () => startMap(mapIdx);
     gt("#brrMenu").onclick = () => { gt("#breachResult").hidden = true; openMenu(); };
+    hi.domElement.addEventListener("pointerdown", e => { if (active && phase === "plan") planMark(e.clientX, e.clientY); });
     RANGE_WINGS.register("breach", { enter, exit, tick });
-    return { get active() { return active; }, get phase() { return phase; }, maps, enter, exit, startMap, loadMap, startExec, planMark, finish, get guards() { return guards; }, get loot() { return loot; }, get destruct() { return RANGE_DESTRUCT; } };
+    return { get active() { return active; }, get phase() { return phase; }, maps, enter, exit, startMap, loadMap, startExec, planMark, finish, get guards() { return guards; }, get loot() { return loot; }, get markers() { return markers; }, get destruct() { return RANGE_DESTRUCT; } };
   })();
 
   RANGE_API.kit = RANGE_KIT;
@@ -35240,6 +35245,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       }
     }
     function addXP(n) { st.xp += n; st.title = titleOf(levelOf(st.xp)); save(); }
+    function reportKill(n = 1) { st.kills += n; addXP(12 * n); ensureDaily(); if (!st.daily.done) { st.daily.progress += n; if (st.daily.progress >= st.daily.goal) { st.daily.done = true; addXP(st.daily.reward); } } save(); }
     function onHit(h) {
       st.hits++;
       if (h.killed) { st.kills++; addXP(12); } else addXP(4);
@@ -35264,7 +35270,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     gt("#pfExport").onclick = () => { const blob = new Blob([JSON.stringify(st, null, 2)], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "RANGE-profile.json"; a.click(); };
     gt("#pfImport").onchange = async e => { const f = e.target.files[0]; if (!f) return; try { const s = JSON.parse(await f.text()); if (typeof s.xp === "number") { st = Object.assign(st, s); save(); open(); } } catch {} };
     ensureDaily();
-    return { get state() { return st; }, addXP, onHit, levelOf, titleOf, open, get level() { return levelOf(st.xp); } };
+    return { get state() { return st; }, addXP, reportKill, onHit, levelOf, titleOf, open, get level() { return levelOf(st.xp); } };
   })();
 
   var RANGE_GHOST = (() => {
@@ -35283,11 +35289,11 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     }
     function currentBest() {
       // 取 DECKRUN 第 1 关最佳幽灵为例
-      try { const g = JSON.parse(localStorage.getItem("range-deck-ghost-0") || "null"); if (g) return { wing: "deckrun", data: g }; } catch {}
+      try { const g = JSON.parse(localStorage.getItem("range-deck-ghost-0") || "null"); if (g) return { wing: "deckrun", lvl: 0, data: g }; } catch {}
       return null;
     }
     gt("#ghExport").onclick = () => { const b = currentBest(); gt("#ghCode").value = b ? exportCode(b.wing, b.data) : "（暂无最佳跑，先完成 DECK RUN 第 1 关）"; gt("#ghStatus").textContent = b ? "已导出 DECK RUN 第 1 关幽灵" : ""; };
-    gt("#ghImport").onclick = () => { try { const p = importCode(gt("#ghCode").value); localStorage.setItem("range-imported-ghost", JSON.stringify(p)); gt("#ghStatus").textContent = "已导入 " + p.wing + " 幽灵 · 进入对应翼竞速"; } catch (e) { gt("#ghStatus").textContent = "导入失败：" + e.message; } };
+    gt("#ghImport").onclick = () => { try { const p = importCode(gt("#ghCode").value); localStorage.setItem("range-imported-ghost-" + (p.lvl || 0), JSON.stringify(p)); gt("#ghStatus").textContent = "已导入 " + p.wing + " 第 " + ((p.lvl || 0) + 1) + " 关幽灵"; } catch (e) { gt("#ghStatus").textContent = "导入失败：" + e.message; } };
     gt("#ghClose").onclick = () => gt("#ghostPanel").hidden = true;
     return { exportCode, importCode, hash, open: () => gt("#ghostPanel").hidden = false };
   })();
@@ -35368,6 +35374,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
     function play() { playing = true; RANGE_WINGS._setActive("editor"); group.visible = true; Oi = !0; Dn = !0; gt("#menu").hidden = !0; gt("#hud").hidden = !1; gt("#editorPanel").hidden = !0; gt("#editorHud").hidden = !1; buildPlay(); gt("#edHudText").textContent = "靶 0/" + targets.length + " · 清靶后到出口"; }
     function stop() { playing = false; RANGE_WINGS._setActive(null); group.visible = false; Oi = !1; gt("#menu").hidden = !1; gt("#hud").hidden = !0; gt("#editorHud").hidden = !0; gt("#editorPanel").hidden = !1; }
     gt("#edPlay").onclick = play;
+    gt("#edExit").onclick = () => stop();
     gt("#editorEnter").onclick = () => { gt("#editorPanel").hidden = false; draw(); renderLib(); };
     gt("#edClose").onclick = () => { if (playing) stop(); gt("#editorPanel").hidden = true; };
     addEventListener("keydown", e => { if (playing && e.code === "Escape") stop(); });
@@ -35465,7 +35472,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       ray.set(He.position, new I(...s.direction).normalize());
       const h = ray.intersectObjects(targets.map(t => t.mesh), false)[0];
       const j = judge(); showJudge(j);
-      if (h) { const t = targets.find(x => x.mesh === h.object); t.alive = false; group.remove(t.mesh); const mult = j === "perfect" ? 3 : j === "good" ? 1.5 : .5; score += Math.round(100 * mult * (1 + combo * .05)); if (j === "miss") { combo = 0; miss++; } else { combo++; maxCombo = Math.max(maxCombo, combo); if (j === "perfect") perfect++; else good++; } ln.tone(j === "perfect" ? 1800 : 1200, .06, .1, 0, "square"); }
+      if (h) { const t = targets.find(x => x.mesh === h.object); t.alive = false; group.remove(t.mesh); const mult = j === "perfect" ? 3 : j === "good" ? 1.5 : .5; score += Math.round(100 * mult * (1 + combo * .05)); if (j === "miss") { combo = 0; miss++; } else { combo++; maxCombo = Math.max(maxCombo, combo); if (j === "perfect") perfect++; else good++; } ln.tone(j === "perfect" ? 1800 : 1200, .06, .1, 0, "square"); if (window.RANGE_API.profile) RANGE_API.profile.reportKill(1); }
       else { combo = 0; }
     };
     function finish() { finished = true; const total = perfect + good + miss; const acc = total ? Math.round((perfect + good * .5) / total * 100) : 0; const grade = acc > 90 ? "SS" : acc > 75 ? "S" : acc > 60 ? "A" : acc > 40 ? "B" : "C"; gt("#rhrTitle").textContent = "演奏结束 · " + grade; gt("#rhrScore").textContent = score + " 分"; gt("#rhrStats").textContent = "Perfect " + perfect + " / Good " + good + " / Miss " + miss + " · 最大连击 " + maxCombo + " · 准确率 " + acc + "%"; gt("#rhythmResult").hidden = false; gt("#rhythmHud").hidden = true; try { const b = +(localStorage.getItem("range-rhythm-best") || 0); if (score > b) localStorage.setItem("range-rhythm-best", String(score)); } catch {} }
@@ -35592,12 +35599,12 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
   // A7：跨翼完成 XP（监听各翼结算面板首次显示）
   (function () {
     const panels = { staticResult: 150, forensicsResult: 120, deckResult: 140, breachResult: 160, rhythmResult: 130, huntResult: 180 };
-    const seen = {};
+    const seen = {}; const lastAward = {};
     (function watch() {
       requestAnimationFrame(watch);
       for (const id of Object.keys(panels)) {
         const el = gt("#" + id);
-        if (el && !el.hidden && !seen[id]) { seen[id] = true; if (window.RANGE_API.profile) RANGE_API.profile.addXP(panels[id]); }
+        if (el && !el.hidden && !seen[id]) { seen[id] = true; const now = Date.now(); if (!lastAward[id] || now - lastAward[id] > 5000) { lastAward[id] = now; if (window.RANGE_API.profile) RANGE_API.profile.addXP(panels[id]); } }
         else if (el && el.hidden) seen[id] = false;
       }
     })();
@@ -35611,9 +35618,10 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       { id: "arctic", name: "极地", level: 8, color: 0xb8c4d0 },
       { id: "void", name: "虚空", level: 12, color: 0x3a2a5a }
     ];
-    let cur = "default";
+    let cur = "default", applied = false;
     try { cur = localStorage.getItem("range-skin") || "default"; } catch {}
     function apply() {
+      applied = true;
       const s = skins.find(x => x.id === cur) || skins[0];
       fr.models.forEach(m => m.root.traverse(o => {
         if (o.isMesh && o.material && o.material.metalness > .5) {
@@ -35639,7 +35647,8 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       const obs = new MutationObserver(() => { if (!gt("#profilePanel").hidden) render(); });
       obs.observe(gt("#profilePanel"), { attributes: true, attributeFilter: ["hidden"] });
     }
-    return { skins, set, apply, unlocked, get current() { return cur; } };
+    apply();
+    return { skins, set, apply, unlocked, get current() { return cur; }, get applied() { return applied; } };
   })();
   RANGE_API.skins = RANGE_SKINS;
   RANGE_API.draw = () => ki();
@@ -35688,7 +35697,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
         for (const c of g.cards) h += '<button class="lbCard' + (c.primary ? ' primary' : '') + '" data-act="' + (c.act || '') + '" data-id="' + (c.id || '') + '"><span class="ico">' + c.ico + '</span><b>' + c.name + '</b><small>' + c.desc + '</small></button>';
         h += '</div></div>';
       }
-      h += '<div class="lbFoot"><button data-id="profileEnter">档案</button><button data-id="settingsOpen">设置</button><button data-id="reactiveToggle">反应靶</button><button data-id="psxToggle">PSX</button><button data-id="helpToggle">操作说明</button></div>';
+      h += '<div class="lbFoot"><button data-id="profileEnter">档案</button><button data-id="settingsOpen">设置</button><button data-id="reactiveToggle">反应靶</button><button data-id="psxToggle">PSX</button><button data-id="helpToggle">操作说明</button><button data-id="accessOpen">无障碍</button></div>';
       h += '</div>';
       lobby.innerHTML = h;
       // 模式选择
@@ -35696,7 +35705,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       const curMode = Gt.mode; lobby.querySelectorAll(".lbMode").forEach(x => x.classList.toggle("on", x.dataset.m === curMode));
       // 卡片
       lobby.querySelectorAll(".lbCard").forEach(b => b.onclick = () => { if (b.dataset.act === "start") { gt("#start").click(); } else if (b.dataset.id) { const t = gt("#" + b.dataset.id); if (t) t.click(); } });
-      lobby.querySelectorAll(".lbFoot button").forEach(b => b.onclick = () => { const t = gt("#" + b.dataset.id); if (t) t.click(); });
+      lobby.querySelectorAll(".lbFoot button").forEach(b => b.onclick = () => { if (b.dataset.id === "accessOpen") { if (window.RANGE_API.access) RANGE_API.access.open(); return; } const t = gt("#" + b.dataset.id); if (t) t.click(); });
     }
     function sync() {
       const menuVisible = !gt("#menu").hidden;
@@ -35767,9 +35776,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
 
   // 设置整合：大厅脚栏加「无障碍」入口
   (function () {
-    const foot = gt("#lobby .lbFoot");
-    if (foot) { const b = document.createElement("button"); b.textContent = "无障碍"; b.onclick = () => RANGE_ACCESS.open(); foot.appendChild(b); }
-    // 经典菜单也加入口
+    // 大厅无障碍按钮已内置于 build()；经典菜单加入口
     const sec = gt("#menu .secondary");
     if (sec) { const b = document.createElement("button"); b.textContent = "无障碍"; b.onclick = () => RANGE_ACCESS.open(); sec.appendChild(b); }
   })();
