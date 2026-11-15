@@ -54,7 +54,7 @@ THE SOFTWARE.
 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>RANGE — 0.39 · 战术实验区</title>
+    <title>RANGE — 0.40 · 战术实验区</title>
     <style>
       :root {
         color-scheme: dark;
@@ -1004,6 +1004,24 @@ THE SOFTWARE.
       .lbFoot { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
       .lbFoot button { background: rgba(255,255,255,.05); border: 1px solid rgba(235,195,117,.2); color: #c8d4cc; border-radius: 8px; padding: 7px 12px; cursor: pointer; font-family: inherit; font-size: 12px; }
       @media (max-width: 640px) { .lbGrid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); } .lbBrand { font-size: 24px; } .lbProfile { flex-wrap: wrap; } }
+      /* ═══ RANGE 0.40 · 无障碍 / 移动端 HUD ═══ */
+      #accessPanel, #photoWarn { position: fixed; inset: 0; z-index: 170; background: rgba(6,12,10,.88); display: flex; align-items: center; justify-content: center; }
+      #accessPanel[hidden], #photoWarn[hidden] { display: none; }
+      .acRow { display: flex; align-items: center; gap: 10px; font-size: 13px; margin: 12px 0; cursor: pointer; }
+      .acRow input { width: 20px; height: 20px; accent-color: #ebc375; }
+      #acSubtitle { position: fixed; left: 50%; bottom: calc(90px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 58; background: rgba(0,0,0,.7); color: #f2e9d8; font-size: 13px; padding: 6px 14px; border-radius: 8px; pointer-events: none; }
+      #acSubtitle[hidden] { display: none; }
+      body.ac-contrast canvas { filter: contrast(1.3) saturate(1.4); }
+      body.ac-flash #huntStatic { opacity: 0 !important; }
+      body.ac-flash * { animation-duration: .001s !important; }
+      body.ac-aim #crosshair { transform: scale(1.5); }
+      body.ac-aim #crosshair i { background: #ff5a3c !important; }
+      @media (pointer: coarse) {
+        #staticHud, #forensicsHud, #deckHud, #breachHud, #huntHud, #rhythmHud { max-width: 46vw; }
+        #rhythmHud { top: calc(50px + env(safe-area-inset-top)); }
+        #deckHand { bottom: calc(8px + env(safe-area-inset-bottom)); }
+        .dkCardBtn { width: 58px; height: 80px; }
+      }
 </style>
   </head>
   <body>
@@ -1082,7 +1100,7 @@ THE SOFTWARE.
         <div class="sub">PRIVATE TRAINING FACILITY / 01</div>
       </header>
       <main class="panel">
-        <div class="eyebrow" id="badge">BUILD 0.39 / 战术实验区</div>
+        <div class="eyebrow" id="badge">BUILD 0.40 / 战术实验区</div>
         <h1 id="menuTitle">第一枪，已就绪。</h1>
         <p class="intro">
           M4A1 / P226 / AK-47 / MP5<br />教程引导、六区 CQB 与幽灵挑战。<br />辨认目标，再扣动扳机。
@@ -1182,9 +1200,9 @@ THE SOFTWARE.
 <p>仅状态回放；不伤害、不补弹、不计分。无任意帧接管。自由镜头只沿世界轴平移。</p></section>
     <section id="hud" hidden aria-label="探索界面">
       <div class="topbar">
-        <div><strong>RANGE.</strong><small>0.39 / PHYSICS + STATE</small></div>
+        <div><strong>RANGE.</strong><small>0.40 / PHYSICS + STATE</small></div>
         <div class="topright">
-          <span id="fps">0.39 / OFFLINE</span><br /><span id="position"
+          <span id="fps">0.40 / OFFLINE</span><br /><span id="position"
             >X 0.0 Z 8.0</span
           ><button id="pause">ESC · 暂停</button>
         </div>
@@ -1455,6 +1473,27 @@ THE SOFTWARE.
       <div id="huHint">慢走静音 · 奔跑引怪 · 手电照路</div>
     </div>
     <div id="huntResult" hidden><div class="sbCard brCard"><h2 id="hurTitle">HUNT</h2><div id="hurStats" style="font-size:14px;margin:10px 0"></div><button id="hurRetry">重试</button><button id="hurNext">下一夜</button><button id="hurExit">退出</button></div></div>
+    <div id="accessPanel" hidden>
+      <div class="sbCard">
+        <h2>无障碍与体验</h2>
+        <label class="acRow"><input type="checkbox" id="acContrast"> 高对比模式（增强画面对比与饱和）</label>
+        <label class="acRow"><input type="checkbox" id="acFlash"> 减少闪烁（限制静电/扫描线强度）</label>
+        <label class="acRow"><input type="checkbox" id="acAim"> 瞄准辅助（放大准星 + 目标高亮）</label>
+        <label class="acRow"><input type="checkbox" id="acSub"> 音效字幕（关键事件文字提示）</label>
+        <div style="font-size:11px;opacity:.7;margin:10px 0">HUNT / PSX 含闪烁画面，光敏者请开启「减少闪烁」。</div>
+        <button id="acClose">关闭</button>
+      </div>
+    </div>
+    <div id="photoWarn" hidden>
+      <div class="sbCard brCard">
+        <h2>光敏性提示</h2>
+        <p style="font-size:13px;line-height:1.7;margin:10px 0">此模式含闪烁与快速明暗变化。若你对闪光敏感，建议先在「无障碍」中开启减少闪烁。</p>
+        <button id="pwContinue">继续</button>
+        <button id="pwReduce">开启减少闪烁并继续</button>
+        <button id="pwCancel">返回</button>
+      </div>
+    </div>
+    <div id="acSubtitle" hidden></div>
     <div id="settingsOverlay" hidden>
       <div id="settingsDesktop" class="settingsCard" hidden>
         <header><h2>游戏设置 · 桌面端</h2><button id="settingsCloseD">✕ 关闭</button></header>
@@ -1524,7 +1563,7 @@ THE SOFTWARE.
     </div>
     <script>
 /* ═══════════════════════════════════════════════════════════════════
-  RANGE 0.39.0「战术实验区」· 招牌翼深化（…→ 0.38 大厅重排 → 0.39 STATIC/HUNT/RHYTHM 深化）
+  RANGE 0.40.0「战术实验区」· 工程体验（…→ 0.39 招牌翼深化 → 0.40 无障碍/对象池/设置整合/移动端 HUD）
   来源: JadeeJacson/neon-drift-gp @ main, games/range/index.html
         （2026-10-26 提交「新增四款练手小游戏」，原始构建 1,029,475 字节）
   还原: 内联 JS 经 js-beautify 格式化（不折行/保留换行），并在已验证边界插入分区注释。
@@ -20123,7 +20162,7 @@ void main() {
    * 改动后请跑 test/smoke.js（桌面回归）与 test/mobile.js（移动端验收）。
    * ════════════════════════════════════════════════════════════════════════ */
   var RANGE_CONFIG = {
-    release: "0.39.0",
+    release: "0.40.0",
     render: {
       maxPixelRatio: 1.65,        // 桌面渲染像素比上限
       mobileMaxPixelRatio: 1.3    // 移动端像素比上限（性能优先）
@@ -33458,7 +33497,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       Oi = !1, ge.stop(), Oe.suspend();
       return
     }
-    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.39 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
+    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.40 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
   }
   ge.onPause = Sn;
   ge.onLookMode = s => {
@@ -33563,7 +33602,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (let i = 0; i < e; i++) fr.update(t / e, ke, Yt, ge);
       ki()
     }
-    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.39 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
+    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.40 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
   }
 /* ════════════════════════════════════════════════════════════════════════
  * [SECTION E] QA 调试接口 window.__RANGE__（URL 带 ?qa 时启用扩展方法）
@@ -35520,7 +35559,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
         const dist = predator.mesh.position.distanceTo(Yt.position);
         gt("#huHeart").textContent = dist < 4 ? "♥♥♥ 危险!" : dist < 8 ? "♥♥ 接近" : "♥ 安全";
         predator.heartT = (predator.heartT || 0) - s; if (dist < 8 && predator.heartT <= 0) { predator.heartT = dist < 4 ? .35 : .75; ln.tone(55, .1, .22, 0, "sine"); ln.tone(50, .08, .14, .12, "sine"); }
-        gt("#huntStatic").style.opacity = dist < 6 ? String((6 - dist) / 6 * .5) : "0";
+        gt("#huntStatic").style.opacity = (window.RANGE_API.access && RANGE_API.access.state.reduceFlash) ? "0" : (dist < 6 ? String((6 - dist) / 6 * .5) : "0");
         if (dist < 1.3) { dead = true; ln.tone(80, .5, .3, 0, "sawtooth"); gt("#hurTitle").textContent = "被捕获"; gt("#hurStats").textContent = "捕食者抓住了你 · 第 " + (night + 1) + " 夜"; gt("#huntResult").hidden = false; gt("#huntHud").hidden = true; }
       }
       // 取物
@@ -35671,6 +35710,72 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
   })();
 
   RANGE_API.lobby = RANGE_LOBBY;
+  RANGE_API.draw = () => ki();
+
+  /* ════════════════════════════════════════════════════════════════════════
+   * [SECTION V] 工程体验（0.40 / P4）：无障碍 RANGE_ACCESS · 对象池 RANGE_POOL ·
+   * 音效字幕 · 光敏警告 · 设置整合入口。
+   * ════════════════════════════════════════════════════════════════════════ */
+  var RANGE_POOL = (() => {
+    const pools = {};
+    function get(key, maker) { const p = pools[key] || (pools[key] = []); return p.pop() || maker(); }
+    function put(key, obj) { (pools[key] || (pools[key] = [])).push(obj); }
+    function size(key) { return (pools[key] || []).length; }
+    return { get, put, size };
+  })();
+
+  var RANGE_ACCESS = (() => {
+    const KEY = "range-access-v1";
+    const st = { highContrast: false, reduceFlash: false, aimAssist: false, subtitles: false };
+    try { Object.assign(st, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch {}
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch {} }
+    function apply() {
+      document.body.classList.toggle("ac-contrast", st.highContrast);
+      document.body.classList.toggle("ac-flash", st.reduceFlash);
+      document.body.classList.toggle("ac-aim", st.aimAssist);
+      const c = gt("#acContrast"), f = gt("#acFlash"), a = gt("#acAim"), s = gt("#acSub");
+      if (c) c.checked = st.highContrast; if (f) f.checked = st.reduceFlash; if (a) a.checked = st.aimAssist; if (s) s.checked = st.subtitles;
+    }
+    function set(k, v) { st[k] = v; apply(); save(); }
+    function subtitle(text) { if (!st.subtitles) return; const el = gt("#acSubtitle"); el.textContent = text; el.hidden = false; clearTimeout(el._t); el._t = setTimeout(() => el.hidden = true, 1800); }
+    gt("#acContrast").onchange = e => set("highContrast", e.target.checked);
+    gt("#acFlash").onchange = e => set("reduceFlash", e.target.checked);
+    gt("#acAim").onchange = e => set("aimAssist", e.target.checked);
+    gt("#acSub").onchange = e => set("subtitles", e.target.checked);
+    gt("#acClose").onclick = () => gt("#accessPanel").hidden = true;
+    // 音效字幕挂钩
+    const prevScored = ke.onScoredHit;
+    ke.onScoredHit = h => { prevScored && prevScored(h); if (h) subtitle(h.civilian ? "误击平民" : h.killed ? (h.head ? "爆头击倒" : "击倒目标") : "命中"); };
+    apply();
+    return { state: st, set, apply, subtitle, open: () => { apply(); gt("#accessPanel").hidden = false; } };
+  })();
+
+  // 光敏警告（HUNT / PSX 首次）
+  (function () {
+    let warned = false; try { warned = localStorage.getItem("range-photo-warned") === "1"; } catch {}
+    let pending = null;
+    function showWarn(cb) { if (warned) { cb(); return; } pending = cb; gt("#photoWarn").hidden = false; }
+    function done(reduce) { if (reduce) RANGE_ACCESS.set("reduceFlash", true); warned = true; try { localStorage.setItem("range-photo-warned", "1"); } catch {} gt("#photoWarn").hidden = true; const cb = pending; pending = null; if (cb) cb(); }
+    gt("#pwContinue").onclick = () => done(false);
+    gt("#pwReduce").onclick = () => done(true);
+    gt("#pwCancel").onclick = () => { gt("#photoWarn").hidden = true; pending = null; };
+    const huntBtn = gt("#huntEnter"); const origHunt = huntBtn.onclick;
+    huntBtn.onclick = () => showWarn(() => { if (origHunt) origHunt(); else RANGE_WINGS.enter("hunt"); });
+    const psxBtn = gt("#psxToggle"); const origPsx = psxBtn.onclick;
+    psxBtn.onclick = () => { if (!window.RANGE_API.psx.on) showWarn(() => { if (origPsx) origPsx(); }); else if (origPsx) origPsx(); };
+  })();
+
+  // 设置整合：大厅脚栏加「无障碍」入口
+  (function () {
+    const foot = gt("#lobby .lbFoot");
+    if (foot) { const b = document.createElement("button"); b.textContent = "无障碍"; b.onclick = () => RANGE_ACCESS.open(); foot.appendChild(b); }
+    // 经典菜单也加入口
+    const sec = gt("#menu .secondary");
+    if (sec) { const b = document.createElement("button"); b.textContent = "无障碍"; b.onclick = () => RANGE_ACCESS.open(); sec.appendChild(b); }
+  })();
+
+  RANGE_API.pool = RANGE_POOL;
+  RANGE_API.access = RANGE_ACCESS;
   RANGE_API.draw = () => ki();
 
   fr.update(1 / 120, ke, Yt, ge);
