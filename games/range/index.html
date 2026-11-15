@@ -54,7 +54,7 @@ THE SOFTWARE.
 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>RANGE — 0.32 · 战术实验区</title>
+    <title>RANGE — 0.33 · 战术实验区</title>
     <style>
       :root {
         color-scheme: dark;
@@ -927,6 +927,12 @@ THE SOFTWARE.
       #silList .silItem canvas { background: #1a1d1a; border: 1px solid rgba(235,195,117,.3); border-radius: 8px; }
       #silList .silItem b { display: block; margin-top: 4px; }
       #psxToggle { font-family: inherit; }
+      /* ═══ RANGE 0.33 · 档案 + 挑战码 ═══ */
+      #profilePanel, #ghostPanel { position: fixed; inset: 0; z-index: 160; background: rgba(6,12,10,.85); display: flex; align-items: center; justify-content: center; }
+      #profilePanel[hidden], #ghostPanel[hidden] { display: none; }
+      #pfDaily b { color: #ebc375; }
+      .pfBar { height: 6px; background: rgba(255,255,255,.15); border-radius: 3px; overflow: hidden; margin: 4px 0; }
+      .pfBar i { display: block; height: 100%; background: linear-gradient(90deg,#ebc375,#ff5a3c); }
 </style>
   </head>
   <body>
@@ -1005,7 +1011,7 @@ THE SOFTWARE.
         <div class="sub">PRIVATE TRAINING FACILITY / 01</div>
       </header>
       <main class="panel">
-        <div class="eyebrow" id="badge">BUILD 0.32 / 战术实验区</div>
+        <div class="eyebrow" id="badge">BUILD 0.33 / 战术实验区</div>
         <h1 id="menuTitle">第一枪，已就绪。</h1>
         <p class="intro">
           M4A1 / P226 / AK-47 / MP5<br />教程引导、六区 CQB 与幽灵挑战。<br />辨认目标，再扣动扳机。
@@ -1034,7 +1040,7 @@ THE SOFTWARE.
         <button id="start">进入靶场 →</button>
         <div class="secondary">
           <button id="reset">重置出生点</button
-          ><button id="helpToggle">操作说明</button><button id="settingsOpen">游戏设置</button><button id="reactiveToggle">反应靶场 · 关</button><button id="staticEnter" class="studioEntry">STATIC · 时间只随你流动 →</button><button id="forensicsEnter" class="studioEntry">FORENSICS · 法证瞄准训练 →</button><button id="deckEnter" class="studioEntry">DECK RUN · 卡牌速通 →</button><button id="breachEnter" class="studioEntry">BREACH · 可破坏劫案 →</button><button id="silhouetteEnter" class="studioEntry">敌人剪影画廊 →</button><button id="psxToggle">PSX 复古模式 · 关</button><div class="audioRow" style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px"><label>音乐 <input type="range" id="musicVol" min="0" max="1" step="0.05" style="width:90px"></label><button id="muteToggle">静音 · 关</button></div>
+          ><button id="helpToggle">操作说明</button><button id="settingsOpen">游戏设置</button><button id="reactiveToggle">反应靶场 · 关</button><button id="staticEnter" class="studioEntry">STATIC · 时间只随你流动 →</button><button id="forensicsEnter" class="studioEntry">FORENSICS · 法证瞄准训练 →</button><button id="deckEnter" class="studioEntry">DECK RUN · 卡牌速通 →</button><button id="breachEnter" class="studioEntry">BREACH · 可破坏劫案 →</button><button id="silhouetteEnter" class="studioEntry">敌人剪影画廊 →</button><button id="profileEnter" class="studioEntry">档案 · 进度与挑战 →</button><button id="psxToggle">PSX 复古模式 · 关</button><div class="audioRow" style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px"><label>音乐 <input type="range" id="musicVol" min="0" max="1" step="0.05" style="width:90px"></label><button id="muteToggle">静音 · 关</button></div>
         </div>
         <div class="settings">
           <label for="sensitivity"
@@ -1105,9 +1111,9 @@ THE SOFTWARE.
 <p>仅状态回放；不伤害、不补弹、不计分。无任意帧接管。自由镜头只沿世界轴平移。</p></section>
     <section id="hud" hidden aria-label="探索界面">
       <div class="topbar">
-        <div><strong>RANGE.</strong><small>0.32 / PHYSICS + STATE</small></div>
+        <div><strong>RANGE.</strong><small>0.33 / PHYSICS + STATE</small></div>
         <div class="topright">
-          <span id="fps">0.32 / OFFLINE</span><br /><span id="position"
+          <span id="fps">0.33 / OFFLINE</span><br /><span id="position"
             >X 0.0 Z 8.0</span
           ><button id="pause">ESC · 暂停</button>
         </div>
@@ -1307,6 +1313,30 @@ THE SOFTWARE.
         <button id="silBack">返回</button>
       </div>
     </div>
+    <div id="profilePanel" hidden>
+      <div class="sbCard">
+        <h2>档案 · PROFILE</h2>
+        <div id="pfLevel" style="font-size:28px;font-weight:800;color:#ebc375"></div>
+        <div id="pfXP" style="font-size:13px;margin:4px 0"></div>
+        <div id="pfTitle" style="font-size:14px;margin:6px 0"></div>
+        <div id="pfDaily" style="font-size:13px;border:1px solid rgba(235,195,117,.3);border-radius:8px;padding:10px;margin:10px 0"></div>
+        <div id="pfStats" style="font-size:12px;opacity:.8;margin:8px 0"></div>
+        <div style="margin:10px 0"><input id="pfImport" type="file" accept=".json" style="font-size:12px"></div>
+        <button id="pfExport">导出档案</button>
+        <button id="pfClose">关闭</button>
+      </div>
+    </div>
+    <div id="ghostPanel" hidden>
+      <div class="sbCard">
+        <h2>异步竞技 · 挑战码</h2>
+        <p style="font-size:12px;opacity:.8;margin:6px 0">导出你的最佳跑为挑战码，或导入他人代码同场竞速。</p>
+        <textarea id="ghCode" rows="3" style="width:100%;font-size:11px;font-family:monospace;background:#0d1f18;color:#f2e9d8;border:1px solid rgba(235,195,117,.4);border-radius:6px;padding:8px"></textarea>
+        <button id="ghExport">导出当前最佳</button>
+        <button id="ghImport">导入挑战码</button>
+        <div id="ghStatus" style="font-size:12px;margin:8px 0"></div>
+        <button id="ghClose">关闭</button>
+      </div>
+    </div>
     <div id="settingsOverlay" hidden>
       <div id="settingsDesktop" class="settingsCard" hidden>
         <header><h2>游戏设置 · 桌面端</h2><button id="settingsCloseD">✕ 关闭</button></header>
@@ -1375,7 +1405,7 @@ THE SOFTWARE.
     </div>
     <script>
 /* ═══════════════════════════════════════════════════════════════════
-  RANGE 0.32.0「战术实验区」· 音频与旗舰（…→ 0.31 剪影复古 → 0.32 音频系统+STATIC 旗舰深化，见 SECTION O）
+  RANGE 0.33.0「战术实验区」· 进度与竞技（…→ 0.32 音频旗舰 → 0.33 统一进度+异步竞技幽灵，见 SECTION P）
   来源: JadeeJacson/neon-drift-gp @ main, games/range/index.html
         （2026-10-26 提交「新增四款练手小游戏」，原始构建 1,029,475 字节）
   还原: 内联 JS 经 js-beautify 格式化（不折行/保留换行），并在已验证边界插入分区注释。
@@ -19974,7 +20004,7 @@ void main() {
    * 改动后请跑 test/smoke.js（桌面回归）与 test/mobile.js（移动端验收）。
    * ════════════════════════════════════════════════════════════════════════ */
   var RANGE_CONFIG = {
-    release: "0.32.0",
+    release: "0.33.0",
     render: {
       maxPixelRatio: 1.65,        // 桌面渲染像素比上限
       mobileMaxPixelRatio: 1.3    // 移动端像素比上限（性能优先）
@@ -33309,7 +33339,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       Oi = !1, ge.stop(), Oe.suspend();
       return
     }
-    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.32 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
+    as?.running && as.abort("\u8BAD\u7EC3\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002"), os?.running && os.abort("\u8BD5\u9A8C\u5DF2\u4E2D\u6B62\uFF08\u6682\u505C / \u5931\u7126\uFF09\uFF0C\u4E0D\u8BB0\u5F55\u6210\u7EE9\u3002\u8BF7\u91CD\u65B0\u5F00\u59CB\u5B8C\u6574\u4E00\u8F6E\u3002"), mr = !1, gt("#labPanel").hidden = !0, Gt.replaying && Gt.exitReplay(), Oi = !1, ge.stop(), gt("#menu").hidden = !1, gt("#hud").hidden = !0, gt("#stats").hidden = !0, gt("#start").textContent = Dn ? "\u7EE7\u7EED\u8BAD\u7EC3  \u2192" : "\u8FDB\u5165\u9776\u573A  \u2192", gt("#menuTitle").textContent = Gt.finished ? "CQB \u8BAD\u7EC3\u5B8C\u6210\u3002" : Dn ? "\u8BAD\u7EC3\u6682\u505C" : "\u7B2C\u4E00\u67AA\uFF0C\u5DF2\u5C31\u7EEA\u3002", gt("#badge").textContent = Gt.finished ? "COMPLETE / \u7ED3\u7B97" : Dn ? "PAUSED / \u6682\u505C" : "BUILD 0.33 / \u6218\u672F\u5B9E\u9A8C\u533A", ki()
   }
   ge.onPause = Sn;
   ge.onLookMode = s => {
@@ -33414,7 +33444,7 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
       for (let i = 0; i < e; i++) fr.update(t / e, ke, Yt, ge);
       ki()
     }
-    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.32 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
+    up++, s - dp > 750 && (pp = Math.round(up * 1e3 / (s - dp)), up = 0, dp = s, gt("#fps").textContent = gt("#showFps").checked ? pp + " FPS" : "0.33 / OFFLINE", gt("#position").textContent = `X ${Yt.position.x.toFixed(1)}   Z ${Yt.position.z.toFixed(1)}`)
   }
 /* ════════════════════════════════════════════════════════════════════════
  * [SECTION E] QA 调试接口 window.__RANGE__（URL 带 ?qa 时启用扩展方法）
@@ -34997,6 +35027,90 @@ ${J.enough?"\u8FBE\u5230\u672C\u8F6E\u5EFA\u8BAE\u7684\u6700\u4F4E\u6837\u672C":
   })();
 
   RANGE_API.audio = RANGE_AUDIO;
+  RANGE_API.draw = () => ki();
+
+  /* ════════════════════════════════════════════════════════════════════════
+   * [SECTION P] 统一进度 RANGE_PROFILE + 异步竞技 RANGE_GHOST（0.33 / N2）
+   * PROFILE：跨翼 XP/等级/称号/每日挑战/档案导出导入。GHOST：签名挑战码导出导入，
+   * 同场竞速幽灵。XP 经 onScoredHit  universal 上报。
+   * ════════════════════════════════════════════════════════════════════════ */
+  var RANGE_PROFILE = (() => {
+    const titles = [[1, "新兵"], [3, "射手"], [5, "老练"], [8, "专家"], [12, "大师"], [16, "宗师"], [20, "传奇"]];
+    const KEY = "range-profile-v1";
+    let st = { xp: 0, kills: 0, hits: 0, title: "新兵", daily: null };
+    try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s) st = Object.assign(st, s); } catch {}
+    function levelOf(xp) { return Math.floor(Math.sqrt(xp / 80)) + 1; }
+    function xpForLevel(l) { return Math.pow(l - 1, 2) * 80; }
+    function titleOf(l) { let t = titles[0][1]; for (const [lv, name] of titles) if (l >= lv) t = name; return t; }
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch {} }
+    function today() { return new Date().toISOString().slice(0, 10); }
+    function ensureDaily() {
+      const d = today();
+      if (!st.daily || st.daily.date !== d) {
+        const seed = [...d].reduce((a, c) => a + c.charCodeAt(0), 0);
+        const goal = 20 + (seed % 4) * 10;
+        st.daily = { date: d, goal, progress: 0, done: false, reward: 200 + (seed % 3) * 100 };
+        save();
+      }
+    }
+    function addXP(n) { st.xp += n; st.title = titleOf(levelOf(st.xp)); save(); }
+    function onHit(h) {
+      st.hits++;
+      if (h.killed) { st.kills++; addXP(12); } else addXP(4);
+      ensureDaily();
+      if (!st.daily.done) { st.daily.progress++; if (st.daily.progress >= st.daily.goal) { st.daily.done = true; addXP(st.daily.reward); } }
+      save();
+    }
+    const prevScored = ke.onScoredHit;
+    ke.onScoredHit = h => { prevScored && prevScored(h); onHit(h); };
+    function open() {
+      ensureDaily();
+      const l = levelOf(st.xp), lo = xpForLevel(l), hi = xpForLevel(l + 1);
+      gt("#pfLevel").textContent = "LEVEL " + l + " · " + titleOf(l);
+      gt("#pfXP").innerHTML = "XP " + st.xp + " / " + hi + "<div class='pfBar'><i style='width:" + Math.min(100, (st.xp - lo) / (hi - lo) * 100) + "%'></i></div>";
+      gt("#pfTitle").textContent = "称号：" + titleOf(l) + "（下一级解锁 " + (titles.find(t => t[0] > l) ? titles.find(t => t[0] > l)[1] : "已满级") + "）";
+      gt("#pfDaily").innerHTML = "每日挑战 " + st.daily.date + "：击倒 <b>" + st.daily.goal + "</b> 靶<br>进度 " + Math.min(st.daily.progress, st.daily.goal) + "/" + st.daily.goal + (st.daily.done ? " · <b>已完成 +" + st.daily.reward + "XP</b>" : " · 奖励 " + st.daily.reward + "XP");
+      gt("#pfStats").textContent = "累计击倒 " + st.kills + " · 命中 " + st.hits;
+      gt("#profilePanel").hidden = false;
+    }
+    gt("#profileEnter").onclick = open;
+    gt("#pfClose").onclick = () => gt("#profilePanel").hidden = true;
+    gt("#pfExport").onclick = () => { const blob = new Blob([JSON.stringify(st, null, 2)], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "RANGE-profile.json"; a.click(); };
+    gt("#pfImport").onchange = async e => { const f = e.target.files[0]; if (!f) return; try { const s = JSON.parse(await f.text()); if (typeof s.xp === "number") { st = Object.assign(st, s); save(); open(); } } catch {} };
+    ensureDaily();
+    return { get state() { return st; }, addXP, onHit, levelOf, titleOf, open, get level() { return levelOf(st.xp); } };
+  })();
+
+  var RANGE_GHOST = (() => {
+    function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); }
+    function exportCode(wing, data) {
+      const payload = JSON.stringify({ wing, data, v: 1 });
+      const b64 = btoa(unescape(encodeURIComponent(payload)));
+      return "RNG1." + b64 + "." + hash(b64);
+    }
+    function importCode(code) {
+      const parts = code.trim().split(".");
+      if (parts.length !== 3 || parts[0] !== "RNG1") throw Error("无效挑战码格式");
+      if (hash(parts[1]) !== parts[2]) throw Error("挑战码校验失败");
+      const payload = JSON.parse(decodeURIComponent(escape(atob(parts[1]))));
+      return payload;
+    }
+    function currentBest() {
+      // 取 DECKRUN 第 1 关最佳幽灵为例
+      try { const g = JSON.parse(localStorage.getItem("range-deck-ghost-0") || "null"); if (g) return { wing: "deckrun", data: g }; } catch {}
+      return null;
+    }
+    gt("#ghExport").onclick = () => { const b = currentBest(); gt("#ghCode").value = b ? exportCode(b.wing, b.data) : "（暂无最佳跑，先完成 DECK RUN 第 1 关）"; gt("#ghStatus").textContent = b ? "已导出 DECK RUN 第 1 关幽灵" : ""; };
+    gt("#ghImport").onclick = () => { try { const p = importCode(gt("#ghCode").value); localStorage.setItem("range-imported-ghost", JSON.stringify(p)); gt("#ghStatus").textContent = "已导入 " + p.wing + " 幽灵 · 进入对应翼竞速"; } catch (e) { gt("#ghStatus").textContent = "导入失败：" + e.message; } };
+    gt("#ghClose").onclick = () => gt("#ghostPanel").hidden = true;
+    return { exportCode, importCode, hash, open: () => gt("#ghostPanel").hidden = false };
+  })();
+
+  // 档案面板内加入挑战码入口
+  (function () { const b = document.createElement("button"); b.textContent = "异步竞技 · 挑战码"; b.onclick = () => { gt("#profilePanel").hidden = true; RANGE_GHOST.open(); }; const card = gt("#profilePanel .sbCard"); card.insertBefore(b, gt("#pfClose")); })();
+
+  RANGE_API.profile = RANGE_PROFILE;
+  RANGE_API.ghost = RANGE_GHOST;
   RANGE_API.draw = () => ki();
 
   fr.update(1 / 120, ke, Yt, ge);
